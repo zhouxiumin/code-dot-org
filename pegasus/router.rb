@@ -58,6 +58,7 @@ class Documents < Sinatra::Base
 
   use Honeybadger::Rack if rack_env?(:production)
   use Rack::Locale
+  use Rack::ContentLength
   use Rack::CdoDeflater
 
   configure do
@@ -167,6 +168,7 @@ class Documents < Sinatra::Base
 
     pass unless path = resolve_image("/images/#{dirname}/#{basename}")
 
+    last_modified(File.mtime(path))
     content_type format.to_sym
     cache_control :public, :must_revalidate, max_age:settings.image_max_age
 
@@ -197,7 +199,11 @@ class Documents < Sinatra::Base
 
   get '/style.css' do
     content_type :css
-    Dir.glob(pegasus_dir('sites.v3',request.site,'/styles/*.css')).sort.map{|i| IO.read(i)}.join("\n\n")
+    css_last_modified = Time.at(0)
+    Dir.glob(pegasus_dir('sites.v3',request.site,'/styles/*.css')).sort.map do |i|
+      css_last_modified = [css_last_modified, File.mtime(i)].max
+      IO.read(i)
+    end.join("\n\n").tap{last_modified(css_last_modified) if css_last_modified > Time.at(0)}
   end
 
   Dir.glob(pegasus_dir('routes/*.rb')).sort.each{|path| puts(path); eval(IO.read(path))}
@@ -346,6 +352,7 @@ class Documents < Sinatra::Base
     end
 
     def render_template(path, locals={})
+      last_modified(File.atime(path))
       render_(IO.read(path), File.extname(path), locals)
     rescue Haml::Error => e
       if e.backtrace.first =~ /router\.rb:/

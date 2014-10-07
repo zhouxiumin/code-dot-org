@@ -97,6 +97,11 @@ module Rack
       def write(data)
         @writer.call(data)
       end
+
+      # Support Rack::ContentLength (see https://github.com/rack/rack/issues/734; https://github.com/rails/rails/pull/16793)
+      def to_ary
+        nil
+      end
     end
 
     class DeflateStream
@@ -120,6 +125,10 @@ module Rack
       ensure
         @body.close if @body.respond_to?(:close)
         deflater.close
+      end
+
+      def to_ary
+        nil
       end
     end
 
