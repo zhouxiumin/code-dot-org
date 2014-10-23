@@ -99,6 +99,8 @@ def load_configuration()
     config.merge! env_config
     config.merge! host_config
     config.merge! local_config
+    # Merge in CDO_ABC_XYZ environment variables as CDO.abc_xyz
+    config.merge! Hash[ENV.select{ |k, _| k.start_with?('CDO_') }.map{|k,v|[k.downcase.tap{|x|x.slice!('cdo_')},v]}]
 
     config['daemon']              ||= [:development, :staging, :test].include?(rack_env) || config['name'] == 'daemon'
     config['dashboard_db_reader'] ||= config['db_reader'] + config['dashboard_db_name']
