@@ -6,13 +6,13 @@ before_install:
 - cd dashboard
 - wget https://s3.amazonaws.com/bundle-cache-builds/bundle_cache
 - chmod +x ./bundle_cache
-- ./bundle_cache download
+- ./bundle_cache download || true
 before_script:
 - bin/rake db:create db:schema:load
 script:
 - bin/rake
 after_script:
-- ./bundle_cache upload
+- ./bundle_cache upload || true
 env:
   global:
   - DB=mysql
