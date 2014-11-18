@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var path = require('path');
 var localify = require('./src/dev/localify');
 
@@ -13,6 +14,17 @@ var APPS = process.env.MOOC_APP ? [process.env.MOOC_APP] : [
   'calc',
   'webapp',
   'eval'
+];
+
+var APPS_GROUPED = _.groupBy(APPS, function(item) {
+  return APPS.indexOf(item) % 4;
+});
+
+var APPS_CHUNK = [
+  {name: '1', apps: APPS_GROUPED[0]},
+  {name: '2', apps: APPS_GROUPED[1]},
+  {name: '3', apps: APPS_GROUPED[2]},
+  {name: '4', apps: APPS_GROUPED[3]}
 ];
 
 // Parse options from environment.
@@ -229,11 +241,41 @@ APPS.forEach(function(app) {
     config.browserify[app + '_' + locale] = {
       files: files,
       options: {
-        transform: [localify(locale)]
+        transform: [localify(locale)],
+        watch: true
       }
     };
   });
 });
+
+APPS_CHUNK.forEach(function(chunk) {
+  var files = {};
+  chunk.apps.forEach(function(app) {
+    files = _.merge(files, config.browserify[app + '_en_us'].files)
+  });
+  config.browserify['chunk_'+chunk.name] = {
+    files: files,
+    options: {
+      transform: [localify('en_us')],
+      watch: true
+    }
+  };
+});
+
+LOCALES.forEach(function(locale) {
+  var files = {};
+  APPS.forEach(function(app) {
+    files = _.merge(files, config.browserify[app + '_' + locale].files)
+  });
+  config.browserify[locale] = {
+    files: files,
+    options: {
+      transform: [localify(locale)],
+      watch: true
+    }
+  };
+});
+
 
 config.concat = {};
 LOCALES.forEach(function(locale) {
@@ -262,44 +304,76 @@ config.express = {
 };
 
 var uglifiedFiles = {};
-APPS.forEach(function(app) {
-  LOCALES.forEach(function(locale) {
-    var relname = locale + '/' + app;
-    var src = 'build/browserified/' + relname + '.js';
-    var dest = 'build/package/js/' + relname + '.min.js';
-    uglifiedFiles[dest] = [src];
-  });
-});
 config.uglify = {
   browserified: {
     files: uglifiedFiles
   }
 };
 
+APPS_CHUNK.forEach(function(chunk) {
+  var chunkUglifiedFiles = {};
+  chunk.apps.forEach(function(app) {
+    var relname = 'en_us' + '/' + app;
+    var src = 'build/browserified/' + relname + '.js';
+    var dest = 'build/package/js/' + relname + '.min.js';
+    chunkUglifiedFiles[dest] = [src];
+  });
+  config.uglify['chunk_'+chunk.name] = { files: chunkUglifiedFiles };
+});
+
+LOCALES.forEach(function(locale) {
+  var localeUglifiedFiles = {};
+  APPS.forEach(function(app) {
+      var relname = locale + '/' + app;
+      var src = 'build/browserified/' + relname + '.js';
+      var dest = 'build/package/js/' + relname + '.min.js';
+      uglifiedFiles[dest] = [src];
+      localeUglifiedFiles[dest] = [src];
+  });
+  config.uglify[locale] = { files: localeUglifiedFiles };
+});
+
+// Run specified Grunt tasks in parallel
+config.concurrent = {
+  uglify: [],
+  browserify: [],
+  uglify_chunk: _.map(APPS_CHUNK, function(x){return 'uglify:chunk_' + x.name}),
+  browserify_chunk: _.map(APPS_CHUNK, function(x){return 'browserify:chunk_' + x.name})
+};
+
+LOCALES.forEach(function(locale) {
+  config.concurrent['uglify'].push('uglify:'+locale);
+  config.concurrent['browserify'].push('browserify:'+locale);
+});
+
 config.watch = {
   js: {
     files: ['src/**/*.js'],
-    tasks: ['copy:src', 'browserify', 'uglify:browserified', 'copy:browserified']
+    tasks: ['newer:copy:src']
+  },
+  browserify: {
+    files: ['build/browserified/**/*.js'],
+    tasks: ['newer:copy:browserified']
   },
   style: {
     files: ['style/**/*.scss', 'style/**/*.sass'],
-    tasks: ['sass']
+    tasks: ['newer:sass']
   },
   content: {
     files: ['static/**/*'],
-    tasks: ['copy']
+    tasks: ['newer:copy']
   },
   vendor_js: {
     files: ['lib/**/*.js'],
-    tasks: ['concat', 'copy:lib']
+    tasks: ['newer:concat', 'newer:copy:lib']
   },
   ejs: {
     files: ['src/**/*.ejs'],
-    tasks: ['ejs', 'browserify', 'uglify:browserified', 'copy:browserified']
+    tasks: ['newer:ejs', 'concurrent:browserify_chunk', 'concurrent:uglify_chunk', 'newer:copy:browserified']
   },
   messages: {
     files: ['i18n/**/*.json'],
-    tasks: ['pseudoloc', 'messages', 'browserify', 'uglify:browserified', 'copy:browserified']
+    tasks: ['pseudoloc', 'messages', 'concurrent:browserify_chunk', 'concurrent:uglify_chunk', 'newer:copy:browserified']
   },
   dist: {
     files: ['build/package/**/*'],
@@ -355,46 +429,54 @@ config.strip_code = {
 };
 
 module.exports = function(grunt) {
+  // Autoload grunt tasks
+  require('load-grunt-tasks')(grunt, {pattern: ['grunt-*', '!grunt-lib-contrib']});
 
   grunt.initConfig(config);
-
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-symlink');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-lodash');
-  grunt.loadNpmTasks('grunt-express');
-  grunt.loadNpmTasks('grunt-browserify');
-  grunt.loadNpmTasks('grunt-sass');
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-strip-code');
-  grunt.loadNpmTasks('grunt-notify');
-
   grunt.loadTasks('tasks');
+  grunt.registerTask('noop', function(){});
 
-  grunt.registerTask('build', [
+  // grunt-contrib-symlink doesn't support overwrite option, so we need to create the symlink manually
+  grunt.registerTask('dashboard_link', function(){
+    var fs = require('fs');
+    fs.unlinkSync('../dashboard/public/blockly');
+    fs.symlinkSync('../../blockly/build/package', '../dashboard/public/blockly', 'dir');
+  });
+
+  grunt.registerTask('prebuild', [
     'pseudoloc',
     'messages',
     'symlink:locale',
-    'copy:src',
-    'strip_code',
-    'ejs',
-    'browserify',
-    'uglify:browserified',
-    'copy:browserified',
-    'copy:static',
-    'copy:lib',
-    'concat',
-    'sass'
+    DEV ? 'dashboard_link' : 'noop',
+    'newer:copy:src',
+    'newer:strip_code',
+    'newer:ejs'
+  ]);
+
+  grunt.registerTask('postbuild', [
+    'newer:copy:browserified',
+    'newer:copy:static',
+    'newer:copy:lib',
+    'newer:concat',
+    'newer:sass'
+  ]);
+
+  grunt.registerTask('build', [
+    'prebuild',
+    'concurrent:browserify' + (LOCALIZE ? '' : '_chunk'),
+    // Skip minification in development environment.
+    DEV ? 'noop': ('concurrent:uglify' + (LOCALIZE ? '' : '_chunk')),
+    'postbuild'
   ]);
 
   grunt.registerTask('rebuild', ['clean', 'build']);
-  grunt.registerTask('dev', ['express:server', 'watch']);
+  grunt.registerTask('dev', [
+    'prebuild',
+    'browserify:en_us',
+    'postbuild',
+    'watch'
+  ]);
   grunt.registerTask('test', ['jshint', 'mochaTest']);
-
   grunt.registerTask('default', ['rebuild', 'test']);
 
   config.mochaTest.all.options.grep = new RegExp(grunt.option('grep'));
