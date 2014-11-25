@@ -297,7 +297,7 @@ module.exports = function (grunt) {
 // Run uglify task across all apps in parallel
   config.concurrent = {
     uglify: _.map(['common'].concat(APPS), function (x) {
-      return 'uglify:' + x
+      return 'uglify:' + x;
     })
   };
 
@@ -425,7 +425,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('rebuild', ['clean', 'build']);
 
-  config.concurrent['watch'] = {
+  config.concurrent.watch = {
     tasks: ['exec:watchify', 'watch'],
     options: {
       logConcurrentOutput: true
