@@ -1,0 +1,19 @@
+{
+  "name": "cdo-offline",
+  "description": "offline",
+  "version": "0.0.1",
+  "engines": {
+    "node": "^0.10.18"
+  },
+  "scripts": {},
+  "devDependencies": {
+    "del": "^1.1.0",
+    "gulp": "^3.8.10",
+    "gulp-changed": "^1.1.0",
+    "gulp-imagemin": "^2.0.0",
+    "gulp-newer": "^0.5.0",
+    "gulp-rev": "^2.0.1",
+    "imagemin-jpeg-recompress": "^4.0.0",
+    "imagemin-pngquant": "^4.0.0"
+  }
+}

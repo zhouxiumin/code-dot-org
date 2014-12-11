@@ -3713,7 +3713,7 @@ module.exports = function(app, levels, options) {
   BlocklyApps.usingBlockly = !BlocklyApps.editCode;
   BlocklyApps.cdoSounds = options.cdoSounds;
 
-  BlocklyApps.assetUrl = function(path) {
+  BlocklyApps.assetUrl = options.assetFunction || function(path) {
     var url = options.baseUrl + path;
     /*if (BlocklyApps.CACHE_BUST) {
       return url + '?v=' + options.cacheBust;
