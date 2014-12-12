@@ -50,8 +50,9 @@
       var imgManifest = {};
       function assetPath(path) {
         if(imgManifest.hasOwnProperty(path)) {
-            return 'build/imgMin/' + imgManifest[path];
+            return imgManifest[path];
         } else {
+            console.log('Hashed asset not found:' + path);
             return path;
         }
       }
