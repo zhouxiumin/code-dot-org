@@ -52,7 +52,7 @@ var noop = gutil.noop;
 gulp.task('images', [], function() {
   var imgDest = 'build/img';
   var imgMin = 'build/imgMin';
-  return gulp.src(['**/*.{png,jpg,gif}', '!build/**/*', '!node_modules/**/*'])
+  return gulp.src(['**/*.{png,jpg,gif,cur,mp3,wav,ogg}', '!build/**/*', '!node_modules/**/*'])
     .pipe(compressImages ? changed(imgDest) : noop())
     .pipe(compressImages ? imagemin(imageminOpts) : noop())
     .pipe(compressImages ? gulp.dest(imgDest) : noop())
@@ -117,8 +117,8 @@ gulp.task('html', [], function() {
 });
 
 gulp.task('package', [], function() {
-  return gulp.src(['build/htmlMin/index.html', '**/*', '!node_modules/**/*' ])
-
+  return gulp.src(['build/imgMin/**/*', 'build/jsMin/**/*', 'build/htmlMin/**/*', 'build/ref/**/*'])
+    .pipe(gulp.dest('build/package'));
 });
 
 // Rerun the task when a file changes
