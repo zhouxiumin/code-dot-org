@@ -1,5 +1,6 @@
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var transform = require('vinyl-transform');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var exec = require('child_process').exec;
@@ -8,6 +9,8 @@ var es = require('event-stream');
 
 // Gulp and plugins
 var gulp = require('gulp');
+var newer = require('gulp-newer');
+var uglify = require('gulp-uglify');
 var gutil = require('gulp-util');
 var sourcemaps = require('gulp-sourcemaps');
 var insert = require('gulp-insert');
@@ -88,14 +91,24 @@ APPS.forEach(function (app) {
   allFilesDest.push(outputDir+app+'.js');
 });
 
-var b = browserify(allFilesSrc, watchify.args);
+var b = browserify(allFilesSrc);
 b.plugin('factor-bundle', { outputs: allFilesDest });
-gulp.task('browserify', ['src', 'vendor', 'ejs', 'messages'], function(){bundle(b)}); // so you can run `gulp js` to build the file
+gulp.task('browserify', ['src', 'vendor', 'ejs', 'messages'], function(){return bundle(b)});
+
+gulp.task('compress', ['browserify'],function(){
+  return gulp.src('./build/package/js/*.js')
+    .pipe(uglify())
+    .pipe(gulp.dest('./build/package/js'))
+});
 
 var w = watchify(browserify(allFilesSrc, watchify.args));
 w.plugin('factor-bundle', { outputs: allFilesDest });
 w.on('update', function(){gutil.log('Updated'); bundle(w)}); // on any dep update, runs the bundler
-gulp.task('watch', function(){bundle(w)}); // so you can run `gulp js` to build the file
+gulp.task('watch', ['src', 'vendor', 'ejs', 'messages', 'media', 'sass'], function(){
+  gulp.watch('src/**/*.js', ['src']);
+  gulp.watch('src/**/*.ejs', ['ejs']);
+  bundle(w);
+});
 
 function bundle(bundler) {
   return bundler.bundle()
@@ -117,7 +130,8 @@ gulp.task('messages', function(){
     APPS.concat('common').forEach(function (app) {
       var namespace = (app == 'common' ? 'locale' : 'appLocale');
       messageStreams.push(
-        gulp.src(['i18n/'+app+'/'+locale+'.json'])
+        gulp.src('i18n/'+app+'/'+locale+'.json')
+        .pipe(newer('./build/package/js/'+locale+'/'+app+'_locale.js'))
         .pipe(messageFormat({locale:language, namespace:namespace + 'Blockly'}))
         .pipe(rename(app+'_locale.js'))
         .pipe(insert.wrap("window.blockly = window.blockly || {};\n","\nwindow.blockly."+namespace + " = " + namespace + "Blockly['"+locale+"'];\n"))
@@ -144,6 +158,13 @@ gulp.task('ejs', function(){
 });
 
   var ext = 'uncompressed';
+var vendorFilesNew = [
+  './build/blockly.js',
+  './build/blocks.js',
+  './build/javascript.js',
+    'lib/blockly/' + 'en_us' + '.js'
+];
+
   var vendorFiles = [
       'lib/blockly/blockly_' + ext + '.js',
       'lib/blockly/blocks_' + ext + '.js',
@@ -151,8 +172,10 @@ gulp.task('ejs', function(){
       'lib/blockly/' + 'en_us' + '.js'
   ];
 
-gulp.task('vendor', function() {
+gulp.task('vendor', /*['core'],*/ function() {
   return gulp.src(vendorFiles)
+    .pipe(newer('./build/package/js/en_us/vendor.js'))
+    .pipe(uglify())
     .pipe(concat('vendor.js'))
     .pipe(gulp.dest('./build/package/js/en_us'))
 });
@@ -192,4 +215,51 @@ gulp.task('sass', function () {
   );
 });
 
-gulp.task('build', ['browserify', 'media', 'sass']);
+gulp.task('build', ['compress', 'media', 'sass']);
+
+var closureCompiler = require('gulp-closure-compiler');
+var closure = function(filename, blocklyMain) {
+  return closureCompiler({
+    fileName: filename,
+    compilerPath: '../blockly-core/compiler.jar',
+    compilerFlags: blocklyMain ? {
+      closure_entry_point: 'Blockly',
+      only_closure_dependencies: true,
+      compilation_level: 'WHITESPACE_ONLY'
+    } : {
+      compilation_level: 'WHITESPACE_ONLY'
+    }
+  })
+};
+
+gulp.task('core', ['core-blockly', 'core-javascript', 'core-blocks']);
+
+gulp.task('core-blockly', function() {
+  return gulp.src([
+    '../blockly-core/core/**/*.js',
+    '../blockly-core/closure-library-read-only/**/*.js'
+  ])
+    .pipe(newer('./build/blockly.js'))
+    .pipe(closure('blockly.js', true))
+    .pipe(gulp.dest('./build'));
+});
+
+gulp.task('core-javascript', function() {
+  return gulp.src([
+    '../blockly-core/generators/**/*.js',
+    '!../blockly-core/generators/**/*python*.js',
+    '!../blockly-core/generators/**/python/*.js'
+  ])
+    .pipe(newer('./build/javascript.js'))
+    .pipe(closure('javascript.js'))
+    .pipe(gulp.dest('./build'));
+});
+
+gulp.task('core-blocks', function() {
+  return gulp.src([
+    '../blockly-core/blocks/*.js'
+  ])
+    .pipe(newer('./build/blocks.js'))
+    .pipe(closure('blocks.js'))
+    .pipe(gulp.dest('./build'));
+});
