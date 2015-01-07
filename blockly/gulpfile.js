@@ -2,64 +2,47 @@ var source = require('vinyl-source-stream');
 var path = require('path');
 var es = require('event-stream');
 
+var debug = require('gulp-debug');
+
+var Stream = require('stream').Stream
+
+var merge = function (/*streams...*/) {
+  var toMerge = [].slice.call(arguments)
+  var stream = new Stream()
+  stream.setMaxListeners(0) // allow adding more than 11 streams
+  var endCount = 0
+  stream.writable = stream.readable = true
+
+  toMerge.forEach(function (e) {
+    e.pipe(stream, {end: false})
+    var ended = false
+    e.on('end', function () {
+      if(ended) return
+      ended = true
+      endCount ++
+      if(endCount == toMerge.length)
+        stream.emit('end')
+    })
+  })
+  stream.write = function (data) {
+    this.emit('data', data)
+  }
+  stream.destroy = function () {
+    toMerge.forEach(function (e) {
+      if(e.destroy) e.destroy()
+    })
+  }
+  return stream
+}
+
 // Gulp and general plugins
 var gulp = require('gulp');
 var newer = require('gulp-newer');
 var uglify = require('gulp-uglify');
+
 var gutil = require('gulp-util');
 var insert = require('gulp-insert');
 var rename = require("gulp-rename");
-
-var LOCALES = [
-  'ar_sa',
-//  'az_az',
-  'bg_bg',
-  'bn_bd',
-  'ca_es',
-  'cs_cz',
-  'da_dk',
-  'de_de',
-  'el_gr',
-  'en_us',
-//  'en_ploc',
-  'es_es',
-  'eu_es',
-  'fa_ir',
-  'fi_fi',
-  'fil_ph',
-  'fr_fr',
-  'he_il',
-  'hi_in',
-  'hr_hr',
-  'hu_hu',
-  'id_id',
-  'is_is',
-  'it_it',
-  'ja_jp',
-  'ko_kr',
-  'lt_lt',
-  'ms_my',
-  'nl_nl',
-  'no_no',
-  'pl_pl',
-  'pt_br',
-  'pt_pt',
-  'ro_ro',
-  'ru_ru',
-  'sk_sk',
-  'sl_si',
-  'sq_al',
-  'sr_sp',
-  'sv_se',
-  'ta_in',
-  'th_th',
-  'tr_tr',
-  'uk_ua',
-  'ur_pk',
-  'vi_vn',
-  'zh_cn',
-  'zh_tw'
-];
 
 var APPS = [
   'maze',
@@ -84,7 +67,8 @@ APPS.forEach(function (app) {
 var browserify = require('browserify');
 var b = browserify(allFilesSrc);
 b.plugin('factor-bundle', {outputs: allFilesDest});
-gulp.task('browserify', ['src', 'vendor', 'ejs', 'messages'], function () {
+
+gulp.task('browserify', ['src', 'vendor', 'ejs'], function () {
   return bundle(b);
 });
 
@@ -105,29 +89,37 @@ function bundle(bundler) {
 }
 
 gulp.task('compress', ['browserify'], function () {
-  return gulp.src(['./build/package/js/*.js', './build/package/js/**/en_us/*.js', '!build/package/js/**/vendor.js'])
-    .pipe(uglify())
+  return gulp.src([
+    './build/package/js/*.js',
+    '!build/package/js/**/vendor.js'
+  ])
+    .pipe(uglify({compress: false, concurrency: 4}))
     .pipe(gulp.dest('./build/package/js'))
 });
 
 var messageFormat = require('gulp-messageformat');
-gulp.task('messages', function () {
-  var messageStreams = [];
-  LOCALES.forEach(function (locale) {
-    var language = locale.split('_')[0];
-    APPS.concat('common').forEach(function (app) {
+gulp.task('messages2', function () {
+  return gulp.src(['i18n/**/*.json'])
+    .pipe(rename(function (filepath) {
+      var app = filepath.dirname;
+      var locale = filepath.basename;
+      filepath.extname = '.js';
+      filepath.dirname = locale;
+      filepath.basename = app + '_locale';
+    }))
+    .pipe(newer('build/package/js'))
+    .pipe(messageFormat(function(filepath) {
+      var locale = path.basename(path.dirname(filepath));
+      var app = path.basename(filepath, path.extname(filepath));
       var namespace = (app == 'common' ? 'locale' : 'appLocale');
-      messageStreams.push(
-        gulp.src('i18n/' + app + '/' + locale + '.json')
-          .pipe(newer('./build/package/js/' + locale + '/' + app + '_locale.js'))
-          .pipe(messageFormat({locale: language, namespace: namespace + 'Blockly'}))
-          .pipe(rename(app + '_locale.js'))
-          .pipe(insert.wrap("window.blockly = window.blockly || {};\n", "\nwindow.blockly." + namespace + " = " + namespace + "Blockly['" + locale + "'];\n"))
-          .pipe(gulp.dest('build/package/js/' + locale))
-      );
-    });
-  });
-  return es['merge'].apply(this, messageStreams);
+      return {
+        locale: locale.split('_')[0],
+        namespace: app,
+        prepend: "window.blockly = window.blockly || {};\n",
+        append: "\nwindow.blockly." + namespace + " = " + app + "['" + app + "'];\n"
+      }
+    }))
+    .pipe(gulp.dest('build/package/js'));
 });
 
 var ejs = require('gulp-ejs-precompiler');
@@ -201,9 +193,9 @@ gulp.task('sass', function () {
   );
 });
 
-gulp.task('build', ['browserify', 'media', 'sass']);
+gulp.task('build', ['browserify', 'media', 'sass', 'messages2']);
 // Call 'package' for maximum compression of all .js files
-gulp.task('package', ['compress', 'media', 'sass']);
+gulp.task('package', ['compress', 'media', 'sass', 'messages2']);
 
 gulp.task('dev', ['src', 'vendor', 'ejs', 'messages', 'media', 'sass'], function () {
   gulp.watch('src/**/*.js', ['src']);
