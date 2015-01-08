@@ -4,41 +4,10 @@ var es = require('event-stream');
 
 var debug = require('gulp-debug');
 
-var Stream = require('stream').Stream
-
-var merge = function (/*streams...*/) {
-  var toMerge = [].slice.call(arguments)
-  var stream = new Stream()
-  stream.setMaxListeners(0) // allow adding more than 11 streams
-  var endCount = 0
-  stream.writable = stream.readable = true
-
-  toMerge.forEach(function (e) {
-    e.pipe(stream, {end: false})
-    var ended = false
-    e.on('end', function () {
-      if(ended) return
-      ended = true
-      endCount ++
-      if(endCount == toMerge.length)
-        stream.emit('end')
-    })
-  })
-  stream.write = function (data) {
-    this.emit('data', data)
-  }
-  stream.destroy = function () {
-    toMerge.forEach(function (e) {
-      if(e.destroy) e.destroy()
-    })
-  }
-  return stream
-}
-
 // Gulp and general plugins
 var gulp = require('gulp');
 var newer = require('gulp-newer');
-var uglify = require('gulp-uglify');
+var uglify = require('./tasks/gulp-uglify');
 
 var gutil = require('gulp-util');
 var insert = require('gulp-insert');
@@ -97,7 +66,7 @@ gulp.task('compress', ['browserify'], function () {
     .pipe(gulp.dest('./build/package/js'))
 });
 
-var messageFormat = require('gulp-messageformat');
+var messageFormat = require('./tasks/gulp-messageformat');
 gulp.task('messages2', function () {
   return gulp.src(['i18n/**/*.json'])
     .pipe(rename(function (filepath) {
@@ -108,7 +77,8 @@ gulp.task('messages2', function () {
       filepath.basename = app + '_locale';
     }))
     .pipe(newer('build/package/js'))
-    .pipe(messageFormat(function(filepath) {
+    .pipe(messageFormat(function(file) {
+      var filepath = file.path;
       var locale = path.basename(path.dirname(filepath));
       var app = path.basename(filepath, path.extname(filepath));
       var namespace = (app == 'common' ? 'locale' : 'appLocale');
