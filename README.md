@@ -39,7 +39,7 @@ Many Windows developers have found that setting up an Ubuntu virtual machine is 
 1. Set up [RVM](https://rvm.io/rvm/install) and Ruby 2.0
   1. `gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3`
   1. `\curl -sSL https://get.rvm.io | bash -s stable`
-  1. `rvm install 2.0.0-p576 --binary`
+  1. `rvm use 2.0.0 --fuzzy --install --binary`
   1. `rvm rvmrc warning ignore allGemfiles`
 
 ## Common setup

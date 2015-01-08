@@ -196,8 +196,7 @@ namespace :install do
     if rack_env?(:development) && !CDO.chef_managed
       Dir.chdir(dashboard_dir) do
         RakeUtils.bundle_install
-        RakeUtils.rake 'db:create'
-        RakeUtils.rake 'db:migrate'
+        RakeUtils.rake 'db:setup'
         RakeUtils.rake 'seed:all'
       end
     end
