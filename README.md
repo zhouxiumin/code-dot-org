@@ -36,7 +36,7 @@ Many Windows developers have found that setting up an Ubuntu virtual machine is 
 1. `sudo aptitude upgrade`
 1. `sudo aptitude install -y git mysql-server mysql-client libmysqlclient-dev libxslt1-dev libssl-dev zlib1g-dev imagemagick libmagickcore-dev libmagickwand-dev nodejs nodejs-legacy npm openjdk-7-jre-headless libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev curl pdftk`
   * **Hit enter and select default options for any configuration popups**
-1. Set up [RVM](https://rvm.io/rvm/install) and Ruby 2.0
+1. Set up [RVM](https://rvm.io/rvm/install) and install Ruby 2.0.0
   1. `gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3`
   1. `\curl -sSL https://get.rvm.io | bash -s stable`
   1. `rvm use 2.0.0 --fuzzy --install --binary`
@@ -44,11 +44,11 @@ Many Windows developers have found that setting up an Ubuntu virtual machine is 
 
 ## Common setup
 
-1. `git clone https://github.com/code-dot-org/code-dot-org.git`
+1. `git clone --depth 1 https://github.com/code-dot-org/code-dot-org.git`
 1. `gem install bundler`
 1. `rbenv rehash` (if using rbenv)
 1. `cd code-dot-org`
-1. `bundle config --global jobs $(expr $(node -p "require('os').cpus().length") - 1)` (optional: requires node.js installed)
+1. `bundle config --global jobs $(expr $(node -p "require('os').cpus().length") - 1)` (if node.js is installed)
 1. `bundle`
 1. `rake install`
 
