@@ -45,7 +45,7 @@ module.exports = function(data) {
     } else {
       message = errs.name + ': ' +  errs.message
     }
-    console.log('Error:' + message);
+    console.log('Error (locale=' + locale + ': ' + message);
     return null;
   }
 };

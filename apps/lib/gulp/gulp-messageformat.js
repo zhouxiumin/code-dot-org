@@ -7,7 +7,9 @@ module.exports = function(fileOptions) {
       }
     },
     output: function(origData, inputData, outputData) {
-      origData.contents = new Buffer(outputData);
+      if(outputData != null) {
+        origData.contents = new Buffer(outputData);
+      }
       return origData;
     }
   });
