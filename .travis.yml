@@ -1,16 +1,18 @@
 language: ruby
-
 rvm: 2.0.0
-
-sudo: false
-
-cache: bundler
+before_install:
+- npm install -g grunt-cli
+- sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
 
 bundler_args: --without development --deployment
 
-before_script: cd dashboard; bin/rake db:create db:schema:load
+before_script:
+- cd dashboard; bin/rake db:create db:schema:load; cd ..
+- cd apps; grunt build; cd ..
 
-script: bin/rake
+script:
+- cd dashboard; bin/rake; cd ..
+- cd apps; npm test
 
 env:
   global:
