@@ -37,7 +37,7 @@ var browserify = require('browserify');
 var b = browserify(allFilesSrc);
 b.plugin('factor-bundle', {outputs: allFilesDest});
 
-gulp.task('browserify', ['src', 'vendor', 'ejs'], function () {
+gulp.task('browserify', ['src', 'vendor', 'ejs', 'locales'], function () {
   return bundle(b);
 });
 
@@ -67,7 +67,7 @@ gulp.task('compress', ['browserify'], function () {
 });
 
 var messageFormat = require('./lib/gulp/gulp-messageformat');
-gulp.task('messages2', function () {
+gulp.task('messages', function () {
   return gulp.src(['i18n/**/*.json'])
     .pipe(rename(function (filepath) {
       var app = filepath.dirname;
@@ -81,7 +81,7 @@ gulp.task('messages2', function () {
       var filepath = file.path;
       var locale = path.basename(path.dirname(filepath));
       var app = path.basename(filepath, path.extname(filepath));
-      var namespace = (app == 'common' ? 'locale' : 'appLocale');
+      var namespace = (app == 'common_locale' ? 'locale' : 'appLocale');
       return {
         locale: locale.split('_')[0],
         namespace: app,
@@ -136,6 +136,17 @@ gulp.task('src', function () {
     .pipe(gulp.dest('./build/js'))
 });
 
+var string_src = function(filename, string) {
+  return new gutil.File({ cwd: "", base: "", path: filename, contents: new Buffer(string) });
+}
+
+gulp.task('locales', function() {
+  return es.readArray(APPS.concat('common').map(function (item) {
+    return string_src(item + '.js', 'module.exports = window.blockly.' + (item == 'common' ? 'locale' : 'appLocale') + ';');
+  }))
+    .pipe(gulp.dest('./build/locale/current'));
+});
+
 var exec = require('child_process').exec;
 gulp.task('lodash', function (cb) {
   return exec('`npm bin`/lodash include=' +
@@ -163,9 +174,9 @@ gulp.task('sass', function () {
   );
 });
 
-gulp.task('build', ['browserify', 'media', 'sass', 'messages2']);
+gulp.task('build', ['browserify', 'media', 'sass', 'messages']);
 // Call 'package' for maximum compression of all .js files
-gulp.task('package', ['compress', 'media', 'sass', 'messages2']);
+gulp.task('package', ['compress', 'media', 'sass', 'messages']);
 
 gulp.task('dev', ['src', 'vendor', 'ejs', 'messages', 'media', 'sass'], function () {
   gulp.watch('src/**/*.js', ['src']);
@@ -174,4 +185,34 @@ gulp.task('dev', ['src', 'vendor', 'ejs', 'messages', 'media', 'sass'], function
   gulp.watch(['static/**/*', 'lib/blockly/media/**/*'], ['media']);
   gulp.watch('style/**/*.scss', ['sass']);
   bundle(w);
+});
+
+var jshint = require('./lib/gulp/gulp-jshint');
+gulp.task('lint', function() {
+  return gulp.src([
+      'Gulpfile.js',
+      'Gruntfile.js',
+      'tasks/**/*.js',
+      'lib/gulp/*.js',
+      'src/**/*.js',
+      'test/**/*.js',
+      '!src/hammer.js',
+      '!src/lodash.js',
+      '!src/lodash.min.js',
+      '!src/canvg/*.js'
+    ]
+  )
+    .pipe(jshint(require.resolve('gulp-jshint'),{
+      concurrency: 3,
+      node: true,
+      browser: true,
+      globals: {
+        Blockly: true,
+        //TODO: Eliminate the globals below here.
+        StudioApp: true,
+        Maze: true,
+        Turtle: true,
+        Bounce: true
+      }
+    }));
 });

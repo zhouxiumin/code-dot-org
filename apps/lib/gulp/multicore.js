@@ -33,11 +33,14 @@ module.exports = function (moduleName, options) {
     });
   }
 
-  var stream = parallel(options.maxParallel || 16, process);
+  var stream = parallel(options.maxParallel || 20, process);
   stream.on('end', function () {
     if (format) {
-      format.kill();
-      format = null;
+      format.all({file: null}).then(function() {
+        //console.log('format all finished');
+        format.kill();
+        format = null;
+      });
     }
   });
   return stream;

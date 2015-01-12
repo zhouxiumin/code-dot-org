@@ -10,7 +10,7 @@ module.exports = function(options) {
       return {
         string: data.contents.toString(),
         options: options
-      }
+      };
     },
     output: function(origData, inputData, outputData) {
       origData.contents = new Buffer(outputData);

@@ -12,12 +12,13 @@ module.exports = function(data) {
   options.global = options.global || 'this';
   var locale = options.locale;
   var namespace = options.namespace;
-  if (string == null) {
+  if (!string) {
     return null;
   }
 
+  var mf;
   try {
-    var mf = new MessageFormat(locale, false, namespace);
+    mf = new MessageFormat(locale, false, namespace);
   } catch (e) {
     // Fallback to English locale
     try {
@@ -43,7 +44,7 @@ module.exports = function(data) {
     if (errs.join) {
       message = errs.join('\n');
     } else {
-      message = errs.name + ': ' +  errs.message
+      message = errs.name + ': ' +  errs.message;
     }
     console.log('Error (locale=' + locale + ': ' + message);
     return null;

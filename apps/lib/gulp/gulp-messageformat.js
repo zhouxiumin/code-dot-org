@@ -4,10 +4,10 @@ module.exports = function(fileOptions) {
       return {
         string: data.contents.toString(),
         options: fileOptions(data)
-      }
+      };
     },
     output: function(origData, inputData, outputData) {
-      if(outputData != null) {
+      if(outputData) {
         origData.contents = new Buffer(outputData);
       }
       return origData;
