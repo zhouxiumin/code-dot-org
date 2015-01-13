@@ -1,7 +1,7 @@
 var MessageFormat = require('messageformat');
 
 // Options: locale (required), global, namespace, prepend, append
-module.exports = function(data) {
+var transform = function(data) {
   var string = data.string;
   var options = data.options || {};
   if (!options.locale) {
@@ -30,7 +30,7 @@ module.exports = function(data) {
   }
 
   try {
-    return [
+    var str = [
       options.prepend,
       '(function(g){',
       'var ' + namespace + ' = ' + mf.functions() + ';',
@@ -38,7 +38,8 @@ module.exports = function(data) {
       'return g["' + namespace + '"] = ' + namespace + ';',
       '})(' + options.global + ');',
       options.append
-    ].join(require('os').EOL);
+    ];
+    return str.join(require('os').EOL);
   } catch (errs) {
     var message = '';
     if (errs.join) {
@@ -50,3 +51,30 @@ module.exports = function(data) {
     return null;
   }
 };
+
+var path = require('path');
+var messageFunc = function(file) {
+  var filepath = file.path;
+  var locale = path.basename(path.dirname(filepath));
+  var app = path.basename(filepath, path.extname(filepath));
+  var namespace = (app == 'common_locale' ? 'locale' : 'appLocale');
+  return {
+    locale: locale.split('_')[0],
+    namespace: app,
+    prepend: "window.blockly = window.blockly || {};\n",
+    append: "\nwindow.blockly." + namespace + " = " + app + "['" + app + "'];\n"
+  }
+};
+
+function getTransform() {
+  var stream = require('stream');
+  var t = new stream.Transform({objectMode: true});
+  t._transform = function (file, encoding, callback) {
+    var output = transform({string: file.contents.toString(), options: messageFunc(file)});
+    file.contents = output ? new Buffer(output) : null;
+    return callback(null, file);
+  };
+  return t;
+}
+
+module.exports = getTransform;

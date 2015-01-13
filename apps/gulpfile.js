@@ -1,17 +1,20 @@
+function log(s) {
+  //console.log(new Date().toISOString() + ': ' + s);
+}
+
 var source = require('vinyl-source-stream');
 var path = require('path');
 var es = require('event-stream');
 
-var debug = require('gulp-debug');
-
 // Gulp and general plugins
 var gulp = require('gulp');
 var newer = require('gulp-newer');
-var uglify = require('./lib/gulp/gulp-uglify');
 
 var gutil = require('gulp-util');
 var insert = require('gulp-insert');
 var rename = require("gulp-rename");
+
+var parallel = require('./lib/gulp/multicore');
 
 var APPS = [
   'maze',
@@ -33,14 +36,21 @@ APPS.forEach(function (app) {
   allFilesDest.push(outputDir + app + '.js');
 });
 
-var browserify = require('browserify');
-var b = browserify(allFilesSrc);
-b.plugin('factor-bundle', {outputs: allFilesDest});
-
 gulp.task('browserify', ['src', 'vendor', 'ejs', 'locales'], function () {
-  return bundle(b);
+  console.log(new Date().toISOString() + ': start task');
+  //var debug = require('gulp-debug');
+
+  var bs = parallel(require.resolve('./lib/gulp/gulp-browserify'), {concurrency: 1});
+  var bundle = bs({filesSrc: allFilesSrc, filesDest: allFilesDest});
+
+  //var browserify = require('browserify');
+  //var b = browserify(allFilesSrc);
+  //b.plugin('factor-bundle', {outputs: allFilesDest});
+  //var bundle = b.bundle().pipe(source('common.js')).pipe(gulp.dest('./build/package/js'));
+  return bundle
 });
 
+/*
 var watchify = require('watchify');
 var w = watchify(browserify(allFilesSrc, watchify.args));
 w.plugin('factor-bundle', {outputs: allFilesDest});
@@ -56,17 +66,19 @@ function bundle(bundler) {
     .pipe(source('common.js'))
     .pipe(gulp.dest('./build/package/js'));
 }
+*/
 
+var uglify = parallel('gulp-uglify');
 gulp.task('compress', ['browserify'], function () {
   return gulp.src([
     './build/package/js/*.js',
     '!build/package/js/**/vendor.js'
   ])
-    .pipe(uglify({compress: false, concurrency: 4}))
+    .pipe(uglify({compress:false}))
     .pipe(gulp.dest('./build/package/js'))
 });
 
-var messageFormat = require('./lib/gulp/gulp-messageformat');
+var messageFormat = parallel(require.resolve('./lib/gulp/transform-messageformat'));
 gulp.task('messages', function () {
   return gulp.src(['i18n/**/*.json'])
     .pipe(rename(function (filepath) {
@@ -77,18 +89,7 @@ gulp.task('messages', function () {
       filepath.basename = app + '_locale';
     }))
     .pipe(newer('build/package/js'))
-    .pipe(messageFormat(function(file) {
-      var filepath = file.path;
-      var locale = path.basename(path.dirname(filepath));
-      var app = path.basename(filepath, path.extname(filepath));
-      var namespace = (app == 'common_locale' ? 'locale' : 'appLocale');
-      return {
-        locale: locale.split('_')[0],
-        namespace: app,
-        prepend: "window.blockly = window.blockly || {};\n",
-        append: "\nwindow.blockly." + namespace + " = " + app + "['" + app + "'];\n"
-      }
-    }))
+    .pipe(messageFormat())
     .pipe(gulp.dest('build/package/js'));
 });
 
@@ -187,7 +188,8 @@ gulp.task('dev', ['src', 'vendor', 'ejs', 'messages', 'media', 'sass'], function
   bundle(w);
 });
 
-var jshint = require('./lib/gulp/gulp-jshint');
+var jshint = parallel('gulp-jshint');
+var jshint2 = require('gulp-jshint');
 gulp.task('lint', function() {
   return gulp.src([
       'Gulpfile.js',
@@ -202,8 +204,7 @@ gulp.task('lint', function() {
       '!src/canvg/*.js'
     ]
   )
-    .pipe(jshint(require.resolve('gulp-jshint'),{
-      concurrency: 3,
+    .pipe(jshint({
       node: true,
       browser: true,
       globals: {
@@ -214,5 +215,7 @@ gulp.task('lint', function() {
         Turtle: true,
         Bounce: true
       }
-    }));
+    }))
+    .pipe(jshint2.reporter('jshint-stylish'))
+    .pipe(jshint2.reporter('fail'));
 });
