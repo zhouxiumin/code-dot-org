@@ -2,20 +2,20 @@ language: ruby
 rvm: 2.0.0
 
 before_install:
-- sudo apt-get install libgif-dev
-- npm install -g grunt-cli
+- sudo apt-get install libgif-dev; npm install -g grunt-cli
 
 bundler_args: --without development --deployment
 
 before_script:
-- cd dashboard; bin/rake db:create db:schema:load; cd ..
-- cd apps; npm install; grunt build; cd ..
+- git diff --name-only HEAD~1 | grep -q "^${TEST_DIR}" && (cd $(TEST_DIR); $(BEFORE_SCRIPT); cd ..) || :
 
 script:
-- cd dashboard; bin/rake; cd ..
-- cd apps; npm test; cd ..
+- git diff --name-only HEAD~1 | grep -q "^${TEST_DIR}" && (cd $(TEST_DIR); $(RUN_SCRIPT); cd ..) || :
 
 env:
   global:
   - DB=mysql
   - RAILS_ENV=test
+  matrix:
+  - TEST_DIR=apps BEFORE_SCRIPT="npm install; grunt build" RUN_SCRIPT="npm test"
+  - TEST_DIR=dashboard BEFORE_SCRIPT="bin/rake db:setup" RUN_SCRIPT="bin/rake"
