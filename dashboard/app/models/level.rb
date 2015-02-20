@@ -208,6 +208,10 @@ class Level < ActiveRecord::Base
     Level.find_by_key(project_template_level_name)
   end
 
+  def self.find_by_id_or_name!(id_or_name)
+    (/\A\d+\z/.match(id_or_name) ? find_by!(id: id_or_name) : find_by!(name: id_or_name))
+  end
+
   private
 
   def write_to_file?

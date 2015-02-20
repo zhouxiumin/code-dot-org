@@ -7,7 +7,8 @@ class LevelsController < ApplicationController
   before_filter :authenticate_user!, except: [:embed_blocks, :embed_level]
   before_filter :can_modify?, except: [:show, :index, :embed_blocks, :embed_level]
   skip_before_filter :verify_params_before_cancan_loads_model, only: [:create, :update_blocks]
-  load_and_authorize_resource except: [:create, :update_blocks, :edit_blocks, :embed_blocks, :embed_level]
+  load_and_authorize_resource except: [:create, :update_blocks, :edit_blocks, :embed_blocks, :embed_level],
+    find_by: :id_or_name
   check_authorization
 
   before_action :set_level, only: [:show, :edit, :update, :destroy]
@@ -200,8 +201,7 @@ class LevelsController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_level
-      @level = Level.find(params[:id])
-      @game = @level.game
+      @game = @level.try(:game)
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
