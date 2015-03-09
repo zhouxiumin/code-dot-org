@@ -104,7 +104,7 @@ private
     @game = @level.game
     @stage = @script_level.stage
 
-    set_videos_and_blocks_and_callouts
+    set_videos_and_callouts
 
     load_level_source
 
