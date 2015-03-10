@@ -525,13 +525,13 @@ SQL
   def working_on_scripts
     backfill_user_scripts if needs_to_backfill_user_scripts?
 
-    scripts.where('user_scripts.completed_at is null')
+    scripts.where('user_scripts.completed_at is null').map(&:cached)
   end
 
   def completed_scripts
     backfill_user_scripts if needs_to_backfill_user_scripts?
 
-    scripts.where('user_scripts.completed_at is not null')
+    scripts.where('user_scripts.completed_at is not null').map(&:cached)
   end
 
   def working_on_user_scripts
@@ -547,7 +547,7 @@ SQL
   end
 
   def primary_script
-    working_on_scripts.first
+    working_on_scripts.first.cached
   end
 
   def needs_to_backfill_user_scripts?
