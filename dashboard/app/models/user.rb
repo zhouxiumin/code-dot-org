@@ -312,16 +312,12 @@ class User < ActiveRecord::Base
   end
 
   def levels_from_script(script, stage = nil)
-    ul_map = self.user_levels.includes({level: [:game, :concepts]}).index_by(&:level_id)
-    q = script.script_levels.includes({ level: :game }, :script, :stage).order(:position)
-
-    if stage
-      q = q.where(['stages.id = :stage_id', {stage_id: stage}]).references(:stage)
+    script_levels = script.script_levels.select do |sl|
+      stage.nil? || sl.stage_id == stage.id
     end
-
-    q.each do |sl|
-      ul = ul_map[sl.level_id]
-      sl.user_level = ul
+    script_user_levels = user_levels.where(level_id: script_levels.map(&:level_id)).index_by(&:level_id)
+    script_levels.map do |sl|
+      sl.tap{|x| x.user_level = script_user_levels[sl.level_id]}
     end
   end
 
@@ -551,13 +547,13 @@ SQL
   def working_on_scripts
     backfill_user_scripts if needs_to_backfill_user_scripts?
 
-    scripts.where('user_scripts.completed_at is null')
+    scripts.where('user_scripts.completed_at is null').map(&:cached)
   end
 
   def completed_scripts
     backfill_user_scripts if needs_to_backfill_user_scripts?
 
-    scripts.where('user_scripts.completed_at is not null')
+    scripts.where('user_scripts.completed_at is not null').map(&:cached)
   end
 
   def working_on_user_scripts
@@ -573,7 +569,7 @@ SQL
   end
 
   def primary_script
-    working_on_scripts.first
+    working_on_scripts.first.cached
   end
 
   def needs_to_backfill_user_scripts?

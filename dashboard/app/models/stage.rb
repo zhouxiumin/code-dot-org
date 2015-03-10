@@ -7,6 +7,10 @@ class Stage < ActiveRecord::Base
 
   validates_uniqueness_of :name, scope: :script_id
 
+  def script
+    Script.get_from_cache(script_id)
+  end
+
   def to_param
     position.to_s
   end
@@ -18,7 +22,7 @@ class Stage < ActiveRecord::Base
   end
 
   def localized_title
-    if Script.get_from_cache(script.name).stages.to_a.many?
+    if script.stages.many?
       I18n.t('stage_number', number: position) + ': ' + I18n.t("data.script.name.#{script.name}.#{name}")
     else # script only has one stage/game, use the script name
       I18n.t "data.script.name.#{script.name}.title"
