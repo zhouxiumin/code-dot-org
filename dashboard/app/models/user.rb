@@ -288,14 +288,15 @@ class User < ActiveRecord::Base
   end
 
   def levels_from_script(script, stage = nil)
-    ul_map = self.user_levels.includes({level: [:game, :concepts]}).index_by(&:level_id)
-    q = script.script_levels.includes({ level: :game }, :script, :stage).order(:position)
-
-    if stage
-      q = q.where(['stages.id = :stage_id', {stage_id: stage}]).references(:stage)
+    script_levels = Rails.cache.fetch("#{script.cache_key}/#{stage && stage.cache_key}/levels_from_script") do
+      q = script.script_levels.includes({ level: :game }, :script, :stage).order(:position)
+      if stage
+        q = q.where(['stages.id = :stage_id', {stage_id: stage}]).references(:stage)
+      end
+      q.to_a
     end
-
-    q.each do |sl|
+    ul_map = self.user_levels.index_by(&:level_id)
+    script_levels.each do |sl|
       ul = ul_map[sl.level_id]
       sl.user_level = ul
     end
