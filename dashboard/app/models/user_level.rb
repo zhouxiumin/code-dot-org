@@ -1,6 +1,6 @@
 # Records a User's number of attempts and best completion result for specific Levels
 class UserLevel < ActiveRecord::Base
-  belongs_to :user
+  belongs_to :user, touch: true
   belongs_to :level
   belongs_to :script
 

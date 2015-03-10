@@ -22,7 +22,12 @@ class ScriptLevelsController < ApplicationController
 
   def show
     authorize! :show, ScriptLevel
-    @script = Script.get_from_cache(params[:script_id])
+
+    script_id = params[:script_id]
+    stage_id = params[:stage_id]
+    script_level_id = params[:id]
+
+    @script = Script.get_from_cache(script_id)
 
     if params[:reset]
       # reset is a special mode which will delete the session if the user is not signed in
@@ -32,7 +37,7 @@ class ScriptLevelsController < ApplicationController
       redirect_to(build_script_level_path(@script.starting_level)) and return
     end
 
-    if params[:id] == ScriptLevel::NEXT || params[:chapter] == ScriptLevel::NEXT
+    if script_level_id == ScriptLevel::NEXT || params[:chapter] == ScriptLevel::NEXT
       redirect_to(build_script_level_path(next_script_level)) and return
     end
 
@@ -44,13 +49,28 @@ class ScriptLevelsController < ApplicationController
       return
     end
 
-    present_level
-
     slog(tag: 'activity_start',
          script_level_id: @script_level.id,
          level_id: @script_level.level.id,
          user_agent: request.user_agent,
          locale: locale) unless @script_level.level.unplugged?
+
+    user_key = current_user.try(:cache_key) || session.id
+    etag = hash_key [
+        locale,
+        user_key,
+        script_id,
+        stage_id,
+        script_level_id,
+        session[:callouts_seen],
+        session[:videos_seen],
+    ]
+
+    return unless stale? etag: etag
+    puts "etag: #{etag}"
+
+    present_level
+
   end
 
 private

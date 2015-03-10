@@ -44,16 +44,27 @@ class Script < ActiveRecord::Base
   # distributed cache (Rails.cache)
   @@script_cache = nil
   SCRIPT_CACHE_KEY = 'script-cache'
-  
+  SCRIPT_CACHE_FILE = File.join(Rails.root, 'config', 'script.cache')
+
   def self.script_cache_to_cache
-    Rails.cache.write(SCRIPT_CACHE_KEY, script_cache_from_db)
+    script_cache = script_cache_from_db
+    Rails.cache.write(SCRIPT_CACHE_KEY, script_cache)
+
+    if Rails.cache.class == ActiveSupport::Cache::MemoryStore
+      File.binwrite(SCRIPT_CACHE_FILE, Marshal.dump(script_cache))
+    end
   end
 
   def self.script_cache_from_cache
     Script.connection
     [ScriptLevel, Level, Game, Concept, Callout, Video,
-     Artist, Blockly].each {|k| k.new} # make sure all possible loaded objects are completely loaded
-    Rails.cache.read SCRIPT_CACHE_KEY
+     Artist, Blockly, Maze].each {|k| k.new} # make sure all possible loaded objects are completely loaded
+    if Rails.cache.class == ActiveSupport::Cache::MemoryStore && File.exist?(SCRIPT_CACHE_FILE)
+      puts "Loading from file"
+      Marshal.load(File.binread(SCRIPT_CACHE_FILE))
+    else
+      Rails.cache.read SCRIPT_CACHE_KEY
+    end
   end
 
   def self.script_cache_from_db
@@ -68,6 +79,7 @@ class Script < ActiveRecord::Base
   end
 
   def self.script_cache
+    puts "script cache"
     @@script_cache ||=
       script_cache_from_cache || script_cache_from_db
   end

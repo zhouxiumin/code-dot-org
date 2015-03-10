@@ -26,7 +26,15 @@ SQL
   end
 
   def header_stats
-    render file: 'shared/_user_stats', layout: false, locals: {user: current_user}
+    user = current_user
+    script = @script || (user && user.primary_script) || Script.twenty_hour_script
+    session_progress_key = Digest::MD5.hexdigest(Marshal::dump(session[:progress]))
+
+    etag = "#{script.cache_key}/#{user.try(:cache_key) || session_progress_key}"
+    puts "etag = #{etag}. last_updated = #{user.try(:updated_at)}"
+    if stale?(etag)
+      render file: 'shared/_user_stats', layout: false, locals: {user: user, script: script, etag: etag}
+    end
   end
 
   def prizes

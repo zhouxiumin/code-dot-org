@@ -92,10 +92,10 @@ dashboard.buildHeader = function (scriptData) {
       $.ajax({
         url: scriptData.statsPath,
         data: {
-          script_id: scriptData.scriptId,
-          script_level_id: scriptData.scriptLevelId
+          script_id: scriptData.scriptId
         }, success: function (result) {
           $('.header_popup_body').html(result);
+          $('#' + scriptData.scriptLevelId).attr('class', 'puzzle_outer_current');
           if (trophiesClicked) {
             jumpToTrophies();
           }

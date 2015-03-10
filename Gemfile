@@ -50,6 +50,9 @@ group :development, :test do
   gem 'spring-commands-testunit'
   gem 'minitest-reporters'
   gem 'eyes_selenium'
+
+  gem 'pry-rails'
+  gem 'pry-byebug'
 end
 
 group :doc do

@@ -56,6 +56,16 @@ module ApplicationHelper
     end
   end
 
+  def hash_key(hash)
+    Digest::MD5.hexdigest(Marshal::dump(hash))
+  end
+
+  def level_infos(user, script_levels)
+    Hash[script_levels.map do |script_level|
+      [script_level.id, level_info(user, script_level)]
+    end]
+  end
+
   def level_info(user, script_level)
     result =
       if user

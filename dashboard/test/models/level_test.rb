@@ -155,6 +155,13 @@ class LevelTest < ActiveSupport::TestCase
     assert_equal 'skin', level.skin
   end
 
+  test 'marshal level with serialized properties' do
+    level = Blockly.create(instructions: 'test')
+    level_object = Marshal.dump(level)
+    new_level = Marshal.load(level_object)
+    assert_equal 'test', new_level.instructions
+  end
+
   test 'cannot have non-existent properties' do
     level = Blockly.create(instructions: 'test')
     level.update(properties: {property_that_does_not_exist: 'impossible value storage'})
