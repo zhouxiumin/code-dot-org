@@ -49,6 +49,7 @@ module LevelsHelper
   def available_callouts
     if @level.custom?
       unless @level.try(:callout_json).blank?
+        # Blockly
         return JSON.parse(@level.callout_json).map do |callout_definition|
           Callout.new(element_id: callout_definition['element_id'],
               localization_key: callout_definition['localization_key'],
@@ -148,83 +149,8 @@ module LevelsHelper
 
     # Map Dashboard-style names to Blockly-style names in level object.
     # Dashboard underscore_names mapped to Blockly lowerCamelCase, or explicit 'Dashboard:Blockly'
-    Hash[%w(
-      start_blocks
-      solution_blocks
-      predraw_blocks
-      slider_speed
-      start_direction
-      instructions
-      initial_dirt
-      final_dirt
-      nectar_goal
-      honey_goal
-      flower_type
-      skip_instructions_popup
-      is_k1
-      required_blocks:levelBuilderRequiredBlocks
-      toolbox_blocks:toolbox
-      x:initialX
-      y:initialY
-      maze:map
-      ani_gif_url:aniGifURL
-      shapeways_url
-      images
-      free_play
-      min_workspace_height
-      permitted_errors
-      disable_param_editing
-      disable_variable_editing
-      success_condition:fn_successCondition
-      failure_condition:fn_failureCondition
-      first_sprite_index
-      protaganist_sprite_index
-      timeout_failure_tick
-      soft_buttons
-      edge_collisions
-      projectile_collisions
-      allow_sprites_outside_playspace
-      sprites_hidden_to_start
-      background
-      coordinate_grid_background
-      use_modal_function_editor
-      use_contract_editor
-      default_num_example_blocks
-      impressive
-      open_function_definition
-      disable_sharing
-      hide_source
-      share
-      no_padding
-      show_finish
-      edit_code
-      code_functions
-      app_width
-      app_height
-      embed
-      generate_function_pass_blocks
-      timeout_after_when_run
-      custom_game_type
-      project_template_level_name
-      scrollbars
-      is_project_level
-      failure_message_override
-      show_clients_in_lobby
-      show_routers_in_lobby
-      show_add_router_button
-      router_expects_packet_header
-      client_initial_packet_header
-      show_add_packet_button
-      show_packet_size_control
-      default_packet_size_limit
-      show_tabs
-      default_tab_index
-      show_encoding_controls
-      default_enabled_encodings
-      show_dns_mode_control
-      default_dns_mode
-      input_output_table
-    ).map{ |x| x.include?(':') ? x.split(':') : [x,x.camelize(:lower)]}]
+    map_names = level.class.sti_hierarchy.map { |x| level.class.serialized_properties[x.to_s] || [] }.flatten
+    Hash[map_names.map{ |x| [x,x.to_s.camelize(:lower)]}]
         .each do |dashboard, blockly|
       # Select value from properties json
       # Don't override existing valid (non-nil/empty) values
@@ -235,9 +161,14 @@ module LevelsHelper
 
     level_prop['images'] = JSON.parse(level_prop['images']) if level_prop['images'].present?
 
-    # Blockly requires startDirection as an integer not a string
+    # Artist requires startDirection as an integer not a string
+    #Artist
     level_prop['startDirection'] = level_prop['startDirection'].to_i if level_prop['startDirection'].present?
+
+    #Blockly
     level_prop['sliderSpeed'] = level_prop['sliderSpeed'].to_f if level_prop['sliderSpeed']
+
+    #Blockly
     level_prop['scale'] = {'stepSpeed' =>  level_prop['step_speed'].to_i } if level_prop['step_speed'].present?
 
     # Blockly requires these fields to be objects not strings
@@ -327,6 +258,7 @@ module LevelsHelper
     end
 
     # Override level options
+    @level_options_override ||= {}
     if level_options['embed'] || @level_options_override[:embed]
       @embed = true # Instance variable used by the application.html.haml layout
       level_override(hide_source: true, no_padding: true, show_finish: true)
