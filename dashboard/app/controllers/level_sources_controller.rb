@@ -11,18 +11,20 @@ class LevelSourcesController < ApplicationController
   before_action :set_applab_user_id, only: [:show, :edit]
 
   def show
-    @hide_source = true
+    level_override hide_source: true
     if params[:embed]
-      @embed = true
-      @share = false
-      @no_padding = true
-      @skip_instructions_popup = true
+      level_override(
+        embed: true,
+        share: false,
+        no_padding: true,
+        skip_instructions_popup: true
+      )
     end
   end
 
   def edit
     authorize! :read, @level_source
-    @hide_source = false
+    level_override hide_source: false
     # currently edit is the same as show...
     render "show"
   end
@@ -103,16 +105,18 @@ class LevelSourcesController < ApplicationController
     else
       @level_source = LevelSource.where(hidden: false).find(params[:id])
     end
-    @phone_share_url = send_to_phone_url
-    @start_blocks = @level_source.data
     @level = @level_source.level
     @game = @level.game
     @full_width = true
-    @share = true
+    @phone_share_url = send_to_phone_url
     @no_footer_puzzle = (@game == Game.applab)
     @callback = milestone_level_url(user_id: current_user.try(:id) || 0, level_id: @level.id)
-    @no_padding = @share && browser.mobile? && @game.share_mobile_fullscreen?
     @callouts = []
+    level_override(
+      start_blocks: @level_source.data,
+      share: true,
+      no_padding: browser.mobile? && @game.share_mobile_fullscreen?
+    )
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

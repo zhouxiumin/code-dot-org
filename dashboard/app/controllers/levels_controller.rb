@@ -45,16 +45,18 @@ class LevelsController < ApplicationController
     type = params[:type]
     blocks_xml = @level.properties[type].presence || @level[type]
     blocks_xml = Blockly.convert_category_to_toolbox(blocks_xml) if type == 'toolbox_blocks'
-    @start_blocks = blocks_xml
-    @toolbox_blocks = @level.complete_toolbox(type)  # Provide complete toolbox for editing start/toolbox blocks.
+    level_override(
+      start_blocks: blocks_xml,
+      toolbox_blocks: @level.complete_toolbox(type),  # Provide complete toolbox for editing start/toolbox blocks.
+      edit_blocks: type,
+      skip_instructions_popup: true
+    )
     @game = @level.game
     @full_width = true
     @callback = level_update_blocks_path @level, type
-    @edit_blocks = type
-    @skip_instructions_popup = true
 
     # Ensure the simulation ends right away when the user clicks 'Run' while editing blocks
-    @level.properties['success_condition'] = 'function () { return true; }' if @level.is_a? Studio
+    level_override(success_condition: 'function () { return true; }') if @level.is_a? Studio
 
     show
     render :show
@@ -194,11 +196,13 @@ class LevelsController < ApplicationController
     authorize! :read, :level
     @level = Level.find(params[:level_id])
     @game = @level.game
-    @hide_source = true
-    @embed = true
-    @share = false
-    @no_padding = true
-    @skip_instructions_popup = true
+    level_override(
+      hide_source: true,
+      embed: true,
+      share: false,
+      no_padding: true,
+      skip_instructions_popup: true
+    )
     render 'levels/show'
   end
 

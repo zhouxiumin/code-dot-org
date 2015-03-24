@@ -132,8 +132,6 @@ module LevelsHelper
     # Use values from properties json when available (use String keys instead of Symbols for consistency)
     level_prop = level.properties.dup || {}
 
-    extra_options = level.embed == 'true' ? {embed: true, hide_source: true, no_padding: true, show_finish: true} : {}
-
     # Set some specific values
 
     if level.is_a? Blockly
@@ -209,7 +207,6 @@ module LevelsHelper
       custom_game_type
       project_template_level_name
       scrollbars
-      last_attempt
       is_project_level
       failure_message_override
       show_clients_in_lobby
@@ -229,10 +226,9 @@ module LevelsHelper
       input_output_table
     ).map{ |x| x.include?(':') ? x.split(':') : [x,x.camelize(:lower)]}]
         .each do |dashboard, blockly|
-      # Select value from extra options, or properties json
+      # Select value from properties json
       # Don't override existing valid (non-nil/empty) values
-      property = extra_options[dashboard].presence ||
-          level_prop[dashboard].presence
+      property = level_prop[dashboard].presence
       value = blockly_value(level_prop[blockly] || property)
       level_prop[blockly] = value unless value.nil? # make sure we convert false
     end
@@ -287,14 +283,14 @@ module LevelsHelper
   # Code for generating the blockly options hash
   def blockly_options
 
-    ## Level-dependent options
+    # Level-dependent options
     l = @level
     app_options = Rails.cache.fetch("#{l.cache_key}/blockly_level_options") do
       blockly_level_options(l)
     end
     level_options = app_options[:level]
 
-    ## Locale-dependent option
+    # Locale-dependent option
     # Fetch localized strings
     if l.level_num_custom?
       loc_val = data_t("instructions", "#{l.name}_instruction")
@@ -310,41 +306,64 @@ module LevelsHelper
       end
     end
 
-    ## Script-dependent option
+    # Script-dependent option
     script = @script
     app_options[:scriptId] = script.id if script
 
-    ## ScriptLevel-dependent option
+    # ScriptLevel-dependent option
     script_level = @script_level
     level_options['puzzle_number'] = script_level ? script_level.position : 1
     level_options['stage_total'] = script_level ? script_level.stage_total : 1
 
-    ## LevelSource-dependent options
+    # LevelSource-dependent options
     app_options[:level_source_id] = @level_source.id if @level_source
     app_options[:send_to_phone_url] = @phone_share_url if @phone_share_url
 
-    ## Edit blocks-dependent options
-    if @edit_blocks
+    # Edit blocks-dependent options
+    if level_options['edit_blocks']
       # Pass blockly the edit mode: "<start|toolbox|required>_blocks"
       level_options['edit_blocks'] = @edit_blocks
       level_options['edit_blocks_success'] = t('builder.success')
     end
 
-    ## User/session-dependent options
+    # Override level options
+    if level_options['embed'] || @level_options_override[:embed]
+      @embed = true # Instance variable used by the application.html.haml layout
+      level_override(hide_source: true, no_padding: true, show_finish: true)
+    end
+    if @level_options_override[:no_padding]
+      @no_padding = true # Instance variable used by the application.html.haml layout
+    end
+
+    level_options.merge!(Hash[@level_options_override.map{|key, value|[key.to_s.camelize(:lower), value]}]) if @level_options_override
+
+    # Move these values up to the root
+    %w(hideSource share noPadding embed).each do |key|
+      if level_options[key]
+        app_options[key.to_sym] = level_options.delete key
+      end
+    end
+
+    # User/session-dependent options
     app_options[:callouts] = @callouts
     app_options[:autoplayVideo] = @autoplay_video_info
-    app_options[:disableSocialShare] = true if (@current_user && @current_user.under_13?) || @embed
+    app_options[:disableSocialShare] = true if (@current_user && @current_user.under_13?) || app_options[:embed]
     app_options[:applabUserId] = @applab_user_id
     app_options[:report] = {
         fallback_response: @fallback_response,
         callback: @callback,
     }
+    level_options[:lastAttempt] = @last_attempt
 
-    ## Request-dependent option
+    # Request-dependent option
     app_options[:sendToPhone] = request.location.try(:country_code) == 'US' ||
         (!Rails.env.production? && request.location.try(:country_code) == 'RD') if request
 
     app_options
+  end
+
+  def level_override(options)
+    (@level_options_override ||= {}).merge!(options)
   end
 
   def string_or_image(prefix, text)

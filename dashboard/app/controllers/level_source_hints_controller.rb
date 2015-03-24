@@ -210,12 +210,15 @@ class LevelSourceHintsController < ApplicationController
   protected
   def common(level_source_id)
     @level_source = LevelSource.find(level_source_id)
-    @start_blocks = @level_source.data
     @level = @level_source.level
     @game = @level.game
+
+    @level_options_override = {
+      start_blocks: @level_source.data,
+      hide_source: false,
+      share: true
+    }
     @full_width = true
-    @hide_source = false
-    @share = true
   end
 
   private
