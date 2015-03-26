@@ -70,6 +70,8 @@ class Ability
       end
 
       if user.district_contact?
+        can :manage, Cohort # Temporary full read/write access to all Cohorts
+        can :manage, District # Temporary full read/write access to all Districts
         can :teachers, District
         can [:cohort, :teacher], WorkshopAttendance
       end
