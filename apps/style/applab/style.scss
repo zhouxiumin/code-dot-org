@@ -37,6 +37,7 @@ div#visualization.with_padding {
   }
   div#visualizationResizeBar {
     left: $width;
+    line-height: $width;
   }
   html[dir='rtl'] div#visualizationResizeBar {
     right: $width;
@@ -69,6 +70,7 @@ div#visualization.with_padding {
   }
   div#visualizationResizeBar {
     left: $width;
+    line-height: $width;
   }
   html[dir='rtl'] div#visualizationResizeBar {
     right: $width;
@@ -101,6 +103,7 @@ div#visualization.with_padding {
   }
   div#visualizationResizeBar {
     left: $width;
+    line-height: $width;
   }
   html[dir='rtl'] div#visualizationResizeBar {
     right: $width;
@@ -133,6 +136,7 @@ div#visualization.with_padding {
   }
   div#visualizationResizeBar {
     left: $width;
+    line-height: $width;
   }
   html[dir='rtl'] div#visualizationResizeBar {
     right: $width;
@@ -165,6 +169,7 @@ div#visualization.with_padding {
   }
   div#visualizationResizeBar {
     left: $width;
+    line-height: $width;
   }
   html[dir='rtl'] div#visualizationResizeBar {
     right: $width;
@@ -473,10 +478,6 @@ button.arrow:focus {
   font-size: 18px;
 }
 
-#designModeBox td {
-  vertical-align: top;
-}
-
 #manageAssetsModal {
   width: 800px;
   margin-left: -400px;
@@ -532,11 +533,4 @@ button.arrow:focus {
 
 .divApplabDesignMode canvas {
   background-color: #eee;
-}
-
-#designModeBox {
-  position:absolute;
-  top: 40px;
-  bottom: 0px;
-  width: 100%;
 }
