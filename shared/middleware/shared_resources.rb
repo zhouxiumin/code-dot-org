@@ -18,6 +18,9 @@ class SharedResources < Sinatra::Base
     set :image_max_age, static_max_age
     set :javascript_extnames, ['.js']
     set :javascript_max_age, static_max_age
+
+    set :misc_extnames, ['.eot', '.svg', '.ttf', '.woff']
+    set :misc_max_age, static_max_age
   end
 
   before do
@@ -27,6 +30,16 @@ class SharedResources < Sinatra::Base
   end
 
   helpers do
+  end
+
+  # Misc
+  get "/shared/misc/*" do |uri|
+    path = shared_dir('misc', uri)
+    pass unless File.file?(path)
+
+    content_type File.extname(path)
+    cache_control :public, :must_revalidate, max_age:settings.misc_max_age
+    send_file(path)
   end
 
   # CSS

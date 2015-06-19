@@ -23,3 +23,6 @@ function testImageAccess(url, successCallback, failureCallback, timeoutMs) {
   window.testImages.push(img);
 }
 window.testImageAccess = testImageAccess;
+if(module) {
+  module.exports = testImageAccess;
+}
