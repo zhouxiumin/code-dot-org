@@ -12,7 +12,7 @@ class VideosController < ApplicationController
 
   def embed
     set_video_by_key
-    render layout: false
+    render layout: false, locals: {video: @video}
   end
 
   def index
@@ -79,7 +79,13 @@ class VideosController < ApplicationController
   end
 
   def set_video_by_key
-    @video = Video.find_by_key(params[:key])
+    key = params[:key]
+    @video = Video.find_by_key(key) ||
+        Video.new(
+            key:key,
+            youtube_code: key,
+            download: Video.download_url(key)
+        )
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

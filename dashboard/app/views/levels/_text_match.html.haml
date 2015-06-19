@@ -9,7 +9,8 @@
     = render partial: 'levels/dialog', locals: {app: app, data: data}
   .clear
 
-= render partial: 'levels/common_audio'
+- unless !!(data['options'].try(:[], 'skip_sound'))
+  = render partial: 'levels/common_audio'
 
 :javascript
   // Pre-fill text area with previous response content

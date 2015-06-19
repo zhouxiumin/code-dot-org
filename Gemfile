@@ -151,3 +151,5 @@ gem 'lograge'
 
 # Enforce SSL
 gem 'rack-ssl-enforcer', group: [:development, :staging, :test, :levelbuilder]
+
+gem 'viddl-rb', group: [:development, :staging, :test, :levelbuilder]

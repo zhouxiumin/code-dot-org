@@ -35,6 +35,8 @@ module Dashboard
 
     require 'cdo/rack/upgrade_insecure_requests'
     config.middleware.use ::Rack::UpgradeInsecureRequests
+    require 'cdo/rack/rewrite_video_embed'
+    config.middleware.use ::Rack::RewriteVideoEmbed
 
     config.encoding = 'utf-8'
 
