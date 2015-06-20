@@ -16,7 +16,8 @@ window.onload = function() {
     }
     videojs('video', {
       techOrder: techOrder,
-      ytcontrols: true
+      ytcontrols: true,
+      'vtt.js': '/shared/js/video/build/vtt.js'
     });
   }
 };

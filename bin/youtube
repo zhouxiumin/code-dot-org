@@ -14,23 +14,22 @@ require 'cdo/aws/s3'
 require 'tmpdir'
 require 'open-uri'
 
+VIDEO_BUCKET = 'videos.code.org'
+
 id = ARGV.first
 url = "www.youtube.com/watch?v=#{id}"
 
 Dir.mktmpdir do |dir|
-  bucket = 'videos.code.org'
 
-  `viddl-rb #{url} -s #{dir}`
+  `viddl-rb #{url} -s #{dir} -q 640:360:mp4`
   file = Dir.glob("#{dir}/*").first
   if File.extname(file) != '.mp4'
-    new_file = "#{dir}/#{File.basename(file,'.*')}.mp4"
-    puts `ffmpeg -i "#{file}" -strict -2 "#{new_file}"`
-    file = new_file
+    puts 'Error: video not available in correct format'
+  else
+    filename = AWS::S3.upload_to_bucket(VIDEO_BUCKET, "youtube/#{id}.mp4", File.open(file), access: :public_read, no_random: true)
+    puts "https://#{VIDEO_BUCKET}/#{filename}"
+    thumbnail_file = "https://i.ytimg.com/vi/#{id}/0.jpg"
+    thumbnail_filename = AWS::S3.upload_to_bucket(VIDEO_BUCKET, "youtube/#{id}.jpg", open(thumbnail_file), access: :public_read, no_random: true)
+    puts "https://#{VIDEO_BUCKET}/#{thumbnail_filename}"
   end
-  filename = AWS::S3.upload_to_bucket(bucket, "youtube/#{id}.mp4", File.open(file), access: :public_read, no_random: true)
-  puts "https://#{bucket}/#{filename}"
-
-  thumbnail_file = "https://i.ytimg.com/vi/#{id}/0.jpg"
-  thumbnail_filename = AWS::S3.upload_to_bucket(bucket, "youtube/#{id}.jpg", open(thumbnail_file), access: :public_read, no_random: true)
-  puts "https://#{bucket}/#{thumbnail_filename}"
 end

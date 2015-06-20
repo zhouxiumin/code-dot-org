@@ -20,10 +20,11 @@
       overflow: hidden;
       position: absolute;
       padding: 0;
+      margin: 0;
     }
 
   #video-container
-    %video{id: 'video', width: '100%', height: '100%', autoplay: params.has_key?(:autoplay), class: 'video-js vjs-default-skin vjs-big-play-centered', controls: true, preload: 'auto', poster: video.thumbnail_path}
+    %video{id: 'video', width: '100%', height: '100%', autoplay: params.has_key?(:autoplay), class: 'video-js vjs-default-skin vjs-big-play-centered', controls: true, preload: 'metadata', poster: video.thumbnail_path}
       - unless params.has_key?(:youtube_only)
         %source{src: video.download, type: 'video/mp4'}
       - unless params.has_key?(:fallback_only)

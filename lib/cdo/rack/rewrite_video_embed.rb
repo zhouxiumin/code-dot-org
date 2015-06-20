@@ -7,7 +7,7 @@ module Rack
     def initialize(app)
       super(
           app,
-          xpath: %w(youtube youtubeeducation).map{|x| "//iframe[@src[contains(.,'//www.#{x}.com/embed')]]"}.join(' | ')
+          xpath: %w(youtube youtubeeducation).map{|x| "//iframe[@src[contains(.,'#{x}.com/embed')]]"}.join(' | ')
       ) do |nodes|
         nodes.each{|node|process(node)}
       end
@@ -20,7 +20,7 @@ module Rack
     end
 
     def process_url(src)
-      src.sub(/(http:|https:)?\/\/www\.(youtube|youtubeeducation)\.com\/embed/, CDO.studio_url('videos/embed'))
+      src.sub(/(http:|https:)?\/\/(www\.)?(youtube|youtubeeducation)\.com\/embed/, CDO.studio_url('videos/embed'))
     end
   end
 end
