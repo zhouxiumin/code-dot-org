@@ -12,7 +12,9 @@ b.pipe(fse.createWriteStream('./build/video.js'));
 b.on('end', function() {
   var UglifyJS = require("uglify-js");
   var result = UglifyJS.minify("./build/video.js");
-  fse.writeFileSync('./build/video.min.js', result.code);
+  fse.deleteSync('./build/video.js');
+  fse.writeFileSync('./build/video.js', result.code);
+  console.log('written: ' + result.code.length);
 });
 
 function processRelativeUrl(relativeUrl) {
