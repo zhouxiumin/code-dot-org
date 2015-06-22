@@ -8,16 +8,16 @@ window.onload = function() {
   );
   function vjs(youtubeEnabled) {
     var techOrder = youtubeEnabled ? ['youtube', 'html5', 'flash'] : ['html5', 'flash'];
-    var videojs = require('video.js/dist/video-js/video.novtt.js');
+    var videoJS = require('video.js/dist/video-js/video.novtt.js');
     if(youtubeEnabled) {
-      console.log('youtube enabled');
-      yt = require('videojs-youtube');
-      videojs.plugin('youtube', yt);
+      videoJS.plugin('youtube', require('videojs-youtube'));
     }
-    videojs('video', {
+    videoJS(document.getElementById('video'), {
       techOrder: techOrder,
       ytcontrols: true,
       'vtt.js': '/shared/js/video/build/vtt.js'
+    }).ready(function() {
+      document.getElementById('video').style.visibility = 'visible';
     });
   }
 };

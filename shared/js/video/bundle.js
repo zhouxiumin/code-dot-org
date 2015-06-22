@@ -1,16 +1,19 @@
 var path = require('path');
-var browserify = require('browserify');
 var _ = require('underscore.string');
 var fse = require('fs-extra');
 
 fse.mkdirsSync('./build');
-browserify()
-  .add('./video.js')
+var b = require('browserify')('./video.js')
   .transform(require('browserify-css'), {
     processRelativeUrl: processRelativeUrl
   })
-  .bundle()
-  .pipe(fse.createWriteStream('./build/video.js'));
+  .bundle();
+b.pipe(fse.createWriteStream('./build/video.js'));
+b.on('end', function() {
+  var UglifyJS = require("uglify-js");
+  var result = UglifyJS.minify("./build/video.js");
+  fse.writeFileSync('./build/video.min.js', result.code);
+});
 
 function processRelativeUrl(relativeUrl) {
   var stripQueryStringAndHashFromPath = function (url) {

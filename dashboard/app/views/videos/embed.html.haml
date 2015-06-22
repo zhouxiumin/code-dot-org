@@ -6,7 +6,7 @@
     - require 'cdo/video/youtube'
     - Youtube.process(video.key)
 %html{:dir => locale_dir}
-  %script{src: '/shared/js/video/build/video.js'}
+  %script{async:'async', src: '/shared/js/video/build/video.js'}
   :css
     #video-container {
       width: 100%;
@@ -16,6 +16,7 @@
 
     #video {
       border: 0;
+      visibility: hidden;
     }
 
     body {
