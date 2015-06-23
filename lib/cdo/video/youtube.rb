@@ -22,7 +22,7 @@ class Youtube
       if File.extname(file) != '.mp4'
         puts 'Error: video not available in correct format'
       else
-        filename = AWS::S3.upload_to_bucket(VIDEO_BUCKET, "youtube/#{id}.mp4", File.open(file), access: :public_read, no_random: true)
+        filename = AWS::S3.upload_to_bucket(VIDEO_BUCKET, "youtube/#{id}.mp4", File.open(file), access: :public_read, no_random: true, content_type: 'video/mp4')
         puts "https://#{VIDEO_BUCKET}/#{filename}"
         thumbnail_file = "https://i.ytimg.com/vi/#{id}/0.jpg"
         thumbnail_filename = AWS::S3.upload_to_bucket(VIDEO_BUCKET, "youtube/#{id}.jpg", open(thumbnail_file), access: :public_read, no_random: true)

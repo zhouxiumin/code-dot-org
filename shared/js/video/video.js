@@ -7,17 +7,37 @@ window.onload = function() {
     function(){ vjs(false);}
   );
   function vjs(youtubeEnabled) {
-    var techOrder = youtubeEnabled ? ['youtube', 'html5', 'flash'] : ['html5', 'flash'];
+    var techOrder = [];
+    if(youtubeEnabled) {
+      techOrder.push('youtube');
+    }
+    var html5_ok = !window.localStorage.getItem('videojs_html5_error');
+    if(html5_ok) {
+      techOrder.push('html5');
+    }
+    techOrder.push('flash');
     var videoJS = require('video.js/dist/video-js/video.novtt.js');
     if(youtubeEnabled) {
       videoJS.plugin('youtube', require('videojs-youtube'));
     }
-    videoJS(document.getElementById('video'), {
+    var vjs = videoJS(document.getElementById('video'), {
       techOrder: techOrder,
       ytcontrols: true,
-      'vtt.js': '/shared/js/video/build/vtt.js'
-    }).ready(function() {
-      document.getElementById('video').style.visibility = 'visible';
+      nativeControlsForTouch: true,
+      'vtt.js': '/shared/js/video/build/vtt.js',
+      flash: { swf: "/shared/misc/video/video-js.swf" }
+    });
+    vjs.ready(function() {
+      document.getElementById('video').style.opacity = '1';
+    });
+    vjs.on('error', function(e) {
+      console.log('Error:');
+      var errorCode = vjs.error().code;
+      if(errorCode == 4 || errorCode == 3) {
+        // If html5 isn't working, fallback to Flash and reload
+        window.localStorage.setItem('videojs_html5_error','1');
+        window.location.reload();
+      }
     });
   }
 };

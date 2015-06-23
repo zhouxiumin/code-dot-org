@@ -5,8 +5,12 @@
   - unless response.is_a? ::Net::HTTPSuccess
     - require 'cdo/video/youtube'
     - Youtube.process(video.key)
-%html{:dir => locale_dir}
+%head
+  / video.js and shims must be in the <head> for older IEs to work.
+  /[if lt IE 9]
+    %script{src: '/shared/js/video/build/videojs-ie8.min.js'}
   %script{async:'async', src: '/shared/js/video/build/video.js'}
+%html{:dir => locale_dir}
   :css
     #video-container {
       width: 100%;
@@ -16,7 +20,6 @@
 
     #video {
       border: 0;
-      visibility: hidden;
     }
 
     body {
@@ -31,7 +34,7 @@
     }
 
   #video-container
-    %video{id: 'video', width: '100%', height: '100%', autoplay: params.has_key?(:autoplay), class: 'video-js vjs-default-skin vjs-big-play-centered', controls: true, preload: 'metadata', poster: video.thumbnail_path}
+    %video{id: 'video', width: '100%', height: '100%', autoplay: params.has_key?(:autoplay), class: 'video-js vjs-default-skin vjs-big-play-centered', controls: true, preload: 'auto', poster: video.thumbnail_path}
       - unless params.has_key?(:youtube_only)
         %source{src: video.download, type: 'video/mp4'}
       - unless params.has_key?(:fallback_only)
