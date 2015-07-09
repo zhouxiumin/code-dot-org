@@ -1,5 +1,5 @@
-require File.expand_path('../boot', __FILE__)
-require File.expand_path('../deployment', __FILE__)
+require_relative '../boot'
+require_relative '../deployment'
 require 'cdo/poste'
 require 'rails/all'
 
