@@ -28,6 +28,7 @@ class LevelLoader
   end
 
   def self.load_custom_level_xml(xml, level)
+    require 'nokogiri'
     xml_node = Nokogiri::XML(xml, &:noblanks)
     level = level.with_type(xml_node.root.name)
 

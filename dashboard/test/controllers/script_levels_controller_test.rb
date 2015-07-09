@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'nokogiri'
 
 class ScriptLevelsControllerTest < ActionController::TestCase
   include Devise::TestHelpers

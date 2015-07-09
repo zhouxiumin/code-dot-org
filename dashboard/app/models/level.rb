@@ -122,6 +122,8 @@ class Level < ActiveRecord::Base
     end
   end
 
+  require 'nokogiri'
+
   def to_xml(options = {})
     builder = Nokogiri::XML::Builder.new do |xml|
       xml.send(self.type) do

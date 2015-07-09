@@ -196,6 +196,7 @@ class ActionController::TestCase
   end
 
   def css(selector)
+    require 'nokogiri'
     Nokogiri::HTML(@response.body).css(selector)
   end
 

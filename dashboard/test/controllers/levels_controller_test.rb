@@ -316,6 +316,7 @@ class LevelsControllerTest < ActionController::TestCase
 
   test 'should render level num in title' do
     get :show, id: @level, game_id: @level.game
+    require 'nokogiri'
     assert_match /#{Regexp.quote(@level.level_num)}/, Nokogiri::HTML(@response.body).css('title').text.strip
   end
 

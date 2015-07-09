@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'nokogiri'
 include ActionDispatch::TestProcess
 
 class LevelTest < ActiveSupport::TestCase

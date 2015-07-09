@@ -69,6 +69,7 @@
             - if entry[:param3_s] == "bottom"
               - position_class = "homepage-caption-bottom"
             .captionarea{id: "captionarea#{index}", class: position_class}
+              - require 'nokogiri'
               -# Nokogiri::HTML is use to strip any HTML tags.
               -# Some translated quotes we were using had <b> tags and some broken <b/> tags.
               .caption.caption1{style: "left: 50px; top: 50px"}
