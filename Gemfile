@@ -8,19 +8,19 @@ gem 'sinatra', '1.4.4', require: 'sinatra/base'
 gem 'rack-contrib', '~> 1.1'
 
 gem 'mysql2', '0.3.13'
-gem 'seamless_database_pool'
+gem 'seamless_database_pool', require: false # 0.2s
 
 gem 'le', '~> 2.2'
 gem 'os'
 gem 'redis', '~> 3.1.0'
-gem 'google_drive', '~> 1.0.0', require: false
+gem 'google_drive', '~> 1.0.0', require: false # 0.3s
 gem 'dalli', require: false # memcached
 gem 'parallel'
 
 gem 'google-api-client'
 
 group :development do
-  gem 'rerun', '~> 0.10.0', require: false
+  gem 'rerun', '~> 0.10.0', require: false # 0.2s
   gem 'shotgun', require: false
   gem 'thin', '~> 1.6.2', require: false
 end
@@ -31,7 +31,7 @@ group :development, :test do
   gem 'haml-rails' # haml (instead of erb) generators
   gem 'better_errors'
   gem 'binding_of_caller'
-  gem 'ruby-prof', require: false
+  gem 'ruby-prof', require: false # 0.5s
   gem 'quiet_assets'
   gem 'active_record_query_trace'
 
@@ -43,15 +43,15 @@ group :development, :test do
   gem 'timecop'
 
   # for ui testing
-  gem 'cucumber', require: false
-  gem 'selenium-webdriver', require: false
+  gem 'cucumber', require: false # 0.2s
+  gem 'selenium-webdriver', require: false # 0.1s
   gem 'rspec'
-  gem 'chromedriver-helper', '~> 0.0.7'
+  gem 'chromedriver-helper', '~> 0.0.7', require: false # 0.1s
   gem 'colorize'
   gem 'spring'
   gem 'spring-commands-testunit'
   gem 'minitest-reporters'
-  gem 'eyes_selenium', require: false
+  gem 'eyes_selenium', require: false # 0.2s
 end
 
 group :doc do
@@ -129,7 +129,7 @@ gem 'codemirror-rails' # edit code in textarea
 gem 'marked-rails' # js-based md renderer used for levelbuilder md preview
 
 gem 'twilio-ruby' # SMS API for send-to-phone feature
-gem 'aws-s3'
+gem 'aws-s3', require: false # 0.3s
 
 gem 'font-awesome-rails'
 gem 'sequel', '~> 4.10.0', require: false
