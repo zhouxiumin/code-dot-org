@@ -1,5 +1,5 @@
-require_relative '../boot'
-require_relative '../deployment'
+require_relative 'boot'
+require_relative 'deployment'
 require 'cdo/poste'
 require 'rails/all'
 
