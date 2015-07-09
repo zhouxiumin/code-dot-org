@@ -162,6 +162,7 @@ elsif Rails.env.test?
   $options.dashboard_db_access = true if $options.dashboard_domain =~ /test/
 end
 
+require 'parallel'
 Parallel.map($browsers, :in_processes => $options.parallel_limit) do |browser|
   browser_name = browser['name'] || 'UnknownBrowser'
   test_run_string = browser_name + ($options.run_eyes_tests ? '_eyes' : '')

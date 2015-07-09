@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 ruby '2.0.0'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
+# Rails
 gem 'rails', '4.0.3', require: ['rails', 'action_view', 'active_record']
 
-gem 'sinatra', '1.4.4', require: 'sinatra/base'
-gem 'rack-contrib', '~> 1.1'
+gem 'sinatra', '1.4.4', require: false
+gem 'rack-contrib', '~> 1.1', require: false
 
 gem 'mysql2', '0.3.13'
 gem 'seamless_database_pool', require: false # 0.2s
@@ -15,7 +15,7 @@ gem 'os'
 gem 'redis', '~> 3.1.0'
 gem 'google_drive', '~> 1.0.0', require: false # 0.3s
 gem 'dalli', require: false # memcached
-gem 'parallel'
+gem 'parallel', require: false
 
 gem 'google-api-client'
 

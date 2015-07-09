@@ -1,6 +1,5 @@
 require_relative 'src/env'
 require 'rack'
-require 'rack/contrib'
 require 'sinatra/base'
 require 'sinatra/verbs'
 require 'cdo/geocoder'
@@ -58,6 +57,7 @@ class Documents < Sinatra::Base
   end
 
   use Honeybadger::Rack if rack_env?(:production)
+  require 'rack/contrib/locale'
   use Rack::Locale
   use Rack::CdoDeflater
   use Rack::UpgradeInsecureRequests
