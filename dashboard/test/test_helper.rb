@@ -1,6 +1,7 @@
 # uncomment the below if you want to see code coverage
 #  require 'simplecov'
 #  SimpleCov.start :rails
+require 'factory_girl_rails'
 
 require 'minitest/reporters'
 MiniTest::Reporters.use!($stdout.tty? ? Minitest::Reporters::ProgressReporter.new : Minitest::Reporters::DefaultReporter.new)
