@@ -198,6 +198,7 @@ GEM
     mime-types (1.25.1)
     mini_portile (0.5.3)
     minitest (4.7.5)
+    minitest-profile (0.0.2)
     minitest-reporters (0.14.24)
       ansi
       builder
@@ -420,6 +421,7 @@ DEPENDENCIES
   le (~> 2.2)
   lograge
   marked-rails
+  minitest-profile
   minitest-reporters
   mocha
   mysql2 (= 0.3.13)

@@ -119,6 +119,8 @@ group :development, :test do
   gem 'mocha', require: false
   gem "codeclimate-test-reporter", require: false
   gem 'timecop'
+  gem 'minitest-reporters', require: false
+  gem 'minitest-profile', require: false
 end
 
 # ui testing
@@ -126,7 +128,6 @@ group :development, :test do
   gem 'cucumber', require: false
   gem 'selenium-webdriver', require: false
   gem 'chromedriver-helper', '~> 0.0.7', require: false
-  gem 'minitest-reporters', require: false
   gem 'eyes_selenium', require: false
   gem 'colorize', require: false
 end

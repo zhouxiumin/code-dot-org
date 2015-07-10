@@ -3,6 +3,7 @@
 #  SimpleCov.start :rails
 require 'factory_girl_rails'
 
+require 'minitest/profile'
 require 'minitest/reporters'
 MiniTest::Reporters.use!($stdout.tty? ? Minitest::Reporters::ProgressReporter.new : Minitest::Reporters::DefaultReporter.new)
 
