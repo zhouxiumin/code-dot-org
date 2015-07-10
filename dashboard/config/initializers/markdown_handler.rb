@@ -7,6 +7,7 @@ module MarkdownHandler
   }
 
   def self.call(template)
+    require 'redcarpet'
     @markdown ||= Redcarpet::Markdown.new(Redcarpet::Render::HTML, MARKDOWN_OPTIONS)
     "#{@markdown.render(template.source).inspect}.html_safe"
   end

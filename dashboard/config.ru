@@ -2,8 +2,12 @@
 
 require ::File.expand_path('../config/environment',  __FILE__)
 
-require 'unicorn/oob_gc'
-use Unicorn::OobGC
+unless rack_env? :development
+  require 'unicorn'
+  require 'unicorn/oob_gc'
+  use Unicorn::OobGC
+end
+
 use Rack::ContentLength
 if rack_env? :development
   require 'cdo/rack/https_redirect'

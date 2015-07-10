@@ -15,9 +15,11 @@ require 'shared_resources'
 require 'bootstrap-sass'
 require 'cdo/hash'
 
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
-Bundler.require(:default, Rails.env)
+# Require the gems listed in Gemfile.
+# Add environment-specific gems to the [env] group:
+# :development, :staging, :levelbuilder, :test, or :production.
+# Add Rails-specific + environment-specific gems to 'rails' or 'rails_[env]' group
+Bundler.require(:default, Rails.env, :rails, "rails_#{Rails.env}")
 
 module Dashboard
   class Application < Rails::Application

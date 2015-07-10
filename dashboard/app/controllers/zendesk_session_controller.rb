@@ -2,6 +2,7 @@
 # Most of this code is copied from: https://github.com/zendesk/zendesk_jwt_sso_examples
 
 require 'securerandom' unless defined?(SecureRandom)
+require 'jwt'
 
 class ZendeskSessionController < ApplicationController
   before_filter :authenticate_user!

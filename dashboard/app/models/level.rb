@@ -73,6 +73,7 @@ class Level < ActiveRecord::Base
   end
 
   def self.custom_levels
+    require 'naturally'
     Naturally.sort_by(Level.where.not(user_id: nil), :name)
   end
 

@@ -57,7 +57,4 @@ Dashboard::Application.configure do
 
   # Set to :debug to see everything in the log.
   config.log_level = :debug
-
-  # see stack traces around sql queries in the log
-  # ActiveRecordQueryTrace.enabled = true
 end

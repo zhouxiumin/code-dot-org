@@ -1,3 +1,4 @@
+require 'i18nema'
 Bundler.require(:fast_loc)
 I18n.backend = I18nema::Backend.new
 I18nema::Backend.send(:include, I18n::Backend::Fallbacks)

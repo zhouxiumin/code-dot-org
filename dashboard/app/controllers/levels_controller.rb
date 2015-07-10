@@ -158,6 +158,7 @@ class LevelsController < ApplicationController
       @level = @type_class.new
       render :edit
     else
+      require 'naturally'
       @levels = Naturally.sort_by(Level.where(user: current_user), :name)
     end
   end
