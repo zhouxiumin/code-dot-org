@@ -51,7 +51,7 @@ gem 'unicorn', '~> 4.8.2', group: [:staging, :test, :levelbuilder, :production],
 
 # Rails-specific gems
 group :rails do
-  gem 'rails', '4.0.3', require: ['rails', 'action_view', 'active_record']
+  gem 'rails', '4.0.3'
 
 # Rails Asset Pipeline integrations
   gem 'uglifier', '>= 1.3.0' # Use Uglifier to compress JavaScript assets
@@ -81,7 +81,7 @@ group :rails do
 # ActiveRecord extensions
   gem 'acts_as_list' # adds acts_as_list class method
   gem 'kaminari' # pagination helper adds #page, #per, #padding
-  gem "paranoia", "~> 2.0" # 'delete' model objects by setting a deleted_at column instead of deleting the row
+  gem 'paranoia', '~> 2.0' # 'delete' model objects by setting a deleted_at column instead of deleting the row
 # JSON model serializer for REST APIs
   gem 'active_model_serializers', github: 'rails-api/active_model_serializers', ref: '2962f3f64e7c672bfb5a13a8f739b5db073e5473'
 
@@ -117,10 +117,10 @@ end
 group :development, :test do
   gem 'simplecov', require: false
   gem 'mocha', require: false
-  gem "codeclimate-test-reporter", require: false
+  gem 'codeclimate-test-reporter', require: false
   gem 'timecop'
+  gem 'minitest', require: false
   gem 'minitest-reporters', require: false
-  gem 'minitest-profile', require: false
 end
 
 # ui testing

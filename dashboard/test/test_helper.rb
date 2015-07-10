@@ -1,29 +1,28 @@
+ENV['RAILS_ENV'] = 'test'
+ENV['RACK_ENV'] = 'test'
+
+# Load Rails
+require_relative '../config/environment'
+
 # uncomment the below if you want to see code coverage
 #  require 'simplecov'
 #  SimpleCov.start :rails
 require 'factory_girl_rails'
-
-require 'minitest/profile'
 require 'minitest/reporters'
 MiniTest::Reporters.use!($stdout.tty? ? Minitest::Reporters::ProgressReporter.new : Minitest::Reporters::DefaultReporter.new)
 
-ENV["RAILS_ENV"] = "test"
-ENV["RACK_ENV"] = "test"
-
 # deal with some ordering issues -- sometimes environment is loaded before test_helper and sometimes after
-CDO.rack_env = "test" if defined? CDO
-Rails.application.reload_routes! if defined? Rails
+CDO.rack_env = 'test' if defined? CDO
+Rails.application.reload_routes!
 
-require File.expand_path('../../config/environment', __FILE__)
 I18n.load_path += Dir[Rails.root.join('test', 'en.yml')]
 I18n.backend.reload!
 
 require 'rails/test_help'
-
-require "mocha/test_unit"
+require 'mocha/test_unit'
 
 # Raise exceptions instead of rendering exception templates.
-Dashboard::Application.config.action_dispatch.show_exceptions = false#
+Dashboard::Application.config.action_dispatch.show_exceptions = false
 
 class ActiveSupport::TestCase
   ActiveRecord::Migration.check_pending!
