@@ -1,3 +1,5 @@
+// Builds and minifies the packaged JS using Browserify and Uglify
+
 var path = require('path');
 var _ = require('underscore.string');
 var fse = require('fs-extra');
@@ -17,6 +19,7 @@ b.on('end', function() {
   console.log('written: ' + result.code.length);
 });
 
+// Copies relative-URL assets referenced by the embedded CSS
 function processRelativeUrl(relativeUrl) {
   var stripQueryStringAndHashFromPath = function (url) {
     return url.split('?')[0].split('#')[0];
@@ -37,3 +40,7 @@ function processRelativeUrl(relativeUrl) {
   }
   return relativeUrl;
 }
+
+fse.copySync('node_modules/videojs-ie8/dist/videojs-ie8.min.js', './build/videojs-ie8.js');
+fse.copySync('node_modules/video.js/node_modules/vtt.js/dist/vtt.min.js', './build/vtt.js');
+fse.copySync('node_modules/video.js/dist/video-js/video-js.swf', '../../misc/video/video-js.swf');

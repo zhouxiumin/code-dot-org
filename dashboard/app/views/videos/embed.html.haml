@@ -8,7 +8,7 @@
 %head
   / video.js and shims must be in the <head> for older IEs to work.
   /[if lt IE 9]
-    %script{src: '/shared/js/video/build/videojs-ie8.min.js'}
+    %script{src: '/shared/js/video/build/videojs-ie8.js'}
   %script{async:'async', src: '/shared/js/video/build/video.js'}
 %html{:dir => locale_dir}
   :css

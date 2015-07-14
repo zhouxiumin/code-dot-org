@@ -3,10 +3,10 @@ require('./video.css');
 window.onload = function() {
   var testImageAccess = require('../url_test/url_test.js');
   testImageAccess('https://www.youtube.com/favicon.ico?' + Math.random(),
-    function(){ vjs(true);},
-    function(){ vjs(false);}
+    function(){ videoJSLoad(true);},
+    function(){ videoJSLoad(false);}
   );
-  function vjs(youtubeEnabled) {
+  function videoJSLoad(youtubeEnabled) {
     var techOrder = [];
     if(youtubeEnabled) {
       techOrder.push('youtube');

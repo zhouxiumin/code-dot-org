@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "video.js": "^4.12.9",
-    "videojs-youtube": "^1.2.12"
+    "videojs-youtube": "^1.2.12",
+    "videojs-ie8": "^1.0.0"
   },
   "browserify": {
     "transform": [
