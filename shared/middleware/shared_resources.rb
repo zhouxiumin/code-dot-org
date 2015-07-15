@@ -19,7 +19,6 @@ class SharedResources < Sinatra::Base
     set :javascript_extnames, ['.js']
     set :javascript_max_age, static_max_age
 
-    set :misc_extnames, ['.eot', '.svg', '.ttf', '.woff']
     set :misc_max_age, static_max_age
   end
 
