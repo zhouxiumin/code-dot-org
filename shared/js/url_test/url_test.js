@@ -12,7 +12,7 @@ function testImageAccess(url, successCallback, failureCallback, timeoutMs) {
       called = true;
       window.clearTimeout(timeout);
       callback();
-    }
+    };
   }
   var timeout = window.setTimeout(finish(failureCallback), timeoutMs);
   img.onerror = finish(failureCallback);
