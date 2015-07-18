@@ -34,8 +34,13 @@
     }
 
   #video-container
-    %video{id: 'video', width: '100%', height: '100%', autoplay: params.has_key?(:autoplay), class: 'video-js vjs-default-skin vjs-big-play-centered', controls: true, preload: 'auto', poster: video.thumbnail_path}
-      - unless params.has_key?(:youtube_only)
-        %source{src: video.download, type: 'video/mp4'}
-      - unless params.has_key?(:fallback_only)
-        %source{src: video.youtube_url, type: 'video/youtube'}
+    - videojs_sources = []
+    - videojs_sources << {src: video.download, type: 'video/mp4'} unless params.has_key?(:youtube_only)
+    - videojs_sources << {src: video.youtube_url, type: 'video/youtube'} unless params.has_key?(:fallback_only)
+  :javascript
+    window.videojsOpts = {
+      fallbackOnly: #{ params.has_key?(:fallback_only).to_json},
+      thumbnail: #{ video.thumbnail_path.to_json},
+      autoplay: #{ params.has_key?(:autoplay)},
+      src: #{ videojs_sources.to_json}
+    };
