@@ -39,7 +39,7 @@ function getYouTubeDiv(id, autoplay) {
 
 // Replace preview image of a video with it's iframe.
 function getIframeDiv(id) {
-  var code = '<iframe src="https://www.youtube.com/embed/' + id + '/?autoplay=1&autohide=1&border=0&wmode=opaque&enablejsapi=1 frameborder=0 allowfullscreen="allowfullscreen" style="border:1px solid #ccc; width: 100%; height: 100%;" ></iframe>';
+  var code = '<iframe src="https://www.youtube.com/embed/' + id + '/?controls=2&iv_load_policy=3&rel=0&autohide=1&showinfo=0&autoplay=1&enablejsapi=1 frameborder=0 allowfullscreen="allowfullscreen" style="border:1px solid #ccc; width: 100%; height: 100%;" ></iframe>';
   var iframe = document.createElement('div');
   iframe.innerHTML = code;
   iframe = iframe.firstChild;

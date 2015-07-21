@@ -70,3 +70,13 @@
       autoplay: #{ params[:autoplay] == 'true'},
       src: #{ videojs_sources.to_json}
     };
+    window.addEventListener('message', receiveMessage);
+    function receiveMessage(msg) {
+      var iframe = document.getElementsByTagName('iframe');
+      if(iframe && iframe[0]) {
+        console.log('posting message');
+        var data = msg.data;
+        iframe[0].contentWindow.postMessage(data, '*');
+        console.log('message:', data);
+      }
+    }
