@@ -12,11 +12,13 @@ var b = require('browserify')('./video.js')
   .bundle();
 b.pipe(fse.createWriteStream('./build/video.js'));
 b.on('end', function() {
-  var UglifyJS = require("uglify-js");
-  var result = UglifyJS.minify("./build/video.js");
-  fse.deleteSync('./build/video.js');
-  fse.writeFileSync('./build/video.js', result.code);
-  console.log('written: ' + result.code.length);
+  setTimeout(function() {
+    var UglifyJS = require("uglify-js");
+    var result = UglifyJS.minify("./build/video.js");
+    fse.deleteSync('./build/video.js');
+    fse.writeFileSync('./build/video.js', result.code);
+    console.log('written: ' + result.code.length);
+  }, 100);
 });
 
 // Copies relative-URL assets referenced by the embedded CSS
@@ -28,7 +30,7 @@ function processRelativeUrl(relativeUrl) {
   var relativePath = stripQueryStringAndHashFromPath(relativeUrl);
   var queryStringAndHash = relativeUrl.substring(relativePath.length);
 
-  var prefix = 'node_modules/video.js/dist/video-js/';
+  var prefix = 'node_modules/video.js/dist/';
   if (_.startsWith(relativePath, prefix)) {
     var vendorPath = 'video/' + relativePath.substring(prefix.length);
     var source = path.join(rootDir, relativePath);
@@ -41,6 +43,6 @@ function processRelativeUrl(relativeUrl) {
   return relativeUrl;
 }
 
-fse.copySync('node_modules/videojs-ie8/dist/videojs-ie8.min.js', './build/videojs-ie8.js');
+fse.copySync('node_modules/video.js/dist/ie8/videojs-ie8.min.js', './build/videojs-ie8.js');
 fse.copySync('node_modules/video.js/node_modules/vtt.js/dist/vtt.min.js', './build/vtt.js');
-fse.copySync('node_modules/video.js/dist/video-js/video-js.swf', '../../misc/video/video-js.swf');
+fse.copySync('node_modules/video.js/dist/video-js.swf', '../../misc/video/video-js.swf');
