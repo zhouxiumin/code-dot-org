@@ -61,8 +61,8 @@ class Documents < Sinatra::Base
   use Rack::Locale
   use Rack::CdoDeflater
   use Rack::UpgradeInsecureRequests
-  require 'cdo/rack/rewrite_video_embed'
-  use ::Rack::RewriteVideoEmbed
+  # require 'cdo/rack/rewrite_video_embed'
+  # use ::Rack::RewriteVideoEmbed
 
   configure do
     dir = pegasus_dir('sites.v3')

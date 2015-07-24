@@ -21,7 +21,21 @@ dashboard.initializeEmbeddedMarkdownEditor = function (embeddedElement, markdown
   var dslText = dslElement.val();
 
   var mdEditor = codeMirror(markdownTextArea, 'markdown', function (editor, change) {
-    markdownPreviewArea.html(marked(editor.getValue()));
+    var renderer = new marked.Renderer();
+    renderer.image = function(href, title, text) {
+      var out = '<iframe src="/api/embed?url=' + href + '" alt="' + text + '"' + 'allowfullscreen="1"></iframe>';
+/*
+      var out = '<img src="' + href + '" alt="' + text + '"';
+      if (title) {
+        out += ' title="' + title + '"';
+      }
+      out += this.options.xhtml ? '/>' : '>';
+*/
+      return out;
+    };
+    markdownPreviewArea.html(marked(editor.getValue(), {
+      renderer: renderer
+    }));
 
     var editorText = editor.getValue();
     var dslText = dslElement.val();

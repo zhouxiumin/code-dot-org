@@ -64,6 +64,14 @@ class ApiController < ApplicationController
     render json: data
   end
 
+  def embed
+    require 'onebox'
+    url = params[:url]
+    onebox = Onebox.preview(url).to_s
+    puts "URL: #{url}, onebox: #{onebox}"
+    render inline: "<html><head></head><body>#{onebox}</body></html>".html_safe
+  end
+
   private
 
   def load_student

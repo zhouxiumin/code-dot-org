@@ -24,7 +24,7 @@ class Youtube
       video_filename = AWS::S3.upload_to_bucket(VIDEO_BUCKET, "youtube/#{id}.mp4", File.open(file), access: :public_read, no_random: true, content_type: 'video/mp4')
       puts "https://#{VIDEO_BUCKET}/#{video_filename}"
       thumbnail_file = "https://i.ytimg.com/vi/#{id}/0.jpg"
-      thumbnail = open(thumbnail_file) || raise RuntimeError, 'Could not retrieve thumbnail for video'
+      thumbnail = open(thumbnail_file) || raise(RuntimeError, 'Could not retrieve thumbnail for video')
       thumbnail_filename = AWS::S3.upload_to_bucket(VIDEO_BUCKET, "youtube/#{id}.jpg", thumbnail, access: :public_read, no_random: true)
       puts "https://#{VIDEO_BUCKET}/#{thumbnail_filename}"
     end
