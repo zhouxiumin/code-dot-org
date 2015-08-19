@@ -59,7 +59,8 @@ group :doc do
   gem 'sdoc', require: false
 end
 
-gem 'unicorn', '~> 4.8.2'
+gem 'passenger', '~> 5.0'
+# gem 'unicorn', '~> 4.8.2'
 
 gem 'chronic', '~> 0.10.2'
 

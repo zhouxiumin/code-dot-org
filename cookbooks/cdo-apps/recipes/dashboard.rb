@@ -7,9 +7,9 @@ template "/etc/init.d/dashboard" do
   group 'root'
   mode '0755'
   variables ({
-    src_file: "/home/#{node[:current_user]}/#{node.chef_environment}/dashboard/config/unicorn.rb",
+    app: 'dashboard',
     app_root: "/home/#{node[:current_user]}/#{node.chef_environment}/dashboard",
-    pid_file: "/home/#{node[:current_user]}/#{node.chef_environment}/dashboard/config/unicorn.rb.pid",
+    pid_file: "/home/#{node[:current_user]}/#{node.chef_environment}/dashboard/config/dashboard.pid",
     user: node[:current_user],
     env: node.chef_environment,
   })
