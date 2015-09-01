@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+# This script updates the deployed CloudFront distributions based on the current local configuration.
+require_relative '../../deployment'
+require 'aws-sdk'
+require_relative './cloudfront'
+
+cloudfront = Aws::CloudFront::Client.new(region: CDO.s3_region)
+id = CDO.cloudfront_pegasus_id
+config = cloudfront.get_distribution_config(id: id)
+new_config = cloudfront_config(CDO.cloudfront[:pegasus], CDO.http_cache[:pegasus])
+cloudfront.update_distribution(
+  id: id,
+  if_match: config.etag,
+  distribution_config: new_config
+)
+puts 'Distribution updated!'
+cloudfront.wait_until(:distribution_deployed, id: id) do |waiter|
+  waiter.before_wait { |_| puts 'Waiting for distribution to deploy..' }
+end
+puts 'Distribution deployed!'
