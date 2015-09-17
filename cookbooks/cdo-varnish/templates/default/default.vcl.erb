@@ -199,7 +199,7 @@ end
 
 ### PROXIES
 
-  if (req.http.host ~ '[dashboard|studio].code.org$')
+  if (req.http.host ~ "[dashboard|studio].code.org$")
   {
     # Proxy studio.code.org/v2/ to code.org/v2/
     if (req.url ~ "^/v2/")
