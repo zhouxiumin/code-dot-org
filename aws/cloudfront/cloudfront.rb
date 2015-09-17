@@ -40,7 +40,9 @@ STATIC_ASSETS = {
   cookies: 'none'
 }
 
-LANGUAGE_HEADER = %w(Accept-Language)
+# Host header is needed for Varnish to delegate to pegasus/dashboard depending on the host.
+# Accept-Language header is needed to cache language-specific pages.
+ALL_HEADERS = %w(Host Accept-Language)
 LANGUAGE_COOKIE = %w(language_)
 
 # HTTP-cache configuration that can be applied both to CDN (e.g. Cloudfront) and origin-local HTTP cache (e.g. Varnish).
@@ -68,19 +70,19 @@ CDO.http_cache = {
           ops-dashboard*
           poste*
         ),
-        headers: LANGUAGE_HEADER,
+        headers: ALL_HEADERS,
         cookies: ALL_COOKIES
       },
       {
         path: 'dashboardapi/*',
         proxy: 'studio.code.org',
-        headers: LANGUAGE_HEADER,
+        headers: ALL_HEADERS,
         cookies: ALL_COOKIES
       }
     ],
     # Default Pegasus paths are cached but language-specific, whitelist only language cookies/headers.
     default: {
-      headers: LANGUAGE_HEADER,
+      headers: ALL_HEADERS,
       cookies: LANGUAGE_COOKIE
     }
   },
@@ -90,13 +92,13 @@ CDO.http_cache = {
       {
         path: 'v2/*',
         proxy: 'code.org/v2',
-        headers: LANGUAGE_HEADER,
+        headers: ALL_HEADERS,
         cookies: ALL_COOKIES
       }
     ],
     # Default Dashboard paths are session-specific, whitelist all session cookies and language headers.
     default: {
-      headers: LANGUAGE_HEADER,
+      headers: ALL_HEADERS,
       cookies: ALL_COOKIES
     }
   }
