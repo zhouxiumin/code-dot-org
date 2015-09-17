@@ -1,6 +1,7 @@
 require_relative '../../deployment'
 require 'digest'
 require 'aws-sdk'
+require 'cdo/session'
 
 # Cloudfront-specific configuration.
 CDO.cloudfront = {
@@ -25,13 +26,12 @@ CDO.cloudfront = {
   }
 }
 
-ALL_COOKIES = %w(
-  _learn_session
-  hour_of_code
-  language_
-  storage
-  storage_id
-)
+ALL_COOKIES = [
+  'hour_of_code',
+  'language_',
+  Session::KEY,
+  Session::STORAGE_ID
+]
 
 STATIC_ASSETS = {
   # For static-asset extensions, don't forward any cookies and strip language headers.
