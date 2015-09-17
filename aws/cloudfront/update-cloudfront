@@ -5,17 +5,27 @@ require_relative '../../deployment'
 require 'aws-sdk'
 require_relative './cloudfront'
 
-cloudfront = Aws::CloudFront::Client.new(region: CDO.s3_region)
-id = CDO.cloudfront_pegasus_id
-config = cloudfront.get_distribution_config(id: id)
-new_config = cloudfront_config(CDO.cloudfront[:pegasus], CDO.http_cache[:pegasus])
-cloudfront.update_distribution(
-  id: id,
-  if_match: config.etag,
-  distribution_config: new_config
-)
-puts 'Distribution updated!'
-cloudfront.wait_until(:distribution_deployed, id: id) do |waiter|
-  waiter.before_wait { |_| puts 'Waiting for distribution to deploy..' }
+cloudfront = Aws::CloudFront::Client.new
+%i(pegasus dashboard).map do |app|
+  id = CDO["cloudfront_#{app}_id"]
+  config = cloudfront.get_distribution_config(id: id)
+  new_config = cloudfront_config(
+    CDO.cloudfront[app],
+    CDO.http_cache[app],
+    config.distribution_config.caller_reference
+  )
+  cloudfront.update_distribution(
+    id: id,
+    if_match: config.etag,
+    distribution_config: new_config
+  )
+  puts "#{app} distribution updated!"
 end
-puts 'Distribution deployed!'
+
+%i(pegasus dashboard).map do |app|
+  id = CDO["cloudfront_#{app}_id"]
+  cloudfront.wait_until(:distribution_deployed, id: id) do |waiter|
+    waiter.before_wait { |_| puts "Waiting for #{app} distribution to deploy.." }
+  end
+  puts "#{app} distribution deployed!"
+end

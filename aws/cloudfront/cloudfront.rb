@@ -106,7 +106,7 @@ CDO.http_cache = {
 
 # Returns a CloudFront DistributionConfig Hash compatible with the AWS SDK for Ruby v2.
 # Syntax reference: http://docs.aws.amazon.com/sdkforruby/api/Aws/CloudFront/Types/DistributionConfig.html
-def cloudfront_config(cloudfront, config)
+def cloudfront_config(cloudfront, config, reference = nil)
   behaviors = config[:behaviors].map do |behavior|
     if behavior[:path].is_a? Array
       behavior[:path].map do |path|
@@ -119,7 +119,6 @@ def cloudfront_config(cloudfront, config)
 
   ssl_cert = cloudfront[:ssl_cert] &&
   {
-    caller_reference: Digest::MD5.hexdigest(Marshal.dump(config)), # required
     aliases: {
       quantity: cloudfront[:aliases].length, # required
       items: cloudfront[:aliases].empty? ? nil : cloudfront[:aliases],
@@ -175,7 +174,9 @@ def cloudfront_config(cloudfront, config)
         quantity: 0 # required
       },
     },
-  }
+  }.tap do |cf|
+    cf[:caller_reference] = reference || Digest::MD5.hexdigest(Marshal.dump(config)) # required
+  end
 end
 
 # `config` contains `headers` and `cookies` whitelists.
