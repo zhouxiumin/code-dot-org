@@ -872,6 +872,7 @@ function extendHandleClearPuzzle() {
     orig(config);
     Applab.setLevelHtml(config.level.startHtml || '');
     AppStorage.populateTable(level.dataTables, true); // overwrite = true
+    AppStorage.populateKeyValue(level.dataProperties, true); // overwrite = true
     studioApp.resetButtonClick();
   };
 }
@@ -1019,6 +1020,7 @@ Applab.init = function(config) {
 
   Applab.setLevelHtml(level.levelHtml || level.startHtml || "");
   AppStorage.populateTable(level.dataTables, false); // overwrite = false
+  AppStorage.populateKeyValue(level.dataProperties, false); // overwrite = false
   studioApp.init(config);
 
   var viz = document.getElementById('visualization');
@@ -5481,6 +5483,52 @@ var handlePopulateTable = function (onSuccess, onError) {
   }
 };
 
+/**
+ * Populates the key/value store with initial data
+ * @param {string} jsonData The json data that represents the tables in the format of:
+ *   {
+ *     "click_count": 5,
+ *     "button_color": "blue"
+ *   }
+ * @param {bool} overwrite Whether to overwrite a table if it already exists.
+ * @param {function()} onSuccess Function to call on success.
+ * @param {function(string)} onError Function to call with an error message
+ *    in case of failure.
+ */
+AppStorage.populateKeyValue = function (jsonData, overwrite, onSuccess, onError) {
+  if (!jsonData || !jsonData.length) {
+    return;
+  }
+  var req = new XMLHttpRequest();
+
+  req.onreadystatechange = handlePopulateKeyValue.bind(req, onSuccess, onError);
+  var url = '/v3/shared-properties/' + AppStorage.getChannelId();
+
+  if (overwrite) {
+    url += "?overwrite=1";
+  }
+  req.open('POST', url, true);
+  req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+  req.send(jsonData);
+};
+
+var handlePopulateKeyValue = function (onSuccess, onError) {
+  var done = XMLHttpRequest.DONE || 4;
+  if (this.readyState !== done) {
+    return;
+  }
+
+  if (this.status != 200) {
+    if (onError) {
+      onError('error populating kv: unexpected http status ' + this.status);
+    }
+    return;
+  }
+  if (onSuccess) {
+    onSuccess();
+  }
+};
+
 
 },{}],"/home/ubuntu/staging/apps/build/js/applab/apiBlockly.js":[function(require,module,exports){
 
@@ -6708,7 +6756,7 @@ module.exports = React.createClass({displayName: "exports",
       boxShadow: '0px 1px 5px rgba(0, 0, 0, 0.3)'
     };
     var hidden = {
-      visibility: 'hidden'
+      display: 'none'
     };
 
     var showDataButtonStyle = $.extend(

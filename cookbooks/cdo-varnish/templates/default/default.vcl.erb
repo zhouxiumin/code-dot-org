@@ -74,22 +74,6 @@ backend dashboard_<%= id %> {
   end
 %>
 
-# api.change.org
-backend api_change_org_4 {
-  .host = "104.16.4.13";
-  .port = "80";
-  .connect_timeout = 600s;
-  .first_byte_timeout = 600s;
-  .between_bytes_timeout = 600s;
-}
-backend api_change_org_5 {
-  .host = "104.16.5.13";
-  .port = "80";
-  .connect_timeout = 600s;
-  .first_byte_timeout = 600s;
-  .between_bytes_timeout = 600s;
-}
-
 sub vcl_init {
   new default = directors.round_robin();
   new dashboard = directors.round_robin();
@@ -98,8 +82,6 @@ sub vcl_init {
   default.add_backend(pegasus_<%= id %>);
   dashboard.add_backend(dashboard_<%= id %>);
 <% end %>
-  api_change_org.add_backend(api_change_org_4);
-  api_change_org.add_backend(api_change_org_5);
 }
 
 # Respond to incoming requests.
@@ -219,14 +201,6 @@ end
     set req.backend_hint = dashboard.backend();
     set req.http.host = "<%= canonical_hostname('studio.code.org') %>";
     set req.url = regsub(req.url, "^/dashboardapi/", "/api/");
-    return(pass);
-  }
-  else if (req.url ~ "^/api/change.org/")
-  {
-    # Proxy code.org/api/change.org/ to api.change.org/
-    set req.backend_hint = api_change_org.backend();
-    set req.http.host = "api.change.org";
-    set req.url = regsub(req.url, "^/api/change.org/", "/");
     return(pass);
   }
   else
