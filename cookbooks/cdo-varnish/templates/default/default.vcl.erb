@@ -106,7 +106,7 @@ end
 
 ### PROXIES
 
-  if (req.http.host ~ "[dashboard|studio].code.org$")
+  if (req.http.host ~ "(dashboard|studio).code.org$")
   {
     # Proxy studio.code.org/v2/ to code.org/v2/
     if (req.url ~ "^/v2/")
@@ -137,7 +137,7 @@ end
 
 ### REQUEST COOKIE FILTER
 <% config = node['cdo-varnish']['config'] %>
-  if (req.http.host ~ "[dashboard|studio].code.org$") {
+  if (req.http.host ~ "(dashboard|studio).code.org$") {
     if (false) {
 <%
      app = config['dashboard']
