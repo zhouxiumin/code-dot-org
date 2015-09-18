@@ -1,6 +1,6 @@
 # Setup the mock-server and cache
 puts 'setup'
-PID = spawn('cd ~; java -jar mock.jar')
+PID = spawn('cd ~; java -jar mock.jar --verbose')
 `service varnish restart`
 # Don't start tests until both wiremock and varnish are live.
 mock_started, varnish_started = false, false
@@ -51,10 +51,10 @@ JSON
 end
 
 # Mocks a simple text/plain response body at the specified URL.
-def mock_url(url, body, request_headers={}, response_headers={})
+def mock_url(url, body, request_headers={}, response_headers={}, method='GET')
   json = {
   request: {
-    method: "GET",
+    method: method,
     url: url,
     headers: Hash[*request_headers.map{|k, v|[k,{equalTo: v}]}.flatten]
   },
@@ -69,20 +69,20 @@ def mock_url(url, body, request_headers={}, response_headers={})
   `curl -s -X POST localhost:8080/__admin/mappings/new -d '#{json}'`
 end
 
-def _request(url, headers={}, cookies={})
+def _request(url, headers={}, cookies={}, method='GET')
   header_string = headers.map { |key, value| "-H \"#{key}: #{value}\"" }.join(' ')
   cookie_string = cookies.empty? ? '' : "--cookie \"#{cookies.map{|k,v|"#{k}=#{v}"}.join(';')}\""
-  `curl -s #{cookie_string} #{header_string} -i #{url}`.tap{assert_equal 0, $?.exitstatus}
+  `curl -X #{method} -s #{cookie_string} #{header_string} -i #{url}`.tap{assert_equal 0, $?.exitstatus}
 end
 
 def request(url, headers={}, cookies={})
   _request("localhost:8080#{url}", headers, cookies)
 end
 
-def proxy_request(url, headers={}, cookies={})
+def proxy_request(url, headers={}, cookies={}, method='GET')
   headers.merge!(host: '_default-studio.code.org')
   headers.merge!('X-Forwarded-Proto' => 'https')
-  _request("localhost:80#{url}", headers, cookies)
+  _request("localhost:80#{url}", headers, cookies, method)
 end
 
 def code(response)
@@ -174,6 +174,7 @@ describe 'http' do
     response = proxy_request url, {}, {cookie_key: 'cookie_value'}
     assert_equal text, response.lines.last.strip
     assert_nil /Cookie: [^\s]+/.match(response)
+
     # Cache hit on changed cookies
     assert_hit proxy_request url, {}, {cookie_key: 'cookie_value3', key2: 'value2'}
   end
@@ -236,6 +237,31 @@ describe 'http' do
     # Response should be cached even if response cookie is changed
     mock_url(url, text, {}, {'Set-Cookie' => "#{cookie}=def; path=/"})
     assert_hit proxy_request url
+  end
+
+  it 'Does not strip cookies from uncached PUT or POST asset requests' do
+    url = '/cache8.png'
+    cookie = 'random_cookie'
+    text = 'Hello World!'
+    text_cookie = 'Hello Cookie!'
+
+    set_cookie = {'Set-Cookie' => "#{cookie}=456; path=/"}
+    %w(PUT POST).each do |method|
+      mock_url(url, text, {}, set_cookie, method)
+      mock_url(url, text_cookie, {'Cookie' => "#{cookie}=123"}, set_cookie, method)
+    end
+
+    # PUT/POST
+    %w(POST PUT).each do |method|
+      # PUT/POST response should NOT have cookie stripped
+      puts "Testing #{method}"
+      response = proxy_request url, {}, {"#{cookie}" => '123'}, method
+      assert_equal text_cookie, response.lines.last.strip
+      assert_miss response
+      # PUT/POST response should NOT be cached
+      response = proxy_request url, {}, {"#{cookie}" => '123'}, method
+      assert_miss response
+    end
   end
 
 end

@@ -136,38 +136,31 @@ end
 ###
 
 ### REQUEST COOKIE FILTER
-<% config = node['cdo-varnish']['config'] %>
-  if (req.http.host ~ "(dashboard|studio).code.org$") {
-    if (false) {
+# Only apply cookie filter to cached HTTP methods.
+if(req.method == "GET" || req.method == "HEAD") {
 <%
-     app = config['dashboard']
-     app['behaviors'].each do |behavior|
+   %w(dashboard pegasus).each do |app|
+     config = node['cdo-varnish']['config'][app]
 %>
+  <%= if_app(app) %>
+    if (false) {
+<% config['behaviors'].each do |behavior| %>
     } else if (<%= paths_to_regex(behavior) %>) {
       <%= process_cookies(behavior) %>
 <% end %>
     } else {
-      <%= process_cookies(app['default']) %>
+      <%= process_cookies(config['default']) %>
     }
-  } else {
-    if (false) {
-<%
-   app = config['pegasus']
-   app['behaviors'].each do |behavior|
-%>
-    } else if (<%= paths_to_regex(behavior) %>) {
-      <%= process_cookies(behavior) %>
 <% end %>
-    } else {
-      <%= process_cookies(app['default']) %>
+  }
+  if (req.http.Cookie) {
+    set req.http.Cookie = cookie.get_string();
+    if (req.http.Cookie == "") {
+      unset req.http.Cookie;
     }
   }
-  set req.http.Cookie = cookie.get_string();
-  if (req.http.Cookie == "") {
-    unset req.http.Cookie;
-  }
+}
 ###
-
   # Pass-through to builtin.
 }
 

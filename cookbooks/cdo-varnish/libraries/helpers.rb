@@ -1,3 +1,5 @@
+# Various Ruby helper methods to generate Varnish VCL from the base configuration.
+
 QUERY_REGEX = "(\\?[a-z0-9]+)?$"
 def path_to_regex(path)
   path = "^/#{path.sub(/^\//,'')}"
@@ -30,11 +32,8 @@ end
 
 def process_cookies(behavior)
   cookies = behavior['cookies']
-  if cookies == 'none'
-    'unset req.http.Cookie;'
-  else
-    "cookie.filter_except(\"#{cookies.join(',')}\");"
-  end
+  cookies = ['NO_CACHE'] if cookies == 'none'
+  "cookie.filter_except(\"#{cookies.join(',')}\");"
 end
 
 def canonical_hostname(domain)
@@ -67,4 +66,10 @@ end
 def append_env(name)
   name += "_#{node.chef_environment}" unless rack_env?(:production)
   name
+end
+
+def if_app(app)
+  app == 'dashboard' ?
+    'if (req.http.host ~ "(dashboard|studio).code.org$") {' :
+    '} else {'
 end
