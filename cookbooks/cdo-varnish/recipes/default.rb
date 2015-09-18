@@ -48,6 +48,10 @@ service 'varnish' do
   action :nothing
 end
 
+KEY = "_learn_session#{"_#{node.chef_environment}" unless node.chef_environment.to_s == 'production'}"
+STORAGE_ID = "storage_id#{"_#{node.chef_environment}" unless node.chef_environment.to_s == 'production'}"
+node.default['cdo-varnish']['config'] = HttpCache.config(KEY, STORAGE_ID)
+
 template '/etc/default/varnish' do
   source 'config.erb'
   user 'root'

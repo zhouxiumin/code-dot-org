@@ -3,52 +3,6 @@ vcl 4.0;
 include "/etc/varnish/accept-language.vcl";
 import cookie;
 import header;
-<%
-  def canonical_hostname(domain)
-    return "console.#{domain}" if node.name == 'production-console'
-    return "daemon.#{domain}" if node.name == 'production-daemon'
-    return "#{node.name}.#{domain}" if ['hoc-levels'].include?(node.name)
-    return domain if rack_env?(:production)
-
-    # our HTTPS wildcard certificate only supports *.code.org
-    # 'env', 'studio.code.org' over https must resolve to 'env-studio.code.org' for non-prod environments
-    sep = domain.include?('.code.org') ? '-' : '.'
-
-    # Handle some hard-coded exceptions
-    {
-      react: 'react',
-      translate: 'crowdin',
-      levelbuilder: 'levelbuilder-staging',
-      'levelbuilder-dev' => 'levelbuilder-development',
-    }.each do |subdomain, node_name|
-      return "#{subdomain}#{sep}#{domain}" if node.name == node_name
-    end
-
-    "#{node.chef_environment}#{sep}#{domain}"
-  end
-
-  def rack_env?(env)
-    env.to_s == node.chef_environment
-  end
-  
-  def session_cookie
-    append_env '_learn_session'
-  end
-
-  def deprecated_storage_cookie
-    append_env 'storage'
-  end
-
-  def storage_id_cookie
-    append_env 'storage_id'
-  end
-
-  def append_env(name)
-    name += "_#{node.chef_environment}" unless rack_env?(:production)
-    name
-  end
-%>
-
 import directors;
 
 <%
@@ -111,37 +65,10 @@ sub vcl_recv
   }
   <%
     # Alias the following domains to one of our primary ones.
-    redirects = {
-      'forums.code.org'      => 'support.code.org',
-      'aws.code.org'      => 'code.org',
-      'blockly.com'       => 'studio.code.org',
-      'learn.code.org'    => 'studio.code.org',
-
-      'hourofcode.org'    => 'hourofcode.com',
-      'hourofcode.co'     => 'hourofcode.com',
-      'hourofcode.net'    => 'hourofcode.com',
-      'hourofcode.co.uk'  => 'hourofcode.com',
-      'hourofcode.org.uk' => 'hourofcode.com',
-      'onehourofcode.com' => 'hourofcode.com',
-      'onehourofcode.org' => 'hourofcode.com',
-      'dayofcode.com'     => 'hourofcode.com',
-      'dayofcode.org'     => 'hourofcode.com',
-      'monthofcode.com'   => 'hourofcode.com',
-      'weekofcode.org'    => 'hourofcode.com',
-      'weekofcode.com'    => 'hourofcode.com',
-      'yearofcode.co.uk'  => 'uk.code.org',
-      'yearofcode.org.uk' => 'uk.code.org',
-
-      'csedweek.com'        => 'csedweek.org',
-      'csedweek.net'        => 'csedweek.org',
-      'cseducationweek.com' => 'csedweek.org',
-      'cseducationweek.org' => 'csedweek.org',
-    }
+    redirects = node['cdo-varnish']['redirects'].dup
     unless rack_env?(:production)
       # Redirect e.g. [env].studio.code.org to [env]-studio.code.org
-      redirects.merge!(Hash[*%w(studio learn i18n al ar br italia ro eu uk za).map{|x|["#{node.chef_environment}.#{x}.code.org", "#{node.chef_environment}-#{x}.code.org"]}.flatten])
-      redirects.merge!({ 'translate.studio.code.org' => 'translate-studio.code.org'}) if rack_env?(:staging)
-      redirects.merge!({ 'staging.translate.hourofcode.com' => 'staging-translate.hourofcode.com'}) if rack_env?(:staging)
+      redirects.merge!(Hash[*%w(studio i18n al ar br italia ro eu uk za).map{|x|["#{node.chef_environment}.#{x}.code.org", "#{node.chef_environment}-#{x}.code.org"]}.flatten])
     end
     redirects.each_pair do |domain,site|
   %>else if(req.http.Host == "<%= domain %>")
@@ -156,9 +83,7 @@ sub vcl_recv
   }
 ###
 
-  if(req.http.Cookie) {
-    cookie.parse(req.http.Cookie);
-  }
+  cookie.parse(req.http.Cookie);
 
 ### Accept-Language HEADER
 
@@ -211,46 +136,35 @@ end
 ###
 
 ### REQUEST COOKIE FILTER
-
-  # Always cache the following file types for all users.
-  if( (req.url ~ "(?i)\.(cur|pdf|png|gif|jpeg|jpg|ico|mp3|swf|css|js)(\?[a-z0-9]+)?$") && (!(req.url ~ "^/api/")) ) {
-    unset req.http.Cookie;
-  }
-
-  # Remove all cookies that our sites don't need to know about. ANY remaining
-  # cookie will cause the request to pass-through to a backend. For the most part
-  # we always set the NO_CACHE cookie after any POST request, disabling the
-  # Varnish cache temporarily. The session cookie allows all authenticated users
-  # to pass through as long as they're logged in.
-  if (req.http.Cookie) {
-    if (
-        req.http.host == "<%= canonical_hostname('learn.code.org') %>" ||
-        req.http.host == "<%= canonical_hostname('studio.code.org') %>" ||
-        req.url ~ "^/dashboardapi/" ||
-        req.url ~ "^/v2/" ||
-        req.url ~ "^/v3/" ||
-        req.url ~ "^/api/" ||
-        req.url ~ "^/private" ||
-# Todo: Collapse these paths into /private to simplify Pegasus caching config
-        req.url ~ "^/create-company-profile" ||
-        req.url ~ "^/edit-company-profile" ||
-        req.url ~ "^/teacher-dashboard" ||
-        req.url ~ "^/manage-professional-development-workshops" ||
-        req.url ~ "^/professional-development-workshop-surveys/" ||
-        req.url ~ "^/ops-dashboard" ||
-        req.url ~ "^/poste"
-      ) {
-      cookie.filter_except("<%=[session_cookie,deprecated_storage_cookie,storage_id_cookie].join(',')%>,language_,hour_of_code,NO_CACHE");
+<% config = node['cdo-varnish']['config'] %>
+  if (req.http.host ~ "[dashboard|studio].code.org$") {
+    if (false) {
+<%
+     app = config['dashboard']
+     app['behaviors'].each do |behavior|
+%>
+    } else if (<%= paths_to_regex(behavior) %>) {
+      <%= process_cookies(behavior) %>
+<% end %>
     } else {
-      cookie.filter_except("NO_CACHE");
+      <%= process_cookies(app['default']) %>
     }
-    set req.http.Cookie = cookie.get_string();
-    if (req.http.Cookie == "") {
-      # If there are no remaining cookies, remove the cookie header. If there
-      # aren't any cookie headers, Varnish's default behavior will be to cache
-      # the page.
-      unset req.http.Cookie;
+  } else {
+    if (false) {
+<%
+   app = config['pegasus']
+   app['behaviors'].each do |behavior|
+%>
+    } else if (<%= paths_to_regex(behavior) %>) {
+      <%= process_cookies(behavior) %>
+<% end %>
+    } else {
+      <%= process_cookies(app['default']) %>
     }
+  }
+  set req.http.Cookie = cookie.get_string();
+  if (req.http.Cookie == "") {
+    unset req.http.Cookie;
   }
 ###
 
@@ -298,7 +212,6 @@ sub vcl_deliver {
   }
 
   set resp.http.X-Varnish-Node = "<%= node.name %>";
-
   # Pass-through to builtin.
 }
 

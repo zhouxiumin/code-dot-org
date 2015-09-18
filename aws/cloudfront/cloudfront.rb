@@ -3,11 +3,15 @@ require 'digest'
 require 'aws-sdk'
 require 'cdo/session'
 
+dashboard_hostname = CDO.canonical_hostname('studio.code.org')
+pegasus_hostname = CDO.canonical_hostname('code.org')
+
+
 # Cloudfront-specific configuration.
 CDO.cloudfront = {
   pegasus: {
-    aliases: [CDO.canonical_hostname('code.org')],
-    origin: CDO.origin_hostname || raise('CDO.origin_hostname required'),
+    aliases: [pegasus_hostname],
+    origin: "#{ENV['RACK_ENV']}-pegasus.code.org",
     # IAM server certificate name
     ssl_cert: 'codeorg-cloudfront',
     log: {
@@ -16,8 +20,8 @@ CDO.cloudfront = {
     }
   },
   dashboard: {
-    aliases: [CDO.canonical_hostname('studio.code.org')],
-    origin: CDO.origin_hostname || raise('CDO.origin_hostname required'),
+    aliases: [dashboard_hostname],
+    origin: "#{ENV['RACK_ENV']}-dashboard.code.org",
     ssl_cert: 'codeorg-cloudfront',
     log: {
       bucket: 'cdo-logs',
@@ -26,83 +30,8 @@ CDO.cloudfront = {
   }
 }
 
-ALL_COOKIES = [
-  'hour_of_code',
-  'language_',
-  Session::KEY,
-  Session::STORAGE_ID
-]
-
-STATIC_ASSETS = {
-  # For static-asset extensions, don't forward any cookies and strip language headers.
-  path: %w(cur pdf png gif jpeg jpg ico mp3 swf css js).map{|ext| "*.#{ext}"},
-  headers: [],
-  cookies: 'none'
-}
-
-# Host header is needed for Varnish to delegate to pegasus/dashboard depending on the host.
-# Accept-Language header is needed to cache language-specific pages.
-ALL_HEADERS = %w(Host Accept-Language)
-LANGUAGE_COOKIE = %w(language_)
-
-# HTTP-cache configuration that can be applied both to CDN (e.g. Cloudfront) and origin-local HTTP cache (e.g. Varnish).
-# Whenever possible, the application should deliver correct HTTP response headers to direct cache behaviors.
-# This hash provides extra application-specific configuration for whitelisting specific request headers and
-# cookies based on the request path.
-CDO.http_cache = {
-  pegasus: {
-    behaviors: [
-      STATIC_ASSETS,
-      # Dashboard-based API paths in Pegasus are session-specific, whitelist all session cookies and language headers.
-      {
-        path: %w(
-          v2/*
-          v3/*
-          private*
-        ) +
-        # Todo: Collapse these paths into /private to simplify Pegasus caching config
-        %w(
-          create-company-profile*
-          edit-company-profile*
-          teacher-dashboard*
-          manage-professional-development-workshops*
-          professional-development-workshop-surveys*
-          ops-dashboard*
-          poste*
-        ),
-        headers: ALL_HEADERS,
-        cookies: ALL_COOKIES
-      },
-      {
-        path: 'dashboardapi/*',
-        proxy: 'studio.code.org',
-        headers: ALL_HEADERS,
-        cookies: ALL_COOKIES
-      }
-    ],
-    # Default Pegasus paths are cached but language-specific, whitelist only language cookies/headers.
-    default: {
-      headers: ALL_HEADERS,
-      cookies: LANGUAGE_COOKIE
-    }
-  },
-  dashboard: {
-    behaviors: [
-      STATIC_ASSETS,
-      {
-        path: 'v2/*',
-        proxy: 'code.org/v2',
-        headers: ALL_HEADERS,
-        cookies: ALL_COOKIES
-      }
-    ],
-    # Default Dashboard paths are session-specific, whitelist all session cookies and language headers.
-    default: {
-      headers: ALL_HEADERS,
-      cookies: ALL_COOKIES
-    }
-  }
-}
+require 'cookbooks/cdo-varnish/libraries/http_cache'
+CDO.http_cache = HttpCache.config(Session::KEY, Session::STORAGE_ID)
 
 # Returns a CloudFront DistributionConfig Hash compatible with the AWS SDK for Ruby v2.
 # Syntax reference: http://docs.aws.amazon.com/sdkforruby/api/Aws/CloudFront/Types/DistributionConfig.html
