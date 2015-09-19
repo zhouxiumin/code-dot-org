@@ -6,7 +6,6 @@ require 'cdo/session'
 dashboard_hostname = CDO.canonical_hostname('studio.code.org')
 pegasus_hostname = CDO.canonical_hostname('code.org')
 
-
 # Cloudfront-specific configuration.
 CDO.cloudfront = {
   pegasus: {
