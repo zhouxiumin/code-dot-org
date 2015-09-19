@@ -53,7 +53,7 @@ class HttpCache
           },
           {
             path: 'dashboardapi/*',
-            proxy: 'studio.code.org',
+            proxy: 'dashboard',
             headers: ALL_HEADERS,
             cookies: all_cookies
           }
@@ -74,7 +74,7 @@ class HttpCache
           STATIC_ASSETS,
           {
             path: 'v2/*',
-            proxy: 'code.org/v2',
+            proxy: 'pegasus',
             headers: ALL_HEADERS,
             cookies: all_cookies
           }

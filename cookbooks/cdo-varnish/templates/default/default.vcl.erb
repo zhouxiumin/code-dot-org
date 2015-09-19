@@ -1,5 +1,4 @@
 vcl 4.0;
-
 include "/etc/varnish/accept-language.vcl";
 import cookie;
 import header;
@@ -168,6 +167,8 @@ if(req.method == "GET" || req.method == "HEAD") {
 sub vcl_backend_response {
 
 ### RESPONSE COOKIE FILTER
+# Only apply cookie filter to cached HTTP methods.
+if(req.method == "GET" || req.method == "HEAD") {
 <%
    %w(dashboard pegasus).each do |app|
      config = node['cdo-varnish']['config'][app]
@@ -183,6 +184,7 @@ sub vcl_backend_response {
   }
 <% end %>
   }
+}
 ###
 
   if (beresp.http.Cache-Control) {
