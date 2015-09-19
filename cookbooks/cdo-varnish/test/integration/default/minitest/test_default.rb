@@ -1,3 +1,11 @@
+# Chef test suite for cdo-varnish cookbook.
+
+# Chef node attributes as constants
+DASHBOARD_PORT = 8080
+PEGASUS_PORT = 8081
+VARNISH_PORT = 80
+LOCALHOST = 'localhost'
+
 # Setup the mock-server and cache
 puts 'setup'
 PID = spawn('cd ~; java -jar mock.jar --verbose')
@@ -8,12 +16,12 @@ until [mock_started,varnish_started].all? do
   `sleep 1`
   unless mock_started
     puts 'testing mock'
-    `curl -s -i localhost:8080/start`
+    `curl -s -i #{LOCALHOST}:#{DASHBOARD_PORT}/start`
     mock_started = $?.exitstatus == 0
   end
   unless varnish_started
     puts 'testing varnish'
-    `curl -s -i localhost:80/start`
+    `curl -s -i #{LOCALHOST}:#{VARNISH_PORT}/start`
     varnish_started = $?.exitstatus == 0
   end
 end
@@ -21,7 +29,7 @@ puts 'setup finished'
 
 at_exit do
   puts 'teardown'
-  `curl -s -X POST localhost:8080/__admin/shutdown`
+  `curl -s -X POST #{LOCALHOST}:#{DASHBOARD_PORT}/__admin/shutdown`
   Process.wait PID
   puts 'teardown finished'
 end
@@ -47,7 +55,7 @@ def count_requests(url)
   "url": "#{url}"
 }
 JSON
-  JSON.parse(`curl -s -X POST localhost:8080/__admin/requests/count -d '#{request}'`)['count']
+  JSON.parse(`curl -s -X POST #{LOCALHOST}:#{DASHBOARD_PORT}/__admin/requests/count -d '#{request}'`)['count']
 end
 
 # Mocks a simple text/plain response body at the specified URL.
@@ -66,7 +74,7 @@ def mock_url(url, body, request_headers={}, response_headers={}, method='GET')
     }.merge(response_headers)
   }
 }.to_json
-  `curl -s -X POST localhost:8080/__admin/mappings/new -d '#{json}'`
+  `curl -s -X POST #{LOCALHOST}:#{DASHBOARD_PORT}/__admin/mappings/new -d '#{json}'`
 end
 
 def _request(url, headers={}, cookies={}, method='GET')
@@ -76,13 +84,13 @@ def _request(url, headers={}, cookies={}, method='GET')
 end
 
 def request(url, headers={}, cookies={})
-  _request("localhost:8080#{url}", headers, cookies)
+  _request("#{LOCALHOST}:#{DASHBOARD_PORT}#{url}", headers, cookies)
 end
 
 def proxy_request(url, headers={}, cookies={}, method='GET')
   headers.merge!(host: '_default-studio.code.org')
   headers.merge!('X-Forwarded-Proto' => 'https')
-  _request("localhost:80#{url}", headers, cookies, method)
+  _request("#{LOCALHOST}:#{VARNISH_PORT}#{url}", headers, cookies, method)
 end
 
 def code(response)
@@ -130,9 +138,9 @@ describe 'http' do
   end
 
   it 'redirects HTTP to HTTPS' do
-    response = _request 'localhost:80/https'
+    response = _request "#{LOCALHOST}:#{VARNISH_PORT}/https"
     assert_equal 301, code(response)
-    assert_equal 'https://localhost/https', /Location: ([^\s]+)/.match(response)[1]
+    assert_equal "https://#{LOCALHOST}/https", /Location: ([^\s]+)/.match(response)[1]
   end
 
   it 'separately caches responses that vary on X-Varnish-Accept-Language' do

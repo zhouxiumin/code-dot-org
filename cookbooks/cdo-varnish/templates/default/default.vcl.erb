@@ -28,10 +28,10 @@ backend dashboard_<%= id %> {
 %>
 
 sub vcl_init {
-  new default = directors.round_robin();
+  new pegasus = directors.round_robin();
   new dashboard = directors.round_robin();
 <% BACKENDS.keys.each do |id| %>
-  default.add_backend(pegasus_<%= id %>);
+  pegasus.add_backend(pegasus_<%= id %>);
   dashboard.add_backend(dashboard_<%= id %>);
 <% end %>
 }
@@ -103,33 +103,20 @@ end
 ###
 
 ### PROXIES
-
-  if (req.http.host ~ "(dashboard|studio).code.org$")
-  {
-    # Proxy studio.code.org/v2/ to code.org/v2/
-    if (req.url ~ "^/v2/")
-    {
-      set req.backend_hint = default.backend();
-      set req.http.host = "<%= canonical_hostname('code.org') %>";
+<%
+   %w(dashboard pegasus).each do |app|
+     config = node['cdo-varnish']['config'][app]
+%>
+  <%= if_app(app) %>
+    if (false) {
+    <% config['behaviors'].each do |behavior| %>
+    } else if (<%= paths_to_regex(behavior, false, true) %>) {
+      <%= process_proxy(behavior, app) %>
+    <% end %>
+    } else {
+      <%= process_proxy(config['default'], app) %>
     }
-    else
-    {
-      # Route to Dashboard for studio.code.org
-      set req.backend_hint = dashboard.backend();
-    }
-  }
-  else if (req.url ~ "^/dashboardapi/")
-  {
-    # Proxy code.org/dashboardapi/ to studio.code.org/api/
-    set req.backend_hint = dashboard.backend();
-    set req.http.host = "<%= canonical_hostname('studio.code.org') %>";
-    set req.url = regsub(req.url, "^/dashboardapi/", "/api/");
-    return(pass);
-  }
-  else
-  {
-    # Route to Pegasus by default
-    set req.backend_hint = default.backend();
+<% end %>
   }
 ###
 
@@ -168,7 +155,7 @@ sub vcl_backend_response {
 
 ### RESPONSE COOKIE FILTER
 # Only apply cookie filter to cached HTTP methods.
-if(req.method == "GET" || req.method == "HEAD") {
+if(bereq.method == "GET" || bereq.method == "HEAD") {
 <%
    %w(dashboard pegasus).each do |app|
      config = node['cdo-varnish']['config'][app]

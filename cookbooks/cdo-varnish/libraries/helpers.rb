@@ -16,13 +16,14 @@ def extensions_to_regex(exts)
   ["(?i)(#{exts.join('|').gsub('.','\.')})#{QUERY_REGEX}"]
 end
 
-def paths_to_regex(behavior, backend=false)
+def paths_to_regex(behavior, backend=false, proxy=false)
   req = backend ? 'bereq' : 'req'
   path_config = behavior['path']
   path_config = [path_config] unless path_config.is_a?(Array)
   extensions, paths = path_config.partition{ |path| path[0] == '*' }
-  elements = extensions_to_regex(extensions.map{|x|x.sub(/^\*/,'')}) + paths.map{|x|path_to_regex(x)}
-  elements.map{|el| "#{req}.url ~ \"#{el}\""}.join(' || ')
+  elements = paths.map{|x|path_to_regex(x)}
+  elements = extensions_to_regex(extensions.map{|x|x.sub(/^\*/,'')}) + elements unless proxy
+  elements.empty? ? 'false' : elements.map{|el| "#{req}.url ~ \"#{el}\""}.join(' || ')
 end
 
 def process_cookies(behavior, response=false)
@@ -37,10 +38,14 @@ def process_cookies(behavior, response=false)
   end
 end
 
+def process_proxy(behavior, default)
+  proxy = behavior['proxy'] || default
+  "set req.backend_hint = #{proxy}.backend();"
+end
+
 def canonical_hostname(domain)
   return "console.#{domain}" if node.name == 'production-console'
   return "daemon.#{domain}" if node.name == 'production-daemon'
-  return "#{node.name}.#{domain}" if ['hoc-levels'].include?(node.name)
   return domain if rack_env?(:production)
 
   # our HTTPS wildcard certificate only supports *.code.org
