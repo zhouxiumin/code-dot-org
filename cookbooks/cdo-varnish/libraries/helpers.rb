@@ -16,24 +16,25 @@ def extensions_to_regex(exts)
   ["(?i)(#{exts.join('|').gsub('.','\.')})#{QUERY_REGEX}"]
 end
 
-def paths_to_regex(behavior)
-  begin
-    puts "Behavior: #{behavior}"
-    path_config = behavior['path']
-    path_config = [path_config] unless path_config.is_a?(Array)
-    extensions, paths = path_config.partition{ |path| path[0] == '*' }
-    elements = extensions_to_regex(extensions.map{|x|x.sub(/^\*/,'')}) + paths.map{|x|path_to_regex(x)}
-    elements.map{|el| "req.url ~ \"#{el}\""}.join(' || ')
-  rescue Exception => e
-    puts "Exception: #{e}"
-    raise e
-  end
+def paths_to_regex(behavior, backend=false)
+  req = backend ? 'bereq' : 'req'
+  path_config = behavior['path']
+  path_config = [path_config] unless path_config.is_a?(Array)
+  extensions, paths = path_config.partition{ |path| path[0] == '*' }
+  elements = extensions_to_regex(extensions.map{|x|x.sub(/^\*/,'')}) + paths.map{|x|path_to_regex(x)}
+  elements.map{|el| "#{req}.url ~ \"#{el}\""}.join(' || ')
 end
 
-def process_cookies(behavior)
-  cookies = behavior['cookies']
-  cookies = ['NO_CACHE'] if cookies == 'none'
-  "cookie.filter_except(\"#{cookies.join(',')}\");"
+def process_cookies(behavior, response=false)
+  if !response
+    cookies = behavior['cookies']
+    cookies = ['NO_CACHE'] if cookies == 'none'
+    "cookie.filter_except(\"#{cookies.join(',')}\");"
+  else
+    behavior['cookies'] == 'none' ?
+      'unset beresp.http.set-cookie;' :
+      ''
+  end
 end
 
 def canonical_hostname(domain)
@@ -68,8 +69,9 @@ def append_env(name)
   name
 end
 
-def if_app(app)
+def if_app(app, backend=false)
+  req = backend ? 'bereq' : 'req'
   app == 'dashboard' ?
-    'if (req.http.host ~ "(dashboard|studio).code.org$") {' :
+    ('if ('+req+'.http.host ~ "(dashboard|studio).code.org$") {') :
     '} else {'
 end

@@ -31,7 +31,6 @@ backend dashboard_<%= id %> {
 sub vcl_init {
   new default = directors.round_robin();
   new dashboard = directors.round_robin();
-  new api_change_org = directors.round_robin();
 <% BACKENDS.keys.each do |id| %>
   default.add_backend(pegasus_<%= id %>);
   dashboard.add_backend(dashboard_<%= id %>);
@@ -169,14 +168,20 @@ if(req.method == "GET" || req.method == "HEAD") {
 sub vcl_backend_response {
 
 ### RESPONSE COOKIE FILTER
-  if (
-    bereq.url ~ "^/api/hour/begin/" ||
-    bereq.url ~ "^/api/hour/begin_"
-  ) {
-    # allow this route to always set cookies.
-  } else if (bereq.url ~ "(?i)\.(png|gif|jpeg|jpg|ico|swf|css|js)(\?[a-z0-9]+)?$") {
-    # Don't allow static files to set cookies.
-    unset beresp.http.set-cookie;
+<%
+   %w(dashboard pegasus).each do |app|
+     config = node['cdo-varnish']['config'][app]
+%>
+  <%= if_app(app, true) %>
+    if (false) {
+<% config['behaviors'].each do |behavior| %>
+    } else if (<%= paths_to_regex(behavior, true) %>) {
+      <%= process_cookies(behavior, true) %>
+<% end %>
+  } else {
+    <%= process_cookies(config['default'], true) %>
+  }
+<% end %>
   }
 ###
 

@@ -221,7 +221,7 @@ describe 'http' do
 
   it 'Strips non-whitelisted response cookies' do
     # TODO: not implemented in Varnish config
-    skip 'Not implemented in Varnish yet'
+    skip 'Not implemented in Varnish'
 
     url = '/cache7'
     cookie = 'random_cookie'
@@ -262,6 +262,20 @@ describe 'http' do
       response = proxy_request url, {}, {"#{cookie}" => '123'}, method
       assert_miss response
     end
+  end
+
+  it 'Does not strip cookies from assets in higher-priority whitelisted path' do
+    url = '/api/cache9.png'
+    cookie = 'hour_of_code' # whitelisted for this path
+    text = 'Hello World!'
+    text_cookie = 'Hello Cookie!'
+    mock_url(url, text, {}, {'Set-Cookie' => "#{cookie}=cookie_value; path=/"})
+    mock_url(url, text_cookie, {'Cookie' => "#{cookie}=cookie_value;"}, {'Set-Cookie' => "#{cookie}=cookie_value2; path=/"})
+
+    # Does not strip request cookie or response cookie
+    response = proxy_request url, {}, {"#{cookie}" => 'cookie_value'}
+    assert_equal text_cookie, response.lines.last.strip
+    refute_nil /Cookie: [^\s]+/.match(response)
   end
 
 end

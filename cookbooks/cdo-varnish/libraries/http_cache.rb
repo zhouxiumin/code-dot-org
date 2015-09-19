@@ -25,6 +25,11 @@ class HttpCache
     {
       pegasus: {
         behaviors: [
+          {
+            path: 'api/hour/*',
+            headers: ALL_HEADERS,
+            cookies: all_cookies
+          },
           STATIC_ASSETS,
           # Dashboard-based API paths in Pegasus are session-specific, whitelist all session cookies and language headers.
           {
@@ -61,6 +66,11 @@ class HttpCache
       },
       dashboard: {
         behaviors: [
+          {
+            path: 'api/*',
+            headers: ALL_HEADERS,
+            cookies: all_cookies
+          },
           STATIC_ASSETS,
           {
             path: 'v2/*',
