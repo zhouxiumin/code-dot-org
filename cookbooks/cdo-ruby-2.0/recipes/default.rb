@@ -42,8 +42,3 @@ execute "pristine-gems" do
   user "root"
   action :nothing
 end
-
-gem_package "bundler" do
-  action :upgrade
-  version '1.10.4'
-end
