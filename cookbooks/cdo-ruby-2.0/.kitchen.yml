@@ -14,8 +14,7 @@ suites:
   - name: default
     run_list:
       - recipe[cdo-ruby-2.0]
-  - name: upgrade
+  - name: remove
     run_list:
       - recipe[cdo-ruby-2.0]
       - recipe[cdo-ruby-2.0::remove]
-      - recipe[cdo-ruby-2.2]

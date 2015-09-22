@@ -3,14 +3,6 @@ gem_package 'rubygems-bundler' do
 end
 
 include_recipe 'brightbox-ruby'
-
-# Remove old ruby
-%w(ruby2.0-dev ruby2.0).each do |ruby|
-  apt_package ruby do
-    action :purge
-  end
-end
-
 %w(ruby gem).each{|alt| execute "update-alternatives --force --auto #{alt}" }
 
 gem_package 'bundler' do
