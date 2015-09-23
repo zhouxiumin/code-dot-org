@@ -1,7 +1,5 @@
 # Uninstall Ruby 2.0.
 
-require 'etc'
-
 package %w(ruby2.0-dev ruby2.0 rake) do
   action :purge
   notifies :run, 'execute[apt-get autoremove]', :immediately
@@ -12,13 +10,14 @@ end
   link "/usr/bin/#{ruby_link}" do
     to "/usr/bin/#{ruby_link}2.0"
     action :nothing
-    subscribes :delete, 'apt_package[ruby2.0]', :immediately
+    subscribes :delete, 'package[ruby2.0-dev, ruby2.0, rake]', :immediately
   end
 end
 
 # Clean up old local RubyGems folder.
+require 'etc'
 directory "/home/#{Etc.getlogin}/.gem" do
   recursive true
   action :nothing
-  subscribes :delete, 'apt_package[ruby2.0]', :immediately
+  subscribes :delete, 'package[ruby2.0-dev, ruby2.0, rake]', :immediately
 end

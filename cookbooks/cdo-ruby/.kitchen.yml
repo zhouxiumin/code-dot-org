@@ -15,7 +15,7 @@ suites:
     run_list:
       - recipe[apt]
       - recipe[cdo-ruby]
-  - name: '2-2'
+  - name: new
     run_list:
       - recipe[apt]
       - recipe[cdo-ruby]
@@ -23,7 +23,7 @@ suites:
       cdo-ruby:
         version: '2.2'
         bundler_version: '1.10.6'
-  - name: '2-2-upgrade'
+  - name: upgrade
     run_list:
       - recipe[apt]
       - recipe[cdo-ruby::2.0]

@@ -1,4 +1,4 @@
-# Installs Ruby using the Brightbox Ubuntu repositories.
+# Installs Ruby using the Ubuntu PPA maintained by Brightbox.
 # https://www.brightbox.com/docs/ruby/ubuntu/
 
 # Workaround for mojolingo/brightbox-ruby-cookbook#5
@@ -13,5 +13,5 @@ node.default['brightbox-ruby']['version'] = node['cdo-ruby']['version']
 node.default['brightbox-ruby']['rubygems_version'] = node['cdo-ruby']['rubygems_version']
 include_recipe 'brightbox-ruby'
 
-# Ensure proper symlinks are set
+# Ensure symlinks are kept up to date
 %w(ruby gem).each{|alt| execute "update-alternatives --force --auto #{alt}" }

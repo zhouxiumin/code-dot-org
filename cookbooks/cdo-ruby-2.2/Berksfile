@@ -1,5 +1,0 @@
-source 'https://supermarket.chef.io'
-
-metadata
-cookbook 'brightbox-ruby', '~> 1.2.1'
-cookbook 'cdo-ruby-2.0', path: '../cdo-ruby-2.0'
