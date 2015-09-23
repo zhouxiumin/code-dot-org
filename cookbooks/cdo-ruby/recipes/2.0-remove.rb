@@ -4,7 +4,7 @@ require 'etc'
 
 package %w(ruby2.0-dev ruby2.0 rake) do
   action :purge
-  notifies :run, 'apt-get autoremove', :immediately
+  notifies :run, 'execute[apt-get autoremove]', :immediately
 end
 
 # Remove manually-installed symlinks.

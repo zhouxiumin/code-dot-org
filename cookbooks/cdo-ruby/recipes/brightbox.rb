@@ -3,7 +3,7 @@
 
 # Workaround for mojolingo/brightbox-ruby-cookbook#5
 if node['cdo-ruby']['rubygems_version'].to_f >= 2.2
-  node.default['brightbox-ruby']['gems'] -= 'rubygems-bundler'
+  node.default['brightbox-ruby']['gems'] -= ['rubygems-bundler']
   gem_package 'rubygems-bundler' do
     action :nothing
   end

@@ -20,13 +20,15 @@ suites:
       - recipe[apt]
       - recipe[cdo-ruby]
     attributes:
-      version: '2.2'
-      bundler_version: '1.10.6'
+      cdo-ruby:
+        version: '2.2'
+        bundler_version: '1.10.6'
   - name: '2-2-upgrade'
     run_list:
       - recipe[apt]
       - recipe[cdo-ruby::2.0]
       - recipe[cdo-ruby]
     attributes:
-      version: '2.2'
-      bundler_version: '1.10.6'
+      cdo-ruby:
+        version: '2.2'
+        bundler_version: '1.10.6'
