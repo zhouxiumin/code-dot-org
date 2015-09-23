@@ -29,7 +29,6 @@ end
 
 execute "update-system-gems" do
   command "gem update --system"
-  user "root"
   action :nothing
   notifies :run, "execute[pristine-gems]", :immediately
 end
@@ -38,4 +37,15 @@ execute "pristine-gems" do
   command "gem pristine --all"
   user "root"
   action :nothing
+end
+
+# Fix RubyGems bug that created ~/.gem with root permissions in the underlying user's home folder.
+require 'etc'
+user = Etc.getlogin
+home = Etc.getpwnam(user).dir
+directory "#{home}/.gem" do
+  owner user
+  group user
+  recursive true
+  only_if { File.directory?("#{home}/.gem") }
 end
