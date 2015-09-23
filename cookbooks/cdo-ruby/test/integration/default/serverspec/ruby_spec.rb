@@ -1,10 +1,6 @@
-require 'serverspec'
+require_relative '../../../kitchen/data/helper_spec'
 
-# Required by serverspec
-set :backend, :exec
-describe file('/usr/bin/ruby2.0') do
-  it { should exist }
-end
-describe command('/usr/local/bin/bundler -v') do
-  its(:stdout) { should match '1.10.4' }
-end
+file_exist '/usr/bin/ruby2.0'
+cmd 'bundler -v', '1.10.4'
+cmd 'ruby -v', 'ruby 2.0'
+cmd 'gem -v', '2.4.8'

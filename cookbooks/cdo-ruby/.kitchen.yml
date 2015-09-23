@@ -5,7 +5,8 @@ driver:
   privileged: true
 
 provisioner:
-  name: chef_solo
+  name: chef_zero
+  data_path: test/shared
 
 platforms:
   - name: ubuntu-14.04
