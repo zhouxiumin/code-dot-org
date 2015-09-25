@@ -25,8 +25,8 @@ var DEFAULT_MOBILE_NO_PADDING_SHARE_WIDTH = 400;
 var MAX_VISUALIZATION_WIDTH = 400;
 var MIN_VISUALIZATION_WIDTH = 200;
 
-var BLOCK_X_COORDINATE = 70;
-var BLOCK_Y_COORDINATE = 30;
+var BLOCK_X_COORDINATE = 16;
+var BLOCK_Y_COORDINATE = 16;
 
 var ENGLISH_LOCALE = 'en_us';
 
@@ -2017,4 +2017,39 @@ StudioApp.prototype.alertIfAbusiveProject = function (parentSelector) {
       }
     });
   }
+};
+
+/**
+ * Searches for cases where we have two (or more) nested for loops in which
+ * both loops use the same variable. This can cause infinite loops.
+ * @returns {boolean} True if we detect an instance of this.
+ */
+StudioApp.prototype.hasDuplicateVariablesInForLoops = function () {
+  return Blockly.mainBlockSpace.getAllBlocks().some(this.forLoopHasDuplicatedNestedVariables_);
+};
+
+/**
+ * Looks to see if a particular block is (a) a for loop and (b) has a descendant
+ * for loop using the same variable.
+ * @returns {boolean} True if that is true of this block
+ */
+StudioApp.prototype.forLoopHasDuplicatedNestedVariables_ = function (block) {
+  if (!block || block.type !== 'controls_for' &&
+      block.type !== 'controls_for_counter') {
+    return;
+  }
+
+  var innerBlock = block.getInput('DO').connection.targetBlock();
+
+  // Not the most efficient of algo's, but we shouldn't have enough blocks for
+  // it to matter.
+  return block.getVars().some(function (varName) {
+    return innerBlock.getDescendants().some(function (descendant) {
+      if (descendant.type !== 'controls_for' &&
+          descendant.type !== 'controls_for_counter') {
+        return false;
+      }
+      return descendant.getVars().indexOf(varName) !== -1;
+    });
+  });
 };
