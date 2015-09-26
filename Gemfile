@@ -32,6 +32,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'derailed'
   # Use debugger
   #gem 'debugger' unless ENV['RM_INFO']
   gem 'haml-rails' # haml (instead of erb) generators

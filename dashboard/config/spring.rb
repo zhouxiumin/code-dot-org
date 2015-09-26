@@ -1,3 +1,3 @@
 Spring.watch ['../lib',
               '../shared',
-              '../deployment.rb']
+              '../deployment.rb'] if defined?(Spring)

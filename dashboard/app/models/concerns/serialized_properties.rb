@@ -83,7 +83,7 @@ module SerializedProperties
 
   private
   def init_properties
-    write_attribute('properties', {}) unless read_attribute('properties')
+    write_attribute('properties', {}) if respond_to?(:properties) && !read_attribute('properties')
   end
 
 end
