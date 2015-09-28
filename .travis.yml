@@ -2,7 +2,9 @@ git:
   depth: 10
 language: ruby
 
-rvm: 2.2.3
+rvm:
+  - 2.0.0
+  - 2.2.3
 
 sudo: false
 
@@ -16,7 +18,9 @@ before_script:
   - cd dashboard
   - bundle exec rake -t db:create db:schema:load
 
-script: bundle exec rake -t test test:benchmark
+script:
+  - bundle exec rake -t test test:benchmark
+  - PEGASUS_DB_NAME=pegasus_test DASHBOARD_DB_NAME=dashboard_test PATH_TO_HIT=/hoc/1 bundle exec derailed exec perf:ips
 
 env:
   - DB=mysql
