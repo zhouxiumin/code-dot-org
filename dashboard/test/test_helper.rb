@@ -278,6 +278,14 @@ class ActionDispatch::IntegrationTest
   end
 end
 
+class ActionDispatch::PerformanceTest
+  self.profile_options = { runs: 10, metrics: [:process_time], benchmark: true}
+  def login_user
+    @user = create(:user)
+    post_via_redirect '/users/sign_in', 'user[login]' => @user.email, 'user[password]' => @user.password
+  end
+end
+
 # Evaluates the given block temporarily setting the global locale to the specified locale.
 def with_locale(locale)
   old_locale = I18n.locale

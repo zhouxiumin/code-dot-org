@@ -32,6 +32,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'rails-perftest'
   gem 'derailed'
   # Use debugger
   #gem 'debugger' unless ENV['RM_INFO']
