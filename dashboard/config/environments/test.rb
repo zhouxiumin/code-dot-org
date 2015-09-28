@@ -53,7 +53,9 @@ Dashboard::Application.configure do
 
   # see stack traces around sql queries in the log
   # off by default because it slows things down
-  ActiveRecordQueryTrace.enabled = false
+  ActiveRecordQueryTrace.enabled = ENV['TRACE'] || false
+  ActiveRecordQueryTrace.level = :full
+  ActiveRecordQueryTrace.lines = 0
 
   # Explicitly set legacy test-order behavior in Rails 4.2
   # See http://guides.rubyonrails.org/upgrading_ruby_on_rails.html#ordering-of-test-cases

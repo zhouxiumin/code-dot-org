@@ -23,8 +23,13 @@ class Game < ActiveRecord::Base
   has_many :levels
   belongs_to :intro_video, foreign_key: 'intro_video_id', class_name: 'Video'
 
+  after_save { @@game_cache = nil; @@game_cache_id = nil }
   def self.by_name(name)
     (@@game_cache ||= Game.all.index_by(&:name))[name].try(:id)
+  end
+
+  def self.by_id(id)
+    (@@game_cache_id ||= Game.all.index_by(&:id))[id]
   end
 
   def self.custom_maze

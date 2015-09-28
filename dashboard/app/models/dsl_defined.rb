@@ -32,12 +32,18 @@ class DSLDefined < Level
     "Enter the level definition here.\n"
   end
 
-  def self.setup(data)
-    level = find_or_create_by({ name: data[:name] })
-    level.send(:write_attribute, 'properties', {})
-
-    level.update!(name: data[:name], game_id: Game.find_by(name: self.to_s).id, properties: data[:properties])
-
+  def self.setup(data, levels=nil)
+    name = data[:name]
+    if levels
+      level = levels[name] || new(name: name)
+      level.send(:write_attribute, 'properties', {})
+      level.assign_attributes(name: name, game_id: Game.by_name(self.to_s), properties: data[:properties])
+    else
+      level = find_or_initialize_by(name: name)
+      level.send(:write_attribute, 'properties', {})
+      level.update!(name: name, game_id: Game.by_name(self.to_s), properties: data[:properties])
+      level
+    end
     level
   end
 

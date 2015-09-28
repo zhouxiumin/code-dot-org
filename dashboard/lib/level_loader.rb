@@ -1,9 +1,20 @@
 class LevelLoader
   def self.load_custom_levels
     level_index = Level.includes(:game).to_a.index_by(&:name)
-    Dir.glob(Rails.root.join('config/scripts/**/*.level')).sort.map do |path|
+    levels = Dir.glob(Rails.root.join('config/scripts/**/*.level')).sort.map do |path|
       load_custom_level(path, level_index)
+    end.select(&:changed?)
+    import levels
+  end
+
+  def self.import(levels)
+    # activerecord-import doesn't run callbacks, so run them manually before the bulk import.
+    levels.map do |level|
+      level.run_callbacks(:validate)
+      level.run_callbacks(:save) { level.run_callbacks(:create) }
     end
+    Level.import levels, validate: true
+    levels
   end
 
   def self.level_file_path(name)
@@ -14,11 +25,11 @@ class LevelLoader
 
   def self.load_custom_level(level_path, level_index = {})
     name = File.basename(level_path, File.extname(level_path))
-    level = (level_index[name] || Level.find_or_create_by(name: name))
+    level = (level_index[name] || Level.new(name: name))
     # Only reload level data when file contents change
     level_data = File.read(level_path)
     level.md5 = Digest::MD5.hexdigest(level_data)
-    load_custom_level_xml(level_data, level) if level.changed?
+    level = load_custom_level_xml(level_data, level) if level.changed?
     level
   rescue Exception => e
     # print filename for better debugging
@@ -30,13 +41,10 @@ class LevelLoader
   def self.load_custom_level_xml(xml, level)
     xml_node = Nokogiri::XML(xml, &:noblanks)
     level = level.with_type(xml_node.root.name)
-
     # Delete entries for all other attributes that may no longer be specified in the xml.
     # Fixes issue #75863324 (delete removed level properties on import)
     level.send(:write_attribute, 'properties', {})
     level.assign_attributes(level.load_level_xml(xml_node))
-
-    level.save! if level.changed?
     level
   end
 

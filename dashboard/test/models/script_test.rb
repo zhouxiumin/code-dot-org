@@ -5,8 +5,7 @@ class ScriptTest < ActiveSupport::TestCase
     @game = create(:game)
     @script_file = File.join(self.class.fixture_path, "test_fixture.script")
     # Level names match those in 'test.script'
-    @levels = (1..5).map { |n| create(:level, :name => "Level #{n}", :game => @game) }
-
+    @levels = (1..5).map { |n| create(:level, name: "Level #{n}", game: @game, level_num: nil) }
     Rails.application.config.stubs(:levelbuilder_mode).returns false
   end
 
@@ -54,7 +53,7 @@ class ScriptTest < ActiveSupport::TestCase
 
     # Set different 'trophies' and 'hidden' options from defaults in Script.setup
     options = {name: File.basename(@script_file, ".script"), trophies: true, hidden: false}
-    script = Script.add_script(options, parsed_script)
+    script = Script.setup_script(options, parsed_script)
     assert_equal script_id, script.script_levels[4].script_id
     assert_not_equal script_level_id, script.script_levels[4].id
   end
@@ -200,7 +199,7 @@ class ScriptTest < ActiveSupport::TestCase
     script_data, _ = ScriptDSL.parse(
                      "stage 'Stage1'; level 'Level 1'; level 'blockly:Studio:100'", 'a filename')
 
-    script = Script.add_script({name: 'test script'},
+    script = Script.setup_script({name: 'test script'},
                                script_data[:stages].map{|stage| stage[:scriptlevels]}.flatten)
 
     assert_equal 'Studio', script.script_levels[1].level.game.name

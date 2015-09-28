@@ -27,6 +27,7 @@ gem 'crowdin-cli'
 
 # CSRF protection for Sinatra.
 gem 'rack_csrf'
+gem 'activerecord-import'
 
 group :development do
   gem 'annotate', '~> 2.6.6'

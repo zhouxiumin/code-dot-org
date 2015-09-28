@@ -78,6 +78,10 @@ class Level < ActiveRecord::Base
     super(attributes)
   end
 
+  def game
+    Game.by_id(game_id)
+  end
+
   def related_videos
     ([game.intro_video, specified_autoplay_video] + concepts.map(&:video)).reject(&:nil?).uniq
   end
@@ -265,7 +269,7 @@ class Level < ActiveRecord::Base
   end
 
   def key
-    if level_num == 'custom'
+    if level_num == 'custom' || level_num.nil?
       name
     else
       ["blockly", game.name, level_num].join(':')

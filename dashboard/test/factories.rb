@@ -191,6 +191,7 @@ FactoryGirl.define do
   factory :gallery_activity do
     user
     activity { create(:activity, level_source: create(:level_source, :with_image)) }
+    app 'turtle'
   end
 
   factory :script do

@@ -9,7 +9,7 @@ module StiFactory
 
     def with_type(type)
       if self.type != type
-        self.update!(type: type)
+        self.type = type
         self.becomes(type.constantize)
       else
         self
