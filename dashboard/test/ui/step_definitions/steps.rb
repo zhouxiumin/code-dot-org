@@ -1,5 +1,7 @@
 require File.expand_path('../../../../config/environment.rb', __FILE__)
 
+DEFAULT_WAIT_TIMEOUT = 2.minutes
+
 def replace_hostname(url)
   if ENV['DASHBOARD_TEST_DOMAIN']
     url = url.
@@ -22,7 +24,7 @@ end
 
 When /^I wait to see (?:an? )?"([.#])([^"]*)"$/ do |selector_symbol, name|
   selection_criteria = selector_symbol == '#' ? {:id => name} : {:class => name}
-  wait = Selenium::WebDriver::Wait.new(:timeout => 60)
+  wait = Selenium::WebDriver::Wait.new(timeout: DEFAULT_WAIT_TIMEOUT)
   wait.until { @browser.find_element(selection_criteria) }
 end
 
@@ -40,12 +42,12 @@ Then /^I see "([.#])([^"]*)"$/ do |selector_symbol, name|
 end
 
 When /^I wait until (?:element )?"([^"]*)" (?:has|contains) text "([^"]*)"$/ do |selector, text|
-  wait = Selenium::WebDriver::Wait.new(:timeout => 60 * 2)
+  wait = Selenium::WebDriver::Wait.new(timeout: DEFAULT_WAIT_TIMEOUT)
   wait.until { @browser.execute_script("return $(\"#{selector}\").text();").include? text }
 end
 
 When /^I wait until element "([^"]*)" is visible$/ do |selector|
-  wait = Selenium::WebDriver::Wait.new(:timeout => 60 * 2)
+  wait = Selenium::WebDriver::Wait.new(timeout: DEFAULT_WAIT_TIMEOUT)
   wait.until { @browser.execute_script("return $('#{selector}').is(':visible')") }
 end
 
@@ -115,6 +117,11 @@ end
 When /^I press the SVG text "([^"]*)"$/ do |name|
   name_selector = "text:contains(#{name})"
   @browser.execute_script("$('" + name_selector + "').simulate('drag', function(){});")
+end
+
+When /^I select the "([^"]*)" option in dropdown "([^"]*)"$/ do |option_text, element_id|
+  select = Selenium::WebDriver::Support::Select.new(@browser.find_element(:id, element_id))
+  select.select_by(:text, option_text)
 end
 
 When /^I open the topmost blockly category "([^"]*)"$/ do |name|
@@ -210,6 +217,19 @@ end
 
 Then /^element "([^"]*)" contains text "((?:[^"\\]|\\.)*)"$/ do |selector, expectedText|
   element_contains_text(selector, expectedText)
+end
+
+Then /^element "([^"]*)" has value "([^"]*)"$/ do |selector, expectedValue|
+  element_value_is(selector, expectedValue)
+end
+
+Then /^element "([^"]*)" is (not )?checked$/ do |selector, negation|
+  value = @browser.execute_script("return $(\"#{selector}\").is(':checked');")
+  value.should eq negation.nil?
+end
+
+Then /^element "([^"]*)" has attribute "((?:[^"\\]|\\.)*)" equal to "((?:[^"\\]|\\.)*)"$/ do |selector, attribute, expectedText|
+  element_has_attribute(selector, attribute, replace_hostname(expectedText))
 end
 
 # The second regex encodes that ids should not contain spaces or quotes.
@@ -325,10 +345,7 @@ Then /^element "([^"]*)" is a child of element "([^"]*)"$/ do |child, parent|
 end
 
 def encrypted_cookie(user)
-  key_generator = ActiveSupport::KeyGenerator.new(
-      CDO.dashboard_secret_key_base,
-      iterations: 1000
-    )
+  key_generator = ActiveSupport::KeyGenerator.new(CDO.dashboard_secret_key_base, iterations: 1000)
 
   encryptor = ActiveSupport::MessageEncryptor.new(
     key_generator.generate_key('encrypted cookie'),
@@ -354,8 +371,12 @@ def log_in_as(user)
     params[:domain] = '.code.org' # top level domain cookie
   end
 
+  puts "Setting cookie: #{CGI::escapeHTML params.inspect}"
+
   @browser.manage.delete_all_cookies
   @browser.manage.add_cookie params
+
+  debug_cookies(@browser.manage.all_cookies)
 end
 
 Given(/^I am a teacher$/) do
@@ -378,6 +399,18 @@ Given(/^I am a student$/) do
   log_in_as(@student)
 end
 
+Given(/^I sign in as a (student|teacher)$/) do |user_type|
+  steps %Q{
+    Given I am on "http://learn.code.org/"
+    And I am a #{user_type}
+    And I am on "http://learn.code.org/users/sign_in"
+  }
+end
+
+When(/^I debug cookies$/) do
+  debug_cookies(@browser.manage.all_cookies)
+end
+
 And(/^I ctrl-([^"]*)$/) do |key|
   # Note: Safari webdriver does not support actions API
   @browser.action.key_down(:control).send_keys(key).key_up(:control).perform
@@ -385,7 +418,20 @@ end
 
 And(/^I press keys "([^"]*)" for element "([^"]*)"$/) do |key, selector|
   element = @browser.find_element(:css, selector)
-  element.send_keys(make_symbol_if_colon(key))
+  if key.start_with?(':')
+    element.send_keys(make_symbol_if_colon(key))
+  else
+    # Workaround for Firefox, see https://code.google.com/p/selenium/issues/detail?id=6822
+    key.split('').each do |k|
+      if k == '('
+        element.send_keys :shift, 9
+      elsif k == ')'
+        element.send_keys :shift, 0
+      else
+        element.send_keys k
+      end
+    end
+  end
 end
 
 def make_symbol_if_colon(key)
@@ -404,7 +450,7 @@ When /^I disable onBeforeUnload$/ do
 end
 
 Then /^I get redirected to "(.*)" via "(.*)"$/ do |new_path, redirect_source|
-  wait = Selenium::WebDriver::Wait.new(:timeout => 30)
+  wait = Selenium::WebDriver::Wait.new(timeout: 30)
   wait.until { /#{new_path}/.match(@browser.execute_script("return location.pathname")) }
 
   if redirect_source == 'pushState'
@@ -444,4 +490,26 @@ end
 
 Then /^there is no horizontal scrollbar$/ do
   @browser.execute_script('return document.documentElement.scrollWidth <= document.documentElement.clientWidth').should eq true
+end
+
+# Place files in dashboard/test/fixtures
+# Note: Safari webdriver does not support file uploads (https://code.google.com/p/selenium/issues/detail?id=4220)
+Then /^I upload the file named "(.*?)"$/ do |filename|
+  unless ENV['TEST_LOCAL'] == 'true'
+    # Needed for remote (Sauce Labs) uploads
+    @browser.file_detector = lambda do |args|
+      str = args.first.to_s
+      str if File.exist? str
+    end
+  end
+
+  filename = File.expand_path(filename, '../fixtures')
+  @browser.execute_script('$("input[type=file]").show()')
+  element = @browser.find_element :css, 'input[type=file]'
+  element.send_keys filename
+  @browser.execute_script('$("input[type=file]").hide()')
+
+  unless ENV['TEST_LOCAL'] == 'true'
+    @browser.file_detector = nil
+  end
 end

@@ -2,7 +2,6 @@ var testUtils = require('../../util/testUtils');
 var TestResults = require('@cdo/apps/constants').TestResults;
 var _ = require('lodash');
 var $ = require('jquery');
-var React = require('react');
 require('react/addons');
 var ReactTestUtils = React.addons.TestUtils;
 
@@ -19,12 +18,6 @@ function validatePropertyRow(index, label, value, assert) {
   assert.equal(propertyRow.children(0).text(), label);
   // second col has an input with val screen 2
   assert.equal(propertyRow.children(1).children(0).val(), value);
-}
-
-function validateEmptyDesignProperties(assert) {
-  var designProperties = document.getElementById('design-properties');
-  assert.equal(designProperties.children.length, 1);
-  assert.equal(designProperties.children[0].tagName, 'P');
 }
 
 module.exports = {
@@ -69,9 +62,9 @@ module.exports = {
         assert.equal($(screenSelector).val(), 'screen1');
         assert.equal($('#designWorkspace').is(':visible'), true);
 
-        // initially no property row container
-        assert.equal($("#propertyRowContainer").length, 0,
-            'expected no design property row container');
+        // initial property row container should be the default screen
+        assert.equal($("#propertyRowContainer input:eq(0)").val(), 'screen1',
+            'expected default screen property row container');
 
         // add a completion on timeout since this is a freeplay level
         testUtils.runOnAppTick(Applab, 2, function () {
@@ -159,7 +152,8 @@ module.exports = {
 
         ReactTestUtils.Simulate.click($("#design-properties button").eq(-1)[0]);
 
-        validateEmptyDesignProperties(assert);
+        assert.equal($("#propertyRowContainer input:eq(0)").val(), 'screen1',
+            'expected default screen property row container');
         assert.equal($("#divApplab").children().length, 1, 'has one screen divs');
         assert.equal($(screenSelector).val(), 'screen1');
 
@@ -198,7 +192,7 @@ module.exports = {
       xml:
         'button("my_button", "my_button_text");' +
         'image("my_image", "http://code.org/images/logo.png");' +
-        'createCanvas("my_canvas", 320, 480);' +
+        'createCanvas("my_canvas", 320, 450);' +
         'container("my_container", "<div>FOO</div>");' +
         'write("<div id=\'my_write\'>FOO</div>");' +
         'imageUploadButton("my_image_upload", "text");' +
@@ -374,7 +368,7 @@ module.exports = {
 
         // take advantage of the fact that we expose the filesystem via
         // localhost:8001
-        var assetUrl = 'http://localhost:8001/apps/static/flappy_promo.png';
+        var assetUrl = '//localhost:8001/apps/static/flappy_promo.png';
         var imageInput = $("#design-properties input").eq(2)[0];
 
         ReactTestUtils.Simulate.change(imageInput, {
@@ -382,13 +376,13 @@ module.exports = {
         });
 
         var screenElement = document.getElementById('screen1');
-        assert.equal(screenElement.style.backgroundImage, 'url(' + assetUrl + ')');
+        assert.equal(screenElement.style.backgroundImage, 'url(http:' + assetUrl + ')');
 
-        assert.equal(screenElement.style.backgroundSize, '320px 480px', 'image stretched');
+        assert.equal(screenElement.style.backgroundSize, '320px 450px', 'image stretched');
 
         // make sure dimensions didn't change
         assert.equal(screenElement.style.width, '320px');
-        assert.equal(screenElement.style.height, '480px');
+        assert.equal(screenElement.style.height, '450px');
 
         // add a completion on timeout since this is a freeplay level
         testUtils.runOnAppTick(Applab, 2, function () {

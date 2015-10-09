@@ -1,4 +1,3 @@
-var React = require('react');
 
 var PropertyRow = require('./PropertyRow.jsx');
 var ColorPickerPropertyRow = require('./ColorPickerPropertyRow.jsx');
@@ -109,7 +108,7 @@ module.exports = {
     element.setAttribute('class', 'screen');
     element.setAttribute('tabIndex', '1');
     element.style.display = 'block';
-    element.style.height = Applab.appHeight + 'px';
+    element.style.height = Applab.footerlessAppHeight + 'px';
     element.style.width = Applab.appWidth + 'px';
     element.style.left = '0px';
     element.style.top = '0px';

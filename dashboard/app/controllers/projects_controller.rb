@@ -1,3 +1,5 @@
+require 'active_support/core_ext/hash/indifferent_access'
+
 class ProjectsController < ApplicationController
   before_filter :authenticate_user!, except: [:show, :edit, :readonly, :redirect_legacy]
   before_action :set_level, only: [:show, :edit, :readonly, :remix]
@@ -25,7 +27,7 @@ class ProjectsController < ApplicationController
     eval: {
       name: 'Eval Free Play'
     }
-  }
+  }.with_indifferent_access
 
   def index
   end
@@ -41,30 +43,34 @@ class ProjectsController < ApplicationController
 
   def show
     sharing = params[:share] == true
+    readonly = params[:readonly] == true
     level_view_options(
         hide_source: sharing,
-        share: sharing
+        share: sharing,
     )
     view_options(
-        readonly_workspace: sharing || params[:readonly],
+        readonly_workspace: sharing || readonly,
         full_width: true,
         callouts: [],
         no_padding: browser.mobile? && @game.share_mobile_fullscreen?,
-        small_footer: @game.uses_small_footer? || enable_scrolling?,
+        # for sharing pages, the app will display the footer inside the playspace instead
+        no_footer: sharing && @game.owns_footer_for_share?,
+        small_footer: (@game.uses_small_footer? || enable_scrolling?),
         has_i18n: @game.has_i18n?
     )
     render 'levels/show'
   end
 
   def edit
-    if STANDALONE_PROJECTS[params[:key].to_sym][:login_required]
+    if STANDALONE_PROJECTS[params[:key]][:login_required]
       authenticate_user!
     end
+    return if redirect_applab_under_13(@level)
     show
   end
 
   def remix
-    if STANDALONE_PROJECTS[params[:key].to_sym][:login_required]
+    if STANDALONE_PROJECTS[params[:key]][:login_required]
       authenticate_user!
     end
     src_channel_id = params[:channel_id]
@@ -75,7 +81,7 @@ class ProjectsController < ApplicationController
   end
 
   def set_level
-    @level = Level.find_by_key STANDALONE_PROJECTS[params[:key].to_sym][:name]
+    @level = Level.find_by_key STANDALONE_PROJECTS[params[:key]][:name]
     @game = @level.game
   end
 end

@@ -8,6 +8,8 @@ Dashboard::Application.routes.draw do
     redirect CDO.code_org_url('/teacher-dashboard')
   end
 
+  resources :user_levels, only: [:update]
+
   resources :gallery_activities, path: '/gallery' do
     collection do
       get 'art', to: 'gallery_activities#index', app: Game::ARTIST
@@ -22,6 +24,10 @@ Dashboard::Application.routes.draw do
       get 'embed/:key', to: 'videos#embed', as: 'embed'
     end
   end
+
+
+  # Media proxying
+  get 'media', to: 'media_proxy#get', format: false
 
   get 'sections/new', to: redirect_to_teacher_dashboard
   get 'sections/:id/edit', to: redirect_to_teacher_dashboard
@@ -172,7 +178,6 @@ Dashboard::Application.routes.draw do
   get '/admin/stats', to: 'reports#admin_stats', as: 'admin_stats'
   get '/admin/progress', to: 'reports#admin_progress', as: 'admin_progress'
   get '/admin/concepts', to: 'reports#admin_concepts', as: 'admin_concepts'
-  get '/admin/gallery', to: 'reports#admin_gallery', as: 'admin_gallery'
   get '/admin/assume_identity', to: 'reports#assume_identity_form', as: 'assume_identity_form'
   post '/admin/assume_identity', to: 'reports#assume_identity', as: 'assume_identity'
   get '/admin/lookup_section', to: 'reports#lookup_section', as: 'lookup_section'
@@ -189,6 +194,9 @@ Dashboard::Application.routes.draw do
   get '/notes/:key', to: 'notes#index'
 
   resources :zendesk_session, only: [:index]
+
+  post '/report_abuse', :to => 'report_abuse#report_abuse'
+  get '/report_abuse', :to => 'report_abuse#report_abuse_form'
 
   post '/sms/send', to: 'sms#send_to_phone', as: 'send_to_phone'
 

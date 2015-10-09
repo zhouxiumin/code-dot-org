@@ -5,9 +5,12 @@ require 'test_helper'
 class ActivitiesControllerTest < ActionController::TestCase
   include Devise::TestHelpers
   include LevelsHelper
+  include UsersHelper
   include Mocha::API
 
   setup do
+    client_state.reset
+
     LevelSourceImage # make sure this is loaded before we mess around with mocking S3...
     CDO.disable_s3_image_uploads = true # make sure image uploads are disabled unless specified in individual tests
 
@@ -441,8 +444,6 @@ class ActivitiesControllerTest < ActionController::TestCase
       end
     end
 
-    assert LevelSourceImage.last.s3?
-
     assert_response :success
 
     expected_response = build_expected_response(
@@ -643,17 +644,10 @@ class ActivitiesControllerTest < ActionController::TestCase
       end
     end
 
-    # record activity in session
-    expected_progress = {@script_level.level_id => 100}
-    assert_equal expected_progress, session["progress"]
-
-    # record the total lines of code in session
-    assert_equal 20, session['lines']
-
     assert_response :success
 
     expected_response = build_expected_response(
-        total_lines: 20,
+        total_lines: 0,
         level_source: "http://test.host/c/#{assigns(:level_source).id}")
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
@@ -662,8 +656,8 @@ class ActivitiesControllerTest < ActionController::TestCase
     sign_out @user
 
     # set up existing session
-    session['progress'] = {@script_level_prev.level_id => 50}
-    session['lines'] = 10
+    client_state.set_level_progress(@script_level_prev.level_id, 50)
+    client_state.add_lines(10)
 
     # do all the logging
     @controller.expects :log_milestone
@@ -677,17 +671,10 @@ class ActivitiesControllerTest < ActionController::TestCase
       end
     end
 
-    # record activity in session
-    expected_progress = {@script_level_prev.level_id => 50, @script_level.level_id => 100}
-    assert_equal expected_progress, session['progress']
-
-    # record the total lines of code in session
-    assert_equal 30, session['lines']
-
     assert_response :success
 
     expected_response = build_expected_response(
-        total_lines: 30,
+        total_lines: 10,
         level_source: "http://test.host/c/#{assigns(:level_source).id}")
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
@@ -695,7 +682,7 @@ class ActivitiesControllerTest < ActionController::TestCase
   test "anonymous milestone not passing" do
     sign_out @user
 
-    session['lines'] = 10
+    client_state.add_lines(10)
 
     # do all the logging
     @controller.expects :log_milestone
@@ -707,11 +694,10 @@ class ActivitiesControllerTest < ActionController::TestCase
     end
 
     # record activity in session
-    expected_progress = {@script_level.level_id => 0}
-    assert_equal expected_progress, session["progress"]
+    assert_equal 0, client_state.level_progress(@script_level.level_id)
 
     # lines in session does not change
-    assert_equal 10, session['lines']
+    assert_equal 10, client_state.lines
 
     assert_response :success
     assert_equal_expected_keys build_try_again_response, JSON.parse(@response.body)
@@ -721,8 +707,8 @@ class ActivitiesControllerTest < ActionController::TestCase
     sign_out @user
 
     # set up existing session
-    session['progress'] = {@script_level_prev.level_id => 50}
-    session['lines'] = 10
+    client_state.set_level_progress(@script_level_prev.level_id, 50)
+    client_state.add_lines(10)
 
     # do all the logging
     @controller.expects :log_milestone
@@ -738,17 +724,10 @@ class ActivitiesControllerTest < ActionController::TestCase
       end
     end
 
-    # record activity in session
-    expected_progress = {@script_level_prev.level_id => 50, @script_level.level_id => 100}
-    assert_equal expected_progress, session['progress']
-
-    # record the total lines of code in session
-    assert_equal 30, session['lines']
-
     assert_response :success
 
     expected_response = build_expected_response(
-        total_lines: 30,
+        total_lines: 10,
         level_source: "http://test.host/c/#{assigns(:level_source).id}")
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
@@ -757,8 +736,8 @@ class ActivitiesControllerTest < ActionController::TestCase
     sign_out @user
 
     # set up existing session
-    session['progress'] = {@script_level_prev.level_id => 50}
-    session['lines'] = 10
+    client_state.set_level_progress(@script_level_prev.level_id, 50)
+    client_state.add_lines(10)
 
     # do all the logging
     @controller.expects :log_milestone
@@ -890,7 +869,6 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     sign_out @user
     assert_equal true, new_level
-    assert_equal false, new_level
   end
 
   test 'trophy_check only on script with trophies' do

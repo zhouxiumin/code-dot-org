@@ -91,6 +91,7 @@ levels.custom = {
     "updateRecord": null,
     "deleteRecord": null,
     "getUserId": null,
+    "drawChartFromRecords": null,
 
     // Turtle
     "moveForward": null,
@@ -147,6 +148,7 @@ levels.custom = {
 
     // Variables
     "declareAssign_x": null,
+    "declareNoAssign_x": null,
     "assign_x": null,
     "declareAssign_x_prompt": null,
     "console.log": null,

@@ -62,17 +62,15 @@ def hoc_canonicalized_i18n_path(uri)
   @language = @user_language || country_language || hoc_detect_language()
 
   canonical_urls = [File.join(["/#{(@company or @country)}/#{@language}",path].select{|i|!i.nil_or_empty?})]
+  canonical_urls << File.join(["/#{(@company or @country)}",path].select{|i|!i.nil_or_empty?}) if @language == country_language
   unless canonical_urls.include?(uri)
     dont_cache
     redirect canonical_urls.last
   end
 
   # We no longer want the country to be part of the path we use to search:
-  _, search_uri = uri.split('/', 2)
-  search_uri = File.join('/', search_uri)
-
-  path = uri if resolve_document(search_uri)
-
+  search_uri = File.join('/', [@language, path].compact)
+  return search_uri if resolve_document(search_uri)
   return "/#{path}"
 end
 
@@ -112,6 +110,10 @@ def codeorg_url()
   end
 end
 
+def chapter_partner?
+  return %w(al ar br eu italia ro sg uk za).include?(@country)
+end
+
 def resolve_url(url)
   if url.downcase.include? "code.org"
     partner_page = HOC_COUNTRIES[@country]['partner_page']
@@ -126,6 +128,10 @@ def localized_file(path)
   return localized_path if resolve_static('public', localized_path)
 
   return path
+end
+
+def localized_image(path)
+  File.join('/', @country, @language, path)
 end
 
 def campaign_date(format)
@@ -152,4 +158,24 @@ def company_count(company)
     end
   end
   return company_count
+end
+
+def country_count(country)
+  country_count = 0;
+  DB[:forms].where(kind: 'HocSignup2015').each do |i|
+    data = JSON.parse(i[:data])
+    if data['hoc_country_s'] == country
+      country_count += 1
+    end
+  end
+  return country_count
+end
+
+def solr_country_code
+  code = HOC_COUNTRIES[@country]['solr_country_code'] || @country
+  return code
+end
+
+def country_full_name
+  return HOC_COUNTRIES[@country]['full_name']
 end

@@ -31,6 +31,8 @@ var Collidable = function (opts) {
   this.gridX = undefined;
   this.gridY = undefined;
 
+  this.activity = "none";
+
   for (var prop in opts) {
     this[prop] = opts[prop];
   }
@@ -115,6 +117,10 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+Collidable.prototype.setActivity = function(type) {
+  this.activity = type;
+};
+
 /**
  * This function should be called every frame, and moves the item around.
  * It moves the item smoothly, but between fixed points on the grid.
@@ -123,11 +129,9 @@ function getRandomInt(min, max) {
  * It generally evalutes all possible destination locations, prioritizes
  * the best possible moves, and chooses randomly between evenly-scored
  * options.
- *  
- * @param type The type of roaming: "roamgrid", "fleeGrid" or "chaseGrid"
  */
-Collidable.prototype.roamGrid = function(type) {
-
+Collidable.prototype.update = function () {
+  
   // Do we have an active location in grid coords?  If not, determine it.
   if (this.gridX === undefined) {
     this.gridX = Math.floor(this.x / Studio.SQUARE_SIZE);
@@ -154,9 +158,10 @@ Collidable.prototype.roamGrid = function(type) {
   // Has the item reached its destination grid position?
   // (There is a small margin of error to allow for per-update movements greater
   // than a single pixel.)
+  var speed = utils.valueOr(this.speed, 0);
   if (this.destGridX !== undefined &&
-      (Math.abs(this.x - (this.destGridX * Studio.SQUARE_SIZE + Studio.HALF_SQUARE)) < 3 &&
-       Math.abs(this.y - (this.destGridY * Studio.SQUARE_SIZE + Studio.HALF_SQUARE)) < 3)) {
+      (Math.abs(this.x - (this.destGridX * Studio.SQUARE_SIZE + Studio.HALF_SQUARE)) <= speed &&
+       Math.abs(this.y - (this.destGridY * Studio.SQUARE_SIZE + Studio.HALF_SQUARE)) <= speed)) {
     this.gridX = this.destGridX;
     this.gridY = this.destGridY;
     reachedDestinationGridPosition = true;
@@ -166,6 +171,13 @@ Collidable.prototype.roamGrid = function(type) {
   // Or have we already reached our prior destination location in grid coords?
   // If not, determine it.
   if (this.destGridX === undefined || reachedDestinationGridPosition) {
+
+    if (this.activity === 'none') {
+      this.dir = Direction.NONE;
+      this.destGridX = undefined;
+      this.destGridY = undefined;
+      return;
+    }
 
     var sprite = Studio.sprite[0];
 
@@ -177,50 +189,61 @@ Collidable.prototype.roamGrid = function(type) {
 
     var bufferDistance = 60;
 
-    for (var candidateX = this.gridX - 1; candidateX <= this.gridX + 1; candidateX++) {
-      for (var candidateY = this.gridY - 1; candidateY <= this.gridY + 1; candidateY++) {
-        candidate = {gridX: candidateX, gridY: candidateY};
-        candidate.score = 0;
+    // The item can just go up/down/left/right.. no diagonals.
+    var candidateGridLocations = [ 
+      {row: -1, col: 0}, 
+      {row: +1, col: 0},
+      {row: 0, col: -1}, 
+      {row: 0, col: +1}];
 
-        if (type == "roamGrid") {
+    for (var candidateIndex = 0; candidateIndex < candidateGridLocations.length; candidateIndex++) {
+      var candidateX = this.gridX + candidateGridLocations[candidateIndex].col;
+      var candidateY = this.gridY + candidateGridLocations[candidateIndex].row;
+
+      candidate = {gridX: candidateX, gridY: candidateY};
+      candidate.score = 0;
+
+      if (this.activity === "roam") {
+        candidate.score ++;
+      } else if (this.activity === "chase") {
+        if (candidateY == this.gridY - 1 && spriteY < this.y - bufferDistance) {
+          candidate.score += 2;
+        } else if (candidateY == this.gridY + 1 && spriteY > this.y + bufferDistance) {
+          candidate.score += 2;
+        }
+        else {
+          candidate.score += 1;
+        }
+
+        if (candidateX == this.gridX - 1 && spriteX < this.x - bufferDistance) {
           candidate.score ++;
-        } else if (type == "chaseGrid") {
-          if (candidateY == this.gridY - 1 && spriteY < this.y - bufferDistance) {
-            candidate.score ++;
-          } else if (candidateY == this.gridY + 1 && spriteY > this.y + bufferDistance) {
-            candidate.score ++;
-          }
-
-          if (candidateX == this.gridX - 1 && spriteX < this.x - bufferDistance) {
-            candidate.score ++;
-          } else if (candidateX == this.gridX + 1 && spriteX > this.x + bufferDistance) {
-            candidate.score ++;
-          }
-        } else if (type == "fleeGrid") {
-          candidate.score = 1;
-          if (candidateY == this.gridY - 1 && spriteY > this.y - bufferDistance) {
-            candidate.score ++;
-          } else if (candidateY == this.gridY + 1 && spriteY < this.y + bufferDistance) {
-            candidate.score ++;
-          }
-
-          if (candidateX == this.gridX - 1 && spriteX > this.x - bufferDistance) {
-            candidate.score ++;
-          } else if (candidateX == this.gridX + 1 && spriteX < this.x + bufferDistance) {
-            candidate.score ++;
-          }
+        } else if (candidateX == this.gridX + 1 && spriteX > this.x + bufferDistance) {
+          candidate.score ++;
+        }
+      } else if (this.activity === "flee") {
+        candidate.score = 1;
+        if (candidateY == this.gridY - 1 && spriteY > this.y - bufferDistance) {
+          candidate.score ++;
+        } else if (candidateY == this.gridY + 1 && spriteY < this.y + bufferDistance) {
+          candidate.score ++;
         }
 
-        if (candidate.score > 0) {
-          Studio.drawDebugRect(
-            "roamGridPossibleDest", 
-            candidateX * Studio.SQUARE_SIZE + Studio.HALF_SQUARE, 
-            candidateY * Studio.SQUARE_SIZE + Studio.HALF_SQUARE, 
-            Studio.SQUARE_SIZE, 
-            Studio.SQUARE_SIZE);
+        if (candidateX == this.gridX - 1 && spriteX > this.x - bufferDistance) {
+          candidate.score ++;
+        } else if (candidateX == this.gridX + 1 && spriteX < this.x + bufferDistance) {
+          candidate.score ++;
         }
-        candidates.push(candidate);
       }
+
+      if (candidate.score > 0) {
+        Studio.drawDebugRect(
+          "roamGridPossibleDest", 
+          candidateX * Studio.SQUARE_SIZE + Studio.HALF_SQUARE, 
+          candidateY * Studio.SQUARE_SIZE + Studio.HALF_SQUARE, 
+          Studio.SQUARE_SIZE, 
+          Studio.SQUARE_SIZE);
+      }
+      candidates.push(candidate);
     }
 
     // cull candidates that won't be possible
@@ -228,7 +251,7 @@ Collidable.prototype.roamGrid = function(type) {
       var candidate = candidates[i];
       var atEdge = candidate.gridX < 0 || candidate.gridX >= Studio.COLS ||
                    candidate.gridY < 0 || candidate.gridY >= Studio.ROWS;
-      var hasWall = !atEdge && Studio.map[candidate.gridY][candidate.gridX] & SquareType.WALL;
+      var hasWall = !atEdge && Studio.getWallValue(candidate.gridY, candidate.gridX);
       if (atEdge || hasWall || candidate.score === 0) {
         candidates.splice(i, 1);
       }

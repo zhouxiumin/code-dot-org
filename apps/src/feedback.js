@@ -1,4 +1,4 @@
-/* global trackEvent, $, jQuery */
+/* global trackEvent */
 
 // NOTE: These must be kept in sync with activity_hint.rb in dashboard.
 var HINT_REQUEST_PLACEMENT = {
@@ -447,6 +447,9 @@ FeedbackUtils.prototype.getFeedbackMessage_ = function(options) {
         message = options.level.missingBlocksErrorMsg ||
             msg.missingBlocksErrorMsg();
         break;
+      case TestResults.NESTED_FOR_SAME_VARIABLE:
+        message = msg.nestedForSameVariable();
+        break;
 
       // Success.
       case TestResults.ALL_PASS:
@@ -803,7 +806,8 @@ FeedbackUtils.prototype.showSimpleDialog = function (Dialog, options) {
   buttons.innerHTML = require('./templates/buttons.html.ejs')({
     data: {
       confirmText: options.confirmText,
-      cancelText: options.cancelText
+      cancelText: options.cancelText,
+      cancelButtonClass: options.cancelButtonClass
     }
   });
   contentDiv.appendChild(buttons);
@@ -876,17 +880,7 @@ FeedbackUtils.prototype.showToggleBlocksError = function(Dialog) {
  */
 FeedbackUtils.prototype.getEmptyContainerBlock_ = function() {
   var blocks = Blockly.mainBlockSpace.getAllBlocks();
-  for (var i = 0; i < blocks.length; i++) {
-    var block = blocks[i];
-    for (var j = 0; j < block.inputList.length; j++) {
-      var input = block.inputList[j];
-      if (input.type == Blockly.NEXT_STATEMENT &&
-          !input.connection.targetConnection) {
-        return block;
-      }
-    }
-  }
-  return null;
+  return Blockly.findEmptyContainerBlock(blocks);
 };
 
 /**
@@ -911,6 +905,31 @@ FeedbackUtils.prototype.checkForEmptyContainerBlockFailure_ = function() {
   // This is where to add checks if you want a different TestResult
   // for "controls_for_counter" blocks, for example.
   return TestResults.EMPTY_BLOCK_FAIL;
+};
+
+/**
+ * Throws errors with descriptive messages when example call or result blocks
+ * don't exist or have unfilled functional inputs.
+ * @param {Blockly.Block} callBlock
+ * @param {Blockly.Block} resultBlock
+ */
+FeedbackUtils.prototype.throwOnInvalidExampleBlocks = function (callBlock,
+    resultBlock) {
+  if (!callBlock) {
+    throw new Error('Invalid Call Block');
+  }
+
+  if (!resultBlock) {
+    throw new Error('Invalid Result Block');
+  }
+
+  if (resultBlock.hasUnfilledFunctionalInput()) {
+    throw new Error('Result has unfilled inputs');
+  }
+
+  if (callBlock.hasUnfilledFunctionalInput()) {
+    throw new Error('Call has unfilled inputs');
+  }
 };
 
 /**
@@ -1072,6 +1091,9 @@ FeedbackUtils.prototype.getTestResults = function(levelComplete, requiredBlocks,
   }
   if (!options.allowTopBlocks && this.hasExtraTopBlocks()) {
     return TestResults.EXTRA_TOP_BLOCKS_FAIL;
+  }
+  if (this.studioApp_.hasDuplicateVariablesInForLoops()) {
+    return TestResults.NESTED_FOR_SAME_VARIABLE;
   }
   if (Blockly.useContractEditor || Blockly.useModalFunctionEditor) {
     if (this.hasUnusedParam_()) {

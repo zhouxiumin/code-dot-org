@@ -2,21 +2,17 @@ name 'U3L08 Student Lesson Introduction'
 title 'Creating Functions with Parameters'
 
 markdown <<MARKDOWN
-## Unit 3: Lesson 08 - Creating Functions with Parameters
+## Unit 3: Lesson 06 - Creating Functions with Parameters
 
 # Background
 
-You can include more than one parameter in a single function. The order of the parameters is important. You can name parameters anything, but a good name will clearly indicate how the value is used in the program.
+Drawing functions which accept parameters have already proven to be an extremely useful addition to our toolbox, allowing us to create much more complex and nuanced drawings. What is even more useful is the ability to create functions that accept parameters of our own. The flexibility that functions with parameters afford removes the need to create redundant functions that do almost the same thing. Additionally, once functions with parameters are created we can easily experiment with different inputs to see what kind of output we can produce. In this lesson we'll explore these ideas as we create an "Under the Sea" drawing.
 
 # Lesson
 
 * Identify situations for creating functions with parameters.
-* Incorporate functions with parameters into an “Under the Sea” digital scene. 
-
-
-# Resources
-* Activity: <a href="https://docs.google.com/document/d/1Y3BHdaYG2jMjn8VHD2kfkxuoZrtNVsvphfjH2UJoNhk" target="_blank">
-Parameters: Under the Sea </a> 
+* Incorporate functions with parameters into an “Under the Sea” digital scene.
+* Test functions with parameters using random input.
 
 
 <a class="btn btn-large btn-primary next-stage submitButton">Continue</a>
