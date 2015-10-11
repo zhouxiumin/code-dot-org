@@ -21,14 +21,26 @@ end
 
 namespace :lint do
   task :ruby do
-    RakeUtils.system 'rubocop'
+    RakeUtils.bundle_exec 'rubocop'
   end
 
   task :haml do
-    RakeUtils.system 'haml-lint dashboard pegasus'
+    RakeUtils.bundle_exec 'haml-lint dashboard pegasus'
   end
 
-  task all: [:ruby, :haml]
+  task :javascript do
+    Dir.chdir(apps_dir) do
+      # lint all js/jsx files in dashboardd/app/assets/javascript
+      RakeUtils.system 'grunt jshint:files --glob "../dashboard/app/**/*.js*(x)"'
+      # also do our standard apps lint
+      RakeUtils.system 'grunt jshint'
+    end
+    Dir.chdir(shared_js_dir) do
+      RakeUtils.system 'npm run lint'
+    end
+  end
+
+  task all: [:ruby, :haml, :javascript]
 end
 task lint: ['lint:all']
 
@@ -86,11 +98,10 @@ namespace :build do
       RakeUtils.system './sync-apps.sh'
 
       HipChat.log 'Building <b>apps</b>...'
-      if CDO.localize_apps
-        RakeUtils.system 'MOOC_LOCALIZE=1', 'grunt'
-      else
-        RakeUtils.system 'grunt'
-      end
+      env_vars = ''
+      env_vars += 'MOOC_LOCALIZE=1 ' if CDO.localize_apps
+      env_vars += 'MOOC_DIGEST=1 ' unless rack_env?(:development)
+      RakeUtils.system "#{env_vars} grunt"
     end
   end
 
@@ -138,7 +149,7 @@ namespace :build do
       RakeUtils.start_service CDO.dashboard_unicorn_name unless rack_env?(:development)
 
       if rack_env?(:production)
-        RakeUtils.system 'rake', "honeybadger:deploy TO=#{rack_env} REVISION=`git rev-parse HEAD`"
+        RakeUtils.rake "honeybadger:deploy TO=#{rack_env} REVISION=`git rev-parse HEAD`"
       end
     end
   end
@@ -157,6 +168,7 @@ namespace :build do
           RakeUtils.rake 'db:migrate'
         rescue => e
           HipChat.log "/quote #{e.message}\n#{CDO.backtrace e}", message_format: 'text'
+          raise e
         end
 
         HipChat.log 'Seeding <b>pegasus</b>...'
@@ -164,6 +176,7 @@ namespace :build do
           RakeUtils.rake 'seed:migrate'
         rescue => e
           HipChat.log "/quote #{e.message}\n#{CDO.backtrace e}", message_format: 'text'
+          raise e
         end
       end
 
@@ -224,6 +237,21 @@ namespace :install do
     end
   end
 
+  task :hooks do
+    files = [
+      'pre-commit',
+      'post-checkout',
+      'post-merge',
+    ]
+    git_path = ".git/hooks"
+
+    files.each do |f|
+      path = File.expand_path("../tools/hooks/#{f}", __FILE__)
+      system "ln -s #{path} #{git_path}/#{f}"
+    end
+  end
+
+
   task :apps do
     if rack_env?(:development) && !CDO.chef_managed
       if OS.linux?
@@ -256,7 +284,7 @@ namespace :install do
   end
 
   task :dashboard do
-    if rack_env?(:development) && !CDO.chef_managed
+    if (rack_env?(:development) && !CDO.chef_managed) || rack_env?(:adhoc)
       Dir.chdir(dashboard_dir) do
         RakeUtils.bundle_install
         puts CDO.dashboard_db_writer
@@ -267,7 +295,7 @@ namespace :install do
   end
 
   task :pegasus do
-    if rack_env?(:development) && !CDO.chef_managed
+    if (rack_env?(:development) && !CDO.chef_managed) || rack_env?(:adhoc)
       Dir.chdir(pegasus_dir) do
         RakeUtils.bundle_install
         create_database CDO.pegasus_db_writer

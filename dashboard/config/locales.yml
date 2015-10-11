@@ -38,7 +38,7 @@
 "bs": "bs-BA"
 "bs-BA":
   english: "Bosnian"
-  native: "Босански"
+  native: "Bosanski"
   webfonts: false
 
 "ca": "ca-ES"
@@ -204,8 +204,8 @@
 "ka-GE":
   english: "Georgian"
   native: "ქართული"
-  debug: true
   webfonts: false  
+  debug: true
 
 "ko": "ko-KR"
 "ko-KR":

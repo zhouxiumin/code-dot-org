@@ -26,7 +26,31 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Configure development only filters.
+  if Rails.env.development?
+    # Enable or disable the rack mini-profiler if the 'pp' query string parameter is set.
+    # pp='disabled' will disable it; any other value will enable it.
+    before_filter :maybe_enable_profiler
+    def maybe_enable_profiler
+      pp = params['pp']
+      if pp
+        ENV['RACK_MINI_PROFILER'] = (pp == 'disabled') ? 'off' : 'on'
+      end
+    end
+
+    before_filter :configure_web_console
+    # Enable the Rails web console if params['dbg'] is set, or disable it
+    # if params['dbg'] is 'off'.
+    def configure_web_console
+      if params[:dbg]
+        cookies[:dbg] = (params[:dbg] != 'off') ? 'on' : nil
+      end
+      @use_web_console = cookies[:dbg]
+    end
+  end
+
   def reset_session_endpoint
+    client_state.reset
     reset_session
     render text: "OK"
   end
@@ -59,6 +83,12 @@ class ApplicationController < ActionController::Base
       format.html { render file: 'public/500.html', layout: 'layouts/application', status: :internal_server_error }
       format.all { head :internal_server_error}
     end
+  end
+
+  def prevent_caching
+    response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
   end
 
   protected

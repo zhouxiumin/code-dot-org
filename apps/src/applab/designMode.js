@@ -1,8 +1,7 @@
-/* global $, Applab, dashboard */
+/* global Applab, dashboard */
 
 // TODO (brent) - make it so that we dont need to specify .jsx. This currently
 // works in our grunt build, but not in tests
-var React = require('react');
 var DesignWorkspace = require('./DesignWorkspace.jsx');
 var DesignToggleRow = require('./DesignToggleRow.jsx');
 var showAssetManager = require('./assetManagement/show.js');
@@ -14,6 +13,7 @@ var KeyCodes = require('../constants').KeyCodes;
 var designMode = module.exports;
 
 var currentlyEditedElement = null;
+var currentScreen = null;
 
 var GRID_SIZE = 5;
 
@@ -91,13 +91,6 @@ designMode.editElementProperties = function(element) {
 };
 
 /**
- * Clear the Properties pane of applab's design mode.
- */
-designMode.clearProperties = function () {
-  designMode.editElementProperties(null);
-};
-
-/**
  * Enable (or disable) dragging of new elements from the element tray
  * @param allowEditing {boolean}
  */
@@ -105,6 +98,14 @@ designMode.resetElementTray = function (allowEditing) {
   $('#design-toolbox .new-design-element').each(function() {
     $(this).draggable(allowEditing ? 'enable' : 'disable');
   });
+};
+
+/**
+ * Given an input value produce a valid css value that is
+ * either in pixels or empty.
+ */
+var appendPx = function (inp) {
+  return inp ? inp + 'px' : '';
 };
 
 /**
@@ -123,22 +124,25 @@ designMode.onPropertyChange = function(element, name, value) {
       }
       break;
     case 'left':
-      element.style.left = value + 'px';
-      element.parentNode.style.left = value + 'px';
+      var newLeft = appendPx(value);
+      element.style.left = newLeft;
+      element.parentNode.style.left = newLeft;
       break;
     case 'top':
-      element.style.top = value + 'px';
-      element.parentNode.style.top = value + 'px';
+      var newTop = appendPx(value);
+      element.style.top = newTop;
+      element.parentNode.style.top = newTop;
       break;
     case 'width':
-      element.setAttribute('width', value + 'px');
+      element.setAttribute('width', appendPx(value));
       break;
     case 'height':
-      element.setAttribute('height', value + 'px');
+      element.setAttribute('height', appendPx(value));
       break;
     case 'style-width':
-      element.style.width = value + 'px';
-      element.parentNode.style.width = value + 'px';
+      var newWidth = appendPx(value);
+      element.style.width = newWidth;
+      element.parentNode.style.width = newWidth;
 
       if (element.style.backgroundSize) {
         element.style.backgroundSize = element.style.width + ' ' +
@@ -146,8 +150,9 @@ designMode.onPropertyChange = function(element, name, value) {
       }
       break;
     case 'style-height':
-      element.style.height = value + 'px';
-      element.parentNode.style.height = value + 'px';
+      var newHeight = appendPx(value);
+      element.style.height = newHeight;
+      element.parentNode.style.height = newHeight;
 
       if (element.style.backgroundSize) {
         element.style.backgroundSize = element.style.width + ' ' +
@@ -164,7 +169,7 @@ designMode.onPropertyChange = function(element, name, value) {
       element.style.backgroundColor = value;
       break;
     case 'fontSize':
-      element.style.fontSize = value + 'px';
+      element.style.fontSize = appendPx(value);
       break;
 
     case 'image':
@@ -301,9 +306,9 @@ designMode.onDeletePropertiesButton = function(element, event) {
 
   if (isScreen) {
     designMode.loadDefaultScreen();
+  } else {
+    designMode.editElementProperties(document.getElementById(currentScreen));
   }
-
-  designMode.clearProperties();
 };
 
 designMode.onDepthChange = function (element, depthDirection) {
@@ -364,6 +369,11 @@ designMode.onInsertEvent = function(code) {
 };
 
 designMode.serializeToLevelHtml = function () {
+  // TODO(dave): remove this check once design mode content is separated
+  // from divApplab: https://www.pivotaltracker.com/story/show/103544608
+  if (Applab.hideDesignMode) {
+    return;
+  }
   var divApplab = $('#divApplab');
   // Children are screens. Want to operate on grandchildren
   var madeUndraggable = makeUndraggable(divApplab.children().children());
@@ -452,7 +462,36 @@ function makeDraggable (jqueryElements) {
         // resizable sets z-index to 90, which we don't want
         $(this).children().css('z-index', '');
       },
-      resize: function () {
+      resize: function (event, ui) {
+        // Wishing for a vector maths library...
+
+        // Customize motion according to current visualization scale.
+        var scale = getVisualizationScale();
+        var deltaWidth = ui.size.width - ui.originalSize.width;
+        var deltaHeight = ui.size.height - ui.originalSize.height;
+        var newWidth = ui.originalSize.width + (deltaWidth / scale);
+        var newHeight = ui.originalSize.height + (deltaHeight / scale);
+
+        // snap width/height to nearest grid increment
+        newWidth = snapToGridSize(newWidth, GRID_SIZE);
+        newHeight = snapToGridSize(newHeight, GRID_SIZE);
+
+        // Bound at app edges
+        var container = $('#divApplab');
+        var maxWidth = container.outerWidth() - ui.position.left;
+        var maxHeight = container.outerHeight() - ui.position.top;
+        newWidth = Math.min(newWidth, maxWidth);
+        newWidth = Math.max(newWidth, 20);
+        newHeight = Math.min(newHeight, maxHeight);
+        newHeight = Math.max(newHeight, 20);
+
+        ui.size.width = newWidth;
+        ui.size.height = newHeight;
+        wrapper.css({
+          width: newWidth,
+          height: newHeight
+        });
+
         elm.outerWidth(wrapper.width());
         elm.outerHeight(wrapper.height());
         var element = elm[0];
@@ -465,9 +504,7 @@ function makeDraggable (jqueryElements) {
         }
         designMode.onPropertyChange(element, widthProperty, element.style.width);
         designMode.onPropertyChange(element, heightProperty, element.style.height);
-      },
-      grid: [GRID_SIZE, GRID_SIZE],
-      containment: 'parent'
+      }
     }).draggable({
       cancel: false,  // allow buttons and inputs to be dragged
       drag: function (event, ui) {
@@ -475,17 +512,13 @@ function makeDraggable (jqueryElements) {
         // so adjust the position in various ways here.
 
         // dragging
-        var div = document.getElementById('divApplab');
-        var xScale = div.getBoundingClientRect().width / div.offsetWidth;
-        var yScale = div.getBoundingClientRect().height / div.offsetHeight;
-        var changeLeft = ui.position.left - ui.originalPosition.left;
-        var newLeft  = (ui.originalPosition.left + changeLeft) / xScale;
-        var changeTop = ui.position.top - ui.originalPosition.top;
-        var newTop = (ui.originalPosition.top + changeTop) / yScale;
+        var scale = getVisualizationScale();
+        var newLeft  = ui.position.left / scale;
+        var newTop = ui.position.top / scale;
 
         // snap top-left corner to nearest location in the grid
-        newLeft -= (newLeft + GRID_SIZE / 2) % GRID_SIZE - GRID_SIZE / 2;
-        newTop -= (newTop + GRID_SIZE / 2) % GRID_SIZE - GRID_SIZE / 2;
+        newLeft = snapToGridSize(newLeft, GRID_SIZE);
+        newTop = snapToGridSize(newTop, GRID_SIZE);
 
         // containment
         var container = $('#divApplab');
@@ -533,6 +566,27 @@ function makeDraggable (jqueryElements) {
     elm.css('position', 'static');
   });
 }
+
+/**
+ * Calculate the current visualization scale factor, as screenWidth / domWidth.
+ * @returns {number}
+ */
+function getVisualizationScale() {
+  var div = document.getElementById('divApplab');
+  return div.getBoundingClientRect().width / div.offsetWidth;
+}
+
+/**
+ * Given a coordinate on either axis and a grid size, returns a coordinate
+ * near the given coordinate that snaps to the given grid size.
+ * @param {number} coordinate
+ * @param {number} gridSize
+ * @returns {number}
+ */
+var snapToGridSize = function (coordinate, gridSize) {
+  var halfGrid = gridSize / 2;
+  return coordinate - ((coordinate + halfGrid) % gridSize - halfGrid);
+};
 
 /**
  * Inverse of `makeDraggable`.
@@ -615,6 +669,7 @@ designMode.createScreen = function () {
  * change, and opens the element property editor for the new screen.
  */
 designMode.changeScreen = function (screenId) {
+  currentScreen = screenId;
   var screenIds = [];
   $('.screen').each(function () {
     screenIds.push(this.id);
@@ -634,6 +689,7 @@ designMode.changeScreen = function (screenId) {
     React.render(
       React.createElement(DesignToggleRow, {
         hideToggle: Applab.hideDesignModeToggle(),
+        hideViewDataButton: Applab.hideViewDataButton(),
         startInDesignMode: Applab.startInDesignMode(),
         initialScreen: screenId,
         screens: screenIds,
@@ -681,7 +737,8 @@ designMode.renderDesignWorkspace = function(element) {
     onDepthChange: designMode.onDepthChange,
     onDelete: designMode.onDeletePropertiesButton.bind(this, element),
     onInsertEvent: designMode.onInsertEvent.bind(this),
-    handleManageAssets: showAssetManager
+    handleManageAssets: showAssetManager,
+    isDimmed: Applab.running
   };
   React.render(React.createElement(DesignWorkspace, props), designWorkspace);
 };

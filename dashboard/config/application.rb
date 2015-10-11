@@ -85,13 +85,13 @@ module Dashboard
     config.assets.paths << Rails.root.join('../shared/js')
 
     config.assets.precompile += %w(
+      angularProjects.js
       shared.js
       shared.min.js
       editor/blockly_editor.css
       editor/blockly_editor.js
       editor/embedded_markdown_editor.js
       levels/*
-      react.js
       jquery.handsontable.full.css
       jquery.handsontable.full.js
       video/video.js video-js.css video-js.swf vjs.eot vjs.svg vjs.ttf vjs.woff
@@ -99,5 +99,8 @@ module Dashboard
     config.react.variant = :development
     config.react.addons = true
     config.autoload_paths << Rails.root.join('lib')
+
+    # use https://(*-)studio.code.org urls in mails
+    config.action_mailer.default_url_options = { host: CDO.canonical_hostname('studio.code.org'), protocol: 'https' }
   end
 end
