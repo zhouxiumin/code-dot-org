@@ -526,20 +526,12 @@ ActiveRecord::Schema.define(version: 20150804213021) do
 
   create_table "workshops", force: :cascade do |t|
     t.string   "name",         limit: 255
-<<<<<<< HEAD
-    t.string   "program_type", limit: 255,   null: false
-=======
     t.string   "program_type", limit: 255, null: false
->>>>>>> 579475b7d60f9ac88208dddc731de8f007c5f3cb
     t.string   "location",     limit: 255
     t.string   "instructions", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-<<<<<<< HEAD
-    t.text     "phase",        limit: 65535
-=======
     t.integer  "phase",        limit: 4
->>>>>>> 579475b7d60f9ac88208dddc731de8f007c5f3cb
   end
 
   add_index "workshops", ["name"], name: "index_workshops_on_name", using: :btree

@@ -69,7 +69,6 @@ class Workshop < ActiveRecord::Base
     phase_info[:long_name]
   end
 
-<<<<<<< HEAD
   def self.send_automated_emails
     [Workshop.workshops_in_2_weeks, Workshop.workshops_in_3_days, Workshop.workshops_ending_today].each do |workshop_list|
       workshop_list.each do |workshop|
@@ -78,17 +77,23 @@ class Workshop < ActiveRecord::Base
         facilitators = Workshop.find(workshop[:id]).facilitators
         [teachers, drop_ins, facilitators].each do |recipient_list|
           recipient_list.each do |recipient|
-            if workshop.segments.first.start.to_date == Date.today
-              logger.debug("Sending exit survey info to #{recipient.email}")
-              OpsMailer.exit_survey_information(workshop, recipient).deliver_now
+            if EmailValidator::email_address?(recipient.email)
+              if workshop.segments.first.start.to_date == Date.today
+                logger.debug("Sending exit survey info to #{recipient.email}")
+                OpsMailer.exit_survey_information(workshop, recipient).deliver_now
+              else
+                logger.debug("Sending email reminder to #{recipient.email}")
+                OpsMailer.workshop_reminder(workshop, recipient).deliver_now
+              end
             else
-              logger.debug("Sending email reminder to #{recipient.email}")
-              OpsMailer.workshop_reminder(workshop, recipient).deliver_now
+              logger.debug("Cannot send email to #{recipient.email} because it is not a valid email address")
             end
           end
         end
       end
-=======
+    end
+  end
+
   def prerequisite_phase
     return nil unless phase_info
     ActivityConstants::PHASES[phase_info[:prerequisite_phase]]
@@ -103,7 +108,6 @@ class Workshop < ActiveRecord::Base
       next unless EmailValidator::email_address?(recipient.email)
       logger.debug("Sending email reminder to #{recipient.email}")
       OpsMailer.workshop_reminder(self, recipient).deliver_now
->>>>>>> 579475b7d60f9ac88208dddc731de8f007c5f3cb
     end
   end
 

@@ -7,17 +7,14 @@ require File.expand_path '../../middleware/properties_api', __FILE__
 ENV['RACK_ENV'] = 'test'
 
 class PropertiesTest < Minitest::Test
-<<<<<<< HEAD
-
   def test_get_set_delete
     # The Properties API does not need to share a cookie jar with the Channels API.
     @channels = Rack::Test::Session.new(Rack::MockSession.new(ChannelsApi, "studio.code.org"))
     @properties = Rack::Test::Session.new(Rack::MockSession.new(PropertiesApi, "studio.code.org"))
+  end
 
-=======
   def setup
     init_apis
->>>>>>> 579475b7d60f9ac88208dddc731de8f007c5f3cb
     create_channel
   end
 

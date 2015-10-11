@@ -5,10 +5,7 @@ require 'test_helper'
 class ActivitiesControllerTest < ActionController::TestCase
   include Devise::TestHelpers
   include LevelsHelper
-<<<<<<< HEAD
-=======
   include UsersHelper
->>>>>>> 579475b7d60f9ac88208dddc731de8f007c5f3cb
   include Mocha::API
 
   setup do
@@ -165,15 +162,9 @@ class ActivitiesControllerTest < ActionController::TestCase
       log_string !~ regexp
     end
   end
-<<<<<<< HEAD
+
 
   test "logged in milestone does not allow negative lines of code" do
-
-=======
-
-  test "logged in milestone does not allow negative lines of code" do
-
->>>>>>> 579475b7d60f9ac88208dddc731de8f007c5f3cb
     expect_controller_logs_milestone_regexp(/-20/)
     @controller.expects :slog
 
@@ -227,7 +218,6 @@ class ActivitiesControllerTest < ActionController::TestCase
     assert_equal 1000, Activity.last.lines
   end
 
-<<<<<<< HEAD
   test "anonymous milestone does not allow unreasonably high lines of code" do
     sign_out(@user)
 
@@ -257,8 +247,6 @@ class ActivitiesControllerTest < ActionController::TestCase
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
 
-=======
->>>>>>> 579475b7d60f9ac88208dddc731de8f007c5f3cb
   test "logged in milestone with messed up email" do
     # use update_attribute to bypass validations
     @user.update_attribute(:email, '')
