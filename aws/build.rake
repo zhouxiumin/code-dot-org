@@ -255,6 +255,28 @@ def upgrade_frontend(name, host)
   puts IO.read log_path
 end
 
+# Update the front-end instances, in parallel, but not all at once. When the infrastructure is
+# properly scaled we should be able to upgrade 20% of the front-ends at a time.
+task :deploy do
+  if CDO.daemon && CDO.app_servers.any?
+    Dir.chdir(deploy_dir) do
+      availability_zones = %w(b c d e).map{|x| "us-east-1#{x}"}
+      availability_zones.map do |az|
+        # Find all Chef nodes in this AZ
+        hosts_json = `knife search "roles:front-end AND chef_environment:#{rack_env} AND ec2_placement_availability_zone:#{az}" --format=json -a ec2.local_hostname`
+        # Convert to {name1 => host1, name2 => host2}
+        hosts = Hash[JSON.parse(hosts_json)['rows'].map{|row| node, attr = row.first; [node, attr.first[1]]}]
+        # Get nodes listed in both Chef query and CDO.app_servers list
+        active_frontends = Hash[hosts.to_a & CDO.app_servers.to_a]
+        # Upgrade all frontends in parallel
+        threaded_each active_frontends.keys, active_frontends.length do |name|
+          upgrade_frontend name, active_frontends[name]
+        end
+      end
+    end
+  end
+end
+
 # Synchronize the Chef cookbooks to the Chef repo for this environment using Berkshelf.
 task :chef_update do
   if CDO.daemon && CDO.chef_managed
@@ -279,20 +301,6 @@ task build: [:chef_update] do
   Dir.chdir(deploy_dir) do
     RakeUtils.system 'rake', 'lint' if CDO.lint
     RakeUtils.system 'rake', 'build'
-  end
-end
-
-# Update the front-end instances, in parallel, but not all at once. When the infrastructure is
-# properly scaled we should be able to upgrade 20% of the front-ends at a time. Right now we're
-# over-subscribed (have more resources than we need) so we're restarting 50% of the front-ends.
-task :deploy do
-  if CDO.daemon && CDO.app_servers.any?
-    Dir.chdir(deploy_dir) do
-      thread_count = 2
-      threaded_each CDO.app_servers.keys, thread_count do |name|
-        upgrade_frontend name, CDO.app_servers[name]
-      end
-    end
   end
 end
 
