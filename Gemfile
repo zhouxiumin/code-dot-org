@@ -19,6 +19,7 @@ gem 'redis', '~> 3.1.0'
 gem 'google_drive', '~> 1.0.0'
 gem 'dalli' # memcached
 gem 'parallel'
+gem 'concurrent-ruby'
 
 gem 'google-api-client'
 

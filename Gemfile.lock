@@ -108,6 +108,7 @@ GEM
     coderay (1.1.0)
     coffee-script-source (1.9.1.1)
     colorize (0.7.7)
+    concurrent-ruby (0.9.1)
     connection_pool (2.2.0)
     cucumber (2.0.2)
       builder (>= 2.1.2)
@@ -516,6 +517,7 @@ DEPENDENCIES
   codeclimate-test-reporter
   codemirror-rails
   colorize
+  concurrent-ruby
   cucumber
   dalli
   devise
