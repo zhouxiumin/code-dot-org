@@ -14,6 +14,7 @@ require 'cdo/rake_utils'
 require 'cdo/hip_chat'
 require 'cdo/only_one'
 require 'shellwords'
+require 'cdo/aws/elb'
 
 #
 # build_task - BUILDS a TASK that uses a hidden (.dotfile) to keep build steps idempotent. The file
@@ -266,11 +267,15 @@ task :deploy do
         hosts_json = `knife search "roles:front-end AND chef_environment:#{rack_env} AND ec2_placement_availability_zone:#{az}" --format=json -a ec2.local_hostname`
         # Convert to {name1 => host1, name2 => host2}
         hosts = Hash[JSON.parse(hosts_json)['rows'].map{|row| node, attr = row.first; [node, attr.first[1]]}]
+
         # Get nodes listed in both Chef query and CDO.app_servers list
+        # noinspection RubyHashKeysTypesInspection
         active_frontends = Hash[hosts.to_a & CDO.app_servers.to_a]
         # Upgrade all frontends in parallel
-        threaded_each active_frontends.keys, active_frontends.length do |name|
-          upgrade_frontend name, active_frontends[name]
+        AWS::ELB.with_disabled_zone(az) do
+          threaded_each active_frontends.keys, active_frontends.length do |name|
+            upgrade_frontend name, active_frontends[name]
+          end
         end
       end
     end
