@@ -2,7 +2,7 @@ require 'dynamic_config/dcdo'
 require 'dynamic_config/gatekeeper'
 
 class ScriptLevelsController < ApplicationController
-  check_authorization
+  # check_authorization
   include LevelsHelper
 
   # Default max age to use for script level pages which are configured as
@@ -33,22 +33,26 @@ class ScriptLevelsController < ApplicationController
   end
 
   def show
-    authorize! :read, ScriptLevel
+    # authorize! :read, ScriptLevel
+    Rails.logger.info "Entering show"
     @script = Script.get_from_cache(params[:script_id])
     configure_caching(@script)
     load_script_level
 
+    Rails.logger.info "GOt script level"
     if request.path != (canonical_path = build_script_level_path(@script_level))
       canonical_path << "?#{request.query_string}" unless request.query_string.empty?
       redirect_to canonical_path, status: :moved_permanently
       return
     end
 
+    Rails.logger.info "Loading user"
     load_user
     load_section
 
-    return if redirect_applab_under_13(@script_level.level)
+    # return if redirect_applab_under_13(@script_level.level)
 
+    Rails.logger.info "Present level"
     present_level
 
     slog(tag: 'activity_start',

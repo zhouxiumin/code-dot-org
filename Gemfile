@@ -24,12 +24,13 @@ gem 'google-api-client'
 
 group :development do
   gem 'annotate', '~> 2.6.6'
-  gem 'rack-mini-profiler'
   gem 'rerun', '~> 0.10.0'
   gem 'shotgun'
   gem 'thin', '~> 1.6.2'
   gem 'web-console', '~> 2.0'
 end
+
+gem 'rack-mini-profiler'
 
 group :development, :test do
   # Use debugger
@@ -159,7 +160,7 @@ gem 'rubocop', '0.34.2', require: false, group: [:development, :staging]
 gem 'haml_lint', require: false, group: [:development, :staging]
 
 # Reduce volume of production logs
-gem 'lograge'
+# gem 'lograge'
 
 # Enforce SSL
 gem 'rack-ssl-enforcer'
