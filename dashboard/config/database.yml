@@ -12,7 +12,7 @@ mysql_defaults: &mysql_defaults
   adapter: seamless_database_pool
   pool_adapter: mysql2
   encoding: utf8
-  pool: 5
+  pool: 32
   master:
     username: <%= writer.user || 'root' %>
     password: <%= writer.password || '' %>
@@ -48,7 +48,7 @@ test:
   username: 'root'
   host: 'localhost'
   password: ''
-  pool: 5
+  pool: 32
   database: 'dashboard_test'
 
 production:

@@ -20,6 +20,7 @@ options =  {
   backtrace: true,   # Log uncaught exceptions to ‘[app_name].log’ in the pid-file directory.
   monitor: true,     # Monitor the program and restart crashed instances.
   log_output: true,  # Log the output to process_queues.output in the config directory.
+  multiple: true,
   ARGV: argv
 }
 
