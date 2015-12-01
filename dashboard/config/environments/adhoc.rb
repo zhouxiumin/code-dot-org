@@ -25,7 +25,7 @@ Dashboard::Application.configure do
   config.static_cache_control = "public, max-age=86400, s-maxage=43200"
 
   # Set to :debug to see everything in the log.
-  config.log_level = :info
+  config.log_level = :debug
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false
@@ -54,5 +54,6 @@ Dashboard::Application.configure do
 
   # Serve a production version of React
   config.react.variant = :production
-  config.lograge.enabled = true
+
+  # config.lograge.enabled = true
 end

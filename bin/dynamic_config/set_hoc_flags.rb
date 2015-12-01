@@ -33,6 +33,7 @@ EOF
   mode = argv.shift
 
   # Set global Gatekeeper and DCDO flags.
+  Gatekeeper.set('public_caching_for_script', value: false);  # Off by default for non-hoc levels.
   case mode
     when 'red'
       Gatekeeper.set('postMilestone', value: false)
