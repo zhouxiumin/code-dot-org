@@ -2924,18 +2924,7 @@ Studio.onPuzzleComplete = function() {
 
   // don't try it if function is not defined, which should probably only be
   // true in our test environment
-  if (typeof document.getElementById('svgStudio').toDataURL === 'undefined') {
-    sendReport();
-  } else {
-    document.getElementById('svgStudio').toDataURL("image/jpeg", {
-      callback: function(pngDataUrl) {
-        Studio.feedbackImage = pngDataUrl;
-        Studio.encodedFeedbackImage = encodeURIComponent(Studio.feedbackImage.split(',')[1]);
-
-        sendReport();
-      }
-    });
-  }
+  sendReport();
 };
 
 
