@@ -11,7 +11,7 @@ module LevelsHelper
     elsif script_level.script.name == Script::FLAPPY_NAME
       flappy_chapter_path(script_level.chapter, params)
     else
-      url_for(
+      "../.." + url_for(
         controller: 'script_levels',
         action: 'show',
         id: script_level.position,
