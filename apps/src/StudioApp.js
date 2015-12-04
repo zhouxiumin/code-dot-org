@@ -635,7 +635,7 @@ StudioApp.prototype.assetUrl_ = function (path) {
     throw new Error('StudioApp BASE_URL has not been set. ' +
       'Call configure() first');
   }
-  return this.BASE_URL + ((window.digestManifest || {})[path] || path);
+  return "../../blockly/" + ((window.digestManifest || {})[path] || path);
 };
 
 /**
