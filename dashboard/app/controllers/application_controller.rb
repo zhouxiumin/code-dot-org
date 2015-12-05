@@ -121,13 +121,16 @@ class ApplicationController < ActionController::Base
     }
     script_level = options[:script_level]
 
+    p = {
+      locale: params[:locale]
+    }
     if script_level
       response[:script_id] = script_level.script.id
       response[:level_id] = script_level.level.id
 
       previous_level = script_level.previous_level
       if previous_level
-        response[:previous_level] = build_script_level_path(previous_level)
+        response[:previous_level] = build_script_level_path(previous_level, params: p)
       end
 
       # if they solved it, figure out next level
@@ -135,7 +138,7 @@ class ApplicationController < ActionController::Base
         response[:total_lines] = options[:total_lines]
         response[:trophy_updates] = options[:trophy_updates] unless options[:trophy_updates].blank?
         response[:new_level_completed] = options[:new_level_completed]
-        response[:level_path] = build_script_level_path(script_level)
+        response[:level_path] = build_script_level_path(script_level, params: p)
         script_level_solved_response(response, script_level)
       else # not solved
         response[:message] = 'try again'
