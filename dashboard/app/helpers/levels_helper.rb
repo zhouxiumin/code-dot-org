@@ -7,7 +7,7 @@ module LevelsHelper
 
   def build_script_level_path(script_level, params = {})
     if script_level.script.name == Script::HOC_NAME
-      hoc_chapter_path(I18n.locale, script_level.chapter, params)
+      hoc_chapter_path(I18n.locale, script_level.chapter, params) + ".html"
     elsif script_level.script.name == Script::FLAPPY_NAME
       flappy_chapter_path(script_level.chapter, params)
     else

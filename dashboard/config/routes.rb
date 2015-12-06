@@ -135,7 +135,7 @@ Dashboard::Application.routes.draw do
   post 'level_assets/upload', to: 'level_assets#upload'
 
   get '/:locale/notes/:key', to: 'notes#index'
-  get '/:locale/hoc/:chapter', to: 'script_levels#show', script_id: Script::HOC_NAME, as: 'hoc_chapter', format: false
+  get '/:locale/hoc/:chapter', to: 'script_levels#show', script_id: Script::HOC_NAME, as: 'hoc_chapter', format: 'html'
   scope "/:locale", locale: 'en' do
 
     resources :scripts, path: '', format: "html" do
