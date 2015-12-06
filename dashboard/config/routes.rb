@@ -135,7 +135,9 @@ Dashboard::Application.routes.draw do
   post 'level_assets/upload', to: 'level_assets#upload'
 
   get '/:locale/notes/:key', to: 'notes#index'
+  get '/:locale/hoc/:chapter', to: 'script_levels#show', script_id: Script::HOC_NAME, as: 'hoc_chapter', format: false
   scope "/:locale", locale: 'en' do
+
     resources :scripts, path: '', format: "html" do
       # /s/xxx/reset
       get 'reset', to: 'script_levels#reset'
@@ -159,7 +161,6 @@ Dashboard::Application.routes.draw do
   get 'reset_session', to: 'application#reset_session_endpoint'
 
   get '/hoc/reset', to: 'script_levels#reset', script_id: Script::HOC_NAME, as: 'hoc_reset'
-  get '/hoc/:chapter', to: 'script_levels#show', script_id: Script::HOC_NAME, as: 'hoc_chapter', format: false
 
   get '/k8intro/:chapter', to: 'script_levels#show', script_id: Script::TWENTY_HOUR_NAME, as: 'k8intro_chapter', format: false
   get '/editcode/:chapter', to: 'script_levels#show', script_id: Script::EDIT_CODE_NAME, as: 'editcode_chapter', format: false
