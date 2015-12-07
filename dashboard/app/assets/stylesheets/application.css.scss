@@ -328,7 +328,8 @@ $small-footer-standard-width: 400px;
 .small-footer-base {
   position: absolute;
   bottom: 0;
-  width: $small-footer-standard-width;
+  left: 0;
+  right: 0;
   overflow: hidden;
   padding-left: $codeApp-left-margin;
 
@@ -349,10 +350,11 @@ $small-footer-standard-width: 400px;
     height: 18px;
     margin-bottom: 0;
   }
-
+  #disney-copyright-wrapper {
+    float: right;
+  }
   small {
     display: block;
-    float: right;
     margin-right: $small-footer-horizontal-margin;
     padding-top: 3px;
     white-space: nowrap;

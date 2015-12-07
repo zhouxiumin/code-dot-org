@@ -178,6 +178,17 @@ window.dashboard.footer = (function () {
                   __html: decodeURIComponent(this.props.i18nDropdown)
               }}/>
               <small>
+                <span id="disney-copyright-wrapper">
+                  <a href ="http://disneytermsofuse.com/">Terms of Use</a>
+                  &nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a href="http://disney.go.com/guestservices/legalnotices">Legal Notices</a>
+                  &nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a href="https://disneyprivacycenter.com/">Privacy Policy</a>
+                  &nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a href="https://disneyprivacycenter.com/notice-to-california-residents/">Your California Privacy Rights</a>
+                  &nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a href="https://disneyprivacycenter.com/kids-privacy-policy/english/">Children’s Online Privacy Policy</a>
+                </span>
                 {this.renderCopyright()}
                 <a className="more-link" href="javascript:void(0)"
                   onClick={this.clickBaseMenu}>
