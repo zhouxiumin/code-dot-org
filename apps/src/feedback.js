@@ -92,7 +92,7 @@ FeedbackUtils.prototype.displayFeedback = function(options, requiredBlocks,
     trackEvent('Share', 'Failure', options.response.share_failure.type);
   }
   var feedbackBlocks;
-  if (this.studioApp_.isUsingBlockly()) {
+  if (false && this.studioApp_.isUsingBlockly()) {
     feedbackBlocks = new FeedbackBlocks(
         options,
         this.getMissingBlocks_(requiredBlocks, maxRequiredBlocksToFlag),
