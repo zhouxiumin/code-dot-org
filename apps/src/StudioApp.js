@@ -1547,7 +1547,7 @@ StudioApp.prototype.configureDom = function (config) {
     visualizationColumn.className += " responsive";
     var smallFooter = document.querySelector('#page-small-footer .small-footer-base');
     if (smallFooter) {
-      smallFooter.className += " responsive";
+      //smallFooter.className += " responsive";
     }
   }
 };
