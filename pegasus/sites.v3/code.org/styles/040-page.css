@@ -111,17 +111,17 @@ li > ul {
 ul {
   list-style: none;
   padding:0;
-  margin:20px;
+  /*margin:20px;*/
 }
 
 ul li {
-  padding-left: 1em;
-  text-indent: -.7em;
+  /*padding-left: 1em;*/
+  /*text-indent: -.7em;*/
 }
 
 ul li:before {
-  content: "• ";
-  color: rgb(0, 161, 230);
+  /*content: "• ";*/
+  /*color: rgb(0, 161, 230);*/
 }
 
 .invisiblelist li:before {
