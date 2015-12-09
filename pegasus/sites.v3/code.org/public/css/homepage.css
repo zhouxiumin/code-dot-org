@@ -121,14 +121,14 @@ body.modal-open .supreme-container{
 }
 
 #homepage #actions #title {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 26px;
   color: white;
   line-height: 30px;
 }
 
 #homepage #actions #subtitle {
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 16px;
   color: white;
   margin: 15px 0 5px 0;
@@ -162,14 +162,14 @@ body.modal-open .supreme-container{
 }
 
 #homepage #actions #volunteeraction {
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 16px;
   color: white;
   margin-top: 30px;
 }
 
 #homepage #actions #volunteeraction a {
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 16px;
   color: white;
   text-decoration: none;
@@ -210,12 +210,12 @@ body.modal-open .supreme-container{
   padding: 10px; 
   font-size: 18px; 
   text-align: left; 
-  font-family: 'Gotham 4r', sans-serif; 
+  font-family: 'Helvetica', sans-serif; 
   text-align: center;
 }
 
 #homepage .quarterslot .slotbox .headerbox .header {
-  font-family: 'Gotham 7r', sans-serif
+  font-family: 'Helvetica', sans-serif
 }
 
 #homepage .quarterslot .slotbox .headerbox .sentence {
@@ -251,12 +251,12 @@ body.modal-open .supreme-container{
   padding: 10px; 
   font-size: 18px; 
   text-align: left; 
-  font-family: 'Gotham 4r', sans-serif; 
+  font-family: 'Helvetica', sans-serif; 
   text-align: center
 } 
 
 #homepage .quarterslot-links .headerbox .header {
-  font-family: 'Gotham 7r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 } 
 
 #homepage .quarterslot-links .headerbox .sentence {
@@ -277,7 +277,7 @@ body.modal-open .supreme-container{
 
 #homepage .quarterslot-links .thelinks .link {
   font-size: 16px; 
-  font-family: 'Gotham 4r', sans-serif; 
+  font-family: 'Helvetica', sans-serif; 
   color: white;
 }
 
@@ -296,7 +296,7 @@ body.modal-open .supreme-container{
   padding: 10px; 
   font-size: 20px; 
   text-align: left; 
-  font-family: 'Gotham 5r', sans-serif; 
+  font-family: 'Helvetica', sans-serif; 
   text-align: center;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;

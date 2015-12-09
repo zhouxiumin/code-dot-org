@@ -1,6 +1,6 @@
 
 body {
-  font-family: 'Gotham A','Gotham B',sans-serif;
+  font-family: 'Helvetica','Gotham B',sans-serif;
   font-size: 13px;
   line-height: 18px;
   font-weight: 400;
@@ -114,7 +114,7 @@ body {
 }
 
 
-.main{font-family: 'Gotham A','Gotham B',sans-serif;}
+.main{font-family: 'Helvetica','Gotham B',sans-serif;}
 
 .BootstrapTitle img{float: right; width: 90px; height: 90px;}
 .TitleUnitNum{font-size: 12px; }

@@ -60,7 +60,7 @@
 .studio-reset-text,
 .studio-floating-score {
   text-anchor: middle;
-  font-family: "Gotham 7r", sans-serif;
+  font-family: "Helvetica", sans-serif;
   fill: white;
   stroke: black;
   cursor: default; }
@@ -78,7 +78,7 @@
 .studio-ts-title {
   text-anchor: middle;
   font-size: xx-large;
-  font-family: "Gotham 7r", sans-serif;
+  font-family: "Helvetica", sans-serif;
   fill: white;
   stroke: black;
   stroke-width: 2;
@@ -87,7 +87,7 @@
 .studio-ts-text {
   text-anchor: middle;
   font-size: 20px;
-  font-family: "Gotham 7r", sans-serif;
+  font-family: "Helvetica", sans-serif;
   fill: white;
   stroke: black;
   stroke-width: 1;

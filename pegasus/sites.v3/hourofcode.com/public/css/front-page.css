@@ -23,14 +23,14 @@
 }
 
 .category-header {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 .category-button {
   background-color: #5b6770;
   border-radius: 5px;
   color: white;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   margin: 5px 0px;
   padding: 8px;
 }
@@ -98,7 +98,7 @@
 
 #volunteer-signup a {
   color: white;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   text-decoration: none;
 }
 

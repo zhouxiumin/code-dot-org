@@ -264,7 +264,7 @@ div#visualizationResizeBar {
   text-align: right;
   text-shadow: #000 -1px -1px 0; }
   #wireframeSendToPhone, #wireframeSendToPhone .sharing label {
-    font: 12pt "Gotham 5r", sans-serif;
+    font: 12pt "Helvetica", sans-serif;
     color: #8F9499; }
   #wireframeSendToPhone i {
     font-size: 1.5em; }

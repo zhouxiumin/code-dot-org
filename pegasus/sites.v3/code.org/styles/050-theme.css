@@ -66,7 +66,7 @@ body {
   display: inline-block;
   font-size: 18px;
   margin: 0.9375em 0 0 30px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   color: white;
   text-decoration: none;
 }
@@ -112,19 +112,19 @@ body {
 .whitefooterlink:link {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 .whitefooterlink:hover {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 .whitefooterlink:visited {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 
@@ -165,7 +165,7 @@ body {
   color: rgb(255, 255, 255);
   cursor: pointer;
   display: inline-block;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   font-weight: normal;
   height: 35px;

@@ -103,19 +103,19 @@ body {
 .whitefooterlink:link {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 .whitefooterlink:hover {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 .whitefooterlink:visited {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 
@@ -125,7 +125,7 @@ body {
   margin-top:10px;
   margin-bottom:5px;
   font-size: 18px;
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 #user_hero #continue_button {
@@ -137,19 +137,19 @@ body {
 }
 
 #user_hero #student_progress {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   width: 175px;
   display: inline-block;
 }
 
 #user_hero #left_off {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   width: 175px;
   display: inline-block;
 }
 
 #user_hero #classroom {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size:16px;
   margin-top:10px;
 }
@@ -184,7 +184,7 @@ body {
   color: rgb(255, 255, 255);
   cursor: pointer;
   display: inline-block;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   font-weight: normal;
   height: 35px;

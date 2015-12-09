@@ -60,7 +60,7 @@ body {
 .headerlink:link{
   color: white;
   font-size: 18px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   margin-left: 40px;
 }
@@ -68,7 +68,7 @@ body {
 .headerlink:visited {
   color: white;
   font-size: 18px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   margin-left: 40px;
 }
@@ -76,7 +76,7 @@ body {
 .headerlink:hover {
   color: white;
   font-size: 18px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   text-decoration: none;
   border-bottom: solid 4px rgb(255, 138, 0);
@@ -95,7 +95,7 @@ body {
 #pagefooter .content {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   width: 970px;
   margin: 0 auto;
@@ -109,21 +109,21 @@ body {
 .whitefooterlink:link {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
 }
 
 .whitefooterlink:hover {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
 }
 
 .whitefooterlink:visited {
   color: white;
   font-size: 14px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
 }
 
@@ -132,7 +132,7 @@ body {
 
 a.user-menu-link {
   color:white;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   padding-left:10px;
 }
@@ -148,26 +148,26 @@ a.user-menu-link {
   margin-top:10px;
   margin-bottom:5px;
   font-size: 18px;
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
 }
 
 #user_hero #student_progress {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   width: 175px;
   display: inline-block;
 }
 
 #user_hero #left_off {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   width: 175px;
   display: inline-block;
 }
 
 #user_hero #classroom {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
   font-size:16px;
   margin-top:10px;
@@ -203,7 +203,7 @@ a.user-menu-link {
   color: rgb(255, 255, 255);
   cursor: pointer;
   display: inline-block;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   font-weight: normal;
   height: 35px;

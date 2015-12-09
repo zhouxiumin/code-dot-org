@@ -5,7 +5,7 @@ body {
 .redheaderlink {
   color: rgb(211,0,0);
   font-size: 18px;
-  font-family: 'Gotham 7r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 .redheaderlink:hover {

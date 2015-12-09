@@ -18,7 +18,7 @@
 
 
 @font-face {
-  font-family: 'Gotham 4r';
+  font-family: 'Helvetica';
   src: url('/fonts/gotham/6159BB98E1685952B.eot');
   src: local('?'),
   url('/fonts/gotham/6159BB98E1685952B.eot?#hfj') format('embedded-opentype'),
@@ -28,7 +28,7 @@
 }
 
 @font-face {
-  font-family: 'Gotham 4i';
+  font-family: 'Helvetica';
   src: url('/fonts/gotham/356536BA3D9514341.eot');
   src: local('?'),
   url('/fonts/gotham/356536BA3D9514341.eot?#hfj') format('embedded-opentype'),
@@ -38,7 +38,7 @@
 }
 
 @font-face {
-  font-family: 'Gotham 5r';
+  font-family: 'Helvetica';
   src: url('/fonts/gotham/EA3DCDD0D2B3510FC.eot');
   src: local('?'),
   url('/fonts/gotham/EA3DCDD0D2B3510FC.eot?#hfj') format('embedded-opentype'),
@@ -48,7 +48,7 @@
 }
 
 @font-face {
-  font-family: 'Gotham 5i';
+  font-family: 'Helvetica';
   src: url('/fonts/gotham/25D5AF7A60C1CC369.eot');
   src: local('?'),
   url('/fonts/gotham/25D5AF7A60C1CC369.eot?#hfj') format('embedded-opentype'),
@@ -58,7 +58,7 @@
 }
 
 @font-face {
-  font-family: 'Gotham 7r';
+  font-family: 'Helvetica';
   src: url('/fonts/gotham/AD8473A4463D3C6E3.eot');
   src: local('?'),
   url('/fonts/gotham/AD8473A4463D3C6E3.eot?#hfj') format('embedded-opentype'),
@@ -68,7 +68,7 @@
 }
 
 @font-face {
-  font-family: 'Gotham 7i';
+  font-family: 'Helvetica';
   src: url('/fonts/gotham/57D90A20B0B69E6FD.eot');
   src: local('?'),
   url('/fonts/gotham/57D90A20B0B69E6FD.eot?#hfj') format('embedded-opentype'),

@@ -5,7 +5,7 @@
 h1 {
   color: #5c3f7f;
   font-size: 32px;
-  font-family: 'Gotham 7r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   margin-top: 50px;
   margin-bottom: 30px;
   line-height: 1.2em;
@@ -14,7 +14,7 @@ h1 {
 h2 {
   color: #008b9a;
   font-size: 22px;
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   margin-top:45px;
   margin-bottom:25px;
   line-height: 1.2em;
@@ -23,7 +23,7 @@ h2 {
 h3 {
   color: #5b6770;
   font-size: 18px;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   margin-top:25px;
   margin-bottom:12px;
   line-height: 1.2em;
@@ -32,7 +32,7 @@ h3 {
 h4 {
   color: #5b6770;
   font-size: 14px;
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   line-height: 1.2em;
 }
 
@@ -41,7 +41,7 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 a {
-  font-family: 'Gotham 7r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 a:link {
@@ -74,22 +74,22 @@ blockquote p {
 }
 
 strong {
-  font-family: 'Gotham 7r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
 }
 
 em {
-  font-family: 'Gotham 4i', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-style: normal;
 }
 
 strong em,
 em strong {
-  font-family: 'Gotham 7i', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 body {
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   line-height: 22px;
   font-weight: normal;
@@ -395,7 +395,7 @@ button {
   color: rgb(255, 255, 255);
   cursor: pointer;
   display: inline-block;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   font-weight: normal;
   height: 34px;
@@ -462,7 +462,7 @@ button {
 a.lines_of_code_link {
   color:white;
   text-decoration:none;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 #sitemap #box {
@@ -481,10 +481,10 @@ a.lines_of_code_link {
 
 #sitemap #box a {
   color:white;
-  font-family: 'Gotham 4r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
 }
 
 label {
-  font-family: 'Gotham 5r', sans-serif;
+  font-family: 'Helvetica', sans-serif;
   font-weight: normal;
 }
