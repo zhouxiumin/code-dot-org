@@ -1,29 +1,4 @@
-var common_locale = {lc:{"en":function(n){return n===1?"one":"other"},"bn":function(n){return n===1?"one":"other"},"ga":function(n){return n==1?"one":(n==2?"two":"other")},"ms":function(n){return "other"},"ta":function(n){return n===1?"one":"other"},"zh":function(n){return "other"},"ar":function(n){
-  if (n === 0) {
-    return 'zero';
-  }
-  if (n == 1) {
-    return 'one';
-  }
-  if (n == 2) {
-    return 'two';
-  }
-  if ((n % 100) >= 3 && (n % 100) <= 10 && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 100) >= 11 && (n % 100) <= 99 && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"bg":function(n){return n===1?"one":"other"},"ca":function(n){return n===1?"one":"other"},"cs":function(n){
-  if (n == 1) {
-    return 'one';
-  }
-  if (n == 2 || n == 3 || n == 4) {
-    return 'few';
-  }
-  return 'other';
-},"da":function(n){return n===1?"one":"other"},"de":function(n){return n===1?"one":"other"},"el":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"}},
+var common_locale = {lc:{"en":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"}},
 c:function(d,k){if(!d)throw new Error("MessageFormat: Data required for '"+k+"'.")},
 n:function(d,k,o){if(isNaN(d[k]))throw new Error("MessageFormat: '"+k+"' isn't a number.");return d[k]-(o||0)},
 v:function(d,k){common_locale.c(d,k);return d[k]},
@@ -40,7 +15,7 @@ s:function(d,k,p){common_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "catColour":function(d){return "Color"},
 "catLists":function(d){return "Listas"},
 "catLogic":function(d){return "Lógica"},
-"catLoops":function(d){return "Iteraciones"},
+"catLoops":function(d){return "Bucles"},
 "catMath":function(d){return "Matemáticas"},
 "catProcedures":function(d){return "Funciones"},
 "catText":function(d){return "Texto"},

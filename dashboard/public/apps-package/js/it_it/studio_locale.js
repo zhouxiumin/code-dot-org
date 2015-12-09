@@ -1,4 +1,4 @@
-var studio_locale = {lc:{"en":function(n){return n===1?"one":"other"},"bn":function(n){return n===1?"one":"other"},"ga":function(n){return n==1?"one":(n==2?"two":"other")},"ms":function(n){return "other"},"ta":function(n){return n===1?"one":"other"},"zh":function(n){return "other"},"ar":function(n){
+var studio_locale = {lc:{"en":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"},"it":function(n){return n===1?"one":"other"},"ar":function(n){
   if (n === 0) {
     return 'zero';
   }
@@ -15,139 +15,7 @@ var studio_locale = {lc:{"en":function(n){return n===1?"one":"other"},"bn":funct
     return 'many';
   }
   return 'other';
-},"bg":function(n){return n===1?"one":"other"},"ca":function(n){return n===1?"one":"other"},"cs":function(n){
-  if (n == 1) {
-    return 'one';
-  }
-  if (n == 2 || n == 3 || n == 4) {
-    return 'few';
-  }
-  return 'other';
-},"da":function(n){return n===1?"one":"other"},"de":function(n){return n===1?"one":"other"},"el":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"},"et":function(n){return n===1?"one":"other"},"eu":function(n){return n===1?"one":"other"},"fa":function(n){return "other"},"fi":function(n){return n===1?"one":"other"},"fil":function(n){return n===0||n==1?"one":"other"},"fr":function(n){return Math.floor(n)===0||Math.floor(n)==1?"one":"other"},"gl":function(n){return n===1?"one":"other"},"he":function(n){return n===1?"one":"other"},"hi":function(n){return n===0||n==1?"one":"other"},"hr":function(n){
-  if ((n % 10) == 1 && (n % 100) != 11) {
-    return 'one';
-  }
-  if ((n % 10) >= 2 && (n % 10) <= 4 &&
-      ((n % 100) < 12 || (n % 100) > 14) && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 10) === 0 || ((n % 10) >= 5 && (n % 10) <= 9) ||
-      ((n % 100) >= 11 && (n % 100) <= 14) && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"hu":function(n){return "other"},"id":function(n){return "other"},"is":function(n){
-    return ((n%10) === 1 && (n%100) !== 11) ? 'one' : 'other';
-  },"it":function(n){return n===1?"one":"other"},"ja":function(n){return "other"},"ko":function(n){return "other"},"lt":function(n){
-  if ((n % 10) == 1 && ((n % 100) < 11 || (n % 100) > 19)) {
-    return 'one';
-  }
-  if ((n % 10) >= 2 && (n % 10) <= 9 &&
-      ((n % 100) < 11 || (n % 100) > 19) && n == Math.floor(n)) {
-    return 'few';
-  }
-  return 'other';
-},"lv":function(n){
-  if (n === 0) {
-    return 'zero';
-  }
-  if ((n % 10) == 1 && (n % 100) != 11) {
-    return 'one';
-  }
-  return 'other';
-},"mk":function(n){return (n%10)==1&&n!=11?"one":"other"},"mr":function(n){return n===1?"one":"other"},"mt":function(n){
-  if (n == 1) {
-    return 'one';
-  }
-  if (n === 0 || ((n % 100) >= 2 && (n % 100) <= 4 && n == Math.floor(n))) {
-    return 'few';
-  }
-  if ((n % 100) >= 11 && (n % 100) <= 19 && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"nl":function(n){return n===1?"one":"other"},"no":function(n){return n===1?"one":"other"},"pl":function(n){
-  if (n == 1) {
-    return 'one';
-  }
-  if ((n % 10) >= 2 && (n % 10) <= 4 &&
-      ((n % 100) < 12 || (n % 100) > 14) && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 10) === 0 || n != 1 && (n % 10) == 1 ||
-      ((n % 10) >= 5 && (n % 10) <= 9 || (n % 100) >= 12 && (n % 100) <= 14) &&
-      n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"pt":function(n){return n===1?"one":"other"},"ro":function(n){
-  if (n == 1) {
-    return 'one';
-  }
-  if (n === 0 || n != 1 && (n % 100) >= 1 &&
-      (n % 100) <= 19 && n == Math.floor(n)) {
-    return 'few';
-  }
-  return 'other';
-},"ru":function(n){
-  if ((n % 10) == 1 && (n % 100) != 11) {
-    return 'one';
-  }
-  if ((n % 10) >= 2 && (n % 10) <= 4 &&
-      ((n % 100) < 12 || (n % 100) > 14) && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 10) === 0 || ((n % 10) >= 5 && (n % 10) <= 9) ||
-      ((n % 100) >= 11 && (n % 100) <= 14) && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"sk":function(n){
-  if (n == 1) {
-    return 'one';
-  }
-  if (n == 2 || n == 3 || n == 4) {
-    return 'few';
-  }
-  return 'other';
-},"sl":function(n){
-  if ((n % 100) == 1) {
-    return 'one';
-  }
-  if ((n % 100) == 2) {
-    return 'two';
-  }
-  if ((n % 100) == 3 || (n % 100) == 4) {
-    return 'few';
-  }
-  return 'other';
-},"sq":function(n){return n===1?"one":"other"},"sr":function(n){
-  if ((n % 10) == 1 && (n % 100) != 11) {
-    return 'one';
-  }
-  if ((n % 10) >= 2 && (n % 10) <= 4 &&
-      ((n % 100) < 12 || (n % 100) > 14) && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 10) === 0 || ((n % 10) >= 5 && (n % 10) <= 9) ||
-      ((n % 100) >= 11 && (n % 100) <= 14) && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"sv":function(n){return n===1?"one":"other"},"th":function(n){return "other"},"tr":function(n){return n===1?"one":"other"},"uk":function(n){
-  if ((n % 10) == 1 && (n % 100) != 11) {
-    return 'one';
-  }
-  if ((n % 10) >= 2 && (n % 10) <= 4 &&
-      ((n % 100) < 12 || (n % 100) > 14) && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 10) === 0 || ((n % 10) >= 5 && (n % 10) <= 9) ||
-      ((n % 100) >= 11 && (n % 100) <= 14) && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"ur":function(n){return n===1?"one":"other"},"vi":function(n){return "other"}},
+}},
 c:function(d,k){if(!d)throw new Error("MessageFormat: Data required for '"+k+"'.")},
 n:function(d,k,o){if(isNaN(d[k]))throw new Error("MessageFormat: '"+k+"' isn't a number.");return d[k]-(o||0)},
 v:function(d,k){studio_locale.c(d,k);return d[k]},
@@ -207,9 +75,9 @@ s:function(d,k,p){studio_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "changeScoreTooltipK1":function(d){return "Aggiunge un punto al punteggio."},
 "tapOrClickToPlay":function(d){return "Tocca o clicca per giocare"},
 "tapOrClickToReset":function(d){return "Tocca o clicca per ricominciare"},
-"tapToReset":function(d){return "Tap to reset"},
-"tapToPlay":function(d){return "Tap to play"},
-"swipeToMove":function(d){return "Swipe to move"},
+"tapToReset":function(d){return "Tocca per ricominciare"},
+"tapToPlay":function(d){return "Tocca per giocare"},
+"swipeToMove":function(d){return "Passa il dito per spostare"},
 "continue":function(d){return "Prosegui"},
 "decrementPlayerScore":function(d){return "togli un punto"},
 "defaultSayText":function(d){return "scrivi qua"},
@@ -309,7 +177,7 @@ s:function(d,k,p){studio_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "endGameTooltip":function(d){return "Fine del gioco con una vittoria o una sconfitta."},
 "extraFunction":function(d){return "Hai rinominato la funzione come "+studio_locale.v(d,"funcName")+" ma non funziona. Prova ad usare il nome originale della funzione."},
 "finalLevel":function(d){return "Complimenti! Hai risolto l'esercizio finale."},
-"foodFight":function(d){return "Lotta di cibo!"},
+"foodFight":function(d){return "Battaglia del cibo!"},
 "for":function(d){return "per"},
 "goSprite":function(d){return "vai"},
 "hello":function(d){return "ciao"},
@@ -331,7 +199,7 @@ s:function(d,k,p){studio_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "hoc2015_score_instructions":function(d){return "\"Raggiungi i piloti dell'Alleanza Ribelle!\""},
 "hoc2015_score_instructions2":function(d){return "Aggiungiamo il punteggio. Assegna dei punti a R2-D2 quando raggiunge un pilota dell'Alleanza Ribelle[rebelpilot]. Devi arrivare a 900 punti per vincere."},
 "hoc2015_win_lose_instructions":function(d){return "\"Attento agli Stormtrooper [stormtrooper].\""},
-"hoc2015_win_lose_instructions2":function(d){return "Aggiungi 100 punti quando R2-D2 raggiunge un pilota dell'Alleanza Ribelle [rebelpilot]. Sottrai 100 punti quando tocca uno Stormtrooper [stormtrooper]. Arriva a 200 punti per passare al prossimo esercizio. (Puoi usare i Mynock [mynock] per superare il livello più facilmente.)"},
+"hoc2015_win_lose_instructions2":function(d){return "Aggiungi 100 punti quando R2-D2 raggiunge un Pilota dell'Alleanza Ribelle [rebelpilot]. Sottrai 100 punti quando tocca uno Stormtrooper [stormtrooper]. Arriva a 200 punti per passare al prossimo esercizio. (Puoi usare i Mynock [mynock] per superare il livello più facilmente.)"},
 "hoc2015_add_characters_instructions":function(d){return "\"Sto notando segni di una maggiore attività su questo pianeta.\""},
 "hoc2015_add_characters_instructions2":function(d){return "Aggiungi tre Porco-Palla [pufferpig] al pianeta. Poi, vai a prenderli."},
 "hoc2015_chain_characters_instructions":function(d){return "\"Tocca a te, R2-D2!\""},
@@ -342,7 +210,7 @@ s:function(d,k,p){studio_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "hoc2015_change_setting_instructions2":function(d){return "Usa le nuove istruzioni per impostare il tuo droide e la sua velocità. Poi, raggiungi i piloti dell'Alleanza Ribelle [rebelpilot]."},
 "hoc2015_event_free_instructions":function(d){return "\"Te la devi cavare da solo adesso, R2-D2.\""},
 "hoc2015_event_free_instructions2":function(d){return "Hai tutti gli strumenti necessari per creare una versione tutta tua. Esplora e prova liberamente tutti i Comandi e gli Eventi. Quando hai finito, premi il pulsante Condividi per continuare. Ecco alcuni possibili giochi da realizzare: <br>\n1 - Aggiungi 5 personaggi scelti in maniera casuale e riproduci un suono differente ogni volta che il tuo droide si scontra con uno di loro.<br>\n2 - Aggiungi 10 Stormtroopers e fagli inseguire il tuo droide. Vedi se riesci a sfuggirgli facendo muovere il tuo droide più velocemente.<br>\n3 - Fai in modo che il tuo droide si muova più velocemente quando tocca un Droide-Topo e più lentamente quando tocca un Stormtrooper.<br>\n4 - Ogni volta che il tuo droide cattura un Droide-Topo guadagni un po' di punti ma devono apparire un Doride-Topo e uno Stormtrooper. Se uno Stormtrooper cattura il tuo droide il gioco termina.<br>\nPer programmatori JavaScript: <br>\nSe usi il JavaScript in formato testuale, puoi creare programmi più complessi. Sentiti libero di usare i cicli, le istruzioni \"if\", le variabili e qualunque altra istruzione JavaScript ti possa essere utile per creare un gioco più complesso. E per favore: documenta e condividi il codice che hai scritto in modo che anche gli altri possano usarlo per imparare."},
-"iceAge":function(d){return "L'era glaciale!"},
+"iceAge":function(d){return "L'Era Glaciale!"},
 "incrementPlayerScore":function(d){return "aggiungi un punto"},
 "itemIAProjectile1":function(d){return "cuori"},
 "itemIAProjectile2":function(d){return "masso"},
@@ -637,12 +505,12 @@ s:function(d,k,p){studio_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "setBackgroundIceberg":function(d){return "imposta uno sfondo con degli iceberg"},
 "setBackgroundTile":function(d){return "imposta uno sfondo con piastrelle"},
 "setBackgroundIcy":function(d){return "imposta uno sfondo con ghiaccio"},
-"setBackgroundIcy1":function(d){return "set icy 1 background"},
-"setBackgroundIcy2":function(d){return "set icy 2 background"},
-"setBackgroundIcy3":function(d){return "set icy 3 background"},
-"setBackgroundIcy4":function(d){return "set icy 4 background"},
-"setBackgroundIcy5":function(d){return "set icy 5 background"},
-"setBackgroundGround":function(d){return "set ground background"},
+"setBackgroundIcy1":function(d){return "imposta uno sfondo con ghiaccio 1"},
+"setBackgroundIcy2":function(d){return "imposta uno sfondo con ghiaccio 2"},
+"setBackgroundIcy3":function(d){return "imposta uno sfondo con ghiaccio 3"},
+"setBackgroundIcy4":function(d){return "imposta uno sfondo con ghiaccio 4"},
+"setBackgroundIcy5":function(d){return "imposta uno sfondo con ghiaccio 5"},
+"setBackgroundGround":function(d){return "imposta uno sfondo con terreno"},
 "setBackgroundSnowy":function(d){return "imposta uno sfondo nevoso"},
 "setBackgroundEndor":function(d){return "imposta uno sfondo di Endor"},
 "setBackgroundHoth":function(d){return "imposta uno sfondo di Hoth"},

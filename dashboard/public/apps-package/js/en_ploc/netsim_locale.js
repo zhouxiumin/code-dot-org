@@ -1,4 +1,4 @@
-var netsim_locale = {lc:{"en":function(n){return n===1?"one":"other"}},
+var netsim_locale = {lc:{"en":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"},"it":function(n){return n===1?"one":"other"}},
 c:function(d,k){if(!d)throw new Error("MessageFormat: Data required for '"+k+"'.")},
 n:function(d,k,o){if(isNaN(d[k]))throw new Error("MessageFormat: '"+k+"' isn't a number.");return d[k]-(o||0)},
 v:function(d,k){netsim_locale.c(d,k);return d[k]},

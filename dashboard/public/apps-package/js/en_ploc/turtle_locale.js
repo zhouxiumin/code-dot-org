@@ -1,4 +1,21 @@
-var turtle_locale = {lc:{"en":function(n){return n===1?"one":"other"}},
+var turtle_locale = {lc:{"en":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"},"it":function(n){return n===1?"one":"other"},"ar":function(n){
+  if (n === 0) {
+    return 'zero';
+  }
+  if (n == 1) {
+    return 'one';
+  }
+  if (n == 2) {
+    return 'two';
+  }
+  if ((n % 100) >= 3 && (n % 100) <= 10 && n == Math.floor(n)) {
+    return 'few';
+  }
+  if ((n % 100) >= 11 && (n % 100) <= 99 && n == Math.floor(n)) {
+    return 'many';
+  }
+  return 'other';
+}},
 c:function(d,k){if(!d)throw new Error("MessageFormat: Data required for '"+k+"'.")},
 n:function(d,k,o){if(isNaN(d[k]))throw new Error("MessageFormat: '"+k+"' isn't a number.");return d[k]-(o||0)},
 v:function(d,k){turtle_locale.c(d,k);return d[k]},

@@ -1,44 +1,4 @@
-var common_locale = {lc:{"en":function(n){return n===1?"one":"other"},"bn":function(n){return n===1?"one":"other"},"ga":function(n){return n==1?"one":(n==2?"two":"other")},"ms":function(n){return "other"},"ta":function(n){return n===1?"one":"other"},"zh":function(n){return "other"},"ar":function(n){
-  if (n === 0) {
-    return 'zero';
-  }
-  if (n == 1) {
-    return 'one';
-  }
-  if (n == 2) {
-    return 'two';
-  }
-  if ((n % 100) >= 3 && (n % 100) <= 10 && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 100) >= 11 && (n % 100) <= 99 && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"bg":function(n){return n===1?"one":"other"},"ca":function(n){return n===1?"one":"other"},"cs":function(n){
-  if (n == 1) {
-    return 'one';
-  }
-  if (n == 2 || n == 3 || n == 4) {
-    return 'few';
-  }
-  return 'other';
-},"da":function(n){return n===1?"one":"other"},"de":function(n){return n===1?"one":"other"},"el":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"},"et":function(n){return n===1?"one":"other"},"eu":function(n){return n===1?"one":"other"},"fa":function(n){return "other"},"fi":function(n){return n===1?"one":"other"},"fil":function(n){return n===0||n==1?"one":"other"},"fr":function(n){return Math.floor(n)===0||Math.floor(n)==1?"one":"other"},"gl":function(n){return n===1?"one":"other"},"he":function(n){return n===1?"one":"other"},"hi":function(n){return n===0||n==1?"one":"other"},"hr":function(n){
-  if ((n % 10) == 1 && (n % 100) != 11) {
-    return 'one';
-  }
-  if ((n % 10) >= 2 && (n % 10) <= 4 &&
-      ((n % 100) < 12 || (n % 100) > 14) && n == Math.floor(n)) {
-    return 'few';
-  }
-  if ((n % 10) === 0 || ((n % 10) >= 5 && (n % 10) <= 9) ||
-      ((n % 100) >= 11 && (n % 100) <= 14) && n == Math.floor(n)) {
-    return 'many';
-  }
-  return 'other';
-},"hu":function(n){return "other"},"id":function(n){return "other"},"is":function(n){
-    return ((n%10) === 1 && (n%100) !== 11) ? 'one' : 'other';
-  },"it":function(n){return n===1?"one":"other"}},
+var common_locale = {lc:{"en":function(n){return n===1?"one":"other"},"es":function(n){return n===1?"one":"other"},"it":function(n){return n===1?"one":"other"}},
 c:function(d,k){if(!d)throw new Error("MessageFormat: Data required for '"+k+"'.")},
 n:function(d,k,o){if(isNaN(d[k]))throw new Error("MessageFormat: '"+k+"' isn't a number.");return d[k]-(o||0)},
 v:function(d,k){common_locale.c(d,k);return d[k]},
@@ -46,7 +6,7 @@ p:function(d,k,o,l,p){common_locale.c(d,k);return d[k] in p?p[d[k]]:(k=common_lo
 s:function(d,k,p){common_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 (window.blockly = window.blockly || {}).common_locale = {
 "and":function(d){return "e"},
-"backToPreviousLevel":function(d){return "Torna al livello precedente"},
+"backToPreviousLevel":function(d){return "Torna al precedente esercizio"},
 "blocklyMessage":function(d){return "Blockly"},
 "blocks":function(d){return "blocchi"},
 "booleanFalse":function(d){return "falso"},
@@ -67,7 +27,7 @@ s:function(d,k,p){common_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "codeTooltip":function(d){return "Guarda il codice JavaScript generato."},
 "completedWithoutRecommendedBlock":function(d){return "Complimenti! Hai completato l'esercizio "+common_locale.v(d,"puzzleNumber")+". (Ma potresti usare un blocco diverso per ottenere un programma migliore.)"},
 "continue":function(d){return "Prosegui"},
-"copy":function(d){return "Copy"},
+"copy":function(d){return "Copia"},
 "defaultTwitterText":function(d){return "Guarda cosa ho fatto"},
 "designMode":function(d){return "Interfaccia"},
 "dialogCancel":function(d){return "Annulla"},
@@ -210,8 +170,8 @@ s:function(d,k,p){common_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "examplesFailedOnClose":function(d){return "Uno o più dei tuoi esempi non corrispondono alla tua definizione. Verifica i tuoi esempi prima di chiudere"},
 "extraTopBlocks":function(d){return "Ci sono dei blocchi non attaccati."},
 "extraTopBlocksWhenRun":function(d){return "Ci sono dei blocchi non attaccati agli altri. Attaccali agli altri oppure eliminali."},
-"finalStage":function(d){return "Complimenti! Hai completato la fase finale."},
-"finalStageTrophies":function(d){return "Complimenti! Hai completato l'ultima lezione e hai vinto "+common_locale.p(d,"numTrophies",0,"it",{"one":"un trofeo","other":common_locale.n(d,"numTrophies")+" trofei"})+"."},
+"finalStage":function(d){return "Complimenti! Hai completato l'ultimo esercizio."},
+"finalStageTrophies":function(d){return "Complimenti! Hai completato l'ultimo esercizio e vinto "+common_locale.p(d,"numTrophies",0,"it",{"one":"un trofeo","other":common_locale.n(d,"numTrophies")+" trofei"})+"."},
 "finish":function(d){return "Condividi"},
 "generatedCodeInfo":function(d){return "Anche le migliori università (p.es., "+common_locale.v(d,"berkeleyLink")+", "+common_locale.v(d,"harvardLink")+") insegnano la programmazione visuale con i blocchi. Ma i blocchi che metti insieme possono essere rappresentati anche in JavaScript, uno dei linguaggi di programmazione più usati al mondo:"},
 "hashError":function(d){return "Siamo spiacenti, '%1' non corrisponde ad alcun programma salvato."},
@@ -252,7 +212,7 @@ s:function(d,k,p){common_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "saveToGallery":function(d){return "Salva nella collezione"},
 "savedToGallery":function(d){return "Salvato nella collezione!"},
 "score":function(d){return "punteggio"},
-"sendToPhone":function(d){return "Send To Phone"},
+"sendToPhone":function(d){return "Invia al telefono"},
 "shareFailure":function(d){return "Ci dispiace, non possiamo condividere questo programma."},
 "shareWarningsAge":function(d){return "Indica per favore la tua età qui sotto e fai clic su OK per continuare."},
 "shareWarningsMoreInfo":function(d){return "Maggiori informazioni"},
