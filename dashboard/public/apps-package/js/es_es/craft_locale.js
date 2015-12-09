@@ -48,7 +48,7 @@ s:function(d,k,p){craft_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "blockTypePlanksJungle":function(d){return "tablones de jungla"},
 "blockTypePlanksOak":function(d){return "tablones de roble"},
 "blockTypePlanksSpruce":function(d){return "tablones de abeto"},
-"blockTypeRail":function(d){return "raíl"},
+"blockTypeRail":function(d){return "riel"},
 "blockTypeSand":function(d){return "arena"},
 "blockTypeSandstone":function(d){return "arenisca"},
 "blockTypeStone":function(d){return "piedra"},

@@ -320,8 +320,6 @@ html[dir='rtl'] #codeWorkspace {
     left: 350px; }
   html[dir='rtl'] #codeWorkspace {
     right: 350px; }
-  html[dir='rtl'] body.readonly #codeWorkspace {
-    right: 0px; }
   div#visualizationResizeBar {
     left: 350px;
     line-height: 350px; }
@@ -349,8 +347,6 @@ html[dir='rtl'] #codeWorkspace {
     left: 300px; }
   html[dir='rtl'] #codeWorkspace {
     right: 300px; }
-  html[dir='rtl'] body.readonly #codeWorkspace {
-    right: 0px; }
   div#visualizationResizeBar {
     left: 300px;
     line-height: 300px; }
@@ -378,8 +374,6 @@ html[dir='rtl'] #codeWorkspace {
     left: 250px; }
   html[dir='rtl'] #codeWorkspace {
     right: 250px; }
-  html[dir='rtl'] body.readonly #codeWorkspace {
-    right: 0px; }
   div#visualizationResizeBar {
     left: 250px;
     line-height: 250px; }
@@ -407,8 +401,6 @@ html[dir='rtl'] #codeWorkspace {
     left: 200px; }
   html[dir='rtl'] #codeWorkspace {
     right: 200px; }
-  html[dir='rtl'] body.readonly #codeWorkspace {
-    right: 0px; }
   div#visualizationResizeBar {
     left: 200px;
     line-height: 200px; }
@@ -982,8 +974,8 @@ input[type="radio"] {
         text-decoration: underline; }
   .generated-code-container .generatedCode {
     font-size: 14px;
-    overflow: scroll;
-    max-height: 400px; }
+    overflow: auto;
+    max-height: 150px; }
 
 .light-yellow-background {
   background-color: #fff7df; }

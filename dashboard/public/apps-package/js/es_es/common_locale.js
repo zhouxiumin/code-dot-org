@@ -15,7 +15,7 @@ s:function(d,k,p){common_locale.c(d,k);return d[k] in p?p[d[k]]:p.other}};
 "catColour":function(d){return "Color"},
 "catLists":function(d){return "Listas"},
 "catLogic":function(d){return "Lógica"},
-"catLoops":function(d){return "Bucles"},
+"catLoops":function(d){return "Iteraciones"},
 "catMath":function(d){return "Matemáticas"},
 "catProcedures":function(d){return "Funciones"},
 "catText":function(d){return "Texto"},
