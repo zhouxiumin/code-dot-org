@@ -20,6 +20,7 @@
 #
 
 require 'cdo/script_constants'
+require_relative '../../../cookbooks/cdo-varnish/libraries/http_cache'
 
 # A sequence of Levels
 class Script < ActiveRecord::Base
@@ -39,6 +40,10 @@ class Script < ActiveRecord::Base
   include SerializedProperties
 
   serialized_attrs %w(pd admin_required)
+
+  def public_cached?
+    HttpCache::CACHED_SCRIPTS.include? self.name
+  end
 
   def Script.twenty_hour_script
     Script.get_from_cache(Script::TWENTY_HOUR_NAME)

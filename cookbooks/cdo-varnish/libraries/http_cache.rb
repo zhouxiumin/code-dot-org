@@ -6,6 +6,15 @@ class HttpCache
   # Paths for files that are always cached based on their extension.
   STATIC_ASSET_EXTENSION_PATHS = %w(css js mp3 jpg png).map{|ext| "/*.#{ext}"}
 
+  CACHED_SCRIPTS = [
+    STARWARS_NAME,
+    STARWARS_BLOCKS_NAME,
+    MINECRAFT_NAME,
+    FROZEN_NAME,
+    GUMBALL_NAME,
+    HOC_NAME
+  ]
+
   # Language header and cookie are needed to separately cache language-specific pages.
   LANGUAGE_HEADER = %w(Accept-Language)
   LANGUAGE_COOKIES = %w(language_ pm)
@@ -99,14 +108,7 @@ class HttpCache
             cookies: whitelisted_cookies
           },
           {
-            path: %w{
-               /s/starwars/stage/1/puzzle/*
-               /s/starwarsblocks/stage/1/puzzle/*
-               /s/mc/stage/1/puzzle/*
-               /s/frozen/stage/1/puzzle/*
-               /s/gumball/stage/1/puzzle/*
-               /hoc/*
-            },
+            path: CACHED_SCRIPTS.map{|script| "/s/#{script}/*"},
             headers: LANGUAGE_HEADER,
             cookies: LANGUAGE_COOKIES
           },

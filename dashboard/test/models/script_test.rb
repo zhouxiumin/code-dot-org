@@ -277,4 +277,9 @@ class ScriptTest < ActiveSupport::TestCase
     assert Script.find_by_name('20-hour').twenty_hour?
     assert_not Script.find_by_name('mc').twenty_hour?
   end
+
+  test 'public_cached?' do
+    assert Script.find_by_name('starwars').public_cached?
+    assert_not Script.find_by_name('flappy').public_cached?
+  end
 end
