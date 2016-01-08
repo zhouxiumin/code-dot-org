@@ -1,0 +1,19 @@
+{
+  "name": "@cdo/cdo",
+  "version": "0.0.1",
+  "description": "Code Studio root package",
+  "private": true,
+  "repository": "https://github.com/code-dot-org/code-dot-org.git",
+  "scripts": {
+  },
+  "engines": {
+    "node": ">=0.12.0",
+    "npm": "^2.9.1"
+  },
+  "dependencies": {
+    "@cdo/code-studio": "file:./code-studio"
+  },
+  "devDependencies": {
+    "bulk": "^2.0.0"
+  }
+}
