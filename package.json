@@ -5,15 +5,18 @@
   "private": true,
   "repository": "https://github.com/code-dot-org/code-dot-org.git",
   "scripts": {
+    "prepublish": "linklocal link -r && linklocal list -r | bulk -c 'npm i'",
+    "clean": "linklocal list -r | bulk -c 'rm -rf node_modules' && linklocal unlink -r && rm -rf node_modules"
   },
   "engines": {
     "node": ">=0.12.0",
     "npm": "^2.9.1"
   },
   "dependencies": {
-    "@cdo/code-studio": "file:./code-studio"
+    "@cdo/code-studio": "0.0.1"
   },
   "devDependencies": {
+    "browserify": "^12.0.1",
     "bulk": "^2.0.0"
   }
 }

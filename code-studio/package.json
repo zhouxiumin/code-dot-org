@@ -1,5 +1,6 @@
 {
   "name": "@cdo/code-studio",
+  "private": true,
   "version": "0.0.1",
   "description": "Pipeline for static assets used by our Code Studio rails app (i.e. dashboard)",
   "author": "Code.org",
@@ -24,7 +25,6 @@
     "test": "echo \"Unimplemented.\""
   },
   "devDependencies": {
-    "browserify": "^12.0.1",
     "commander": "^2.9.0",
     "factor-bundle": "^2.5.0",
     "jshint": "^2.8.0",
@@ -33,7 +33,7 @@
     "uglify-js": "^2.6.1"
   },
   "dependencies": {
-    "@cdo/code-studio-vendor": "file:./vendor",
+    "@cdo/code-studio-vendor": "file:vendor",
     "codemirror": "5.5",
     "linklocal": "^2.5.2",
     "lodash": "^3.10.1",
