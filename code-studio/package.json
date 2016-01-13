@@ -35,7 +35,6 @@
   "dependencies": {
     "@cdo/code-studio-vendor": "file:vendor",
     "codemirror": "5.5",
-    "linklocal": "^2.5.2",
     "lodash": "^3.10.1",
     "marked": "0.3.2"
   }
