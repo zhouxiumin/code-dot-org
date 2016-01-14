@@ -20,8 +20,9 @@
     "@cdo/code-studio": "file:code-studio"
   },
   "devDependencies": {
-    "browserify": "^12.0.1",
+    "browserify": "13.0.0",
     "bulk": "^2.0.0",
-    "linklocal": "^2.5.2"
+    "linklocal": "^2.5.2",
+    "factor-bundle": "2.5.0"
   }
 }

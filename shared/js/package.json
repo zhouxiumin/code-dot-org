@@ -15,10 +15,9 @@
     "watch": "./build-js.js --watch"
   },
   "devDependencies": {
-    "browserify": "10.2.4",
+    "browserify": "13.0.0",
     "browserify-shim": "3.8.9",
     "commander": "^2.9.0",
-    "factor-bundle": "^2.5.0",
     "jshint": "^2.8.0",
     "lodash": "^3.10.1",
     "mkdirp": "0.5.1",
