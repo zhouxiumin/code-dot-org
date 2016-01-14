@@ -12,7 +12,7 @@ dependencies:
     - bundle install
     - rake install:pegasus
     - "printf \"assets_s3_directory: assets_circle/$RANDOM\nsources_s3_directory: sources_circle/$RANDOM\n\" > locals.yml"
-    - npm run fresh_install
+    - npm run full_install
     - bash build_with_core.sh:
         pwd:
             apps
