@@ -52,7 +52,7 @@ namespace :build do
   task :configure do
     if CDO.chef_managed
       HipChat.log 'Applying <b>chef</b> profile...'
-      RakeUtils.sudo 'chef-client'
+      #   RakeUtils.sudo 'chef-client'
     end
 
     unless CDO.chef_managed
@@ -122,6 +122,8 @@ namespace :build do
   end
 
   task :dashboard do
+    make_blockly_symlink
+
     Dir.chdir(dashboard_dir) do
       HipChat.log 'Stopping <b>dashboard</b>...'
       RakeUtils.stop_service CDO.dashboard_unicorn_name unless rack_env?(:development)
