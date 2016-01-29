@@ -9,7 +9,7 @@ namespace :seed do
   end
 
   STANFORD_HINTS_FILE = 'config/stanford-hints-bestPath1.tsv'
-  STANFORD_HINTS_IMPORTED = 'config/scripts/.hints_imported'
+  STANFORD_HINTS_IMPORTED = tmp_dir '.hints_imported'
   file STANFORD_HINTS_IMPORTED => STANFORD_HINTS_FILE do
     require_relative '../../config/environment'
     LevelSourceHint.transaction do

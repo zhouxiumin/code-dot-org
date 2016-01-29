@@ -15,3 +15,4 @@ RUN curl -L https://getchef.com/chef/install.sh | \
 # Add 'ubuntu' user
 RUN useradd -s /bin/bash -m ubuntu && \
   echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ubuntu
+USER ubuntu
