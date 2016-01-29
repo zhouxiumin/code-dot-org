@@ -2,14 +2,7 @@
 # Cookbook Name:: cdo-repository
 # Recipe:: default
 #
-require 'etc'
 include_recipe 'cdo-github-access'
-
-template "/home/#{node[:current_user]}/.gemrc" do
-  source 'gemrc.erb'
-  user node[:current_user]
-  group node[:current_user]
-end
 
 # Sync to the appropriate branch.
 adhoc = node.chef_environment == 'adhoc'
