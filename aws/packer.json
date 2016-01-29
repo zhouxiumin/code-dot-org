@@ -54,13 +54,6 @@
       ]
     },
     {
-      "type": "shell",
-      "inline": [
-        "echo $(id -u ubuntu) > /proc/self/loginuid"
-      ],
-      "only": ["docker"]
-    },
-    {
       "type": "file",
       "source": "../cookbooks/.berkshelf/",
       "destination": "/var/chef/cookbooks"
@@ -73,7 +66,7 @@
     {
       "type": "chef-client",
       "install_command": "[ -d /opt/chef/bin ] && true || curl -L https://www.chef.io/chef/install.sh | {{if .Sudo}}sudo{{end}} bash -s -- -v 11.18.12",
-      "execute_command": "sudo -u ubuntu -H /bin/bash -c 'sudo chef-client -z --no-color -c {{.ConfigPath}} -j {{.JsonPath}}'",
+      "execute_command": "echo $(id -u ubuntu) > /proc/self/loginuid 2>/dev/null; sudo chef-client -z --no-color -c {{.ConfigPath}} -j {{.JsonPath}}",
       "chef_environment": "adhoc",
       "node_name": "cdo-adhoc",
       "server_url": "http://localhost:8889",
