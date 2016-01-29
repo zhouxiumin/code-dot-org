@@ -38,7 +38,7 @@ Chef::Recipe.send(:include, GitHelper)
 execute "fetch-git-branch" do
   cwd git_path
   command "git config --add remote.origin.fetch +refs/heads/#{branch}:refs/remotes/origin/#{branch}"
-  not_if "git config --get remote.origin.fetch '\\+refs/heads/#{branch}:refs/remotes/origin/#{branch}'", cwd: git_path
+  not_if "git config --get remote.origin.fetch '^\\+refs/heads/#{branch}:refs/remotes/origin/#{branch}$'", cwd: git_path
 end if ::File.directory?(git_path) && !git_shared_volume?(git_path, home_path)
 
 git git_path do
