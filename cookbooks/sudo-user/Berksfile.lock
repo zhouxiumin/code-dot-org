@@ -1,0 +1,9 @@
+DEPENDENCIES
+  sudo-user
+    path: .
+    metadata: true
+
+GRAPH
+  ohai (2.1.0)
+  sudo-user (0.1.0)
+    ohai (>= 0.0.0)
