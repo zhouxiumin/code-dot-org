@@ -13,3 +13,4 @@ metadata
 ).each do |dep|
   cookbook "cdo-#{dep}", path: "../cdo-#{dep}"
 end
+cookbook 'sudo-user', path: '../sudo-user'

@@ -32,4 +32,3 @@ execute 'bundle-install' do
   group node[:current_user]
   not_if 'bundle check', cwd: root
 end
-

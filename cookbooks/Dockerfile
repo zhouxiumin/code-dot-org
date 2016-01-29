@@ -11,8 +11,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 && rm -rf /var/lib/apt/lists/*
 # Install Chef
 RUN curl -L https://getchef.com/chef/install.sh | \
-  bash -s -- -v 11.18.12
+  bash -s -- -v 12.6.0
 # Add 'ubuntu' user
 RUN useradd -s /bin/bash -m ubuntu && \
   echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ubuntu
-USER ubuntu

@@ -10,6 +10,7 @@ module CdoApps
     directory log_dir do
       recursive true
       user node[:current_user]
+      group node[:current_user]
     end
 
     template init_script do
@@ -22,7 +23,7 @@ module CdoApps
         pid_file: "/run/unicorn/#{app_name}.pid",
         user: node[:current_user],
         env: node.chef_environment
-      notifies :run, setup_cmd, :immediately
+      notifies :restart, "service[#{app_name}]", :delayed
     end
 
     template "/etc/logrotate.d/#{app_name}" do
@@ -69,6 +70,12 @@ module CdoApps
       user node[:current_user]
       group node[:current_user]
       action :nothing
+    end
+
+    # Builds the app.
+    ruby_block "build-#{app_name}" do
+      block {}
+      notifies :run, setup_cmd, :immediately
     end
 
     service app_name do
