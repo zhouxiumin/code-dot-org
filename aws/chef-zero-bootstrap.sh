@@ -1,6 +1,6 @@
 #!/bin/bash
 # To run:
-# curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | bash -s -- [branch] [node-name]
+# curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | [sudo] bash -s -- [branch] [node-name]
 
 # Branch defaults to 'staging'
 BRANCH=${1:-staging}
@@ -24,9 +24,11 @@ if [ "$(${CHEF_CLIENT} -v)" != "Chef: ${CHEF_VERSION}" ]; then
 else echo "Chef ${CHEF_VERSION} is installed."
 fi
 
+# Install branch-specific cookbooks from s3 package.
 REPO_COOKBOOK_URL=https://s3.amazonaws.com/cdo-dist/chef/${BRANCH}.tar.gz
 curl -L --silent --insecure ${REPO_COOKBOOK_URL} | tar xz -C /opt/chef-zero
 
+# Install local-chef boilerplate.
 cat <<JSON > /opt/chef-zero/environments/adhoc.json
 {
   "name": "adhoc",
@@ -46,6 +48,7 @@ environment 'adhoc'
 log_level :info
 EOF
 
+# Run chef-client in local mode.
 cd /opt/chef-zero
 ${CHEF_CLIENT} -v
-${CHEF_CLIENT} -z -c solo.rb -o 'recipe[apt],recipe[cdo-apps]'
+${CHEF_CLIENT} -z -c solo.rb -o 'recipe[cdo-apps]'
