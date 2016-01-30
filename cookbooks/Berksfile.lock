@@ -37,6 +37,8 @@ DEPENDENCIES
     path: cdo-varnish
   chef-client (~> 4.2.0)
   ntp (~> 1.8.6)
+  sudo-user
+    path: sudo-user
 
 GRAPH
   7-zip (1.0.2)
@@ -99,8 +101,11 @@ GRAPH
     homebrew (>= 0.0.0)
     yum-epel (>= 0.0.0)
   ntp (1.8.6)
+  ohai (2.1.0)
   postfix (3.7.0)
   ssl_certificate (1.11.0)
+  sudo-user (0.1.0)
+    ohai (>= 0.0.0)
   windows (1.38.2)
     chef_handler (>= 0.0.0)
   yum (3.9.0)
