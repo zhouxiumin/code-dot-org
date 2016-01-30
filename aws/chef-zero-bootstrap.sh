@@ -11,6 +11,7 @@ NODE_NAME=${2:-$(hostname)}
 CHEF_CLIENT=/opt/chef/bin/chef-client
 CHEF_VERSION=12.6.0
 LOG=/opt/chef-zero/chef-zero.log
+mkdir -p /opt/chef-zero/{cookbooks,environments}
 
 # Redirect copy of stdout/stderr to a log file for later auditing.
 exec > >(tee -i ${LOG})
@@ -22,8 +23,6 @@ if [ "$(${CHEF_CLIENT} -v)" != "Chef: ${CHEF_VERSION}" ]; then
   curl -L https://www.chef.io/chef/install.sh | bash -s -- -v ${CHEF_VERSION}
 else echo "Chef ${CHEF_VERSION} is installed."
 fi
-
-mkdir -p /opt/chef-zero/{cookbooks,environments}
 
 REPO_COOKBOOK_URL=https://s3.amazonaws.com/cdo-dist/chef/${BRANCH}.tar.gz
 curl -L --silent --insecure ${REPO_COOKBOOK_URL} | tar xz -C /opt/chef-zero
