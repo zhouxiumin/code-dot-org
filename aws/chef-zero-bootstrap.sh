@@ -5,7 +5,7 @@
 # Branch defaults to 'staging'
 BRANCH=${1:-staging}
 
-# Node name defaults to hostname
+# Node name defaults to `hostname`
 NODE_NAME=${2:-$(hostname)}
 
 CHEF_CLIENT=/opt/chef/bin/chef-client
@@ -37,7 +37,11 @@ cat <<JSON > /opt/chef-zero/environments/adhoc.json
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {},
-  "override_attributes": {}
+  "override_attributes": {
+    "cdo-repository": {
+      "branch": "${BRANCH}"
+    }
+  }
 }
 JSON
 
