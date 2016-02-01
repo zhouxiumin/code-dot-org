@@ -58,6 +58,7 @@ GRAPH
     cdo-ruby (>= 0.0.0)
     cdo-secrets (>= 0.0.0)
     cdo-varnish (>= 0.0.0)
+    sudo-user (>= 0.0.0)
   cdo-authorized-keys (0.1.0)
   cdo-awscli (0.1.0)
   cdo-github-access (0.1.0)
