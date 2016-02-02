@@ -9,13 +9,13 @@
       "region": "us-west-2",
       "availability_zone": "us-west-2b",
       "source_ami": "ami-9abea4fb",
-      "instance_type": "m4.4xlarge",
+      "instance_type": "m4.10xlarge",
       "ssh_username": "ubuntu",
       "ami_name": "cdo-{{timestamp}}",
       "ami_groups": "all",
       "associate_public_ip_address": true,
       "force_deregister": true,
-      "spot_price": "2",
+      "spot_price": "3",
       "security_group_id": "sg-af6d98c8",
       "subnet_id": "subnet-404a7937",
       "ami_block_device_mappings": [
@@ -66,15 +66,13 @@
     {
       "type": "chef-client",
       "install_command": "[ -d /opt/chef/bin ] && true || curl -L https://www.chef.io/chef/install.sh | {{if .Sudo}}sudo{{end}} bash -s -- -v 11.18.12",
-      "execute_command": "echo $(id -u ubuntu) > /proc/self/loginuid 2>/dev/null; sudo chef-client -z --no-color -c {{.ConfigPath}} -j {{.JsonPath}}",
+      "execute_command": "sudo SUDO_USER=ubuntu chef-client -z --no-color -c {{.ConfigPath}} -j {{.JsonPath}}",
       "chef_environment": "adhoc",
       "node_name": "cdo-adhoc",
       "server_url": "http://localhost:8889",
       "skip_clean_node": true,
       "skip_clean_client": true,
       "run_list": [
-        "apt",
-        "cdo-mysql::server",
         "cdo-apps",
         "cdo-apps::stop"
       ],

@@ -21,6 +21,11 @@ apt_package 'libsqlite3-dev'
 
 include_recipe 'build-essential'
 include_recipe 'cdo-mysql::client'
+# Install local mysql server unless an external db url is provided
+unless node['cdo-secrets'] && node['cdo-secrets']['db_writer']
+  include_recipe 'cdo-mysql::server'
+end
+
 include_recipe 'cdo-ruby'
 include_recipe 'cdo-nginx'
 
