@@ -84,7 +84,7 @@ aws_launch_configuration 'ref-launch-configuration' do
     key_pair: 'server_access_key',
     user_data: <<-EOF
 #!/bin/bash
-sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- chef_12'
+sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- #{node['cdo-deploy']['branch']}'
   EOF
 end
 
