@@ -10,3 +10,7 @@ gem 'test-kitchen', github: 'wjordan/test-kitchen', branch: 'cdo'
 gem 'kitchen-docker'
 gem 'kitchen-ec2', github: 'wjordan/kitchen-ec2', branch: 'cdo'
 gem 'kitchen-sync'
+
+gem 'chef-provisioning-aws'
+
+gem 'aws-missing-tools', github: 'wjordan/aws-missing-tools', branch: 'cdo'
