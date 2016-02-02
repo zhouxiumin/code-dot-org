@@ -66,18 +66,17 @@ load_balancer 'ref-load-balancer' do
   )
 end
 
-# Use the most recent cdo-* AMI published by code-org
-ami_filter = {
-  name: 'cdo-*',
-  'owner-alias': 'code-org'
-}.map{|k, v| [name: k, values: Array(v)]}
-ami_list = Aws::IAM::Client.new(region: region).describe_images(filters: ami_filter).sort do |ami1, ami2|
-  Time.parse(ami1.creation_date) <=> Time.parse(ami2.creation_date)
-end
-ami_id = ami_list.last.id
-
 aws_launch_configuration 'ref-launch-configuration' do
-  image ami_id
+  # Use the most recent AMI published by code-org
+  ami_filter = {
+    name: node['cdo-deploy']['image_name'],
+    'owner-id': node['cdo-deploy']['image_owner']
+  }.map { |k, v| {name: k, values: Array(v)} }
+  ami_list = Aws::EC2::Client.new(region: region).describe_images(filters: ami_filter).images.sort do |ami1, ami2|
+    Time.parse(ami1.creation_date) <=> Time.parse(ami2.creation_date)
+  end
+  ami = ami_list.last || raise('AMI not found')
+  image ami.image_id.to_s
 
   instance_type 'm4.10xlarge'
   options security_groups: 'ref-sg1',
