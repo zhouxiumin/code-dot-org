@@ -18,8 +18,12 @@ if [ ! -f ${PACKER_PATH}/packer ]; then
 fi
 
 export PATH=${PATH}:${PACKER_PATH}
-
-(cd ../cookbooks; bundle exec berks vendor .berkshelf)
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+pushd ../cookbooks
+bundle exec berks package /tmp/berks.tar.gz
+aws s3 cp --acl="public-read" /tmp/berks.tar.gz s3://cdo-dist/chef/${BRANCH}.tar.gz
+popd
+
 ROOT=$(dirname ${PWD})
 PACKER_LOG=1 packer build -var "branch=${BRANCH}" -var "root=${ROOT}" packer.json

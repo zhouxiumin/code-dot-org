@@ -49,39 +49,9 @@
     {
       "type": "shell",
       "inline": [
-        "sudo mkdir -p /var/chef/environments && sudo mkdir -p /var/chef/cookbooks && sudo chown -R ubuntu:ubuntu /var/chef",
-        "sudo mkdir -p /tmp/packer-chef-client && sudo chown -R ubuntu:ubuntu /tmp/packer-chef-client"
+        "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- {{user `branch`}}'",
+        "sudo -u ubuntu bash -c 'cd /opt/chef-zero && sudo /opt/chef/bin/chef-client -z -c solo.rb -o 'recipe[cdo-apps::stop]'"
       ]
-    },
-    {
-      "type": "file",
-      "source": "../cookbooks/.berkshelf/",
-      "destination": "/var/chef/cookbooks"
-    },
-    {
-      "type": "file",
-      "source": "../cookbooks/cdo-apps/test/environments/",
-      "destination": "/var/chef/environments"
-    },
-    {
-      "type": "chef-client",
-      "install_command": "[ -d /opt/chef/bin ] && true || curl -L https://www.chef.io/chef/install.sh | {{if .Sudo}}sudo{{end}} bash -s -- -v 11.18.12",
-      "execute_command": "sudo SUDO_USER=ubuntu chef-client -z --no-color -c {{.ConfigPath}} -j {{.JsonPath}}",
-      "chef_environment": "adhoc",
-      "node_name": "cdo-adhoc",
-      "server_url": "http://localhost:8889",
-      "skip_clean_node": true,
-      "skip_clean_client": true,
-      "run_list": [
-        "cdo-apps",
-        "cdo-apps::stop"
-      ],
-      "config_template": "./client.rb.template",
-      "json": {
-        "cdo-repository": {
-          "branch": "{{user `branch`}}"
-        }
-      }
     }
   ],
   "post-processors": [
