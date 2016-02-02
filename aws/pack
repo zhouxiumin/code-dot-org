@@ -26,4 +26,5 @@ aws s3 cp --acl="public-read" /tmp/berks.tar.gz s3://cdo-dist/chef/${BRANCH}.tar
 popd
 
 ROOT=$(dirname ${PWD})
-PACKER_LOG=1 packer build -var "branch=${BRANCH}" -var "root=${ROOT}" packer.json
+SSH_PATH=${HOME}/.ssh
+PACKER_LOG=1 packer build -var "branch=${BRANCH}" -var "root=${ROOT}" -var "key_path=${SSH_PATH}" packer.json

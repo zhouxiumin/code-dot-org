@@ -1,17 +1,23 @@
 {
   "variables": {
     "branch": "staging",
-    "root": "{{pwd}}"
+    "root": "{{pwd}}",
+    "key_path": "{{pwd}}"
   },
   "builders": [
     {
-      "type": "amazon-ebs",
+      "type": "amazon-instance",
+      "account_id": "475661607190",
+      "ami_name": "cdo-instance-{{timestamp}}",
+      "instance_type": "c3.8xlarge",
       "region": "us-west-2",
-      "availability_zone": "us-west-2b",
-      "source_ami": "ami-9abea4fb",
-      "instance_type": "m4.10xlarge",
+      "s3_bucket": "cdo-dist",
+      "source_ami": "ami-52c62032",
       "ssh_username": "ubuntu",
-      "ami_name": "cdo-{{timestamp}}",
+      "x509_cert_path": "{{user `key_path`}}/user_signing_certificate.pem",
+      "x509_key_path": "{{user `key_path`}}/user_signing_certificate_key.pem",
+
+      "availability_zone": "us-west-2b",
       "ami_groups": "all",
       "associate_public_ip_address": true,
       "force_deregister": true,
@@ -20,7 +26,36 @@
       "subnet_id": "subnet-404a7937",
       "ami_block_device_mappings": [
         {
-          "device_name": "/dev/sda1",
+          "device_name": "/dev/sdb",
+          "virtual_name": "ephemeral0",
+          "volume_size": "32"
+        }
+      ],
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/sdb",
+          "virtual_name": "ephemeral0",
+          "volume_size": "32"
+        }
+      ]
+    },
+    {
+      "type": "amazon-ebs",
+      "region": "us-west-2",
+      "availability_zone": "us-west-2b",
+      "source_ami": "ami-9abea4fb",
+      "instance_type": "m4.10xlarge",
+      "ssh_username": "ubuntu",
+      "ami_name": "cdo-ebs-{{timestamp}}",
+      "ami_groups": "all",
+      "associate_public_ip_address": true,
+      "force_deregister": true,
+      "spot_price": "3",
+      "security_group_id": "sg-af6d98c8",
+      "subnet_id": "subnet-404a7937",
+      "ami_block_device_mappings": [
+        {
+          "device_name": "/dev/sdb",
           "volume_size": "64",
           "delete_on_termination": true,
           "volume_type": "gp2"
