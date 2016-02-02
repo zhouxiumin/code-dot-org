@@ -37,7 +37,7 @@
     },
     {
       "type": "docker",
-      "image": "wjordan/ubuntu-chef",
+      "image": "wjordan/ubuntu-chef:12.6.0",
       "commit": true,
       "pull": true,
       "volumes": {
