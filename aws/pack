@@ -20,6 +20,8 @@ fi
 export PATH=${PATH}:${PACKER_PATH}
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
+aws s3 cp --acl="public-read" ./chef-zero-bootstrap.sh s3://cdo-dist/cdo-bootstrap.sh
+
 pushd ../cookbooks
 bundle exec berks package /tmp/berks.tar.gz
 aws s3 cp --acl="public-read" /tmp/berks.tar.gz s3://cdo-dist/chef/${BRANCH}.tar.gz
