@@ -1,15 +1,42 @@
 #!/bin/bash
-# To run:
-# curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | [sudo] bash -s -- [branch] [node-name]
+# Code-dot-org Chef Zero bootstrap script.
+# One-liner to run:
+# curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- [options]
+#
+# Options:
+# -b [branch]
+# -n [node_name]
+# -r [run_list]
+# -v [chef_version]
 
-# Branch defaults to 'staging'
-BRANCH=${1:-staging}
+# Set script defaults
+BRANCH=staging
+NODE_NAME=$(hostname)
+CHEF_VERSION=12.6.0
+RUN_LIST='recipe[cdo-apps]'
 
-# Node name defaults to `hostname`
-NODE_NAME=${2:-$(hostname)}
+# Parse options
+while getopts ":b:n:s" opt; do
+  case "${opt}" in
+    b)
+      BRANCH=${OPTARG}
+      ;;
+    n)
+      NODE_NAME=${OPTARG}
+      ;;
+    r)
+      RUN_LIST=${OPTARG}
+      ;;
+    v)
+      CHEF_VERSION=${OPTARG}
+      ;;
+    \?)
+      echo "Invalid option: -${OPTARG}" >&2
+      ;;
+  esac
+done
 
 CHEF_CLIENT=/opt/chef/bin/chef-client
-CHEF_VERSION=12.6.0
 LOG=/opt/chef-zero/chef-zero.log
 mkdir -p /opt/chef-zero/{cookbooks,environments}
 
@@ -55,4 +82,4 @@ EOF
 # Run chef-client in local mode.
 cd /opt/chef-zero
 ${CHEF_CLIENT} -v
-${CHEF_CLIENT} -z -c solo.rb -o 'recipe[cdo-apps]'
+${CHEF_CLIENT} -z -c solo.rb -o "${RUN_LIST}"
