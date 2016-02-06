@@ -13,6 +13,14 @@ end
 home_path = node[:home]
 git_path = File.join home_path, node.chef_environment
 
+# Bootstrap adhoc clones with git-repo tar file.
+if node.chef_environment == 'adhoc'
+  unpack git_path do
+    source 'http://s3.amazonaws.com/cdo-repo/staging.tar'
+    not_if {File.exist? "#{git_path}/.git"}
+  end
+end
+
 git git_path do
   repository node['cdo-repository']['url']
   depth node['cdo-repository']['depth'] if node['cdo-repository']['depth']
