@@ -13,11 +13,13 @@ end
 home_path = node[:home]
 git_path = File.join home_path, node.chef_environment
 
-# Bootstrap adhoc clones with git-repo tar file.
-if node.chef_environment == 'adhoc'
+# Bootstrap shallow clones with git-repo tar file.
+if node['cdo-repository']['depth']
   unpack git_path do
     source 'http://s3.amazonaws.com/cdo-repo/staging.tar'
     not_if {File.exist? "#{git_path}/.git"}
+    user node[:user]
+    group node[:user]
   end
 end
 
@@ -32,11 +34,11 @@ git git_path do
   checkout_branch branch
   revision branch
 
-  # Default checkout-only for CI-managed instances. (CI script manages pull on updates)
+  # Default checkout-only for CI-managed instances. (CI script manages updates)
   action = :checkout
   # Sync instead of checkout for adhoc instances that aren't CI-managed.
   action = :sync if node.chef_environment == 'adhoc'
-  # Skip git-repo sync when using a shared volume to prevent data loss on the host.
+  # Skip git-repo sync when using a shared volume. (Host manages updates)
   action = :nothing if GitHelper.shared_volume?(git_path, home_path)
   action action
 
