@@ -175,6 +175,12 @@ module.exports = function (grunt) {
         },
         {
           expand: true,
+          cwd: 'lib/makerlab-connector',
+          src: ['*.js'],
+          dest: 'build/package/js/makerlab-connector/'
+        },
+        {
+          expand: true,
           cwd: 'lib/droplet',
           src: ['droplet-full' + dotMinIfNotDev + '.js'],
           dest: 'build/package/js/droplet/',

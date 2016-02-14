@@ -44,6 +44,7 @@ var logToCloud = require('../logToCloud');
 
 var applabConstants = require('./constants');
 
+var J5BridgeClient = window.J5BridgeClient;
 var ResultType = studioApp.ResultType;
 var TestResults = studioApp.TestResults;
 
@@ -121,6 +122,7 @@ function loadLevel() {
   Applab.softButtons_ = level.softButtons || {};
   Applab.appWidth = level.appWidth || defaultAppWidth;
   Applab.appHeight = level.appHeight || defaultAppHeight;
+  Applab.enableMakerlab = level.enableMakerlab;
   // In share mode we need to reserve some number of pixels for our in-app
   // footer. We do that by making the play space slightly smaller elsewhere.
   // Applab.appHeight represents the height of the entire app (footer + other)
@@ -138,6 +140,11 @@ function loadLevel() {
   // Override scalars.
   for (var key in level.scale) {
     Applab.scale[key] = level.scale[key];
+  }
+
+  if (Applab.enableMakerlab) {
+    Applab.j5BridgeClient = new J5BridgeClient();
+
   }
 }
 
@@ -1150,7 +1157,22 @@ Applab.execute = function() {
       Applab.JSInterpreter = new JSInterpreter({
         studioApp: studioApp,
         shouldRunAtMaxSpeed: function() { return getCurrentTickLength() === 0; },
-        maxInterpreterStepsPerTick: MAX_INTERPRETER_STEPS_PER_TICK
+        maxInterpreterStepsPerTick: MAX_INTERPRETER_STEPS_PER_TICK,
+        customMarshalGlobalProperties: {
+          led: Applab.j5BridgeClient.prewiredComponents,
+          ledRGB: Applab.j5BridgeClient.prewiredComponents,
+          //thermometer: Applab.j5BridgeClient.prewiredComponents,
+          led4: Applab.j5BridgeClient.prewiredComponents,
+          led5: Applab.j5BridgeClient.prewiredComponents,
+          led6: Applab.j5BridgeClient.prewiredComponents,
+          led7: Applab.j5BridgeClient.prewiredComponents,
+          led8: Applab.j5BridgeClient.prewiredComponents,
+          ledBar: Applab.j5BridgeClient.prewiredComponents,
+          //slider: Applab.j5BridgeClient.prewiredComponents,
+          //microphone: Applab.j5BridgeClient.prewiredComponents,
+          //light: Applab.j5BridgeClient.prewiredComponents,
+          //button: Applab.j5BridgeClient.prewiredComponents
+        }
       });
 
       // Register to handle interpreter events
@@ -1172,6 +1194,47 @@ Applab.execute = function() {
       if (!Applab.JSInterpreter.initialized()) {
         return;
       }
+
+      //this.p5specialFunctions.forEach(function (eventName) {
+      //  var func = this.JSInterpreter.findGlobalFunction(eventName);
+      //  if (func) {
+      //    this.eventHandlers[eventName] =
+      //        codegen.createNativeFunctionFromInterpreterFunction(func);
+      //  }
+      //}, this);
+
+      //codegen.customMarshalObjectList = [
+      //  window.p5,
+      //  window.Sprite,
+      //  window.Camera,
+      //  window.Animation,
+      //  window.p5.Vector,
+      //  window.p5.Color,
+      //  window.p5.Image,
+      //  window.p5.Renderer,
+      //  window.p5.Graphics,
+      //  window.p5.Font,
+      //  window.p5.Table,
+      //  window.p5.TableRow,
+      //  window.p5.Element
+      //];
+      // The p5play Group object should be custom marshalled, but its constructor
+      // actually creates a standard Array instance with a few additional methods
+      // added. The customMarshalModifiedObjectList allows us to set up additional
+      // object types to be custom marshalled by matching both the instance type
+      // and the presence of additional method name on the object.
+      //codegen.customMarshalModifiedObjectList = [ { instance: Array, methodName: 'draw' } ];
+
+      // Insert everything on p5 and the Group constructor from p5play into the
+      // global namespace of the interpreter:
+      for (var prop in Applab.j5BridgeClient.prewiredComponents) {
+        if (prop.match(/led/)) {
+          this.JSInterpreter.createGlobalProperty(prop, Applab.j5BridgeClient.prewiredComponents[prop]);
+        }
+      }
+      this.JSInterpreter.createGlobalProperty('pc', Applab.j5BridgeClient.prewiredComponents);
+      //And also create a 'p5' object in the global namespace:
+      //this.JSInterpreter.createGlobalProperty('p5', { Vector: window.p5.Vector });
     } else {
       Applab.whenRunFunc = codegen.functionFromCode(codeWhenRun, {
         StudioApp: studioApp,

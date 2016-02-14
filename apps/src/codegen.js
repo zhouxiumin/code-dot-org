@@ -243,12 +243,13 @@ var getCustomMarshalMethodOptions = function (nativeParentObj) {
 // Droplet/JavaScript/Interpreter codegen functions:
 //
 exports.marshalNativeToInterpreter = function (interpreter, nativeVar, nativeParentObj, maxDepth) {
-  if (maxDepth === 0 || typeof nativeVar === 'undefined') {
+  if (maxDepth === 0 || maxDepth === 1 || typeof nativeVar === 'undefined') {
     return interpreter.UNDEFINED;
   }
   var i, retVal;
   if (typeof maxDepth === "undefined") {
-    maxDepth = Infinity; // default to infinite levels of depth
+    maxDepth = 6; // default to infinite levels of depth
+
   }
   if (shouldCustomMarshalObject(nativeVar, nativeParentObj)) {
     return createCustomMarshalObject(interpreter, nativeVar, nativeParentObj);

@@ -196,6 +196,10 @@ levels.custom = {
 levels.ec_simple = utils.extend(levels.custom, {
 });
 
+levels.ec_maker = utils.extend(levels.custom, {
+  'enableMakerlab': true
+});
+
 // Functions in Advanced category currently disabled in all levels:
 /*
  "imageUploadButton": null,

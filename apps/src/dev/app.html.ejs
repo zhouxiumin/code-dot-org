@@ -29,6 +29,12 @@
   <script type="text/javascript" src="../js/p5play/p5.play.js"></script>
 <% } %>
 
+
+<% if (app === "applab" && options.levelId.indexOf('maker') !== -1) { %>
+  <script type="text/javascript" src="../js/makerlab-connector/bridge.bundled.js"></script>
+<% } %>
+
+
 <% if ((app === "maze" && options.levelId.indexOf('3_') === 0) ||
        (app === "applab" && options.levelId.indexOf('ec_') === 0) ||
        (app === "gamelab" && options.levelId.indexOf('ec_') === 0) ||
