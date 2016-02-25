@@ -1159,19 +1159,6 @@ Applab.execute = function() {
         shouldRunAtMaxSpeed: function() { return getCurrentTickLength() === 0; },
         maxInterpreterStepsPerTick: MAX_INTERPRETER_STEPS_PER_TICK,
         customMarshalGlobalProperties: {
-          led: Applab.j5BridgeClient.prewiredComponents,
-          ledRGB: Applab.j5BridgeClient.prewiredComponents,
-          //thermometer: Applab.j5BridgeClient.prewiredComponents,
-          led4: Applab.j5BridgeClient.prewiredComponents,
-          led5: Applab.j5BridgeClient.prewiredComponents,
-          led6: Applab.j5BridgeClient.prewiredComponents,
-          led7: Applab.j5BridgeClient.prewiredComponents,
-          led8: Applab.j5BridgeClient.prewiredComponents,
-          ledBar: Applab.j5BridgeClient.prewiredComponents,
-          //slider: Applab.j5BridgeClient.prewiredComponents,
-          //microphone: Applab.j5BridgeClient.prewiredComponents,
-          //light: Applab.j5BridgeClient.prewiredComponents,
-          //button: Applab.j5BridgeClient.prewiredComponents
         }
       });
 
@@ -1195,46 +1182,60 @@ Applab.execute = function() {
         return;
       }
 
-      //this.p5specialFunctions.forEach(function (eventName) {
-      //  var func = this.JSInterpreter.findGlobalFunction(eventName);
-      //  if (func) {
-      //    this.eventHandlers[eventName] =
-      //        codegen.createNativeFunctionFromInterpreterFunction(func);
-      //  }
-      //}, this);
+      var five = Applab.j5BridgeClient.five;
 
-      //codegen.customMarshalObjectList = [
-      //  window.p5,
-      //  window.Sprite,
-      //  window.Camera,
-      //  window.Animation,
-      //  window.p5.Vector,
-      //  window.p5.Color,
-      //  window.p5.Image,
-      //  window.p5.Renderer,
-      //  window.p5.Graphics,
-      //  window.p5.Font,
-      //  window.p5.Table,
-      //  window.p5.TableRow,
-      //  window.p5.Element
-      //];
-      // The p5play Group object should be custom marshalled, but its constructor
-      // actually creates a standard Array instance with a few additional methods
-      // added. The customMarshalModifiedObjectList allows us to set up additional
-      // object types to be custom marshalled by matching both the instance type
-      // and the presence of additional method name on the object.
-      //codegen.customMarshalModifiedObjectList = [ { instance: Array, methodName: 'draw' } ];
 
-      // Insert everything on p5 and the Group constructor from p5play into the
-      // global namespace of the interpreter:
-      for (var prop in Applab.j5BridgeClient.prewiredComponents) {
-        if (prop.match(/led/)) {
-          this.JSInterpreter.createGlobalProperty(prop, Applab.j5BridgeClient.prewiredComponents[prop]);
-        }
-      }
-      this.JSInterpreter.createGlobalProperty('pc', Applab.j5BridgeClient.prewiredComponents);
-      //And also create a 'p5' object in the global namespace:
-      //this.JSInterpreter.createGlobalProperty('p5', { Vector: window.p5.Vector });
+      codegen.customMarshalObjectList = [
+        //{ instance: five.Accelerometer },
+        //{ instance: five.Animation },
+        //{ instance: five.Altimeter },
+        //{ instance: five.Barometer },
+        { instance: five.Board },
+        { instance: five.Button },
+        //{ instance: five.Color },
+        //{ instance: five.Compass },
+        //{ instance: five.ESC },
+        //{ instance: five.Expander },
+        //{ instance: five.Fn },
+        //{ instance: five.Gripper },
+        //{ instance: five.Gyro },
+        //{ instance: five.Hygrometer },
+        //{ instance: five.IMU },
+        //{ instance: five.IR },
+        //{ instance: five.Keypad },
+        //{ instance: five.LCD },
+        { instance: five.Led },
+        { instance: five.Led.RGB },
+        //{ instance: five.LedControl },
+        //{ instance: five.Light },
+        //{ instance: five.Joystick },
+        //{ instance: five.Motor },
+        //{ instance: five.Nodebot },
+        //{ instance: five.Piezo },
+        //{ instance: five.Ping },
+        //{ instance: five.Pir },
+        //{ instance: five.Pin },
+        //{ instance: five.Relay },
+        //{ instance: five.Repl },
+        { instance: five.Sensor },
+        //{ instance: five.Servo },
+        //{ instance: five.ShiftRegister },
+        //{ instance: five.Sonar },
+        //{ instance: five.Stepper },
+        //{ instance: five.Switch },
+        //{ instance: five.Thermometer },
+        //{ instance: five.Wii }
+      ];
+
+      //this.JSInterpreter.createGlobalProperty('five', {
+      //  Led: five.Led,
+      //  Board: five.Board,
+      //});
+      this.JSInterpreter.createGlobalProperty('Led', five.Led);
+      this.JSInterpreter.createGlobalProperty('RGB', five.Led.RGB);
+      this.JSInterpreter.createGlobalProperty('Board', five.Board);
+      this.JSInterpreter.createGlobalProperty('Sensor', five.Sensor);
+      this.JSInterpreter.createGlobalProperty('Button', five.Button);
     } else {
       Applab.whenRunFunc = codegen.functionFromCode(codeWhenRun, {
         StudioApp: studioApp,
