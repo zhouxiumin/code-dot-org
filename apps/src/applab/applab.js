@@ -975,6 +975,33 @@ Applab.reset = function(first) {
     Applab.JSInterpreter.deinitialize();
     Applab.JSInterpreter = null;
   }
+
+  if (this.currentBoard) {
+    Applab.j5BridgeClient.five.Board.Serial.used = [];
+    this.currentBoard.io.sp.close();
+
+    this.currentBoard.register.forEach(function (component) {
+      try {
+        if (component.stop) {
+          component.stop();
+        }
+        else if (component.state && component.state.intervalId) {
+          clearInterval(component.state.intervalId);
+        }
+        else if (component.state && component.state.interval) {
+          clearInterval(component.state.interval);
+        }
+        component.io = null;
+        component.board = null;
+      } catch (compE) {
+        console.log('error trying to cleanup component', compE);
+      }
+
+    });
+    Applab.j5BridgeClient.five.Board.purge();
+    this.currentBoard.io = null;
+    this.currentBoard = null;
+  }
 };
 
 /**
@@ -1184,7 +1211,6 @@ Applab.execute = function() {
 
       var five = Applab.j5BridgeClient.five;
 
-
       codegen.customMarshalObjectList = [
         //{ instance: five.Accelerometer },
         //{ instance: five.Animation },
@@ -1231,11 +1257,14 @@ Applab.execute = function() {
       //  Led: five.Led,
       //  Board: five.Board,
       //});
+
+      this.currentBoard = new five.Board();
       this.JSInterpreter.createGlobalProperty('Led', five.Led);
       this.JSInterpreter.createGlobalProperty('RGB', five.Led.RGB);
       this.JSInterpreter.createGlobalProperty('Board', five.Board);
       this.JSInterpreter.createGlobalProperty('Sensor', five.Sensor);
       this.JSInterpreter.createGlobalProperty('Button', five.Button);
+      this.JSInterpreter.createGlobalProperty('board', this.currentBoard);
     } else {
       Applab.whenRunFunc = codegen.functionFromCode(codeWhenRun, {
         StudioApp: studioApp,
