@@ -368,7 +368,6 @@ module.exports = function (grunt) {
         port: PLAYGROUND_PORT,
         bases: path.resolve(__dirname, 'build/package'),
         server: path.resolve(__dirname, './src/dev/server.js'),
-        livereload: true
       }
     }
   };

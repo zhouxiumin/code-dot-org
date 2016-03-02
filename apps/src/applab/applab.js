@@ -1240,7 +1240,7 @@ Applab.execute = function() {
         //{ instance: five.Piezo },
         //{ instance: five.Ping },
         //{ instance: five.Pir },
-        //{ instance: five.Pin },
+        { instance: five.Pin },
         //{ instance: five.Relay },
         //{ instance: five.Repl },
         { instance: five.Sensor },
@@ -1263,6 +1263,7 @@ Applab.execute = function() {
       this.JSInterpreter.createGlobalProperty('RGB', five.Led.RGB);
       this.JSInterpreter.createGlobalProperty('Board', five.Board);
       this.JSInterpreter.createGlobalProperty('Sensor', five.Sensor);
+      this.JSInterpreter.createGlobalProperty('Pin', five.Pin);
       this.JSInterpreter.createGlobalProperty('Button', five.Button);
       this.JSInterpreter.createGlobalProperty('board', this.currentBoard);
     } else {
@@ -1274,15 +1275,23 @@ Applab.execute = function() {
     }
   }
 
-  // Set focus on the default screen so key events can be handled
-  // right from the start without requiring the user to adjust focus.
-  Applab.loadDefaultScreen();
 
-  Applab.running = true;
-  $('#headers').addClass('dimmed');
-  $('#codeWorkspace').addClass('dimmed');
-  designMode.renderDesignWorkspace();
-  queueOnTick();
+  var interval = setInterval(function() {
+    if (this.currentBoard.isReady) {
+      clearInterval(interval);
+
+      // Set focus on the default screen so key events can be handled
+      // right from the start without requiring the user to adjust focus.
+      Applab.loadDefaultScreen();
+
+      Applab.running = true;
+      $('#headers').addClass('dimmed');
+      $('#codeWorkspace').addClass('dimmed');
+      designMode.renderDesignWorkspace();
+      queueOnTick();
+    }
+  }.bind(this), 300)
+
 };
 
 Applab.feedbackImage = '';
