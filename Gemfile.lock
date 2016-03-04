@@ -1,4 +1,28 @@
 GIT
+  remote: git://github.com/code-dot-org/omniauth-clever.git
+  revision: 8c7adde39157d64dc8b05c5eec5b0a7329f8ef95
+  specs:
+    omniauth-clever (1.1.0)
+      omniauth-oauth2 (>= 1.1.1)
+
+GIT
+  remote: git://github.com/macournoyer/thin.git
+  revision: 84ae79de54920fb0d185a7010ab5b5fc71d1385a
+  branch: rack2
+  specs:
+    thin (1.6.4)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1.0)
+
+GIT
+  remote: git://github.com/rack/rack.git
+  revision: 05bdc51dd7d39f6cea66481cd89143da0df1b41c
+  specs:
+    rack (2.0.0.alpha)
+      json
+
+GIT
   remote: git://github.com/rails-api/active_model_serializers.git
   revision: 2962f3f64e7c672bfb5a13a8f739b5db073e5473
   ref: 2962f3f64e7c672bfb5a13a8f739b5db073e5473
@@ -6,55 +30,97 @@ GIT
     active_model_serializers (0.10.0.pre)
       activemodel (>= 4.0)
 
-GEM
-  remote: https://rubygems.org/
+GIT
+  remote: git://github.com/rails/rails.git
+  revision: 8e9a1a62d35f6597aa344c9c747d5adf0ed4fe5f
   specs:
-    actionmailer (4.2.4)
-      actionpack (= 4.2.4)
-      actionview (= 4.2.4)
-      activejob (= 4.2.4)
+    actioncable (5.0.0.beta3)
+      actionpack (= 5.0.0.beta3)
+      nio4r (~> 1.2)
+      websocket-driver (~> 0.6.1)
+    actionmailer (5.0.0.beta3)
+      actionpack (= 5.0.0.beta3)
+      actionview (= 5.0.0.beta3)
+      activejob (= 5.0.0.beta3)
       mail (~> 2.5, >= 2.5.4)
       rails-dom-testing (~> 1.0, >= 1.0.5)
-    actionpack (4.2.4)
-      actionview (= 4.2.4)
-      activesupport (= 4.2.4)
-      rack (~> 1.6)
-      rack-test (~> 0.6.2)
+    actionpack (5.0.0.beta3)
+      actionview (= 5.0.0.beta3)
+      activesupport (= 5.0.0.beta3)
+      rack (~> 2.x)
+      rack-test (~> 0.6.3)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    actionview (4.2.4)
-      activesupport (= 4.2.4)
+    actionview (5.0.0.beta3)
+      activesupport (= 5.0.0.beta3)
       builder (~> 3.1)
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active_record_query_trace (1.4)
-    activejob (4.2.4)
-      activesupport (= 4.2.4)
-      globalid (>= 0.3.0)
-    activemodel (4.2.4)
-      activesupport (= 4.2.4)
-      builder (~> 3.1)
-    activerecord (4.2.4)
-      activemodel (= 4.2.4)
-      activesupport (= 4.2.4)
-      arel (~> 6.0)
-    activesupport (4.2.4)
+    activejob (5.0.0.beta3)
+      activesupport (= 5.0.0.beta3)
+      globalid (>= 0.3.6)
+    activemodel (5.0.0.beta3)
+      activesupport (= 5.0.0.beta3)
+    activerecord (5.0.0.beta3)
+      activemodel (= 5.0.0.beta3)
+      activesupport (= 5.0.0.beta3)
+      arel (~> 7.0)
+    activesupport (5.0.0.beta3)
+      concurrent-ruby (~> 1.0)
       i18n (~> 0.7)
-      json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
-      thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    rails (5.0.0.beta3)
+      actioncable (= 5.0.0.beta3)
+      actionmailer (= 5.0.0.beta3)
+      actionpack (= 5.0.0.beta3)
+      actionview (= 5.0.0.beta3)
+      activejob (= 5.0.0.beta3)
+      activemodel (= 5.0.0.beta3)
+      activerecord (= 5.0.0.beta3)
+      activesupport (= 5.0.0.beta3)
+      bundler (>= 1.3.0, < 2.0)
+      railties (= 5.0.0.beta3)
+      sprockets-rails (>= 2.0.0)
+    railties (5.0.0.beta3)
+      actionpack (= 5.0.0.beta3)
+      activesupport (= 5.0.0.beta3)
+      method_source
+      rake (>= 0.8.7)
+      thor (>= 0.18.1, < 2.0)
+
+GIT
+  remote: git://github.com/rubysherpas/paranoia.git
+  revision: 3c0d897a3e0eb49c7ff8ee7ad9ba221d41ff160a
+  branch: release-3.0.0
+  specs:
+    paranoia (3.0.0)
+      activerecord (>= 4.0, < 5.1)
+
+GIT
+  remote: git://github.com/sinatra/sinatra.git
+  revision: 4c7d38eb1b2cc02ce51029f28e0c3c34ca12ccfd
+  specs:
+    sinatra (2.0.0.pre.alpha)
+      rack (= 2.0.0.alpha)
+      rack-protection (~> 1.5)
+      tilt (~> 2.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    active_record_query_trace (1.4)
     acts_as_list (0.7.2)
       activerecord (>= 3.0)
     addressable (2.4.0)
-    annotate (2.6.10)
-      activerecord (>= 3.2, <= 4.3)
+    annotate (2.7.0)
+      activerecord (>= 3.2, < 6.0)
       rake (~> 10.4)
     ansi (1.5.0)
     archive-zip (0.7.0)
       io-like (~> 0.3.0)
-    arel (6.0.3)
+    arel (7.0.0)
     ast (2.2.0)
     autoparse (0.3.3)
       addressable (>= 2.3.1)
@@ -100,6 +166,7 @@ GEM
       railties (>= 3.0, < 5)
     coderay (1.1.0)
     colorize (0.7.7)
+    concurrent-ruby (1.0.1)
     coveralls (0.8.9)
       json (~> 1.8)
       rest-client (>= 1.6.8, < 2)
@@ -136,7 +203,7 @@ GEM
     domain_name (0.5.25)
       unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
-    eventmachine (1.0.7)
+    eventmachine (1.0.9.1)
     execjs (2.5.2)
     extlib (0.9.16)
     eyes_selenium (2.5.0)
@@ -196,7 +263,6 @@ GEM
       activesupport (>= 3.2.13)
       rack (>= 1.4.5)
     highline (1.6.21)
-    hike (1.2.3)
     hitimes (1.2.2)
     honeybadger (1.16.7)
       json
@@ -255,10 +321,11 @@ GEM
       mime-types (>= 1.16, < 3)
     marked-rails (0.3.2.0)
     metaclass (0.0.4)
+    method_source (0.8.2)
     mime-types (2.6.1)
     mini_magick (4.3.3)
-    mini_portile (0.6.2)
-    minitest (5.8.2)
+    mini_portile2 (2.0.0)
+    minitest (5.8.4)
     minitest-around (0.3.2)
       minitest (~> 5.0)
     minitest-reporters (1.0.19)
@@ -279,41 +346,38 @@ GEM
     net-ssh (2.9.2)
     netrc (0.11.0)
     newrelic_rpm (3.10.0.279)
-    nokogiri (1.6.6.2)
-      mini_portile (~> 0.6.0)
+    nio4r (1.2.1)
+    nokogiri (1.6.7.2)
+      mini_portile2 (~> 2.0.0.rc2)
     oauth (0.4.7)
-    oauth2 (0.9.4)
+    oauth2 (1.1.0)
       faraday (>= 0.8, < 0.10)
-      jwt (~> 1.0)
+      jwt (~> 1.0, < 1.5.2)
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
-      rack (~> 1.2)
+      rack (>= 1.2, < 3)
     oily_png (1.2.0)
       chunky_png (~> 1.3.1)
     oj (2.13.0)
     omniauth (1.3.1)
       hashie (>= 1.2, < 4)
       rack (>= 1.0, < 3)
-    omniauth-clever (1.2.1)
-      omniauth-oauth2 (~> 1.1.1)
-    omniauth-facebook (1.6.0)
-      omniauth-oauth2 (~> 1.1)
-    omniauth-google-oauth2 (0.2.5)
-      omniauth (> 1.0)
-      omniauth-oauth2 (~> 1.1)
-    omniauth-oauth2 (1.1.2)
-      faraday (>= 0.8, < 0.10)
+    omniauth-facebook (3.0.0)
+      omniauth-oauth2 (~> 1.2)
+    omniauth-google-oauth2 (0.3.1)
+      jwt (~> 1.0)
       multi_json (~> 1.3)
-      oauth2 (~> 0.9.3)
+      omniauth (>= 1.1.1)
+      omniauth-oauth2 (>= 1.3.1)
+    omniauth-oauth2 (1.4.0)
+      oauth2 (~> 1.0)
       omniauth (~> 1.2)
-    omniauth-windowslive (0.0.9)
+    omniauth-windowslive (0.0.9.1)
       multi_json (>= 1.0.3)
       omniauth-oauth2 (~> 1.0)
     orm_adapter (0.5.0)
     os (0.9.6)
     parallel (1.3.3)
-    paranoia (2.0.4)
-      activerecord (~> 4.0)
     parser (2.3.0.6)
       ast (~> 2.2)
     phantomjs (1.9.7.1)
@@ -329,7 +393,6 @@ GEM
       signature (~> 0.1.8)
     quiet_assets (1.0.2)
       railties (>= 3.1, < 5.0)
-    rack (1.6.4)
     rack-attack (4.4.1)
       rack
     rack-cache (1.5.1)
@@ -343,30 +406,14 @@ GEM
     rack-ssl-enforcer (0.2.9)
     rack-test (0.6.3)
       rack (>= 1.0)
-    rails (4.2.4)
-      actionmailer (= 4.2.4)
-      actionpack (= 4.2.4)
-      actionview (= 4.2.4)
-      activejob (= 4.2.4)
-      activemodel (= 4.2.4)
-      activerecord (= 4.2.4)
-      activesupport (= 4.2.4)
-      bundler (>= 1.3.0, < 2.0)
-      railties (= 4.2.4)
-      sprockets-rails
     rails-deprecated_sanitizer (1.0.3)
       activesupport (>= 4.2.0.alpha)
     rails-dom-testing (1.0.7)
       activesupport (>= 4.2.0.beta, < 5.0)
       nokogiri (~> 1.6.0)
       rails-deprecated_sanitizer (>= 1.0.1)
-    rails-html-sanitizer (1.0.2)
+    rails-html-sanitizer (1.0.3)
       loofah (~> 2.0)
-    railties (4.2.4)
-      actionpack (= 4.2.4)
-      activesupport (= 4.2.4)
-      rake (>= 0.8.7)
-      thor (>= 0.18.1, < 2.0)
     rainbow (2.1.0)
     raindrops (0.13.0)
     rake (10.5.0)
@@ -414,12 +461,13 @@ GEM
       sexp_processor (~> 4.1)
     rubyzip (1.1.7)
     safe_yaml (1.0.4)
-    sass (3.2.19)
-    sass-rails (4.0.5)
+    sass (3.4.21)
+    sass-rails (5.0.4)
       railties (>= 4.0.0, < 5.0)
-      sass (~> 3.2.2)
-      sprockets (~> 2.8, < 3.0)
-      sprockets-rails (~> 2.0)
+      sass (~> 3.1)
+      sprockets (>= 2.8, < 4.0)
+      sprockets-rails (>= 2.0, < 4.0)
+      tilt (>= 1.1, < 3)
     sdoc (0.4.0)
       json (~> 1.8)
       rdoc (~> 4.0, < 5.0)
@@ -446,22 +494,16 @@ GEM
       json (~> 1.8)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
-    sinatra (1.4.6)
-      rack (~> 1.4)
-      rack-protection (~> 1.4)
-      tilt (>= 1.3, < 3)
     spring (1.3.6)
     spring-commands-testunit (1.0.1)
       spring (>= 0.9.1)
-    sprockets (2.12.4)
-      hike (~> 1.2)
-      multi_json (~> 1.0)
-      rack (~> 1.0)
-      tilt (~> 1.1, != 1.3.0)
-    sprockets-rails (2.3.3)
-      actionpack (>= 3.0)
-      activesupport (>= 3.0)
-      sprockets (>= 2.8, < 4.0)
+    sprockets (3.5.2)
+      concurrent-ruby (~> 1.0)
+      rack (> 1, < 3)
+    sprockets-rails (3.0.4)
+      actionpack (>= 4.0)
+      activesupport (>= 4.0)
+      sprockets (>= 3.0.0)
     sqlite3 (1.3.10)
     stringex (2.5.2)
     sysexits (1.2.0)
@@ -470,13 +512,9 @@ GEM
     therubyracer (0.12.2)
       libv8 (~> 3.16.14.0)
       ref
-    thin (1.6.3)
-      daemons (~> 1.0, >= 1.0.9)
-      eventmachine (~> 1.0)
-      rack (~> 1.0)
     thor (0.19.1)
     thread_safe (0.3.5)
-    tilt (1.4.1)
+    tilt (2.0.2)
     timecop (0.7.1)
     timers (4.0.1)
       hitimes
@@ -527,7 +565,7 @@ DEPENDENCIES
   active_model_serializers!
   active_record_query_trace
   acts_as_list
-  annotate (~> 2.6.6)
+  annotate
   aws-sdk (~> 2)
   better_errors
   binding_of_caller
@@ -580,23 +618,25 @@ DEPENDENCIES
   newrelic_rpm (~> 3.10.0.279)
   nokogiri (~> 1.6.1)
   oj
-  omniauth-clever (~> 1.2.1)
+  omniauth-clever!
   omniauth-facebook
   omniauth-google-oauth2
-  omniauth-windowslive (~> 0.0.9)
+  omniauth-oauth2 (~> 1.4.0)
+  omniauth-windowslive
   os
   parallel
-  paranoia (~> 2.0)
+  paranoia!
   phantomjs (~> 1.9.7.1)
   poltergeist
   pusher (~> 0.14.5)
   quiet_assets
+  rack!
   rack-attack (~> 4.4)
   rack-cache
-  rack-contrib (~> 1.1)
+  rack-contrib
   rack-mini-profiler
   rack-ssl-enforcer
-  rails (~> 4.2.4)
+  rails!
   redcarpet (~> 3.3.4)
   redis (~> 3.1.0)
   rerun (~> 0.10.0)
@@ -607,20 +647,21 @@ DEPENDENCIES
   rspec
   rubocop (= 0.37.2)
   ruby-prof
-  sass-rails (~> 4.0.0)
+  sass-rails
   sdoc
   seamless_database_pool
   selenium-webdriver (~> 2.41.0)
   sequel (~> 4.10.0)
   shotgun
   simplecov (~> 0.9)
-  sinatra
+  sinatra!
   spring
   spring-commands-testunit
+  sprockets (~> 3.0)
   sqlite3
   stringex (~> 2.5.2)
   therubyracer (~> 0.12.2)
-  thin (~> 1.6.2)
+  thin!
   timecop
   twilio-ruby
   uglifier (>= 1.3.0)
@@ -632,4 +673,4 @@ DEPENDENCIES
   youtube-dl.rb
 
 BUNDLED WITH
-   1.10.6
+   1.11.2

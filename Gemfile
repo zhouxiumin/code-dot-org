@@ -1,14 +1,19 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 4.2.4'
+gem 'rails', github: 'rails'
 
 # provide `respond_to` methods
 # (see: http://guides.rubyonrails.org/4_2_release_notes.html#respond-with-class-level-respond-to)
 gem 'responders', '~> 2.0'
 
-gem 'sinatra', require: 'sinatra/base'
-gem 'rack-contrib', '~> 1.1'
+gem 'sinatra', github: 'sinatra', require: 'sinatra/base'
+
+gem 'rack', github: 'rack'
+
+gem 'rack-contrib'
+gem 'sprockets', '~> 3.0'
+
 
 gem 'mysql2', '~> 0.3.13'
 gem 'seamless_database_pool'
@@ -23,11 +28,11 @@ gem 'parallel'
 gem 'google-api-client'
 
 group :development do
-  gem 'annotate', '~> 2.6.6'
+  gem 'annotate'
   gem 'rack-mini-profiler'
   gem 'rerun', '~> 0.10.0'
   gem 'shotgun'
-  gem 'thin', '~> 1.6.2'
+  gem 'thin', github: 'macournoyer/thin', branch: 'rack2'
   gem 'web-console', '~> 2.0'
 end
 
@@ -80,7 +85,7 @@ gem 'unicorn', '~> 4.8.2'
 gem 'chronic', '~> 0.10.2'
 
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 4.0.0'
+gem 'sass-rails'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
@@ -98,10 +103,11 @@ gem 'devise'
 gem 'devise_invitable', '~> 1.5.2'
 gem 'cancancan', '~> 1.10' #CanCan is dead, long live CanCanCan
 
+gem 'omniauth-oauth2', '~> 1.4.0'
 gem 'omniauth-facebook'
 gem 'omniauth-google-oauth2'
-gem 'omniauth-windowslive', '~> 0.0.9'
-gem 'omniauth-clever', '~> 1.2.1'
+gem 'omniauth-windowslive'
+gem 'omniauth-clever', github: 'code-dot-org/omniauth-clever'
 
 gem 'bootstrap-sass', '~> 2.3.2.2'
 gem 'haml'
@@ -151,7 +157,7 @@ gem 'user_agent_parser'
 gem 'heroku_rails_deflate', group: [:staging, :production, :test, :levelbuilder] # gzip rails content and static assets
 # We don't use this gem in development because it doesn't work with rack-mini-profiler.
 
-gem "paranoia", "~> 2.0" # 'delete' Rails model objects by setting a deleted_at column instead of deleting the row
+gem "paranoia", github: 'rubysherpas/paranoia', branch: 'release-3.0.0' # 'delete' Rails model objects by setting a deleted_at column instead of deleting the row
 
 # JSON model serializer for REST APIs
 gem 'active_model_serializers', github: 'rails-api/active_model_serializers', ref: '2962f3f64e7c672bfb5a13a8f739b5db073e5473'
