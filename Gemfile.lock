@@ -99,6 +99,14 @@ GIT
       activerecord (>= 4.0, < 5.1)
 
 GIT
+  remote: git://github.com/scambra/devise_invitable.git
+  revision: 64cbe30b21988f540677fb62c90982f1c73b7058
+  specs:
+    devise_invitable (1.5.5)
+      actionmailer (>= 3.2.6, < 5)
+      devise (>= 3.2.0)
+
+GIT
   remote: git://github.com/sinatra/sinatra.git
   revision: 4c7d38eb1b2cc02ce51029f28e0c3c34ca12ccfd
   specs:
@@ -188,16 +196,12 @@ GEM
     daemons (1.2.3)
     dalli (2.7.4)
     debug_inspector (0.0.2)
-    devise (3.5.1)
+    devise (4.0.0.rc1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
-      railties (>= 3.2.6, < 5)
+      railties (>= 4.1.0, < 5.1)
       responders
-      thread_safe (~> 0.1)
       warden (~> 1.2.3)
-    devise_invitable (1.5.2)
-      actionmailer (>= 3.2.6, < 5)
-      devise (>= 3.2.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
     domain_name (0.5.25)
@@ -296,12 +300,13 @@ GEM
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     kgio (2.9.3)
-    konacha (3.7.0)
-      actionpack (>= 3.1, < 5)
+    konacha (4.0.0)
+      actionpack (>= 4.1, < 5)
       capybara
       colorize
-      railties (>= 3.1, < 5)
+      railties (>= 4.1, < 5)
       sprockets (>= 2, < 4)
+      sprockets-rails (>= 2, < 4)
       tilt
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -311,10 +316,6 @@ GEM
       celluloid (~> 0.16.0)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9)
-    lograge (0.3.4)
-      actionpack (>= 3)
-      activesupport (>= 3)
-      railties (>= 3)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -538,7 +539,7 @@ GEM
       raindrops (~> 0.7)
     user_agent_parser (2.1.5)
     vcr (3.0.0)
-    warden (1.2.3)
+    warden (1.2.6)
       rack (>= 1.0)
     web-console (2.2.1)
       activemodel (>= 4.0)
@@ -579,8 +580,8 @@ DEPENDENCIES
   cucumber
   daemons
   dalli
-  devise
-  devise_invitable (~> 1.5.2)
+  devise (= 4.0.0.rc1)
+  devise_invitable!
   execjs
   eyes_selenium (~> 2.5.0)
   factory_girl_rails
@@ -602,9 +603,8 @@ DEPENDENCIES
   jquery-ui-rails (~> 5.0.3)
   jwt
   kaminari
-  konacha
+  konacha (~> 4.0)
   le (~> 2.2)
-  lograge
   marked-rails
   mini_magick
   minitest (~> 5.5)

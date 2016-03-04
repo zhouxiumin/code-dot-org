@@ -11,7 +11,8 @@ gem 'sinatra', github: 'sinatra', require: 'sinatra/base'
 
 gem 'rack', github: 'rack'
 
-gem 'rack-contrib'
+gem 'rack-contrib', require: false
+
 gem 'sprockets', '~> 3.0'
 
 
@@ -40,7 +41,7 @@ group :development, :test do
   gem 'rack-cache'
   # Use debugger
   #gem 'debugger' unless ENV['RM_INFO']
-  gem 'konacha'  # Mocha + Chai JS testing in Rails
+  gem 'konacha', '~> 4.0'  # Mocha + Chai JS testing in Rails
   gem 'poltergeist'  # Headless JS tests.p
 
   gem 'haml-rails' # haml (instead of erb) generators
@@ -99,8 +100,8 @@ gem 'phantomjs', '~> 1.9.7.1'
 gem 'jbuilder', '~> 1.2'
 
 # authentication and permissions
-gem 'devise'
-gem 'devise_invitable', '~> 1.5.2'
+gem 'devise', '4.0.0.rc1'
+gem 'devise_invitable', github: 'scambra/devise_invitable'
 gem 'cancancan', '~> 1.10' #CanCan is dead, long live CanCanCan
 
 gem 'omniauth-oauth2', '~> 1.4.0'
@@ -167,7 +168,7 @@ gem 'rubocop', '0.37.2', require: false, group: [:development, :staging]
 gem 'haml_lint', require: false, group: [:development, :staging]
 
 # Reduce volume of production logs
-gem 'lograge'
+# gem 'lograge'
 
 # Enforce SSL
 gem 'rack-ssl-enforcer'
