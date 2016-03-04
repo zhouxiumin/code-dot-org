@@ -34,7 +34,7 @@ group :development do
   gem 'rerun', '~> 0.10.0'
   gem 'shotgun'
   gem 'thin', github: 'macournoyer/thin', branch: 'rack2'
-  gem 'web-console', '~> 2.0'
+  gem 'web-console', '~> 3.1.1'
 end
 
 group :development, :test do

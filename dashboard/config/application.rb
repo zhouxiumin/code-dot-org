@@ -3,6 +3,7 @@ require 'cdo/poste'
 require 'rails/all'
 
 require 'cdo/geocoder'
+ActionDispatch::Request.send :include, Geocoder::Request
 require 'cdo/properties'
 require 'varnish_environment'
 require 'files_api'
