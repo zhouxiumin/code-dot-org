@@ -25,6 +25,7 @@
   hello: hello dunia
   welcome_back: "خوش آمدید، %{name}"
   submit: "جمع کرائیں"
+  unsubmit: Unsubmit
   add_teacher_form:
     code:
       label: "ٹیچر شامل کریں:"
@@ -46,7 +47,7 @@
   more: "مزید دیکھیے"
   less: "کم دیکھیے"
   beta: beta
-  try_hoc: "آور اف کوڈ کھیلنے کے لئے یہاں کلک کریں>> "
+  try_hoc: "آور آف کوڈ کھیلنے کے لئے یہاں کلک کریں>> "
   try_k8intro: "١٢ سال تک کی عمر کے لئے موزوں کمپیوٹر کورس  (١٥ سے ٢٥ گھنٹے) کا تعارف
     دیکھیے"
   k8intro: "١٢ سال تک کی عمر کے لئے موزوں کمپیوٹر کورس کا تعارف (١٥ سے ٢٥ گھنٹے)"
@@ -188,8 +189,8 @@
     teacher_email_required: 'Teacher prizes require a confirmed email address:'
     confirm:
       title: Please Confirm
-      'no': 'No'
-      'yes': 'Yes'
+      'no': "نہيں"
+      'yes': "جی"
       msg: Are you sure you want to claim the %{prize_name} prize?
       msg_student: 'NOTE: You can only choose one type of prize.'
       msg_publicschool: Please confirm that you are a U.S. public school teacher.
@@ -372,6 +373,8 @@
     heading_elementary: "<h2>20 hour courses for</h2><h1>Computer Science Fundamentals
       (all ages)</h1>"
     heading_apps: "<h2>Fun for</h2><h1>Everybody</h1>"
+    heading_tools: "<h2>Ready for the next step?</h2><h1>JavaScript Tools for High
+      School</h1>"
     heading_legacy: "<h2>Our general course for</h2><h1>All Ages</h1>"
     your_gallery: Gallery
     no_primary_course: Try a course at Code Studio
@@ -488,6 +491,13 @@
       current: Current Levels
       unused: Unused Levels
   upsell:
+    applab:
+      title: App Lab
+      body: App Lab is a programming environment where you can make simple apps. Design
+        an app, code with blocks or JavaScript to make it work, then share your app
+        in seconds.
+      audience: Ages 13+
+      cta: Learn how
     hoc:
       title: Hour of Code
       body: Try the basics of computer science. Millions have given it a shot.
@@ -544,11 +554,19 @@
     report_bug: Report Bug
     support: Get Help
     support_url: "//support.code.org"
+    help_resources: Help and Resources
   multi:
     wrong_title: Incorrect answer
     wrong_body: The answer you've entered is not correct.  Please try again!
     correct_title: Correct
     correct_body: That is the correct answer.
+    toofew_title: Too few answers.
+    toofew_body: Please select two answers before submitting.
+  multi-submittable:
+    wrong_title: Thank you
+    wrong_body: Thank you for submitting an answer.
+    correct_title: Thank you
+    correct_body: Thank you for submitting an answer.
     toofew_title: Too few answers.
     toofew_body: Please select two answers before submitting.
   match:
@@ -660,8 +678,8 @@
       on your projects at any time.
     need_help: Need help getting started?
     really_delete: Delete?
-    delete_yes: 'Yes'
-    delete_no: 'No'
+    delete_yes: "جی"
+    delete_no: "نہيں"
     saved: Saved
     not_saved: Not saved
     cancel: "منسوخ کریں"

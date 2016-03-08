@@ -2,25 +2,33 @@
 # Cookbook Name:: cdo-apps
 # Recipe:: default
 #
+
+# Update Chef Client to version specified by node['omnibus_updater']['version'].
+include_recipe 'omnibus_updater'
+
 include_recipe 'apt'
 include_recipe 'sudo-user'
 
 # These packages are used by Gems we install via Bundler.
 
 # Used by image resizing and certificate generation.
-multipackage 'imagemagick'
-multipackage 'libmagickcore-dev'
-multipackage 'libmagickwand-dev'
+apt_package %w(
+  imagemagick
+  libmagickcore-dev
+  libmagickwand-dev
+)
 
 # Used by lesson plan generator.
-multipackage 'pdftk'
-multipackage 'enscript'
+apt_package %w(
+  pdftk
+  enscript
+)
 
 # Provides a Dashboard database fixture for Pegasus tests.
-multipackage 'libsqlite3-dev'
+apt_package 'libsqlite3-dev'
 
 # Debian-family packages for building Ruby C extensions
-multipackage %w(
+apt_package %w(
   autoconf
   binutils-doc
   bison
@@ -30,7 +38,7 @@ multipackage %w(
   ncurses-dev
 )
 
-multipackage
+#multipackage
 
 include_recipe 'cdo-mysql::client'
 # Install local mysql server unless an external db url is provided.
@@ -64,5 +72,8 @@ include_recipe 'cdo-varnish'
 include_recipe 'cdo-apps::bundle_bootstrap'
 include_recipe 'cdo-apps::dashboard'
 include_recipe 'cdo-apps::pegasus'
+include_recipe node['cdo-apps']['nginx_enabled'] ?
+  'cdo-nginx' :
+  'cdo-nginx::stop'
 include_recipe 'cdo-apps::chef_credentials'
 include_recipe 'cdo-apps::crontab'

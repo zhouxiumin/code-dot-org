@@ -51,6 +51,13 @@ exports.cloneWithoutFunctions = function(object) {
 };
 
 /**
+ * Returns a string with a double quote before and after.
+ */
+exports.quote = function(str) {
+  return '"' + str + '"';
+};
+
+/**
  * Returns a new object with the properties from defaults overridden by any
  * properties in options. Leaves defaults and options unchanged.
  * NOTE: For new code, use $.extend({}, defaults, options) instead
@@ -379,4 +386,28 @@ exports.escapeText = function (text) {
     }).join('');
 
   return returnValue;
+};
+
+/**
+ * Converts degrees into radians.
+ *
+ * @param degrees - The degrees to convert to radians
+ * @return `degrees` converted to radians
+ */
+exports.degreesToRadians = function (degrees) {
+    return degrees * (Math.PI / 180);
+};
+
+/**
+ * Simple wrapper around localStorage.setItem that catches any exceptions (for
+ * example when we call setItem in Safari's private mode)
+ * @return {boolean} True if we set successfully
+ */
+exports.trySetLocalStorage = function (item, value) {
+  try {
+    localStorage.setItem(item, value);
+    return true;
+  } catch (e) {
+    return false;
+  }
 };

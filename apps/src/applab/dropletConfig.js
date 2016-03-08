@@ -1,7 +1,8 @@
 var api = require('./api');
 var dontMarshalApi = require('./dontMarshalApi');
-var consoleApi = require('./consoleApi');
-var showAssetManager = require('../applab/assetManagement/show.js');
+var consoleApi = require('../consoleApi');
+var showAssetManager = require('../assetManagement/show.js');
+var getAssetDropdown = require('../assetManagement/getAssetDropdown');
 var ChartApi = require('./ChartApi');
 var elementUtils = require('./designElements/elementUtils');
 var setPropertyDropdown = require('./setPropertyDropdown').setPropertyDropdown;
@@ -22,11 +23,16 @@ var COLOR_RED = '#F78183';
 var COLOR_CYAN = '#4DD0E1';
 var COLOR_YELLOW = '#FFF176';
 
+var stringMethodPrefix = '[string].';
+var arrayMethodPrefix = '[list].';
+
+var stringBlockPrefix = 'str.';
+
 /**
  * Generate a list of screen ids for our setScreen dropdown
  */
 function getScreenIds() {
-  var ret = $("#designModeViz .screen").map(function () {
+  var ret = elementUtils.getScreens().map(function () {
     return '"' + elementUtils.getId(this) + '"';
   });
 
@@ -66,10 +72,10 @@ module.exports.blocks = [
   {func: 'radioButton', parent: api, category: 'UI controls', paletteParams: ['id','checked'], params: ['"id"', "false", '"group"'], dropdown: { 1: [ "true", "false" ] } },
   {func: 'getChecked', parent: api, category: 'UI controls', paletteParams: ['id'], params: ['"id"'], type: 'value' },
   {func: 'setChecked', parent: api, category: 'UI controls', paletteParams: ['id','checked'], params: ['"id"', "true"], dropdown: { 1: [ "true", "false" ] } },
-  {func: 'image', parent: api, category: 'UI controls', paletteParams: ['id','url'], params: ['"id"', '"https://code.org/images/logo.png"'], dropdown: { 1: function () { return Applab.getAssetDropdown('image'); } }, 'assetTooltip': { 1: chooseAsset.bind(null, 'image') } },
+  {func: 'image', parent: api, category: 'UI controls', paletteParams: ['id','url'], params: ['"id"', '"https://code.org/images/logo.png"'], dropdown: { 1: function () { return getAssetDropdown('image'); } }, 'assetTooltip': { 1: chooseAsset.bind(null, 'image') } },
   {func: 'getImageURL', parent: api, category: 'UI controls', paletteParams: ['id'], params: ['"id"'], dropdown: { 0: idDropdownWithSelector("img") }, type: 'value' },
-  {func: 'setImageURL', parent: api, category: 'UI controls', paletteParams: ['id','url'], params: ['"id"', '"https://code.org/images/logo.png"'], dropdown: { 0: idDropdownWithSelector("img"), 1: function () { return Applab.getAssetDropdown('image'); } }, 'assetTooltip': { 1: chooseAsset.bind(null, 'image') } },
-  {func: 'playSound', parent: api, category: 'UI controls', paletteParams: ['url'], params: ['"https://studio.code.org/blockly/media/example.mp3"'], dropdown: { 0: function () { return Applab.getAssetDropdown('audio'); } }, 'assetTooltip': { 0: chooseAsset.bind(null, 'audio') } },
+  {func: 'setImageURL', parent: api, category: 'UI controls', paletteParams: ['id','url'], params: ['"id"', '"https://code.org/images/logo.png"'], dropdown: { 0: idDropdownWithSelector("img"), 1: function () { return getAssetDropdown('image'); } }, 'assetTooltip': { 1: chooseAsset.bind(null, 'image') } },
+  {func: 'playSound', parent: api, category: 'UI controls', paletteParams: ['url'], params: ['"https://studio.code.org/blockly/media/example.mp3"'], dropdown: { 0: function () { return getAssetDropdown('audio'); } }, 'assetTooltip': { 0: chooseAsset.bind(null, 'audio') } },
   {func: 'showElement', parent: api, category: 'UI controls', paletteParams: ['id'], params: ['"id"'], dropdown: ID_DROPDOWN_PARAM_0 },
   {func: 'hideElement', parent: api, category: 'UI controls', paletteParams: ['id'], params: ['"id"'], dropdown: ID_DROPDOWN_PARAM_0 },
   {func: 'deleteElement', parent: api, category: 'UI controls', paletteParams: ['id'], params: ['"id"'], dropdown: ID_DROPDOWN_PARAM_0 },
@@ -107,11 +113,14 @@ module.exports.blocks = [
 
   {func: 'startWebRequest', parent: api, category: 'Data', paletteParams: ['url','callback'], params: ['"http://api.openweathermap.org/data/2.5/weather?q=London,uk"', "function(status, type, content) {\n  \n}"] },
   {func: 'setKeyValue', parent: api, category: 'Data', paletteParams: ['key','value','callback'], params: ['"key"', '"value"', "function () {\n  \n}"] },
+  {func: 'setKeyValueSync', parent: api, category: 'Data', paletteParams: ['key','value'], params: ['"key"', '"value"'], nativeIsAsync: true },
   {func: 'getKeyValue', parent: api, category: 'Data', paletteParams: ['key','callback'], params: ['"key"', "function (value) {\n  \n}"] },
+  {func: 'getKeyValueSync', parent: api, category: 'Data', paletteParams: ['key'], params: ['"key"'], type: 'value', nativeIsAsync: true },
   {func: 'createRecord', parent: api, category: 'Data', paletteParams: ['table','record','callback'], params: ['"mytable"', "{name:'Alice'}", "function(record) {\n  \n}"] },
   {func: 'readRecords', parent: api, category: 'Data', paletteParams: ['table','terms','callback'], params: ['"mytable"', "{}", "function(records) {\n  for (var i =0; i < records.length; i++) {\n    textLabel('id', records[i].id + ': ' + records[i].name);\n  }\n}"] },
   {func: 'updateRecord', parent: api, category: 'Data', paletteParams: ['table','record','callback'], params: ['"mytable"', "{id:1, name:'Bob'}", "function(record, success) {\n  \n}"] },
   {func: 'deleteRecord', parent: api, category: 'Data', paletteParams: ['table','record','callback'], params: ['"mytable"', "{id:1}", "function(success) {\n  \n}"] },
+  {func: 'onRecordEvent', parent: api, category: 'Data', paletteParams: ['table','callback'], params: ['"mytable"', "function(record, eventType) {\n  if (eventType === 'create') {\n    textLabel('id', 'record with id ' + record.id + ' was created');\n  } \n}"] },
   {func: 'getUserId', parent: api, category: 'Data', type: 'value' },
   {func: 'drawChart', parent: api, category: 'Data', paletteParams: ['chartId', 'chartType', 'chartData'], params: ['"chartId"', '"bar"', '[\n\t{ label: "Row 1", value: 1 },\n\t{ label: "Row 2", value: 2 }\n]'], dropdown: { 0: idDropdownWithSelector(".chart"), 1: ChartApi.getChartTypeDropdown } },
   {func: 'drawChartFromRecords', parent: api, category: 'Data', paletteParams: ['chartId', 'chartType', 'tableName', 'columns'], params: ['"chartId"', '"bar"', '"mytable"', '["columnOne", "columnTwo"]'], dropdown: { 0: idDropdownWithSelector(".chart"), 1: ChartApi.getChartTypeDropdown } },
@@ -145,14 +154,14 @@ module.exports.blocks = [
 
   {func: 'console.log', parent: consoleApi, category: 'Variables', paletteParams: ['message'], params: ['"message"'] },
   {func: 'declareAssign_str_hello_world', block: 'var str = "Hello World";', category: 'Variables', noAutocomplete: true },
-  {func: 'substring', blockPrefix: 'str.substring', category: 'Variables', paletteParams: ['start','end'], params: ["6", "11"], modeOptionName: '*.substring', type: 'value' },
-  {func: 'indexOf', blockPrefix: 'str.indexOf', category: 'Variables', paletteParams: ['searchValue'], params: ['"World"'], modeOptionName: '*.indexOf', type: 'value' },
-  {func: 'includes', blockPrefix: 'str.includes', category: 'Variables', paletteParams: ['searchValue'], params: ['"World"'], modeOptionName: '*.includes', type: 'value' },
-  {func: 'length', block: 'str.length', category: 'Variables', modeOptionName: '*.length', type: 'property' },
-  {func: 'toUpperCase', blockPrefix: 'str.toUpperCase', category: 'Variables', modeOptionName: '*.toUpperCase', type: 'value' },
-  {func: 'toLowerCase', blockPrefix: 'str.toLowerCase', category: 'Variables', modeOptionName: '*.toLowerCase', type: 'value' },
+  {func: 'substring', blockPrefix: stringBlockPrefix, category: 'Variables', paletteParams: ['start','end'], params: ["6", "11"], modeOptionName: '*.substring', tipPrefix: stringMethodPrefix, type: 'value' },
+  {func: 'indexOf', blockPrefix: stringBlockPrefix, category: 'Variables', paletteParams: ['searchValue'], params: ['"World"'], modeOptionName: '*.indexOf', tipPrefix: stringMethodPrefix, type: 'value' },
+  {func: 'includes', blockPrefix: stringBlockPrefix, category: 'Variables', paletteParams: ['searchValue'], params: ['"World"'], modeOptionName: '*.includes', tipPrefix: stringMethodPrefix, type: 'value' },
+  {func: 'length', blockPrefix: stringBlockPrefix, category: 'Variables', modeOptionName: '*.length', tipPrefix: stringMethodPrefix, type: 'property' },
+  {func: 'toUpperCase', blockPrefix: stringBlockPrefix, category: 'Variables', modeOptionName: '*.toUpperCase', tipPrefix: stringMethodPrefix, type: 'value' },
+  {func: 'toLowerCase', blockPrefix: stringBlockPrefix, category: 'Variables', modeOptionName: '*.toLowerCase', tipPrefix: stringMethodPrefix, type: 'value' },
   {func: 'declareAssign_list_abd', block: 'var list = ["a", "b", "d"];', category: 'Variables', noAutocomplete: true },
-  {func: 'listLength', block: 'list.length', category: 'Variables', noAutocomplete: true, type: 'property' },
+  {func: 'listLength', block: 'list.length', category: 'Variables', noAutocomplete: true, tipPrefix: arrayMethodPrefix, type: 'property' },
   {func: 'insertItem', parent: dontMarshalApi, category: 'Variables', paletteParams: ['list','index','item'], params: ["list", "2", '"c"'], dontMarshal: true },
   {func: 'appendItem', parent: dontMarshalApi, category: 'Variables', paletteParams: ['list','item'], params: ["list", '"f"'], dontMarshal: true },
   {func: 'removeItem', parent: dontMarshalApi, category: 'Variables', paletteParams: ['list','index'], params: ["list", "0"], dontMarshal: true },

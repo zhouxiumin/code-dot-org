@@ -17,7 +17,9 @@ var api = require('./api');
 var apiBlockly = require('./apiBlockly');
 var dontMarshalApi = require('./dontMarshalApi');
 var blocks = require('./blocks');
-var page = require('../templates/page.html.ejs');
+var AppLabView = require('./AppLabView.jsx');
+var codeWorkspaceEjs = require('../templates/codeWorkspace.html.ejs');
+var visualizationColumnEjs = require('../templates/visualizationColumn.html.ejs');
 var dom = require('../dom');
 var parseXmlElement = require('../xml').parseElement;
 var utils = require('../utils');
@@ -38,14 +40,12 @@ var JsInterpreterLogger = require('../JsInterpreterLogger');
 var JsDebuggerUi = require('../JsDebuggerUi');
 var elementLibrary = require('./designElements/library');
 var elementUtils = require('./designElements/elementUtils');
-var assetsApi = require('../clientApi').assets;
-var assetListStore = require('./assetManagement/assetListStore');
-var showAssetManager = require('./assetManagement/show.js');
 var VisualizationOverlay = require('./VisualizationOverlay');
 var ShareWarningsDialog = require('../templates/ShareWarningsDialog.jsx');
 var logToCloud = require('../logToCloud');
 
 var applabConstants = require('./constants');
+var consoleApi = require('../consoleApi');
 
 var ResultType = studioApp.ResultType;
 var TestResults = studioApp.TestResults;
@@ -63,7 +63,7 @@ var jsInterpreterLogger = null;
 /**
  * @type {JsDebuggerUi} Controller for JS debug buttons and console area
  */
-var jsDebuggerUi = null;
+var debuggerUi = null;
 
 /**
  * Temporary: Some code depends on global access to logging, but only Applab
@@ -77,12 +77,14 @@ Applab.log = function (object) {
     jsInterpreterLogger.log(object);
   }
 
-  if (jsDebuggerUi) {
-    jsDebuggerUi.log(object);
+  if (debuggerUi) {
+    debuggerUi.log(object);
   }
 };
+consoleApi.setLogMethod(Applab.log);
 
-var errorHandler = require('./errorHandler');
+var errorHandler = require('../errorHandler');
+errorHandler.setLogMethod(Applab.log);
 var outputError = errorHandler.outputError;
 var ErrorLevel = errorHandler.ErrorLevel;
 
@@ -383,7 +385,7 @@ function renderFooterInSharedGame() {
     });
   }
 
-  window.dashboard.footer.render(React, {
+  ReactDOM.render(React.createElement(window.dashboard.SmallFooter,{
     i18nDropdown: '',
     copyrightInBase: false,
     copyrightStrings: copyrightStrings,
@@ -397,8 +399,9 @@ function renderFooterInSharedGame() {
       paddingLeft: 0
     },
     className: 'dark',
-    menuItems: menuItems
-  }, footerDiv);
+    menuItems: menuItems,
+    phoneFooter: true
+  }), footerDiv);
 }
 
 /**
@@ -416,17 +419,17 @@ Applab.hasDataStoreAPIs = function (code) {
  * @param {!number} speed - range 0..1
  */
 Applab.setStepSpeed = function (speed) {
-  if (jsDebuggerUi) {
-    jsDebuggerUi.setStepSpeed(speed);
+  if (debuggerUi) {
+    debuggerUi.setStepSpeed(speed);
   }
   Applab.scale.stepSpeed = JsDebuggerUi.stepDelayFromStepSpeed(speed);
 };
 
 function getCurrentTickLength() {
   var debugStepDelay;
-  if (jsDebuggerUi) {
+  if (debuggerUi) {
     // debugStepDelay will be undefined if no speed slider is present
-    debugStepDelay = jsDebuggerUi.getStepDelay();
+    debugStepDelay = debuggerUi.getStepDelay();
   }
   return debugStepDelay !== undefined ? debugStepDelay : Applab.scale.stepSpeed;
 }
@@ -551,14 +554,14 @@ Applab.startSharedAppAfterWarnings = function () {
 
   var modal = document.createElement('div');
   document.body.appendChild(modal);
-  return React.render(React.createElement(ShareWarningsDialog, {
+  return ReactDOM.render(React.createElement(ShareWarningsDialog, {
     showStoreDataAlert: showStoreDataAlert,
     is13Plus: is13Plus,
     handleClose: function () {
       // we closed the dialog without hitting too_young
       // Only want to ask about age once across apps
       if (!Applab.user.isSignedIn) {
-        localStorage.setItem('is13Plus', 'true');
+        utils.trySetLocalStorage('is13Plus', 'true');
       }
       // Only want to ask about storing data once per app.
       if (showStoreDataAlert) {
@@ -567,7 +570,7 @@ Applab.startSharedAppAfterWarnings = function () {
       window.setTimeout(Applab.runButtonClick.bind(studioApp), 0);
     },
     handleTooYoung: function () {
-      localStorage.setItem('is13Plus', 'false');
+      utils.trySetLocalStorage('is13Plus', 'false');
       window.location.href = '/too_young';
     }
   }), modal);
@@ -580,7 +583,7 @@ Applab.init = function(config) {
   // Gross, but necessary for tests, until we can instantiate AppLab and make
   // this a member variable: Reset this thing until we're ready to create it!
   jsInterpreterLogger = null;
-  jsDebuggerUi = null;
+  debuggerUi = null;
 
   // replace studioApp methods with our own
   studioApp.reset = this.reset.bind(this);
@@ -589,16 +592,8 @@ Applab.init = function(config) {
   Applab.channelId = config.channel;
   // inlcude channel id in any new relic actions we generate
   logToCloud.setCustomAttribute('channelId', Applab.channelId);
-  if (config.assetPathPrefix) {
-    Applab.assetPathPrefix = config.assetPathPrefix;
-  }
 
-  // Pre-populate asset list
-  assetsApi.ajax('GET', '', function (xhr) {
-    assetListStore.reset(JSON.parse(xhr.responseText));
-  }, function () {
-    // Unable to load asset list
-  });
+  config.usesAssets = true;
 
   Applab.clearEventHandlersKillTickLoop();
   skin = config.skin;
@@ -642,7 +637,7 @@ Applab.init = function(config) {
     submitButton: level.submittable && !level.submitted,
     unsubmitButton: level.submittable && level.submitted
   });
-  var extraControlsRow = '';
+  var extraControlRows = '';
 
   // Construct a logging observer for interpreter events
   if (!config.hideSource) {
@@ -650,33 +645,12 @@ Applab.init = function(config) {
   }
 
   if (showDebugButtons || showDebugConsole) {
-    jsDebuggerUi = new JsDebuggerUi(Applab.runButtonClick);
-    extraControlsRow = jsDebuggerUi.getMarkup(
-        studioApp.assetUrl, showDebugButtons, showDebugConsole);
+    debuggerUi = new JsDebuggerUi(Applab.runButtonClick);
+    extraControlRows = debuggerUi.getMarkup(studioApp.assetUrl, {
+      showButtons: showDebugButtons,
+      showConsole: showDebugConsole
+    });
   }
-
-  config.html = page({
-    assetUrl: studioApp.assetUrl,
-    data: {
-      localeDirection: studioApp.localeDirection(),
-      visualization: require('./visualization.html.ejs')({
-        appWidth: Applab.appWidth,
-        appHeight: Applab.footerlessAppHeight
-      }),
-      controls: firstControlsRow,
-      extraControlRows: extraControlsRow,
-      blockUsed: undefined,
-      idealBlockNumber: undefined,
-      editCode: level.editCode,
-      blockCounterClass: 'block-counter-default',
-      pinWorkspaceToBottom: true,
-      // TODO (brent) - seems a little gross that we've made this part of a
-      // template shared across all apps
-      // disable designMode if we're readonly
-      hasDesignMode: !config.readonlyWorkspace,
-      readonlyWorkspace: config.readonlyWorkspace
-    }
-  });
 
   config.loadAudio = function() {
     studioApp.loadAudio(skin.failureSound, 'failure');
@@ -722,19 +696,8 @@ Applab.init = function(config) {
   };
 
   config.afterEditorReady = function() {
-    // Set up an event handler to create breakpoints when clicking in the
-    // ace gutter:
-    var aceEditor = studioApp.editor.aceEditor;
-
     if (breakpointsEnabled) {
-      studioApp.editor.on('guttermousedown', function(e) {
-        var bps = studioApp.editor.getBreakpoints();
-        if (bps[e.line]) {
-          studioApp.editor.clearBreakpoint(e.line);
-        } else {
-          studioApp.editor.setBreakpoint(e.line);
-        }
-      });
+      studioApp.enableBreakpoints();
     }
   };
 
@@ -781,101 +744,191 @@ Applab.init = function(config) {
   AppStorage.populateTable(level.dataTables, false); // overwrite = false
   AppStorage.populateKeyValue(level.dataProperties, false); // overwrite = false
 
-  studioApp.init(config);
-
-  var viz = document.getElementById('visualization');
-  var vizCol = document.getElementById('visualizationColumn');
-
-  if (!config.noPadding) {
-    viz.className += " with_padding";
-    vizCol.className += " with_padding";
-  }
-
-  if (config.embed || config.hideSource) {
-    // no responsive styles active in embed or hideSource mode, so set sizes:
-    viz.style.width = Applab.appWidth + 'px';
-    viz.style.height = (shouldRenderFooter() ? Applab.appHeight : Applab.footerlessAppHeight) + 'px';
-    // Use offsetWidth of viz so we can include any possible border width:
-    vizCol.style.maxWidth = viz.offsetWidth + 'px';
-  }
-
-  if (jsDebuggerUi) {
-    jsDebuggerUi.initializeAfterDomCreated({
-      defaultStepSpeed: config.level.sliderSpeed
-    });
-  }
-
-  window.addEventListener('resize', Applab.renderVisualizationOverlay);
-
-  var finishButton = document.getElementById('finishButton');
-  if (finishButton) {
-    dom.addClickTouchEvent(finishButton, Applab.onPuzzleFinish);
-  }
-
-  var submitButton = document.getElementById('submitButton');
-  if (submitButton) {
-    dom.addClickTouchEvent(submitButton, Applab.onPuzzleSubmit);
-  }
-
-  var unsubmitButton = document.getElementById('unsubmitButton');
-  if (unsubmitButton) {
-    dom.addClickTouchEvent(unsubmitButton, Applab.onPuzzleUnsubmit);
-  }
-
-  if (level.editCode) {
-    // Prevent the backspace key from navigating back. Make sure it's still
-    // allowed on other elements.
-    // Based on http://stackoverflow.com/a/2768256/2506748
-    $(document).on('keydown', function (event) {
-      var doPrevent = false;
-      if (event.keyCode !== KeyCodes.BACKSPACE) {
-        return;
-      }
-      var d = event.srcElement || event.target;
-      if ((d.tagName.toUpperCase() === 'INPUT' && (
-          d.type.toUpperCase() === 'TEXT' ||
-          d.type.toUpperCase() === 'PASSWORD' ||
-          d.type.toUpperCase() === 'FILE' ||
-          d.type.toUpperCase() === 'EMAIL' ||
-          d.type.toUpperCase() === 'SEARCH' ||
-          d.type.toUpperCase() === 'NUMBER' ||
-          d.type.toUpperCase() === 'DATE' )) ||
-          d.tagName.toUpperCase() === 'TEXTAREA') {
-        doPrevent = d.readOnly || d.disabled;
-      }
-      else {
-        doPrevent = !d.isContentEditable;
-      }
-
-      if (doPrevent) {
-        event.preventDefault();
+  var renderCodeWorkspace = function () {
+    return codeWorkspaceEjs({
+      assetUrl: studioApp.assetUrl,
+      data: {
+        localeDirection: studioApp.localeDirection(),
+        extraControlRows: extraControlRows,
+        blockUsed: undefined,
+        idealBlockNumber: undefined,
+        editCode: level.editCode,
+        blockCounterClass: 'block-counter-default',
+        pinWorkspaceToBottom: true,
+        // TODO (brent) - seems a little gross that we've made this part of a
+        // template shared across all apps
+        // disable designMode if we're readonly
+        hasDesignMode: !config.readonlyWorkspace,
+        readonlyWorkspace: config.readonlyWorkspace
       }
     });
+  }.bind(this);
 
-    designMode.addKeyboardHandlers();
+  var renderVisualizationColumn = function () {
+    return visualizationColumnEjs({
+      assetUrl: studioApp.assetUrl,
+      data: {
+        visualization: require('./visualization.html.ejs')({
+          appWidth: Applab.appWidth,
+          appHeight: Applab.footerlessAppHeight
+        }),
+        controls: firstControlsRow
+      }
+    });
+  }.bind(this);
 
-    designMode.renderDesignWorkspace();
+  var onMount = function () {
+    studioApp.init(config);
 
-    designMode.configureDesignToggleRow();
+    var viz = document.getElementById('visualization');
+    var vizCol = document.getElementById('visualizationColumn');
 
-    designMode.toggleDesignMode(Applab.startInDesignMode());
+    if (!config.noPadding) {
+      viz.className += " with_padding";
+      vizCol.className += " with_padding";
+    }
 
-    designMode.configureDragAndDrop();
+    if (config.embed || config.hideSource) {
+      // no responsive styles active in embed or hideSource mode, so set sizes:
+      viz.style.width = Applab.appWidth + 'px';
+      viz.style.height = (shouldRenderFooter() ? Applab.appHeight : Applab.footerlessAppHeight) + 'px';
+      // Use offsetWidth of viz so we can include any possible border width:
+      vizCol.style.maxWidth = viz.offsetWidth + 'px';
+    }
 
-    var designModeViz = document.getElementById('designModeViz');
-    designModeViz.addEventListener('click', designMode.onDesignModeVizClick);
-  }
+    if (debuggerUi) {
+      debuggerUi.initializeAfterDomCreated({
+        defaultStepSpeed: config.level.sliderSpeed
+      });
+    }
+
+    window.addEventListener('resize', Applab.renderVisualizationOverlay);
+
+    var finishButton = document.getElementById('finishButton');
+    if (finishButton) {
+      dom.addClickTouchEvent(finishButton, Applab.onPuzzleFinish);
+    }
+
+    var submitButton = document.getElementById('submitButton');
+    if (submitButton) {
+      dom.addClickTouchEvent(submitButton, Applab.onPuzzleSubmit);
+    }
+
+    var unsubmitButton = document.getElementById('unsubmitButton');
+    if (unsubmitButton) {
+      dom.addClickTouchEvent(unsubmitButton, Applab.onPuzzleUnsubmit);
+    }
+
+    if (level.editCode) {
+      // Prevent the backspace key from navigating back. Make sure it's still
+      // allowed on other elements.
+      // Based on http://stackoverflow.com/a/2768256/2506748
+      $(document).on('keydown', function (event) {
+        var doPrevent = false;
+        if (event.keyCode !== KeyCodes.BACKSPACE) {
+          return;
+        }
+        var d = event.srcElement || event.target;
+        if ((d.tagName.toUpperCase() === 'INPUT' && (
+            d.type.toUpperCase() === 'TEXT' ||
+            d.type.toUpperCase() === 'PASSWORD' ||
+            d.type.toUpperCase() === 'FILE' ||
+            d.type.toUpperCase() === 'EMAIL' ||
+            d.type.toUpperCase() === 'SEARCH' ||
+            d.type.toUpperCase() === 'NUMBER' ||
+            d.type.toUpperCase() === 'DATE' )) ||
+            d.tagName.toUpperCase() === 'TEXTAREA') {
+          doPrevent = d.readOnly || d.disabled;
+        }
+        else {
+          doPrevent = !d.isContentEditable;
+        }
+
+        if (doPrevent) {
+          event.preventDefault();
+        }
+      });
+
+      designMode.addKeyboardHandlers();
+
+      designMode.renderDesignWorkspace();
+
+      designMode.loadDefaultScreen();
+
+      designMode.toggleDesignMode(Applab.startInDesignMode());
+
+      designMode.configureDragAndDrop();
+
+      var designModeViz = document.getElementById('designModeViz');
+      designModeViz.addEventListener('click', designMode.onDesignModeVizClick);
+    }
+  }.bind(this);
+
+  Applab.reactInitialProps_ = {
+    assetUrl: studioApp.assetUrl,
+    isDesignModeHidden: !!config.level.hideDesignMode,
+    isEmbedView: !!config.embed,
+    isReadOnlyView: !!config.readonlyWorkspace,
+    isShareView: !!config.share,
+    isViewDataButtonHidden: !!config.level.hideViewDataButton,
+    renderCodeWorkspace: renderCodeWorkspace,
+    renderVisualizationColumn: renderVisualizationColumn,
+    onMount: onMount
+  };
+
+  Applab.reactMountPoint_ = document.getElementById(config.containerId);
+
+  Applab.render();
 };
 
-Applab.appendToEditor = function(newCode) {
+/**
+ * Cache of props, established during init, to use when re-rendering top-level
+ * view.  Eventually, it would be best to replace these with a Redux store.
+ * @type {Object}
+ */
+Applab.reactInitialProps_ = {};
+
+/**
+ * Element on which to mount the top-level React view.
+ * @type {Element}
+ * @private
+ */
+Applab.reactMountPoint_ = null;
+
+/**
+ * Trigger a top-level React render
+ */
+Applab.render = function () {
+  var nextProps = $.extend({}, Applab.reactInitialProps_, {
+    isEditingProject: window.dashboard && window.dashboard.project.isEditing(),
+    startInDesignMode: Applab.startInDesignMode(),
+    activeScreenId: designMode.getCurrentScreenId(),
+    screenIds: designMode.getAllScreenIds(),
+    onDesignModeButton: Applab.onDesignModeButton,
+    onCodeModeButton: Applab.onCodeModeButton,
+    onViewDataButton: Applab.onViewData,
+    onScreenChange: designMode.changeScreen,
+    onScreenCreate: designMode.createScreen
+  });
+  ReactDOM.render(React.createElement(AppLabView, nextProps), Applab.reactMountPoint_);
+};
+
+/**
+ * @param {string} newCode Code to append to the end of the editor
+ */
+Applab.appendToEditor = function (newCode) {
   var code = studioApp.editor.addEmptyLine(studioApp.editor.getValue()) + newCode;
   studioApp.editor.setValue(code);
+};
+
+Applab.scrollToEnd = function () {
+  studioApp.editor.scrollCursorToEndOfDocument();
 };
 
 /**
  * Clear the event handlers and stop the onTick timer.
  */
-Applab.clearEventHandlersKillTickLoop = function() {
+Applab.clearEventHandlersKillTickLoop = function () {
   Applab.whenRunFunc = null;
   Applab.running = false;
   $('#headers').removeClass('dimmed');
@@ -966,13 +1019,15 @@ Applab.reset = function(first) {
     level.goal.successState = {};
   }
 
-  if (jsDebuggerUi) {
-    jsDebuggerUi.detach();
+  if (debuggerUi) {
+    debuggerUi.detach();
   }
 
   if (jsInterpreterLogger) {
     jsInterpreterLogger.detach();
   }
+
+  AppStorage.resetRecordListener();
 
   // Reset the Globals object used to contain program variables:
   Applab.Globals = {};
@@ -1009,7 +1064,8 @@ Applab.renderVisualizationOverlay = function() {
 
   Applab.visualizationOverlay_.render(visualizationOverlay, {
     isApplabRunning: Applab.isRunning(),
-    scale: scaledWidth / unscaledWidth
+    scale: scaledWidth / unscaledWidth,
+    isInDesignMode: Applab.isInDesignMode()
   });
 };
 
@@ -1141,6 +1197,10 @@ Applab.execute = function() {
       var session = studioApp.editor.aceEditor.getSession();
       annotationList.attachToSession(session, studioApp.editor);
       annotationList.clearRuntimeAnnotations();
+      studioApp.editor.aceEditor.session.on("change", function () {
+        // clear any runtime annotations whenever a change is made
+        annotationList.clearRuntimeAnnotations();
+      });
     }
   } else {
     // Define any top-level procedures the user may have created
@@ -1171,8 +1231,8 @@ Applab.execute = function() {
       if (jsInterpreterLogger) {
         jsInterpreterLogger.attachTo(Applab.JSInterpreter);
       }
-      if (jsDebuggerUi) {
-        jsDebuggerUi.attachTo(Applab.JSInterpreter);
+      if (debuggerUi) {
+        debuggerUi.attachTo(Applab.JSInterpreter);
       }
 
       // Initialize the interpreter and parse the student code
@@ -1230,44 +1290,6 @@ Applab.onCodeModeButton = function() {
   } else {
     Applab.activeScreen().focus();
   }
-};
-
-// starts with http or https
-var ABSOLUTE_REGEXP = new RegExp('^https?://');
-
-// Exposed for testing
-Applab.assetPathPrefix = "/v3/assets/";
-
-/**
- * If the filename is relative (contains no slashes), then prepend
- * the path to the assets directory for this project to the filename.
- *
- * If the filename URL is absolute, route it through the MEDIA_PROXY.
- * @param {string} filename
- * @returns {string}
- */
-Applab.maybeAddAssetPathPrefix = function (filename) {
-
-  if (ABSOLUTE_REGEXP.test(filename)) {
-    // We want to be able to handle the case where our filename contains a
-    // space, i.e. "www.example.com/images/foo bar.png", even though this is a
-    // technically invalid URL. encodeURIComponent will replace space with %20
-    // for us, but as soon as it's decoded, we again have an invalid URL. For
-    // this reason we first replace space with %20 ourselves, such that we now
-    // have a valid URL, and then call encodeURIComponent on the result.
-    return MEDIA_PROXY + encodeURIComponent(filename.replace(' ', '%20'));
-  }
-
-  filename = filename || '';
-  if (filename.length === 0) {
-    return '/blockly/media/1x1.gif';
-  }
-
-  if (filename.indexOf('/') !== -1) {
-    return filename;
-  }
-
-  return Applab.assetPathPrefix + Applab.channelId + '/'  + filename;
 };
 
 /**
@@ -1333,7 +1355,7 @@ Applab.onPuzzleSubmit = function() {
 
 Applab.unsubmit = function() {
   $.post(level.unsubmitUrl,
-         {"_method": 'PUT', user_level: {best_result: 1}},
+         {"_method": 'PUT', user_level: {submitted: false}},
          function( data ) {
            location.reload();
          });
@@ -1368,12 +1390,8 @@ Applab.onPuzzleComplete = function(submit) {
     Applab.testResults = studioApp.getTestResults(levelComplete, {
         executionError: Applab.executionError
     });
-  } else {
-    if (submit) {
-      Applab.testResults = TestResults.SUBMITTED;
-    } else {
-      Applab.testResults = TestResults.FREE_PLAY;
-    }
+  } else if (!submit) {
+    Applab.testResults = TestResults.FREE_PLAY;
   }
 
   // Stop everything on screen
@@ -1408,6 +1426,7 @@ Applab.onPuzzleComplete = function(submit) {
       level: level.id,
       result: levelComplete,
       testResult: Applab.testResults,
+      submitted: submit,
       program: encodeURIComponent(program),
       image: Applab.encodedFeedbackImage,
       onComplete: (submit ? Applab.onSubmitComplete : Applab.onReportComplete)
@@ -1516,15 +1535,6 @@ Applab.startInDesignMode = function () {
   return !!level.designModeAtStart;
 };
 
-Applab.hideDesignModeToggle = function () {
-  return !!level.hideDesignMode || !!studioApp.share;
-};
-
-Applab.hideViewDataButton = function () {
-  var isEditing = window.dashboard && window.dashboard.project.isEditing();
-  return !!level.hideViewDataButton || !!level.hideDesignMode || !!studioApp.share || !isEditing;
-};
-
 Applab.isInDesignMode = function () {
   return $('#designWorkspace').is(':visible');
 };
@@ -1532,30 +1542,6 @@ Applab.isInDesignMode = function () {
 function quote(str) {
   return '"' + str + '"';
 }
-
-/**
- * Returns a list of options (optionally filtered by type) for code-mode
- * asset dropdowns.
- */
-Applab.getAssetDropdown = function (typeFilter) {
-  var options = assetListStore.list(typeFilter).map(function (asset) {
-    return {
-      text: quote(asset.filename),
-      display: quote(asset.filename)
-    };
-  });
-  var handleChooseClick = function (callback) {
-    showAssetManager(function (filename) {
-      callback(quote(filename));
-    }, typeFilter);
-  };
-  options.push({
-    text: 'Choose...',
-    display: '<span class="chooseAssetDropdownOption">Choose...</a>',
-    click: handleChooseClick
-  });
-  return options;
-};
 
 /**
  * Return droplet dropdown options representing a list of ids currently present
@@ -1621,7 +1607,7 @@ Applab.getIdDropdownForCurrentScreenFromDom_ = function (documentRoot) {
  * @returns {HTMLElement} The first "screen" that isn't hidden.
  */
 Applab.activeScreen = function () {
-  return $('#divApplab .screen').filter(function () {
+  return Applab.getScreens().filter(function () {
     return this.style.display !== 'none';
   }).first()[0];
 };
@@ -1631,7 +1617,7 @@ Applab.activeScreen = function () {
  * unless they match the provided screenId. Also focuses the screen.
  */
 Applab.changeScreen = function(screenId) {
-  $('#divApplab .screen').each(function () {
+  Applab.getScreens().each(function () {
     $(this).toggle(this.id === screenId);
     if ((this.id === screenId)) {
       // Allow the active screen to receive keyboard events.
@@ -1641,9 +1627,12 @@ Applab.changeScreen = function(screenId) {
 };
 
 Applab.loadDefaultScreen = function() {
-  var defaultScreen = $('#divApplab .screen[is-default=true]').first().attr('id') ||
-    $('#divApplab .screen').first().attr('id');
-  Applab.changeScreen(defaultScreen);
+  var defaultScreenId = Applab.getScreens().first().attr('id');
+  Applab.changeScreen(defaultScreenId);
+};
+
+Applab.getScreens = function() {
+  return $('#divApplab > .screen');
 };
 
 // Wrap design mode function so that we can call from commands

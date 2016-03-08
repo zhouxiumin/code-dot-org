@@ -14,6 +14,7 @@
   "catProcedures": "ශ්‍රිතයන්",
   "catText": "පෙළ",
   "catVariables": "විචල්‍යන්",
+  "choosePrefix": "Choose...",
   "clearPuzzle": "මුල සිට නැවත අරඹන්න",
   "clearPuzzleConfirm": "මෙමගින් ප්‍රෙහෙලිකාව යලි පිහිටුවන අතර ඔබ දැනට ඇතුලත් හෝ වෙනස් කල ආකෘති සියල්ල මකා දැමේ.",
   "clearPuzzleConfirmHeader": "මුල සිට පටන් ගැනීම ඔබ තහවුරු කරනවද?",
@@ -47,6 +48,8 @@
   "dropletBlock_callMyFunction_n_description": "Calls a user defined function that takes one or more parameters.",
   "dropletBlock_callMyFunction_n_signatureOverride": "Call a function with parameters",
   "dropletBlock_callMyFunction_signatureOverride": "Call a function",
+  "dropletBlock_comment_description": "Write a description of some code",
+  "dropletBlock_comment_signatureOverride": "comment",
   "dropletBlock_declareAssign_x_array_1_4_description": "Declares a variable and assigns it to an array with the given initial values",
   "dropletBlock_declareAssign_x_array_1_4_param0": "x",
   "dropletBlock_declareAssign_x_array_1_4_param0_description": "The name you will use in the program to reference the variable",
@@ -254,6 +257,8 @@
   "when": "විට",
   "whenRun": "දුවන විට",
   "workspaceHeaderShort": "වැඩ අවකාශය: ",
-  "dropletBlock_comment_description": "Write a description of some code",
-  "dropletBlock_comment_signatureOverride": "comment"
+  "dropletBlock_greaterThanOrEqualOperator_description": "Tests whether a value is greater than or equal to another value. Returns true if the value on the left-hand side of the expression is greater than or equal to the value on the right-hand side of the expression.",
+  "dropletBlock_greaterThanOrEqualOperator_signatureOverride": "Greater than or equal operator",
+  "dropletBlock_lessThanOrEqualOperator_description": "Tests whether a value is less than or equal to another value. Returns true if the value on the left-hand side of the expression is less than or equal to the value on the right-hand side of the expression.",
+  "dropletBlock_lessThanOrEqualOperator_signatureOverride": "Less than or equal operator"
 }

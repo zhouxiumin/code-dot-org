@@ -233,7 +233,15 @@ module LevelsHelper
     level_options[:lastAttempt] = @last_attempt
     level_options.merge! @level.properties.camelize_keys
 
+    if current_user.nil? || current_user.teachers.empty?
+      # only students with teachers should be able to submit
+      level_options['submittable'] = false
+    end
+
     app_options.merge! view_options.camelize_keys
+
+    app_options[:submitted] = level_view_options[:submitted]
+    app_options[:unsubmitUrl] = level_view_options[:unsubmit_url]
 
     app_options
   end
@@ -297,7 +305,8 @@ module LevelsHelper
     # Process level view options
     level_overrides = level_view_options.dup
     if level_options['embed'] || level_overrides[:embed]
-      level_overrides.merge!(hide_source: true, show_finish: true)
+      level_overrides[:hide_source] = true
+      level_overrides[:show_finish] = true
     end
     if level_overrides[:embed]
       view_options(no_header: true, no_footer: true, white_background: true)
@@ -347,7 +356,7 @@ module LevelsHelper
         (!Rails.env.production? && request.location.try(:country_code) == 'RD') if request
     app_options[:send_to_phone_url] = send_to_phone_url if app_options[:sendToPhone]
 
-    if @game and @game.owns_footer_for_share?
+    if (@game && @game.owns_footer_for_share?) || @is_legacy_share
       app_options[:copyrightStrings] = build_copyright_strings
     end
 
@@ -382,7 +391,7 @@ module LevelsHelper
   def level_view_options(opts = nil)
     @level_view_options ||= LevelViewOptions.new
     if opts.blank?
-      @level_view_options.freeze.to_h.delete_if { |k, v| v.nil? }
+      @level_view_options.freeze.to_h.delete_if { |_k, v| v.nil? }
     else
       opts.each{|k, v| @level_view_options[k] = v}
     end

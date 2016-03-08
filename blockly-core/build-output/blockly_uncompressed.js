@@ -20187,7 +20187,6 @@ Blockly.FunctionEditor.CLOSE_BUTTON_OVERHANG = 14;
 Blockly.FunctionEditor.RTL_CLOSE_BUTTON_OFFSET = 5;
 Blockly.FunctionEditor.prototype.definitionBlockType = "procedures_defnoreturn";
 Blockly.FunctionEditor.prototype.parameterBlockType = "parameters_get";
-Blockly.FunctionEditor.prototype.hasDeleteButton = false;
 Blockly.FunctionEditor.prototype.autoOpenFunction = function(autoOpenFunction) {
   this.autoOpenWithLevelConfiguration({autoOpenFunction:autoOpenFunction})
 };
@@ -20217,6 +20216,7 @@ Blockly.FunctionEditor.prototype.openAndEditFunction = function(functionName) {
   this.setupUIAfterBlockInEditor_();
   goog.dom.getElement("functionNameText").value = functionName;
   goog.dom.getElement("functionDescriptionText").value = this.functionDefinitionBlock.description_ || "";
+  this.deleteButton_.setVisible(targetFunctionDefinitionBlock.userCreated);
   Blockly.fireUiEvent(window, "function_editor_opened")
 };
 Blockly.FunctionEditor.prototype.setupUIForBlock_ = function(targetFunctionDefinitionBlock) {
@@ -20530,9 +20530,6 @@ Blockly.FunctionEditor.prototype.positionCloseButton_ = function(absoluteLeft, v
   this.closeButton_.setAttribute("transform", "translate(" + (Blockly.RTL ? Blockly.FunctionEditor.RTL_CLOSE_BUTTON_OFFSET : absoluteLeft + viewWidth + Blockly.FunctionEditor.CLOSE_BUTTON_OVERHANG - this.closeButton_.firstElementChild.getAttribute("width")) + ",19)")
 };
 Blockly.FunctionEditor.prototype.positionDeleteButton_ = function(absoluteLeft, viewWidth) {
-  if(!this.hasDeleteButton) {
-    return
-  }
   var closeButtonWidth = this.closeButton_.firstElementChild.getAttribute("width");
   var deleteButtonWidth = this.deleteButton_.getButtonWidth();
   var rightEdge = absoluteLeft + viewWidth;
@@ -20584,9 +20581,6 @@ Blockly.FunctionEditor.prototype.addCloseButton_ = function() {
   r.setAttribute("y", -bounds.height + padding - 1)
 };
 Blockly.FunctionEditor.prototype.addDeleteButton_ = function() {
-  if(!this.hasDeleteButton) {
-    return
-  }
   this.deleteButton_ = new Blockly.SvgTextButton(this.modalBlockSpaceEditor.getSVGElement(), Blockly.Msg.DELETE, this.onDeletePressed.bind(this))
 };
 Blockly.FunctionEditor.prototype.onDeletePressed = function() {
@@ -23103,7 +23097,6 @@ Blockly.ContractEditor.DEFAULT_PARAMETER_TYPE = Blockly.BlockValueType.NUMBER;
 Blockly.ContractEditor.GRID_LINE_COLOR = "#5b6770";
 Blockly.ContractEditor.prototype.definitionBlockType = "functional_definition";
 Blockly.ContractEditor.prototype.parameterBlockType = "functional_parameters_get";
-Blockly.ContractEditor.prototype.hasDeleteButton = true;
 Blockly.ContractEditor.prototype.create_ = function() {
   Blockly.ContractEditor.superClass_.create_.call(this);
   var canvasToDrawOn = this.modalBlockSpace.svgBlockCanvas_;
@@ -25052,12 +25045,12 @@ Blockly.Generator.get = function(name) {
   }
   return Blockly.Generator.languages[name]
 };
-Blockly.Generator.blocksToCode = function(name, blocks) {
+Blockly.Generator.blocksToCode = function(name, blocks, opt_showHidden) {
   var code = [];
   var generator = Blockly.Generator.get(name);
   generator.init();
   for(var x = 0, block;block = blocks[x];x++) {
-    var line = generator.blockToCode(block);
+    var line = generator.blockToCode(block, opt_showHidden);
     if(line instanceof Array) {
       line = line[0]
     }
@@ -25075,7 +25068,7 @@ Blockly.Generator.blocksToCode = function(name, blocks) {
   code = code.replace(/[ \t]+\n/g, "\n");
   return code
 };
-Blockly.Generator.blockSpaceToCode = function(name, opt_typeFilter) {
+Blockly.Generator.blockSpaceToCode = function(name, opt_typeFilter, opt_showHidden) {
   var blocksToGenerate;
   if(opt_typeFilter) {
     if(typeof opt_typeFilter == "string") {
@@ -25087,7 +25080,7 @@ Blockly.Generator.blockSpaceToCode = function(name, opt_typeFilter) {
   }else {
     blocksToGenerate = Blockly.mainBlockSpace.getTopBlocks(true)
   }
-  return Blockly.Generator.blocksToCode(name, blocksToGenerate)
+  return Blockly.Generator.blocksToCode(name, blocksToGenerate, opt_showHidden)
 };
 Blockly.Generator.prefixLines = function(text, prefix) {
   return prefix + text.replace(/\n(.)/g, "\n" + prefix + "$1")
@@ -25110,13 +25103,14 @@ Blockly.CodeGenerator = function(name) {
   this.name_ = name;
   this.RESERVED_WORDS_ = ""
 };
-Blockly.CodeGenerator.prototype.blockToCode = function(block) {
+Blockly.CodeGenerator.prototype.blockToCode = function(block, opt_showHidden) {
   if(!block) {
     return""
   }
-  if(block.disabled) {
+  var showHidden = opt_showHidden == undefined ? true : opt_showHidden;
+  if(block.disabled || !showHidden && !block.isUserVisible()) {
     var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-    return this.blockToCode(nextBlock)
+    return this.blockToCode(nextBlock, opt_showHidden)
   }
   var func = this[block.type];
   if(!func) {
@@ -25124,9 +25118,9 @@ Blockly.CodeGenerator.prototype.blockToCode = function(block) {
   }
   var code = func.call(block);
   if(code instanceof Array) {
-    return[this.scrub_(block, code[0]), code[1]]
+    return[this.scrub_(block, code[0], opt_showHidden), code[1]]
   }else {
-    return this.scrub_(block, code)
+    return this.scrub_(block, code, opt_showHidden)
   }
 };
 Blockly.CodeGenerator.prototype.valueToCode = function(block, name, order) {

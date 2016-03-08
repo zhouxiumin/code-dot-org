@@ -3,8 +3,8 @@
 // TODO (brent) - make it so that we dont need to specify .jsx. This currently
 // works in our grunt build, but not in tests
 var DesignWorkspace = require('./DesignWorkspace.jsx');
-var DesignToggleRow = require('./DesignToggleRow.jsx');
-var showAssetManager = require('./assetManagement/show.js');
+var showAssetManager = require('../assetManagement/show');
+var assetPrefix = require('../assetManagement/assetPrefix');
 var elementLibrary = require('./designElements/library');
 var elementUtils = require('./designElements/elementUtils');
 var studioApp = require('../StudioApp').singleton;
@@ -55,7 +55,7 @@ designMode.onDesignModeVizClick = function (event) {
  * @returns {HTMLElement} The currently visible screen element.
  */
 designMode.activeScreen = function () {
-  return $('#designModeViz .screen').filter(function () {
+  return elementUtils.getScreens().filter(function () {
     return this.style.display !== 'none';
   }).first()[0];
 };
@@ -107,7 +107,7 @@ designMode.editElementProperties = function(element) {
 designMode.resetPropertyTab = function() {
   var element = currentlyEditedElement || designMode.activeScreen();
   designMode.editElementProperties(element);
-  designMode.renderToggleRow();
+  Applab.render();
 };
 
 /**
@@ -196,22 +196,12 @@ designMode.updateProperty = function(element, name, value) {
       if (isDraggableContainer(element.parentNode)) {
         element.parentNode.style.width = newWidth;
       }
-
-      if (element.style.backgroundSize) {
-        element.style.backgroundSize = element.style.width + ' ' +
-          element.style.height;
-      }
       break;
     case 'style-height':
       var newHeight = appendPx(value);
       element.style.height = newHeight;
       if (isDraggableContainer(element.parentNode)) {
         element.parentNode.style.height = newHeight;
-      }
-
-      if (element.style.backgroundSize) {
-        element.style.backgroundSize = element.style.width + ' ' +
-          element.style.height;
       }
       break;
     case 'text':
@@ -230,16 +220,17 @@ designMode.updateProperty = function(element, name, value) {
     case 'image':
       var backgroundImage = new Image();
       var originalValue = element.getAttribute('data-canonical-image-url');
-      backgroundImage.src = Applab.maybeAddAssetPathPrefix(value);
+      backgroundImage.src = assetPrefix.fixPath(value);
       element.style.backgroundImage = 'url(' + backgroundImage.src + ')';
       element.setAttribute('data-canonical-image-url', value);
       // do not resize if only the asset path has changed (e.g. on remix).
       if (value !== originalValue) {
         backgroundImage.onload = function() {
-          element.style.backgroundSize = backgroundImage.naturalWidth + 'px ' +
-            backgroundImage.naturalHeight + 'px';
-          element.style.width = backgroundImage.naturalWidth + 'px';
-          element.style.height = backgroundImage.naturalHeight + 'px';
+          // Fit the image into the button
+          element.style.backgroundSize = 'contain';
+          element.style.backgroundPosition = '50% 50%';
+          element.style.backgroundRepeat = 'no-repeat';
+
           // Re-render properties
           if (currentlyEditedElement === element) {
             designMode.editElementProperties(element);
@@ -252,14 +243,14 @@ designMode.updateProperty = function(element, name, value) {
       // We stretch the image to fit the element
       var width = parseInt(element.style.width, 10);
       var height = parseInt(element.style.height, 10);
-      element.style.backgroundImage = 'url(' + Applab.maybeAddAssetPathPrefix(value) + ')';
+      element.style.backgroundImage = 'url(' + assetPrefix.fixPath(value) + ')';
       element.setAttribute('data-canonical-image-url', value);
       element.style.backgroundSize = width + 'px ' + height + 'px';
       break;
 
     case 'picture':
       originalValue = element.getAttribute('data-canonical-image-url');
-      element.src = Applab.maybeAddAssetPathPrefix(value);
+      element.src = assetPrefix.fixPath(value);
       element.setAttribute('data-canonical-image-url', value);
       // do not resize if only the asset path has changed (e.g. on remix).
       if (value !== originalValue) {
@@ -459,6 +450,7 @@ designMode.onDepthChange = function (element, depthDirection) {
 designMode.onInsertEvent = function(code) {
   Applab.appendToEditor(code);
   $('#codeModeButton').click(); // TODO(dave): reactify / extract toggle state
+  Applab.scrollToEnd();
 };
 
 /**/
@@ -477,7 +469,7 @@ designMode.serializeToLevelHtml = function () {
     elementUtils.removeIdPrefix(this);
   });
 
-  var serialization = new XMLSerializer().serializeToString(designModeVizClone[0]);
+  var serialization = designModeVizClone[0] ? designModeVizClone[0].outerHTML : '';
   if (madeUndraggable) {
     makeDraggable(designModeViz.children().children());
   }
@@ -506,17 +498,17 @@ designMode.parseFromLevelHtml = function(rootEl, allowDragging, prefix) {
   }
   function reportUnsafeHtml(removed, unsafe, safe) {
     var msg = "The following lines of HTML were modified or removed:\n" + removed +
-      "\noriginal html:\n" + unsafe + "\nmodified html:\n" + safe;
+      "\noriginal html:\n" + unsafe + "\nmodified html:\n" + safe + "\ntarget: " + rootEl.id;
     console.log(msg);
     logToCloud.addPageAction(logToCloud.PageAction.SanitizedLevelHtml, {
       removedHtml: removed,
       unsafeHtml: unsafe,
-      safeHtml: safe
+      safeHtml: safe,
+      sanitizationTarget: rootEl.id
     });
   }
-  sanitizeHtml(Applab.levelHtml, reportUnsafeHtml);
 
-  var levelDom = $.parseHTML(Applab.levelHtml);
+  var levelDom = $.parseHTML(sanitizeHtml(Applab.levelHtml, reportUnsafeHtml));
   var children = $(levelDom).children();
 
   children.each(function () {
@@ -807,15 +799,6 @@ designMode.configureDragAndDrop = function () {
   });
 };
 
-designMode.configureDesignToggleRow = function () {
-  var designToggleRow = document.getElementById('designToggleRow');
-  if (!designToggleRow) {
-    return;
-  }
-
-  designMode.loadDefaultScreen();
-};
-
 /**
  * Create a new screen
  * @returns {string} The id of the newly created screen
@@ -834,44 +817,25 @@ designMode.createScreen = function () {
  */
 designMode.changeScreen = function (screenId) {
   currentScreenId = screenId;
-  var screenIds = [];
-  $('#designModeViz .screen').each(function () {
-    screenIds.push(elementUtils.getId(this));
+  elementUtils.getScreens().each(function () {
     $(this).toggle(elementUtils.getId(this) === screenId);
   });
 
-  designMode.renderToggleRow(screenIds);
+  Applab.render();
 
   designMode.editElementProperties(elementUtils.getPrefixedElementById(screenId));
 };
 
+/** @returns {string} Id of active/visible screen */
 designMode.getCurrentScreenId = function() {
   return currentScreenId;
 };
 
-designMode.renderToggleRow = function (screenIds) {
-  screenIds = screenIds || $('#designModeViz .screen').get().map(function (screen) {
+/** @returns {string[]} Array of all screen Ids in current app */
+designMode.getAllScreenIds = function () {
+  return elementUtils.getScreens().get().map(function (screen) {
     return elementUtils.getId(screen);
   });
-
-  var designToggleRow = document.getElementById('designToggleRow');
-  if (designToggleRow) {
-    React.render(
-      React.createElement(DesignToggleRow, {
-        hideToggle: Applab.hideDesignModeToggle(),
-        hideViewDataButton: Applab.hideViewDataButton(),
-        startInDesignMode: Applab.startInDesignMode(),
-        initialScreen: currentScreenId,
-        screens: screenIds,
-        onDesignModeButton: Applab.onDesignModeButton,
-        onCodeModeButton: Applab.onCodeModeButton,
-        onViewDataButton: Applab.onViewData,
-        onScreenChange: designMode.changeScreen,
-        onScreenCreate: designMode.createScreen
-      }),
-      designToggleRow
-    );
-  }
 };
 
 /**
@@ -881,10 +845,10 @@ designMode.renderToggleRow = function (screenIds) {
 designMode.loadDefaultScreen = function () {
   var defaultScreen;
 
-  if ($('#designModeViz .screen').length === 0) {
+  if (elementUtils.getScreens().length === 0) {
     defaultScreen = designMode.createScreen();
   } else {
-    defaultScreen = elementUtils.getId($('#designModeViz .screen')[0]);
+    defaultScreen = elementUtils.getId(elementUtils.getScreens()[0]);
   }
   designMode.changeScreen(defaultScreen);
 };
@@ -911,7 +875,7 @@ designMode.renderDesignWorkspace = function(element) {
     handleManageAssets: showAssetManager,
     isDimmed: Applab.running
   };
-  React.render(React.createElement(DesignWorkspace, props), designWorkspace);
+  ReactDOM.render(React.createElement(DesignWorkspace, props), designWorkspace);
 };
 
 /**

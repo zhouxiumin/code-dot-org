@@ -1,19 +1,5 @@
 /* global Blockly, ace:true, droplet, marked, dashboard, addToHome */
 
-/**
- * For the most part, we depend on dashboard providing us with React as a global.
- * However, there is at least one context in which this won't be true - when we
- * show feedback blocks in their own iframe. In that case, load React from
- * our module.
- * This approach has a couple of drawbacks
- * (1) ability for dashboard React and apps React versions to get out of sync
- * (2) if we end up in other cases where React isn't provided to us as a global
- *     we probably won't notice, which may not be intended behavior
- */
-if (!window.React) {
-  window.React = require('react');
-}
-
 var aceMode = require('./acemode/mode-javascript_codeorg');
 var parseXmlElement = require('./xml').parseElement;
 var utils = require('./utils');
@@ -34,13 +20,16 @@ var logToCloud = require('./logToCloud');
 var AuthoredHints = require('./authoredHints');
 var Instructions = require('./templates/Instructions.jsx');
 var WireframeSendToPhone = require('./templates/WireframeSendToPhone.jsx');
+var assetsApi = require('./clientApi').assets;
+var assetPrefix = require('./assetManagement/assetPrefix');
+var assetListStore = require('./assetManagement/assetListStore');
+var copyrightStrings;
 
 /**
 * The minimum width of a playable whole blockly game.
 */
 var MIN_WIDTH = 900;
-var MOBILE_SHARE_WIDTH_PADDING = 50;
-var DEFAULT_MOBILE_NO_PADDING_SHARE_WIDTH = 400;
+var DEFAULT_MOBILE_NO_PADDING_SHARE_WIDTH = 320;
 var MAX_VISUALIZATION_WIDTH = 400;
 var MIN_VISUALIZATION_WIDTH = 200;
 
@@ -250,11 +239,12 @@ StudioApp.prototype.init = function(config) {
   }
 
   config.getCode = this.getCode.bind(this);
+  copyrightStrings = config.copyrightStrings;
 
   if (config.isLegacyShare && config.hideSource) {
     $("body").addClass("legacy-share-view");
     if (dom.isMobile()) {
-      $('#tryHoc').hide();
+      $('#main-logo').hide();
     }
     if (dom.isIOS() && !window.navigator.standalone) {
       addToHome.show(true);
@@ -264,6 +254,17 @@ StudioApp.prototype.init = function(config) {
   this.setConfigValues_(config);
 
   this.configureDom(config);
+
+  if (config.usesAssets) {
+    assetPrefix.init(config);
+
+    // Pre-populate asset list
+    assetsApi.ajax('GET', '', function (xhr) {
+      assetListStore.reset(JSON.parse(xhr.responseText));
+    }, function () {
+      // Unable to load asset list
+    });
+  }
 
   if (config.hideSource) {
     this.handleHideSource_({
@@ -351,14 +352,6 @@ StudioApp.prototype.init = function(config) {
       var shouldAutoClose = !!config.level.aniGifURL;
       this.showInstructions_(config.level, shouldAutoClose, false);
     }, this));
-  }
-
-  // The share and embed pages do not show the rotateContainer.
-  if (this.share || config.embed) {
-    var rotateContainer = document.getElementById('rotateContainer');
-    if (rotateContainer) {
-      rotateContainer.style.display = 'none';
-    }
   }
 
   // In embed mode, the display scales down when the width of the
@@ -503,7 +496,7 @@ StudioApp.prototype.init = function(config) {
         defaultBtnSelector: 'again-button',
         id: 'showVersionsModal'
       });
-      React.render(React.createElement(VersionHistory, {
+      ReactDOM.render(React.createElement(VersionHistory, {
         handleClearPuzzle: this.handleClearPuzzle.bind(this, config)
       }), codeDiv);
 
@@ -529,6 +522,57 @@ StudioApp.prototype.init = function(config) {
       return true;
     }.bind(this));
   }
+
+  if (config.isLegacyShare && config.hideSource) {
+    this.setupLegacyShareView();
+  }
+};
+
+/**
+ * Create a phone frame and container. Scale shared content (everything currently inside the visualization column)
+ * to container width, fit container to the phone frame and add share footer.
+ */
+StudioApp.prototype.setupLegacyShareView = function() {
+  var vizContainer = document.createElement('div');
+  vizContainer.id = 'visualizationContainer';
+  var vizColumn = document.getElementById('visualizationColumn');
+  if (dom.isMobile()) {
+    $(vizContainer).width($(vizColumn).width());
+  }
+  $(vizContainer).append(vizColumn.children);
+
+  var phoneFrameScreen = document.createElement('div');
+  phoneFrameScreen.id = 'phoneFrameScreen';
+  $(phoneFrameScreen).append(vizContainer);
+  $(vizColumn).append(phoneFrameScreen);
+
+  this.renderShareFooter_(phoneFrameScreen);
+  if (dom.isMobile) {
+    // re-scale on resize events to adjust to orientation and navbar changes
+    $(window).resize(this.scaleLegacyShare);
+  }
+  this.scaleLegacyShare();
+};
+
+StudioApp.prototype.scaleLegacyShare = function() {
+  var vizContainer = document.getElementById('visualizationContainer');
+  var vizColumn = document.getElementById('visualizationColumn');
+  var phoneFrameScreen = document.getElementById('phoneFrameScreen');
+  var vizWidth = $(vizContainer).width();
+
+  // On mobile, scale phone frame to full screen (portrait). Otherwise use given dimensions from css.
+  if (dom.isMobile()) {
+    var screenWidth = Math.min(window.innerWidth, window.innerHeight);
+    var screenHeight = Math.max(window.innerWidth, window.innerHeight);
+    $(phoneFrameScreen).width(screenWidth);
+    $(phoneFrameScreen).height(screenHeight);
+    $(vizColumn).width(screenWidth);
+  }
+
+  var frameWidth = $(phoneFrameScreen).width();
+  var scale = frameWidth / vizWidth;
+  applyTransformOrigin(vizContainer, 'left top');
+  applyTransformScale(vizContainer, 'scale(' + scale + ')');
 };
 
 StudioApp.prototype.substituteInstructionImages = function(htmlText) {
@@ -643,6 +687,55 @@ StudioApp.prototype.handleSharing_ = function (options) {
     });
     belowVisualization.appendChild(upSale);
   }
+};
+
+StudioApp.prototype.renderShareFooter_ = function(container) {
+  var footerDiv = document.createElement('div');
+  footerDiv.setAttribute('id', 'footerDiv');
+  container.appendChild(footerDiv);
+
+  var reactProps = {
+    i18nDropdown: '',
+    copyrightInBase: false,
+    copyrightStrings: copyrightStrings,
+    baseMoreMenuString: window.dashboard.i18n.t('footer.built_on_code_studio'),
+    baseStyle: {
+      paddingLeft: 0,
+      width: $("#visualization").width()
+    },
+    className: 'dark',
+    menuItems: [
+      {
+        text: window.dashboard.i18n.t('footer.try_hour_of_code'),
+        link: 'https://code.org/learn',
+        newWindow: true
+      },
+      {
+        text: window.dashboard.i18n.t('footer.how_it_works'),
+        link: location.href + "/edit",
+        newWindow: false
+      },
+      {
+        text: window.dashboard.i18n.t('footer.copyright'),
+        link: '#',
+        copyright: true
+      },
+      {
+        text: window.dashboard.i18n.t('footer.tos'),
+        link: "https://code.org/tos",
+        newWindow: true
+      },
+      {
+        text: window.dashboard.i18n.t('footer.privacy'),
+        link: "https://code.org/privacy",
+        newWindow: true
+      }
+    ],
+    phoneFooter: true
+  };
+
+  ReactDOM.render(React.createElement(window.dashboard.SmallFooter, reactProps),
+    footerDiv);
 };
 
 /**
@@ -982,7 +1075,7 @@ StudioApp.prototype.showInstructions_ = function(level, autoClose, showHints) {
   // Now that our elements are guaranteed to be in the DOM, we can
   // render in our react components
   $(this.instructionsDialog.div).on('show.bs.modal', function () {
-    React.render(instructionsContent, instructionsReactContainer);
+    ReactDOM.render(instructionsContent, instructionsReactContainer);
   });
 
   if (autoClose) {
@@ -1049,14 +1142,14 @@ function resizePinnedBelowVisualizationArea() {
     return;
   }
 
-  var designToggleRow = document.getElementById('designToggleRow');
+  var playSpaceHeader = document.getElementById('playSpaceHeader');
   var visualization = document.getElementById('visualization');
   var gameButtons = document.getElementById('gameButtons');
   var smallFooter = document.querySelector('#page-small-footer .small-footer-base');
 
   var top = 0;
-  if (designToggleRow) {
-    top += $(designToggleRow).outerHeight(true);
+  if (playSpaceHeader) {
+    top += $(playSpaceHeader).outerHeight(true);
   }
 
   if (visualization) {
@@ -1107,10 +1200,18 @@ StudioApp.prototype.onMouseDownVizResizeBar = function (event) {
 
 function applyTransformScaleToChildren(element, scale) {
   for (var i = 0; i < element.children.length; i++) {
-    element.children[i].style.transform = scale;
-    element.children[i].style.msTransform = scale;
-    element.children[i].style.webkitTransform = scale;
+    applyTransformScale(element.children[i], scale);
   }
+}
+function applyTransformScale(element, scale) {
+  element.style.transform = scale;
+  element.style.msTransform = scale;
+  element.style.webkitTransform = scale;
+}
+function applyTransformOrigin(element, origin) {
+  element.style.transformOrigin = origin;
+  element.style.msTransformOrigin = origin;
+  element.style.webkitTransformOrigin = origin;
 }
 
 /**
@@ -1329,6 +1430,7 @@ StudioApp.prototype.builderForm_ = function(onAttemptCallback) {
 * {string} level The ID of the current level.
 * {number} result An indicator of the success of the code.
 * {number} testResult More specific data on success or failure of code.
+* {boolean} submitted Whether the (submittable) level is being submitted.
 * {string} program The user program, which will get URL-encoded.
 * {function} onComplete Function to be called upon completion.
 */
@@ -1431,15 +1533,13 @@ StudioApp.prototype.fixViewportForSmallScreens_ = function (viewport, config) {
   if (this.share && dom.isMobile()) {
     var mobileNoPaddingShareWidth =
       config.mobileNoPaddingShareWidth || DEFAULT_MOBILE_NO_PADDING_SHARE_WIDTH;
-    // for mobile sharing, don't assume landscape mode, use screen.width
-    deviceWidth = desiredWidth = screen.width;
-    if (this.noPadding && screen.width < MAX_PHONE_WIDTH) {
+    // for mobile sharing, favor portrait mode, so width is the shorter of the two
+    deviceWidth = desiredWidth = Math.min(screen.width, screen.height);
+    if (this.noPadding && deviceWidth < MAX_PHONE_WIDTH) {
       desiredWidth = Math.min(desiredWidth, mobileNoPaddingShareWidth);
     }
-    minWidth = mobileNoPaddingShareWidth +
-      (this.noPadding ? 0 : MOBILE_SHARE_WIDTH_PADDING);
-  }
-  else {
+    minWidth = mobileNoPaddingShareWidth;
+  } else {
     // assume we are in landscape mode, so width is the longer of the two
     deviceWidth = desiredWidth = Math.max(screen.width, screen.height);
     minWidth = MIN_WIDTH;
@@ -1523,7 +1623,6 @@ StudioApp.prototype.runButtonClickWrapper = function (callback) {
  */
 StudioApp.prototype.configureDom = function (config) {
   var container = document.getElementById(config.containerId);
-  container.innerHTML = config.html;
   if (!this.enableShowCode) {
     document.getElementById('show-code-header').style.display = 'none';
   }
@@ -1619,42 +1718,41 @@ StudioApp.prototype.handleHideSource_ = function (options) {
   if (this.share) {
     if (options.isLegacyShare || this.wireframeShare) {
       document.body.style.backgroundColor = '#202B34';
-    }
-    if (this.wireframeShare) {
-      if (dom.isMobile() && !dom.isIPad()) {
-        document.getElementById('visualizationColumn').className = 'chromelessShare';
+
+      $('.header-wrapper').hide();
+      var vizColumn = document.getElementById('visualizationColumn');
+      if (dom.isMobile() && (options.isLegacyShare || !dom.isIPad())) {
+        $(vizColumn).addClass('chromelessShare');
       } else {
-        document.getElementsByClassName('header-wrapper')[0].style.display = 'none';
-        document.getElementById('visualizationColumn').className = 'wireframeShare';
+        $(vizColumn).addClass('wireframeShare');
 
         var div = document.createElement('div');
         document.body.appendChild(div);
-        React.render(React.createElement(WireframeSendToPhone, {
+        ReactDOM.render(React.createElement(WireframeSendToPhone, {
           channelId: dashboard.project.getCurrentId(),
           appType: dashboard.project.getStandaloneApp()
         }), div);
       }
-    } else if (!options.embed && !dom.isMobile()) {
-      var runButton = document.getElementById('runButton');
-      var buttonRow = runButton.parentElement;
-      var openWorkspace = document.createElement('button');
-      openWorkspace.setAttribute('id', 'open-workspace');
-      openWorkspace.appendChild(document.createTextNode(msg.openWorkspace()));
 
-      dom.addClickTouchEvent(openWorkspace, function() {
-        // TODO: don't make assumptions about hideSource during init so this works.
-        // workspaceDiv.style.display = '';
+      if (!options.embed) {
+        var runButton = document.getElementById('runButton');
+        var buttonRow = runButton.parentElement;
+        var openWorkspace = document.createElement('button');
+        openWorkspace.setAttribute('id', 'open-workspace');
+        openWorkspace.appendChild(document.createTextNode(msg.openWorkspace()));
 
-        // /c/ URLs go to /edit when we click open workspace.
-        // /project/ URLs we want to go to /view (which doesnt require login)
-        if (/^\/c\//.test(location.pathname)) {
-          location.href += '/edit';
-        } else {
-          location.href += '/view';
-        }
-      });
+        dom.addClickTouchEvent(openWorkspace, function () {
+          // /c/ URLs go to /edit when we click open workspace.
+          // /project/ URLs we want to go to /view (which doesnt require login)
+          if (/^\/c\//.test(location.pathname)) {
+            location.href += '/edit';
+          } else {
+            location.href += '/view';
+          }
+        });
 
-      buttonRow.appendChild(openWorkspace);
+        buttonRow.appendChild(openWorkspace);
+      }
     }
   }
 };
@@ -1697,7 +1795,39 @@ StudioApp.prototype.handleEditCode_ = function (config) {
   // Init and define our custom ace mode:
   aceMode.defineForAce(config.dropletConfig, config.unusedConfig, this.editor);
   // Now set the editor to that mode:
-  this.editor.aceEditor.session.setMode('ace/mode/javascript_codeorg');
+  var aceEditor = this.editor.aceEditor;
+  aceEditor.session.setMode('ace/mode/javascript_codeorg');
+
+  // Extend the command list on the ace Autocomplete object to include the period:
+  var Autocomplete = window.ace.require("ace/autocomplete").Autocomplete;
+  Autocomplete.prototype.commands['.'] = function(editor) {
+    // First, insert the period and update the completions:
+    editor.insert(".");
+    editor.completer.updateCompletions(true);
+    var filtered = editor.completer.completions &&
+        editor.completer.completions.filtered;
+    for (var i = 0; i < (filtered && filtered.length); i++) {
+      // If we have any exact maches in our filtered completions that include
+      // this period, allow the completer to stay active:
+      if (filtered[i].exactMatch) {
+        return;
+      }
+    }
+    // Otherwise, detach the completer:
+    editor.completer.detach();
+  };
+
+  var langTools = window.ace.require("ace/ext/language_tools");
+
+  // We don't want to include the textCompleter. langTools doesn't give us a way
+  // to remove base completers (note: it does in newer versions of ace), so
+  // we set aceEditor.completers manually
+  aceEditor.completers = [langTools.snippetCompleter, langTools.keyWordCompleter];
+  // make setCompleters fail so that attempts to use it result in clear failure
+  // instead of just silently not working
+  langTools.setCompleters = function () {
+    throw new Error('setCompleters disabled. set aceEditor.completers directly');
+  };
 
   // Add an ace completer for the API functions exposed for this level
   if (config.dropletConfig) {
@@ -1705,8 +1835,8 @@ StudioApp.prototype.handleEditCode_ = function (config) {
     if (config.level.autocompletePaletteApisOnly) {
        functionsFilter = config.level.codeFunctions;
     }
-    var langTools = window.ace.require("ace/ext/language_tools");
-    langTools.addCompleter(
+
+    aceEditor.completers.push(
       dropletUtils.generateAceApiCompleter(functionsFilter, config.dropletConfig));
   }
 
@@ -1798,6 +1928,27 @@ StudioApp.prototype.handleEditCode_ = function (config) {
   if (config.afterInject) {
     config.afterInject();
   }
+};
+
+/**
+ * Enable adding/removing breakpoints by clicking in the gutter of the editor.
+ * Prerequisites: Droplet editor must be in use and initialized (e.g. you have
+ * to call handleEditCode_ first).
+ */
+StudioApp.prototype.enableBreakpoints = function () {
+  if (!this.editor) {
+    throw new Error('Droplet editor must be in use to enable breakpoints.');
+  }
+
+  // Set up an event handler to create breakpoints when clicking in the gutter:
+  this.editor.on('guttermousedown', function(e) {
+    var bps = this.editor.getBreakpoints();
+    if (bps[e.line]) {
+      this.editor.clearBreakpoint(e.line);
+    } else {
+      this.editor.setBreakpoint(e.line);
+    }
+  }.bind(this));
 };
 
 /**
@@ -2217,7 +2368,7 @@ StudioApp.prototype.displayAlert = function (parentSelector, props) {
   }, props);
 
   var element = React.createElement(Alert, reactProps);
-  React.render(element, container[0]);
+  ReactDOM.render(element, container[0]);
 };
 
 /**
@@ -2249,6 +2400,9 @@ StudioApp.prototype.alertIfAbusiveProject = function (parentSelector) {
  * @returns {boolean} True if we detect an instance of this.
  */
 StudioApp.prototype.hasDuplicateVariablesInForLoops = function () {
+  if (this.editCode) {
+    return false;
+  }
   return Blockly.mainBlockSpace.getAllBlocks().some(this.forLoopHasDuplicatedNestedVariables_);
 };
 

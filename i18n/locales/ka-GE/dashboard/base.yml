@@ -24,11 +24,12 @@ ka:
   hello: ჰეი, სამყარო
   welcome_back: 'კარგია, რომ დაბრუნდით, %{name}'
   submit: გაგზავნა
+  unsubmit: ჩაბარების გაუქმება
   add_teacher_form:
     code:
       label: 'მასწავლებლის დამატება:'
       placeholder: სექციის კოდი (ABCDEF)
-      instructions: 'გთხოვთ შეიყვანეთ კოდი რომელიც მოგაწოდათ თქვენმა მასწავლებელმა. ის არის 6 ნიშნა და გამოიყურება ასე "ABCDEF".'
+      instructions: 'გთხოვთ შეიყვანეთ კოდი, რომელიც მოგაწოდათ თქვენმა მასწავლებელმა. ის არის 6–ნიშნა და გამოიყურება ასე "ABCDEF".'
     submit: მასწავლებლის დამატება
   add_hint_form:
     placeholder: თუ შეიძლება, თქვენი მინიშნება შეიყვანეთ აქ
@@ -222,7 +223,7 @@ ka:
       free_play:
         playlab: აპლიკაციის შექმნა
         artist: დახატეთ რამე
-        calculate: Calculate Something
+        calculate: Calculate something
         applab: აპლიკაციის შექმნა
     user:
       classroom: მასწავლებლის მთავარი გვერდი
@@ -320,6 +321,7 @@ ka:
     heading_hoc2014: '<h2>კოდის ერთი საათი</h2><h1>ნებისმიერი ასაკისთვის</h1>'
     heading_elementary: '<h2>ოცსაათიანი კურსები</h2><h1>დამწყებთათვის (ასაკი: ნებისმიერი)</h1>'
     heading_apps: '<h2>გასართობი</h2><h1>ყველასთვის</h1>'
+    heading_tools: '<h2>Ready for the next step?</h2><h1>JavaScript Tools for High School</h1>'
     heading_legacy: '<h2>ჩვენი დაჩქარებული კურსი</h2><h1>ნებისმიერი ასაკისთვის</h1>'
     your_gallery: გალერეა
     no_primary_course: ნახეთ კურსი კოდის სტუდიაში
@@ -328,7 +330,7 @@ ka:
   share:
     title: ისწავლეთ კოდის სტუდიაში
     description: ნებისმიერს შეუძლია კომპიუტერული მეცნერების სწავლა. შექმენით თამაშები, აპლიკაციები და ხელოვნების ნიმუშები კოდით.
-    try_hour_of_code: ცადეთ კოდირების საათი!
+    try_hour_of_code: სცადეთ კოდის ერთი საათი!
   gender:
     male: მამრობითი
     female: მდედრობითი
@@ -340,8 +342,8 @@ ka:
     thank_you: 'ჩვენ მადლობას ვუხდით ჩვენს<a href="https://code.org/about/donors">დონორებს</a>, <a href="https://code.org/about/partners">პარტნიორებს</a>, our <a href="https://code.org/about/team">გავრცობილ ჯგუფს</a>, ვიდეოს გადამღებ ჯგუფსა და <a href="https://code.org/about/advisors">მრჩევლებს განათლების დარგში</a> კოდის სტუდიის შექმნაში დახმარებისთვის.'
     help_from_html: 'ამ ტუტორიალის შექმნაში გვეხმარებოდნენ  Google, Microsoft, Facebook, დაTwitter-ის პროგრამისტები.'
     help_from_html_old: ამ რესურსების შექმნაში გვეხმარებოდნენ Google, Microsoft, Facebook, დაTwitter-ის პროგრამისტები.
-    art_from_html: 'Minecraft&#8482; &copy; %{current_year} Microsoft. All Rights Reserved.<br />Star Wars&#8482; &copy; %{current_year} Disney and Lucasfilm. All Rights Reserved.<br />Frozen&#8482; &copy; %{current_year} Disney. All Rights Reserved.<br />Ice Age&#8482; &copy; %{current_year} 20th Century Fox. All Rights Reserved.<br />Angry Birds&#8482; &copy; 2009-%{current_year} Rovio Entertainment Ltd. All Rights Reserved.<br />Plants vs. Zombies&#8482; &copy; %{current_year} Electronic Arts Inc. All Rights Reserved.<br />The Amazing World of Gumball is trademark and &copy; 2015 Cartoon Network.'
-    art_from_html_old: 'Minecraft&#8482; &copy; %{current_year} Microsoft. All Rights Reserved. Star Wars&#8482; &copy; %{current_year} Disney and Lucasfilm. All Rights Reserved. Frozen&#8482; &copy; %{current_year} Disney. All Rights Reserved. Ice Age&#8482; &copy; %{current_year} 20th Century Fox. All Rights Reserved. Angry Birds&#8482; &copy; 2009-%{current_year} Rovio Entertainment Ltd. All Rights Reserved. Plants vs. Zombies&#8482; &copy; %{current_year} Electronic Arts Inc. All Rights Reserved. The Amazing World of Gumball is trademark and &copy; 2015 Cartoon Network.'
+    art_from_html: 'Minecraft&#8482; &copy; %{current_year} Microsoft. ყველა უფლება დაცულია.<br /> Star Warss&#8482; &copy; %{current_year} Disney and Lucasfilm. ყველა უფლება დაცულია. <br/>Frozen&#8482; &copy; %{current_year} Disney. ყველა უფლება დაცულია.<br />Ice Age&#8482; &copy; %{current_year} 20th Century Fox. ყველა უფლება დაცულია.<br />Angry Birds&#8482; &copy; 2009-%{current_year} Rovio Entertainment Ltd. ყველა უფლება დაცულია.<br />Plants vs. Zombies&#8482; &copy; %{current_year} Electronic Arts Inc. ყველა უფლება დაცულია.<br />The Amazing World of Gumball არის სავაჭრო ნიშანი &copy; 2015 Cartoon Network.'
+    art_from_html_old: 'Minecraft&#8482; &copy; %{current_year} Microsoft. ყველა უფლება დაცულია. Star Warss&#8482; &copy; %{current_year} Disney and Lucasfilm. ყველა უფლება დაცულია. Frozen&#8482; &copy; %{current_year} Disney. ყველა უფლება დაცულია. Ice Age&#8482; &copy; %{current_year} 20th Century Fox. ყველა უფლება დაცულია. Angry Birds&#8482; &copy; 2009-%{current_year} Rovio Entertainment Ltd. ყველა უფლება დაცულია. Plants vs. Zombies&#8482; &copy; %{current_year} Electronic Arts Inc. ყველა უფლება დაცულია. The Amazing World of Gumball არის სავაჭრო ნიშანი &copy; 2015 Cartoon Network.'
     powered_by_aws: შექმნილია Amazon Web Services დახმარებით
     trademark: '&copy;Code.org %{current_year}. Code.org®, Code.org&reg;, CODE ლოგო და Hour of Code&reg; Code.org-ის სავაჭრო ნიშნებია.'
     copyright: საავტორო უფლება
@@ -358,7 +360,7 @@ ka:
     built_on_code_studio: დაწერეთ კოდი კოდის სტუდიაში
     make_my_own_app: ჩემი საკუთარი აპლიკაციის შექმნა
     how_it_works: როგორ მუშაობს ეს სივრცე
-    try_hour_of_code: ცადეთ კოდირების საათი!
+    try_hour_of_code: სცადეთ კოდის ერთი საათი!
   reference_area:
     title: გჭირდებათ დახმარება?
     subtitle: ნახეთ ეს ვიდეოები და მინიშნებები
@@ -414,6 +416,11 @@ ka:
       current: მიმდინარე დონეები
       unused: გამოუყენებელი დონეები
   upsell:
+    applab:
+      title: აპლიკაციების ლაბორატორია
+      body: App Lab is a programming environment where you can make simple apps. Design an app, code with blocks or JavaScript to make it work, then share your app in seconds.
+      audience: Ages 13+
+      cta: Learn how
     hoc:
       title: კლასიკური ლაბირინთი
       body: სცადეთ პროგრამირების საფუძვლების სწავლა. ეს შანსი უკვე მილიონებმა გამოიყენეს.
@@ -459,11 +466,19 @@ ka:
     report_bug: შეცდომის შესახებ შეტყობინება
     support: დახმარების მიღება
     support_url: //support.code.org
+    help_resources: Help and Resources
   multi:
     wrong_title: პასუხი არასწორია
     wrong_body: ეს პასუხი არასწორია. სცადეთ კიდევ ერთხელ!
     correct_title: სწორია
     correct_body: ეს პასუხი სწორია.
+    toofew_title: Too few answers.
+    toofew_body: Please select two answers before submitting.
+  multi-submittable:
+    wrong_title: მადლობა
+    wrong_body: Thank you for submitting an answer.
+    correct_title: მადლობა
+    correct_body: Thank you for submitting an answer.
     toofew_title: Too few answers.
     toofew_body: Please select two answers before submitting.
   match:
