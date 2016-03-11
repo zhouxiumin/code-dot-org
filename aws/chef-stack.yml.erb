@@ -34,22 +34,19 @@ Resources:
         Ref: LaunchConfig
       MinSize: 1
       MaxSize: 5
-      DesiredCapacity:
-        Ref: WebServerCapacity
+      DesiredCapacity: 2
       HealthCheckType: ELB
+      HealthCheckGracePeriod: 900
       LoadBalancerNames:
         - Ref: ElasticLoadBalancer
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
+#     Boilerplate for installing and enabling AWS CloudFormation utilities.
       AWS::CloudFormation::Init:
         configSets:
           cdo_install:
             - install_cfn
-            - install_chefdk
-            - install_chef
-            - install_wordpress
-            - run_chef
         install_cfn:
           files:
             /etc/cfn/cfn-hup.conf:
@@ -75,7 +72,7 @@ Resources:
                     - '[cfn-auto-reloader-hook]\n'
                     - 'triggers=post.update\n'
                     - 'path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init\n'
-                    - 'action=/opt/aws/bin/cfn-init -v'
+                    - 'action=/usr/local/bin/cfn-init -v'
                     - ' --stack '
                     - Ref: AWS::StackName
                     - ' --resource LaunchConfig '
@@ -95,137 +92,15 @@ Resources:
                 files:
                   - /etc/cfn/cfn-hup.conf
                   - /etc/cfn/hooks.d/cfn-auto-reloader.conf
-        "install_chef" : {
-          "sources" : {
-            "/var/chef/chef-repo" : "http://github.com/opscode/chef-repo/tarball/master"
-          },
-          "files" : {
-            "/tmp/install.sh" : {
-              "source" : "https://www.opscode.com/chef/install.sh",
-              "mode" : "000400",
-              "owner" : "root",
-              "group" : "root"
-            },
-            "/var/chef/chef-repo/.chef/knife.rb" : {
-              "content" : { "Fn::Join": [ "", [
-                "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
-                "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-              ]]},
-              "mode" : "000400",
-              "owner" : "root",
-              "group" : "root"
-            },
-            "/var/chef/chef-repo/.chef/client.rb" : {
-              "content" : { "Fn::Join": [ "", [
-                "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
-                "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-              ]]},
-              "mode" : "000400",
-              "owner" : "root",
-              "group" : "root"
-            }
-          },
-          "commands" : {
-            "01_make_chef_readable" : {
-              "command" : "chmod +rx /var/chef"
-            },
-            "02_install_chef" : {
-              "command" : "bash /tmp/install.sh",
-              "cwd" : "/var/chef"
-            },
-            "03_create_node_list" : {
-              "command" : "chef-client -z -c /var/chef/chef-repo/.chef/client.rb",
-              "cwd" : "/var/chef/chef-repo",
-              "env" : { "HOME" : "/var/chef" }
-            }
-          }
-        },
-        "install_chefdk" : {
-          "packages" : {
-            "rpm" : {
-              "chefdk" : "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chefdk-0.2.0-2.el6.x86_64.rpm"
-            }
-          }
-        },
-        "install_wordpress" : {
-          "files" : {
-            "/var/chef/chef-repo/.chef/knife.rb" : {
-              "content" : { "Fn::Join": [ "", [
-                "cookbook_path [ '/var/chef/chef-repo/cookbooks/wordpress/berks-cookbooks' ]\n",
-                "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-              ]]},
-              "mode" : "000400",
-              "owner" : "root",
-              "group" : "root"
-            },
-            "/var/chef/chef-repo/.chef/client.rb" : {
-              "content" : { "Fn::Join": [ "", [
-                "cookbook_path [ '/var/chef/chef-repo/cookbooks/wordpress/berks-cookbooks' ]\n",
-                "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-              ]]},
-              "mode" : "000400",
-              "owner" : "root",
-              "group" : "root"
-            },
-            "/var/chef/chef-repo/cookbooks/wordpress/attributes/aws_rds_config.rb" : {
-              "content": { "Fn::Join": [ "", [
-                "normal['wordpress']['db']['pass'] = '", {"Ref" : "DBPassword"}, "'\n",
-                "normal['wordpress']['db']['user'] = '", {"Ref" : "DBUsername"}, "'\n",
-                "normal['wordpress']['db']['host'] = '", {"Fn::GetAtt" : ["DBInstance", "Endpoint.Address"]}, "'\n",
-                "normal['wordpress']['db']['name'] = '", {"Ref" : "DBName"}, "'\n"
-              ]]},
-              "mode" : "000400",
-              "owner" : "root",
-              "group" : "root"
-            }
-          },
-          "commands" : {
-            "01_get_cookbook" : {
-              "command" : "knife cookbook site download wordpress",
-              "cwd" : "/var/chef/chef-repo",
-              "env" : { "HOME" : "/var/chef" }
-            },
-            "02_unpack_cookbook" : {
-              "command" : "tar xvfz /var/chef/chef-repo/wordpress*",
-              "cwd" : "/var/chef/chef-repo/cookbooks"
-            },
-            "03_init_berkshelf": {
-              "command" : "berks init /var/chef/chef-repo/cookbooks/wordpress --skip-vagrant --skip-git",
-              "cwd" : "/var/chef/chef-repo/cookbooks/wordpress",
-              "env" : { "HOME" : "/var/chef" }
-            },
-            "04_vendorize_berkshelf" : {
-              "command" : "berks vendor",
-              "cwd" : "/var/chef/chef-repo/cookbooks/wordpress",
-              "env" : { "HOME" : "/var/chef" }
-            },
-            "05_configure_node_run_list" : {
-              "command" : "knife node run_list add -z `knife node list -z` recipe[wordpress]",
-              "cwd" : "/var/chef/chef-repo",
-              "env" : { "HOME" : "/var/chef" }
-            }
-          }
-        },
-        "run_chef" : {
-          "commands" : {
-            "01_run_chef_client" : {
-              "command" : "chef-client -z -c /var/chef/chef-repo/.chef/client.rb",
-              "cwd" : "/var/chef/chef-repo",
-              "env" : { "HOME" : "/var/chef" }
-            }
-          }
-        }
-      }
-    },
     Properties:
-      ImageId: <%= ENV['IMAGE_ID'] %>,
-      InstanceType: <%= ENV['INSTANCE_TYPE'] %>
+      ImageId: <%= ENV['IMAGE_ID'] || 'ami-d05e75b8' %>
+      InstanceType: <%= ENV['INSTANCE_TYPE'] || 'c3.8xlarge' %>
       SecurityGroups:
         - Ref: WebServerSecurityGroup
-      KeyName: <%= ENV['SSH_KEY_NAME'] %>
+      KeyName: <%= ENV['SSH_KEY_NAME'] || 'server_access_key' %>
       UserData:
         Fn::Base64:
-          Fn::Join
+          Fn::Join:
             - ''
             -
               - "#!/bin/bash -xe\n"
@@ -237,7 +112,7 @@ Resources:
               - "update-rc.d cfn-hup defaults \n"
               - "service cfn-hup start \n"
 
-              - "/opt/aws/bin/cfn-init -v "
+              - "/usr/local/bin/cfn-init -v "
               - "--stack "
               - Ref: AWS::StackName
               - " --resource LaunchConfig "
@@ -245,22 +120,11 @@ Resources:
               - " --region "
               - Ref: AWS::Region
               - "\n"
-              - "/opt/aws/bin/cfn-signal -e $? "
-              - " --stack "
-              - Ref: AWS::StackName
-              - " --resource Server "
-              - " --region "
-              - Ref: AWS::Region
+              - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
               - "\n"
-        "/opt/aws/bin/cfn-init ",
-        " --stack ", { "Ref" : "AWS::StackName" },
-        " --resource LaunchConfig ",
-        " --configsets wordpress_install ",
-        " --region ", { "Ref" : "AWS::Region" }, "\n",
-        "/opt/aws/bin/cfn-signal -e $? '", { "Ref" : "WebServerWaitHandle" }, "'\n"
-      ]]}}
-    }
-  },
+              - "/opt/aws/bin/cfn-signal -e $? "
+              - Ref: WebServerWaitHandle
+              - "\n"
   WebServerWaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
   WebServerWaitCondition:
@@ -289,7 +153,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: <%= ENV['SSH_IP'] %>
+          CidrIp: <%= ENV['SSH_IP'] || '0.0.0.0/0' %>
 Outputs:
   WebsiteURL:
     Value:
