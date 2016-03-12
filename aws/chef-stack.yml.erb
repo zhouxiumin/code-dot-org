@@ -36,7 +36,7 @@ Resources:
       MaxSize: 5
       DesiredCapacity: 2
       HealthCheckType: ELB
-      HealthCheckGracePeriod: 2000
+      HealthCheckGracePeriod: 4000
       LoadBalancerNames:
         - Ref: ElasticLoadBalancer
   LaunchConfig:
@@ -138,7 +138,7 @@ Resources:
     Properties:
       Handle:
         Ref: WebServerWaitHandle
-      Timeout: 2000
+      Timeout: 4000
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
