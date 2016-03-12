@@ -20,7 +20,7 @@ Resources:
           PolicyNames:
             - CookieBasedPolicy
       HealthCheck:
-        Target: HTTP:80/
+        Target: HTTP:80/health_check.php
         HealthyThreshold: 2
         UnhealthyThreshold: 5
         Interval: 10
@@ -127,9 +127,9 @@ Resources:
               - "\n"
               - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
               - "\n"
-              - "/usr/local/bin/cfn-signal -e $? "
+              - "/usr/local/bin/cfn-signal -e $? '"
               - Ref: WebServerWaitHandle
-              - "\n"
+              - "'\n"
   WebServerWaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
   WebServerWaitCondition:
