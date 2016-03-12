@@ -4,6 +4,7 @@ require 'pathname'
 require 'cdo/aws/s3'
 require 'cdo/hip_chat'
 require 'digest'
+require 'sprockets-derailleur'
 
 module RakeUtils
 
