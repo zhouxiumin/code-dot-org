@@ -127,7 +127,7 @@ Resources:
               - "\n"
               - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
               - "\n"
-              - "/opt/aws/bin/cfn-signal -e $? "
+              - "/usr/local/bin/cfn-signal -e $? "
               - Ref: WebServerWaitHandle
               - "\n"
   WebServerWaitHandle:

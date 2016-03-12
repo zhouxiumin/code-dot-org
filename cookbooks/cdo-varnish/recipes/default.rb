@@ -40,6 +40,7 @@ ruby_block 'update_service' do
     end
     file.write_file
   end
+  subscribes :run, "service[varnish]", :before
 end
 
 template '/etc/default/varnish' do
@@ -76,5 +77,6 @@ end
 
 service "varnish" do
   supports restart: true, reload: true
+  ignore_failure true
   action [:enable, :start]
 end
