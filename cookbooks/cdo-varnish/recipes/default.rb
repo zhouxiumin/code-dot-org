@@ -3,8 +3,6 @@
 # Recipe:: default
 #
 
-# TODO: remove 'varnish' and 'varnish-3.0-vmods' repositories after all servers are updated.
-
 # From https://www.varnish-cache.org/installation/ubuntu
 apt_package 'apt-transport-https'
 apt_repository 'varnish' do
@@ -13,13 +11,6 @@ apt_repository 'varnish' do
   distribution 'trusty'
   components ['varnish-4.0']
   key 'https://repo.varnish-cache.org/GPG-key.txt'
-  action :remove
-end
-
-# Old Varnish 3.0 vmods from PPA.
-apt_repository 'varnish-3.0-vmods' do
-  uri          'ppa:cmcdermottroe/varnish-3.0-vmods'
-  distribution 'trusty'
   action :remove
 end
 

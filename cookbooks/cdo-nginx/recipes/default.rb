@@ -12,6 +12,8 @@ directory run_unicorn do
   # Ensure directory is created before app-services are (re)loaded.
   %w(dashboard pegasus).each do |app|
     subscribes :create, "service[#{app}]", :before
+    # App service may be initially loaded within Rake-build resource.
+    subscribes :create, "execute[build-#{app}]", :before
   end
 end
 

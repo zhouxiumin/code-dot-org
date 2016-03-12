@@ -16,12 +16,10 @@ popd
 ROOT=$(dirname ${PWD})
 SSH_PATH=${HOME}/.ssh
 STACK_FILE=chef-stack.yml.erb
-TMP_JSON_FILE=/tmp/cloud_formation.json
 
 # us-west-2 ubuntu AMI
 export IMAGE_ID=ami-9abea4fb
 
 # Process packer config with ERB + YAML, then pass the JSON to aws cloudformation.
-ruby -rerb -ryaml -rjson -e "puts YAML.load(ERB.new(File.read('${STACK_FILE}')).result).to_json" > ${TMP_JSON_FILE}
-
-aws cloudformation create-stack --stack-name adhoc-frontend-${BRANCH} --template-body file://${TMP_JSON_FILE}
+aws cloudformation create-stack --stack-name adhoc-frontend-${BRANCH} --template-body \
+  "$(ruby -rerb -ryaml -rjson -e "puts YAML.load(ERB.new(File.read('${STACK_FILE}')).result).to_json")"
