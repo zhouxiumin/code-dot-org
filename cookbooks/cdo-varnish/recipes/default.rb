@@ -77,7 +77,5 @@ end
 
 service "varnish" do
   supports restart: true, reload: true, status: true
-  retries 2
-#  ignore_failure true
   action [:enable, :start]
 end

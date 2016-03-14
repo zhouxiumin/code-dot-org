@@ -49,7 +49,7 @@ template '/etc/nginx/nginx.conf' do
   variables ssl_key: cert.key_path,
     ssl_cert: cert.chain_combined_path,
     run_dir: run_unicorn
-  notifies :reload, 'service[nginx]', :delayed
+  notifies :reload, 'service[nginx]', :immediately
 end
 
 service 'nginx' do
