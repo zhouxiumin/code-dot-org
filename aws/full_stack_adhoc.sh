@@ -21,5 +21,5 @@ STACK_FILE=chef-stack.yml.erb
 export IMAGE_ID=ami-9abea4fb
 
 # Process packer config with ERB + YAML, then pass the JSON to aws cloudformation.
-aws cloudformation create-stack --stack-name adhoc-frontend-${BRANCH} --template-body \
+aws cloudformation create-stack --stack-name adhoc-frontend-${BRANCH} --region us-west-2 --template-body \
   "$(ruby -rerb -ryaml -rjson -e "puts YAML.load(ERB.new(File.read('${STACK_FILE}')).result).to_json")"
