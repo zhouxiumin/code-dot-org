@@ -2,14 +2,50 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: AWS CloudFormation Template for Code.org application
 Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: true
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: 10.0.0.0/26
+      AvailabilityZone: us-west-2a
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: VPC
+      InternetGatewayId:
+        Ref: InternetGateway
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: InternetGateway
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Metadata:
       Comment1: Configure the Load Balancer with a simple health check and cookie-based stickiness
       Comment2: Use install path for healthcheck to avoid redirects - ELB healthcheck does not handle 302 return codes
     Properties:
-      AvailabilityZones:
-        Fn::GetAZs: ''
+      CrossZone: true
+      Subnets:
+        - 
+          Ref: SubnetA
       LBCookieStickinessPolicy:
         - PolicyName: CookieBasedPolicy
           CookieExpirationPeriod: 30
@@ -25,6 +61,9 @@ Resources:
         UnhealthyThreshold: 5
         Interval: 10
         Timeout: 5
+      ConnectionDrainingPolicy
+        Enabled : true
+        Timeout: 60
   WebServerGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -159,6 +198,8 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: <%= ENV['SSH_IP'] || '0.0.0.0/0' %>
+      VpcId:
+        Ref: VPC
 Outputs:
   WebsiteURL:
     Value:
