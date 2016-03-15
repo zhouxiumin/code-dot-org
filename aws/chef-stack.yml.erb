@@ -14,6 +14,7 @@ Resources:
         Ref: VPC
       CidrBlock: 10.0.0.0/26
       AvailabilityZone: us-west-2a
+      MapPublicIpOnLaunch: true
   InternetGateway:
     Type: AWS::EC2::InternetGateway
   AttachGateway:
@@ -36,6 +37,13 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
         Ref: InternetGateway
+  SubnetRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTable
+      SubnetId:
+        Ref: SubnetA
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Metadata:
@@ -43,8 +51,11 @@ Resources:
       Comment2: Use install path for healthcheck to avoid redirects - ELB healthcheck does not handle 302 return codes
     Properties:
       CrossZone: true
+      SecurityGroups:
+        -
+          Ref: ELBSecurityGroup
       Subnets:
-        - 
+        -
           Ref: SubnetA
       LBCookieStickinessPolicy:
         - PolicyName: CookieBasedPolicy
@@ -61,14 +72,51 @@ Resources:
         UnhealthyThreshold: 5
         Interval: 10
         Timeout: 5
-      ConnectionDrainingPolicy
-        Enabled : true
+      ConnectionDrainingPolicy:
+        Enabled: true
         Timeout: 60
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP[S] access from the public Internet, HTTP downstream.
+      VpcId:
+        Ref: VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access via port 80 locked down to the load balancer + SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId:
+            Ref: ELBSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: <%= ENV['SSH_IP'] || '0.0.0.0/0' %>
+      VpcId:
+        Ref: VPC
   WebServerGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      AvailabilityZones:
-        Fn::GetAZs: ''
+      VPCZoneIdentifier:
+        -
+          Ref: SubnetA
       LaunchConfigurationName:
         Ref: LaunchConfig
       MinSize: 1
@@ -178,28 +226,6 @@ Resources:
       Handle:
         Ref: WebServerWaitHandle
       Timeout: 4000
-  WebServerSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable HTTP access via port 80 locked down to the load balancer + SSH access
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          SourceSecurityGroupOwnerId:
-            Fn::GetAtt:
-              - ElasticLoadBalancer
-              - SourceSecurityGroup.OwnerAlias
-          SourceSecurityGroupName:
-            Fn::GetAtt:
-              - ElasticLoadBalancer
-              - SourceSecurityGroup.GroupName
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: <%= ENV['SSH_IP'] || '0.0.0.0/0' %>
-      VpcId:
-        Ref: VPC
 Outputs:
   WebsiteURL:
     Value:
