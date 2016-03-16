@@ -113,6 +113,16 @@ Resources:
         Ref: VPC
   WebServerGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+        Count: 2
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 1
+        MinInstancesInService: 1
+        PauseTime: PT15M
+        WaitOnResourceSignals: true
     Properties:
       VPCZoneIdentifier:
         -
@@ -215,17 +225,12 @@ Resources:
               - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
               - "\n"
               - "/usr/local/bin/cfn-signal -e $? '"
-              - Ref: WebServerWaitHandle
-              - "'\n"
-  WebServerWaitHandle:
-    Type: AWS::CloudFormation::WaitConditionHandle
-  WebServerWaitCondition:
-    Type: AWS::CloudFormation::WaitCondition
-    DependsOn: WebServerGroup
-    Properties:
-      Handle:
-        Ref: WebServerWaitHandle
-      Timeout: 4000
+              - " --stack "
+              - Ref: AWS::StackName
+              - " --resource WebServerGroup "
+              - " --region "
+              - Ref: AWS::Region
+              - "\n"
 Outputs:
   WebsiteURL:
     Value:
