@@ -1,3 +1,4 @@
+<% require 'aws-sdk' %>
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: AWS CloudFormation Template for Code.org application
@@ -52,11 +53,9 @@ Resources:
     Properties:
       CrossZone: true
       SecurityGroups:
-        -
-          Ref: ELBSecurityGroup
+        - Ref: ELBSecurityGroup
       Subnets:
-        -
-          Ref: SubnetA
+        - Ref: SubnetA
       LBCookieStickinessPolicy:
         - PolicyName: CookieBasedPolicy
           CookieExpirationPeriod: 30
@@ -64,6 +63,12 @@ Resources:
         - LoadBalancerPort: 80
           InstancePort: 80
           Protocol: HTTP
+          PolicyNames:
+            - CookieBasedPolicy
+        - LoadBalancerPort: 443
+          InstancePort: 80
+          Protocol: HTTPS
+          SSLCertificateId: <%= "arn:aws:iam::#{Aws::IAM::Client.new(region: 'us-west-2').get_user.user['user_id']}:server-certificate/codeorg-new" %>
           PolicyNames:
             - CookieBasedPolicy
       HealthCheck:
@@ -115,18 +120,17 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     CreationPolicy:
       ResourceSignal:
-        Timeout: PT15M
+        Timeout: PT60M
         Count: 2
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: 1
         MinInstancesInService: 1
-        PauseTime: PT15M
+        PauseTime: PT60M
         WaitOnResourceSignals: true
     Properties:
       VPCZoneIdentifier:
-        -
-          Ref: SubnetA
+        - Ref: SubnetA
       LaunchConfigurationName:
         Ref: LaunchConfig
       MinSize: 1
@@ -144,6 +148,8 @@ Resources:
         configSets:
           cdo_install:
             - install_cfn
+            - chef_bootstrap
+            - cfn_signal
         install_cfn:
           files:
             /etc/cfn/cfn-hup.conf:
@@ -151,13 +157,13 @@ Resources:
                 Fn::Join:
                   - ''
                   -
-                    - '[main]\n'
-                    - 'stack='
+                    - "[main]\n"
+                    - "stack="
                     - Ref: AWS::StackId
-                    - '\n'
-                    - 'region='
+                    - "\n"
+                    - "region="
                     - Ref: AWS::Region
-                    - '\n'
+                    - "\n"
               mode: 000400
               owner: root
               group: root
@@ -166,18 +172,18 @@ Resources:
                 Fn::Join:
                   - ''
                   -
-                    - '[cfn-auto-reloader-hook]\n'
-                    - 'triggers=post.update\n'
-                    - 'path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init\n'
-                    - 'action=/usr/local/bin/cfn-init -v'
-                    - ' --stack '
+                    - "[cfn-auto-reloader-hook]\n"
+                    - "triggers=post.update\n"
+                    - "path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init\n"
+                    - "action=/usr/local/bin/cfn-init -v"
+                    - " --stack "
                     - Ref: AWS::StackName
-                    - ' --resource LaunchConfig '
-                    - ' --configsets cdo_install '
-                    - ' --region '
+                    - " --resource LaunchConfig "
+                    - " --configsets cdo_install "
+                    - " --region "
                     - Ref: AWS::Region
-                    - '\n'
-                    - 'runas=root\n'
+                    - "\n"
+                    - "runas=root\n"
               mode: 000400
               owner: root
               group: root
@@ -189,9 +195,26 @@ Resources:
                 files:
                   - /etc/cfn/cfn-hup.conf
                   - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+        chef_bootstrap:
+          commands:
+            01_chef_bootstrap:
+              command: "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
+        cfn_signal:
+          commands:
+            01_cfn_signal:
+              command:
+                Fn::Join:
+                  - ''
+                  -
+                    - "/usr/local/bin/cfn-signal -e $? "
+                    - " --stack "
+                    - Ref: AWS::StackName
+                    - " --resource WebServerGroup "
+                    - " --region "
+                    - Ref: AWS::Region
     Properties:
       ImageId: <%= ENV['IMAGE_ID'] || 'ami-d05e75b8' %>
-      InstanceType: <%= ENV['INSTANCE_TYPE'] || 'c3.8xlarge' %>
+      InstanceType: <%= ENV['INSTANCE_TYPE'] || 'm4.4xlarge' %>
       SecurityGroups:
         - Ref: WebServerSecurityGroup
       KeyName: <%= ENV['SSH_KEY_NAME'] || 'server_access_key' %>
@@ -219,15 +242,6 @@ Resources:
               - Ref: AWS::StackName
               - " --resource LaunchConfig "
               - " --configsets cdo_install "
-              - " --region "
-              - Ref: AWS::Region
-              - "\n"
-              - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
-              - "\n"
-              - "/usr/local/bin/cfn-signal -e $? '"
-              - " --stack "
-              - Ref: AWS::StackName
-              - " --resource WebServerGroup "
               - " --region "
               - Ref: AWS::Region
               - "\n"
