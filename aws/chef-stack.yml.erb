@@ -121,12 +121,13 @@ Resources:
       DesiredCapacity: 2
       HealthCheckType: ELB
       HealthCheckGracePeriod: 4000
-      LoadBalancerNames: {Ref: ElasticLoadBalancer}
+      LoadBalancerNames: [Ref: ElasticLoadBalancer]
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: <%= ENV['IMAGE_ID'] || 'ami-d05e75b8' %>
       InstanceType: <%= ENV['INSTANCE_TYPE'] || 'm4.4xlarge' %>
+      IamInstanceProfile: {Ref: RootInstanceProfile}
       SecurityGroups: [Ref: WebServerSecurityGroup]
       KeyName: <%= ENV['SSH_KEY_NAME'] || 'server_access_key' %>
       BlockDeviceMappings:
@@ -139,7 +140,7 @@ Resources:
           Fn::Join:
             - ''
             -
-              - "#!/bin/bash -xe\n"
+              - "#!/bin/bash -x\n"
               - "apt-get update\n"
               - "apt-get -y install python-pip\n"
               - "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-1.4-8.tar.gz\n"
@@ -152,6 +153,31 @@ Resources:
               - " --region "
               - Ref: AWS::Region
               - "\n"
+  RootRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: '/'
+  RolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: s3
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Action: ['s3:GetObject']
+          Resource: 'awn:aws:s3:::cdo-dist/*'
+      Roles: [Ref: RootRole]
+  RootInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: '/'
+      Roles: [Ref: RootRole]
 Outputs:
   WebsiteURL:
     Value:

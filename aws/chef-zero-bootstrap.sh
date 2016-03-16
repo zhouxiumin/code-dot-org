@@ -8,6 +8,7 @@
 # -n [node_name]
 # -r [run_list]
 # -v [chef_version]
+# -e [environment]
 
 # Set script defaults
 ENVIRONMENT=adhoc
@@ -17,9 +18,10 @@ CHEF_VERSION=12.7.2
 RUN_LIST='recipe[cdo-apps]'
 
 # Parse options
-while getopts ":b:n:r:v" opt; do
+while getopts ":b:n:r:v:e:" opt; do
   case "${opt}" in
     e)
+      echo environment=${OPTARG}!
       ENVIRONMENT=${OPTARG}
       ;;
     b)
@@ -68,15 +70,19 @@ if [ "$(${CHEF_CLIENT} -v)" != "Chef: ${CHEF_VERSION}" ]; then
 else echo "Chef ${CHEF_VERSION} is installed."
 fi
 ${CHEF_CLIENT} -v
+mkdir -p /etc/chef
 
+ADHOC=adhoc2
 CLIENT_RB=/etc/chef/client.rb
 cat <<RUBY > ${CLIENT_RB}
 log_level :info
 ssl_verify_mode :verify_peer
 node_name '${NODE_NAME}'
 environment '${ENVIRONMENT}'
-validation_client_name   'code-dot-org-validator'
-chef_server_url          'https://api.opscode.com/organizations/code-dot-org'
+unless '${ENVIRONMENT}' == '${ADHOC}'
+  validation_client_name   'code-dot-org-validator'
+  chef_server_url          'https://api.opscode.com/organizations/code-dot-org'
+end
 RUBY
 
 # write first-boot.json to be used by the chef-client command.
@@ -87,14 +93,14 @@ if [ -f /etc/chef/client.pem ] ; then
     rm /etc/chef/client.pem
 fi
 
-if [ ${ENVIRONMENT} = "adhoc" ]; then
+if [ "${ENVIRONMENT}" = "${ADHOC}" ]; then
   mkdir -p /opt/chef-zero/{cookbooks,environments}
   # Install branch-specific cookbooks from s3 package.
   REPO_COOKBOOK_URL=https://s3.amazonaws.com/cdo-dist/chef/${BRANCH}.tar.gz
   curl -L --silent --insecure ${REPO_COOKBOOK_URL} | tar xz -C /opt/chef-zero
 
   # Install local-chef boilerplate.
-  cat <<JSON > /opt/chef-zero/environments/adhoc.json
+cat <<JSON > /opt/chef-zero/environments/adhoc.json
 {
   "name": "adhoc",
   "description": "Adhoc Chef environment",
@@ -116,5 +122,9 @@ JSON
   cd /opt/chef-zero
   ${CHEF_CLIENT} -z -c ${CLIENT_RB} -j ${FIRST_BOOT}
 else
+  # Install aws CLI tools
+  pip install awscli
+  # Copy validation pem
+  aws s3 cp s3://cdo-dist/validation.pem /etc/chef/validation.pem
   ${CHEF_CLIENT} -c ${CLIENT_RB} -j ${FIRST_BOOT}
 fi
