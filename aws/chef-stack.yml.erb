@@ -11,8 +11,7 @@ Resources:
   SubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId:
-        Ref: VPC
+      VpcId: {Ref: VPC}
       CidrBlock: 10.0.0.0/26
       AvailabilityZone: us-west-2a
       MapPublicIpOnLaunch: true
@@ -21,30 +20,23 @@ Resources:
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId:
-        Ref: VPC
-      InternetGatewayId:
-        Ref: InternetGateway
+      VpcId: {Ref: VPC}
+      InternetGatewayId: {Ref: InternetGateway}
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId:
-        Ref: VPC
+      VpcId: {Ref: VPC}
   PublicRoute:
     Type: AWS::EC2::Route
     Properties:
-      RouteTableId:
-        Ref: PublicRouteTable
+      RouteTableId: {Ref: PublicRouteTable}
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId:
-        Ref: InternetGateway
+      GatewayId: {Ref: InternetGateway}
   SubnetRouteAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId:
-        Ref: PublicRouteTable
-      SubnetId:
-        Ref: SubnetA
+      RouteTableId: {Ref: PublicRouteTable}
+      SubnetId: {Ref: SubnetA}
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Metadata:
@@ -52,10 +44,8 @@ Resources:
       Comment2: Use install path for healthcheck to avoid redirects - ELB healthcheck does not handle 302 return codes
     Properties:
       CrossZone: true
-      SecurityGroups:
-        - Ref: ELBSecurityGroup
-      Subnets:
-        - Ref: SubnetA
+      SecurityGroups: [Ref: ELBSecurityGroup]
+      Subnets: [Ref: SubnetA]
       LBCookieStickinessPolicy:
         - PolicyName: CookieBasedPolicy
           CookieExpirationPeriod: 30
@@ -63,14 +53,12 @@ Resources:
         - LoadBalancerPort: 80
           InstancePort: 80
           Protocol: HTTP
-          PolicyNames:
-            - CookieBasedPolicy
+          PolicyNames: [CookieBasedPolicy]
         - LoadBalancerPort: 443
           InstancePort: 80
           Protocol: HTTPS
           SSLCertificateId: <%= "arn:aws:iam::#{Aws::IAM::Client.new(region: 'us-west-2').get_user.user['user_id']}:server-certificate/codeorg-new" %>
-          PolicyNames:
-            - CookieBasedPolicy
+          PolicyNames: [CookieBasedPolicy]
       HealthCheck:
         Target: HTTP:80/health_check.php
         HealthyThreshold: 2
@@ -84,8 +72,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable HTTP[S] access from the public Internet, HTTP downstream.
-      VpcId:
-        Ref: VPC
+      VpcId: {Ref: VPC}
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -108,14 +95,12 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          SourceSecurityGroupId:
-            Ref: ELBSecurityGroup
+          SourceSecurityGroupId: {Ref: ELBSecurityGroup}
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: <%= ENV['SSH_IP'] || '0.0.0.0/0' %>
-      VpcId:
-        Ref: VPC
+      VpcId: {Ref: VPC}
   WebServerGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     CreationPolicy:
@@ -129,24 +114,20 @@ Resources:
         PauseTime: PT60M
         WaitOnResourceSignals: true
     Properties:
-      VPCZoneIdentifier:
-        - Ref: SubnetA
-      LaunchConfigurationName:
-        Ref: LaunchConfig
+      VPCZoneIdentifier: [Ref: SubnetA]
+      LaunchConfigurationName: {Ref: LaunchConfig}
       MinSize: 1
       MaxSize: 5
       DesiredCapacity: 2
       HealthCheckType: ELB
       HealthCheckGracePeriod: 4000
-      LoadBalancerNames:
-        - Ref: ElasticLoadBalancer
+      LoadBalancerNames: {Ref: ElasticLoadBalancer}
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: <%= ENV['IMAGE_ID'] || 'ami-d05e75b8' %>
       InstanceType: <%= ENV['INSTANCE_TYPE'] || 'm4.4xlarge' %>
-      SecurityGroups:
-        - Ref: WebServerSecurityGroup
+      SecurityGroups: [Ref: WebServerSecurityGroup]
       KeyName: <%= ENV['SSH_KEY_NAME'] || 'server_access_key' %>
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
@@ -161,8 +142,8 @@ Resources:
               - "#!/bin/bash -xe\n"
               - "apt-get update\n"
               - "apt-get -y install python-pip\n"
-              - "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n"
-              - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
+              - "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-1.4-8.tar.gz\n"
+              - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -e adhoc -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
               - "\n"
               - "/usr/local/bin/cfn-signal -e $? "
               - " --stack "
