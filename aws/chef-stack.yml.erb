@@ -142,76 +142,6 @@ Resources:
         - Ref: ElasticLoadBalancer
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
-    Metadata:
-#     Boilerplate for installing and enabling AWS CloudFormation utilities.
-      AWS::CloudFormation::Init:
-        configSets:
-          cdo_install:
-            - install_cfn
-            - chef_bootstrap
-            - cfn_signal
-        install_cfn:
-          files:
-            /etc/cfn/cfn-hup.conf:
-              content:
-                Fn::Join:
-                  - ''
-                  -
-                    - "[main]\n"
-                    - "stack="
-                    - Ref: AWS::StackId
-                    - "\n"
-                    - "region="
-                    - Ref: AWS::Region
-                    - "\n"
-              mode: 000400
-              owner: root
-              group: root
-            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
-              content:
-                Fn::Join:
-                  - ''
-                  -
-                    - "[cfn-auto-reloader-hook]\n"
-                    - "triggers=post.update\n"
-                    - "path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init\n"
-                    - "action=/usr/local/bin/cfn-init -v"
-                    - " --stack "
-                    - Ref: AWS::StackName
-                    - " --resource LaunchConfig "
-                    - " --configsets cdo_install "
-                    - " --region "
-                    - Ref: AWS::Region
-                    - "\n"
-                    - "runas=root\n"
-              mode: 000400
-              owner: root
-              group: root
-          services:
-            sysvinit:
-              cfn-hup:
-                enabled: true
-                ensureRunning: true
-                files:
-                  - /etc/cfn/cfn-hup.conf
-                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
-        chef_bootstrap:
-          commands:
-            01_chef_bootstrap:
-              command: "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
-        cfn_signal:
-          commands:
-            01_cfn_signal:
-              command:
-                Fn::Join:
-                  - ''
-                  -
-                    - "/usr/local/bin/cfn-signal -e $? "
-                    - " --stack "
-                    - Ref: AWS::StackName
-                    - " --resource WebServerGroup "
-                    - " --region "
-                    - Ref: AWS::Region
     Properties:
       ImageId: <%= ENV['IMAGE_ID'] || 'ami-d05e75b8' %>
       InstanceType: <%= ENV['INSTANCE_TYPE'] || 'm4.4xlarge' %>
@@ -232,16 +162,12 @@ Resources:
               - "apt-get update\n"
               - "apt-get -y install python-pip\n"
               - "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n"
-              - "cp /usr/local/init/ubuntu/cfn-hup /etc/init.d/cfn-hup \n"
-              - "chmod +x /etc/init.d/cfn-hup \n"
-              - "update-rc.d cfn-hup defaults \n"
-              - "service cfn-hup start \n"
-
-              - "/usr/local/bin/cfn-init -v "
-              - "--stack "
+              - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- -b <%= `git rev-parse --abbrev-ref HEAD` %> -r \"recipe[cdo-apps]\"'"
+              - "\n"
+              - "/usr/local/bin/cfn-signal -e $? "
+              - " --stack "
               - Ref: AWS::StackName
-              - " --resource LaunchConfig "
-              - " --configsets cdo_install "
+              - " --resource WebServerGroup "
               - " --region "
               - Ref: AWS::Region
               - "\n"
