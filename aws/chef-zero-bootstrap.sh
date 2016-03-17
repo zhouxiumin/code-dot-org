@@ -57,6 +57,7 @@ hostname ${hostname}
 NODE_NAME=$(hostname)
 
 CHEF_CLIENT=/opt/chef/bin/chef-client
+mkdir -p /opt/chef-zero
 LOG=/opt/chef-zero/chef-zero.log
 
 # Redirect copy of stdout/stderr to a log file for later auditing.
