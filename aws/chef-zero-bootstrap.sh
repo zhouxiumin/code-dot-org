@@ -87,7 +87,17 @@ RUBY
 
 # write first-boot.json to be used by the chef-client command.
 FIRST_BOOT=/etc/chef/first-boot.json
-echo -e "{\"run_list\": [\"${RUN_LIST}\"]}" > ${FIRST_BOOT}
+cat <<JSON > ${FIRST_BOOT}
+{
+  "omnibus_updater": {
+    "version": "${CHEF_VERSION}"
+  },
+  "cdo-repository": {
+    "branch": "${BRANCH}"
+  },
+  "run_list": ["${RUN_LIST}"]
+}
+JSON
 
 if [ -f /etc/chef/client.pem ] ; then
     rm /etc/chef/client.pem

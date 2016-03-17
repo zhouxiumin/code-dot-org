@@ -21,8 +21,8 @@ STACK_FILE=chef-stack.yml.erb
 export IMAGE_ID=ami-9abea4fb
 
 # Process CloudFormation config with ERB + YAML, then pass the JSON to `aws cloudformation create-stack`.
-aws cloudformation update-stack \
-  --stack-name adhoc-frontend-${BRANCH}2 \
+aws cloudformation create-stack \
+  --stack-name adhoc-frontend-${BRANCH} \
   --region us-west-2 \
   --capabilities "CAPABILITY_IAM" \
   --template-body \

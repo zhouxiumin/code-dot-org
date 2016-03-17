@@ -181,11 +181,5 @@ Resources:
 Outputs:
   WebsiteURL:
     Value:
-      Fn::Join:
-        - ''
-        -
-          - 'http://'
-          - Fn::GetAtt:
-            - ElasticLoadBalancer
-            - DNSName
+      Fn::Join: ['', ['http://', 'Fn::GetAtt': [ElasticLoadBalancer, DNSName]]]
     Description: website URL
