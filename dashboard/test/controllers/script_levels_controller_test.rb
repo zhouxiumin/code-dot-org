@@ -710,6 +710,7 @@ class ScriptLevelsControllerTest < ActionController::TestCase
 
     get :show, script_id: script_level.script, stage_id: script_level.stage, id: script_level.position, user_id: @admin.id
 
+    puts @response.body
     assert_select 'script[src=?]', '/assets/js/makerlab.js'
   end
 
