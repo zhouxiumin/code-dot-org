@@ -711,7 +711,7 @@ class ScriptLevelsControllerTest < ActionController::TestCase
     get :show, script_id: script_level.script, stage_id: script_level.stage, id: script_level.position, user_id: @admin.id
 
     puts @response.body
-    assert_select 'script[src=?]', '/assets/js/makerlab.js'
+    assert_select 'script[src=?]', /assets\/js\/makerlab/
   end
 
   test 'excludes makerlab script when applab level' do
@@ -722,7 +722,7 @@ class ScriptLevelsControllerTest < ActionController::TestCase
 
     get :show, script_id: script_level.script, stage_id: script_level.stage, id: script_level.position, user_id: @admin.id
 
-    assert_select 'script[src=?]', '/assets/js/makerlab.js', false
+    assert_select 'script[src=?]', /assets\/js\/makerlab/, false
   end
 
   test 'shows expanded teacher panel when student is chosen' do
