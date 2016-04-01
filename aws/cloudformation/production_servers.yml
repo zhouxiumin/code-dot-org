@@ -1,0 +1,6 @@
+---
+servers:
+  - discourse:
+      instance_type: m3.large
+      domain: discourse.code.org
+      chef_runlist: role[discourse]

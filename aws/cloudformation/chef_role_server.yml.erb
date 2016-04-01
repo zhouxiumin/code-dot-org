@@ -26,6 +26,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: {Ref: InternetGateway}
 <%=
+  current_subnet = "Subnet#{availability_zone[-1].upcase}"
   availability_zones.each do |zone|
     az = zone[-1].upcase
 %>
@@ -69,7 +70,7 @@ Resources:
     Properties:
       ImageId: <%=image_id%>
       SecurityGroupIds: [Ref: WebServerSecurityGroup]
-      SubnetId: {Ref: SubnetA}
+      SubnetId: {Ref: <%=current_subnet%>}
       InstanceType: <%=instance_type%>
       IamInstanceProfile: {Ref: RootInstanceProfile}
       KeyName: <%=ssh_key_name%>
