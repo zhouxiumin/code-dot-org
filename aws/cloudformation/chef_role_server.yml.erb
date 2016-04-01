@@ -25,20 +25,23 @@ Resources:
       RouteTableId: {Ref: PublicRouteTable}
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: {Ref: InternetGateway}
-<%=availability_zones.each do |az| %>
+<%=
+  availability_zones.each do |zone|
+    az = zone[-1].upcase
+%>
   Subnet<%=az%>:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: {Ref: VPC}
       CidrBlock: 10.0.0.0/26
-      AvailabilityZone: '<%=az%>'
+      AvailabilityZone: '<%=zone%>'
       MapPublicIpOnLaunch: true
-<%=end %>
   SubnetRouteAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: {Ref: PublicRouteTable}
-      SubnetId: {Ref: SubnetA}
+      SubnetId: {Ref: Subnet<%=az%>}
+<%=end %>
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
