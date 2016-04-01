@@ -158,6 +158,7 @@ module AWS
           domain: DOMAIN,
           subdomain: FQDN,
           availability_zone: Aws::EC2::Client.new.describe_availability_zones.availability_zones.first.zone_name,
+          availability_zones: Aws::EC2::Client.new.describe_availability_zones.availability_zones.map(&:zone_name),
           s3_bucket: S3_BUCKET,
           file: method(:file)
         )
