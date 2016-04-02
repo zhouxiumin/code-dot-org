@@ -84,6 +84,8 @@ else
   chef_server_url          'https://api.chef.io/organizations/code-dot-org'
 end
 RUBY
+mkdir -p ${HOME}/.chef
+ln -s /etc/chef/client.rb ${HOME}/.chef/knife.rb
 
 # Write default first-boot.json to be used by the chef-client command.
 # Existing file takes precedence.
@@ -106,6 +108,17 @@ fi
 if [ -f /etc/chef/client.pem ] ; then
     rm /etc/chef/client.pem
 fi
+
+# Remove client + node from Chef server on halt/reboot or shutdown.
+SHUTDOWN_SH=/etc/init.d/chef_shutdown
+cat <<SH > ${SHUTDOWN_SH}
+#/bin/sh
+/opt/chef/bin/knife node delete -y ${NODE_NAME}
+/opt/chef/bin/knife client delete -y ${NODE_NAME}
+SH
+chmod +x ${SHUTDOWN_SH}
+ln -s ${SHUTDOWN_SH} /etc/rc0.d/S04chef_shutdown
+ln -s ${SHUTDOWN_SH} /etc/rc6.d/S04chef_shutdown
 
 if [ "${LOCAL_MODE}" = "1" ]; then
   mkdir -p ${CHEF_REPO_PATH}/{cookbooks,environments}
