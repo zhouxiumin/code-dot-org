@@ -61,7 +61,8 @@ Resources:
           ToPort: 22
           CidrIp: <%=ssh_ip%>
       VpcId: {Ref: VPC}
-  WebServer:
+<% YAML.load(File.read('production_servers.yml')).each do |name, server| %>
+  <%=name%>:
     Type: AWS::EC2::Instance
     DependsOn: Internet
     CreationPolicy:
@@ -71,22 +72,32 @@ Resources:
       ImageId: <%=image_id%>
       SecurityGroupIds: [Ref: WebServerSecurityGroup]
       SubnetId: {Ref: <%=current_subnet%>}
-      InstanceType: <%=instance_type%>
+      InstanceType: <%=server[:instance_type] || instance_type%>
       IamInstanceProfile: {Ref: RootInstanceProfile}
       KeyName: <%=ssh_key_name%>
-      Tags: [{Key: Name, Value: <%=stack_name%>}]
+      Tags: [{Key: Name, Value: <%=name%>}]
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
             VolumeSize: 64
             VolumeType: gp2
       UserData:
-        Fn::Base64: <%=file.call('bootstrap.sh.erb')%>
+        Fn::Base64: <%=file.call('chef_role_bootstrap.sh.erb')%>
   WebServerEIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: {Ref: WebServer}
+      InstanceId: {Ref: <%=name%>}
       Domain: vpc
+  <%=name%>DNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: <%=domain%>.
+      RecordSets:
+        - Name: "<%=server[:domain]%>"
+          Type: A
+          TTL: 60
+          ResourceRecords: [Ref: WebServerEIP]
+<% end %>
   RootRole:
     Type: AWS::IAM::Role
     Properties:
@@ -111,97 +122,3 @@ Resources:
     Properties:
       Path: '/'
       Roles: [Ref: RootRole]
-<%
-  %w(Dashboard Pegasus).each do |app|
-    app_domain = "#{app == 'Pegasus' ? '' : (app.downcase + '-')}#{subdomain}";
-%>
-  <%=app%>DNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "<%=app_domain%>"
-          Type: A
-<%  if cdn_enabled%>
-          AliasTarget:
-            DNSName: {'Fn::GetAtt': [<%=app%>CDN, DomainName]}
-            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  <%=app%>CDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(app.downcase.to_sym, "origin-#{subdomain}", [app_domain])%>
-  # TODO remove once CloudFormation adds support for CloudFront ACM.
-  <%=app%>CDNProperties:
-    Type: Custom::CloudFrontProperties
-    DependsOn: <%=app%>CDN
-    Properties:
-      DistributionId: {Ref: <%=app%>CDN}
-      OldViewerCertificate:
-        CloudFrontDefaultCertificate: true
-        MinimumProtocolVersion: TLSv1
-      ViewerCertificate:
-        ACMCertificateArn: <%=certificate_arn%>
-        MinimumProtocolVersion: TLSv1
-        SSLSupportMethod: sni-only
-      OldProtocols:
-        Quantity: 2
-        Items: [SSLv3, TLSv1]
-      Protocols:
-        Quantity: 2
-        Items: [TLSv1.2, TLSv1.1]
-      ServiceToken: {'Fn::GetAtt': [CloudFrontProperties, Arn]}
-<%  else%>
-          TTL: 60
-          ResourceRecords: [Ref: WebServerEIP]
-<%  end%>
-<%end %>
-<%  if cdn_enabled%>
-  OriginDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "origin-<%=subdomain%>"
-          Type: A
-          TTL: 60
-          ResourceRecords: [Ref: WebServerEIP]
-  # TODO remove once CloudFormation adds support for CloudFront ACM.
-  CloudFrontProperties:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        ZipFile: <%=file.call('cloudfrontProperties.js')%>
-      Handler: index.handler
-      Runtime: nodejs
-      Timeout: 300
-      Role: {'Fn::GetAtt': [CloudFrontPropertiesRole, Arn]}
-  # TODO remove once CloudFormation adds support for CloudFront ACM.
-  CloudFrontPropertiesRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: ['sts:AssumeRole']
-            Effect: Allow
-            Principal: {Service: [lambda.amazonaws.com]}
-      Path: '/'
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Statement:
-              - Action: ['cloudFront:GetDistributionConfig', 'cloudFront:UpdateDistribution']
-                Resource: ['*']
-                Effect: Allow
-              - Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents']
-                Resource: 'arn:aws:logs:*:*:*'
-                Effect: Allow
-<%end %>
-Outputs:
-<%
-  %w(Dashboard Pegasus).each do |app|
-    app_domain = "#{app == 'Pegasus' ? '' : (app.downcase + '-')}#{subdomain}";
-%>
-  <%=app%>URL:
-    Value: "https://<%=app_domain%>"
-    Description: <%=app%> URL
-<% end%>

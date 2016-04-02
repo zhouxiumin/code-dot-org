@@ -11,6 +11,7 @@ module AWS
   class CloudFormation
 
     # Hard-coded values for our CloudFormation template.
+    TEMPLATE = 'cloud_formation_adhoc_standalone.yml.erb'
 
     DOMAIN = 'cdn-code.org'
     STACK_NAME = "#{rack_env}-#{RakeUtils.git_branch}"
@@ -142,7 +143,7 @@ module AWS
       end
 
       def json_template(cdn_enabled:)
-        template_string = File.read(aws_dir('cloudformation', 'cloud_formation_adhoc_standalone.yml.erb'))
+        template_string = File.read(aws_dir('cloudformation', TEMPLATE))
         @@local_variables = OpenStruct.new(
           local_mode: !!CDO.chef_local_mode,
           stack_name: STACK_NAME,
