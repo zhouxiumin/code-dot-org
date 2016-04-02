@@ -3,7 +3,7 @@
 
 # Bootstrap prerequisites
 apt-get update
-apt-get -y install python-pip jq curl
+apt-get -y install python-pip curl
 test "$(pip show awscli)" || pip install awscli
 
 CHEF_VERSION=12.7.2
@@ -19,7 +19,7 @@ sudo -u ubuntu bash -c "aws s3 cp s3://${S3_BUCKET}/chef/bootstrap.sh - | sudo b
 aws cloudformation signal-resource \
   --unique-id ${NODE_NAME} \
   --stack-name ${STACK} \
-  --logical-resource-id WebServer \
+  --logical-resource-id ${NODE_NAME} \
   --status ${STATUS} \
   --region ${REGION} \
   || true

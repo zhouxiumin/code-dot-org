@@ -25,7 +25,7 @@ Resources:
       RouteTableId: {Ref: PublicRouteTable}
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: {Ref: InternetGateway}
-<%=
+<%
   current_subnet = "Subnet#{availability_zone[-1].upcase}"
   availability_zones.each do |zone|
     az = zone[-1].upcase
@@ -42,7 +42,7 @@ Resources:
     Properties:
       RouteTableId: {Ref: PublicRouteTable}
       SubnetId: {Ref: Subnet<%=az%>}
-<%=end %>
+<% end %>
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -61,7 +61,7 @@ Resources:
           ToPort: 22
           CidrIp: <%=ssh_ip%>
       VpcId: {Ref: VPC}
-<% YAML.load(File.read('production_servers.yml')).each do |name, server| %>
+<% YAML.load(File.read(aws_dir 'cloudformation', 'production_servers.yml')).each do |name, server| puts "Server:#{server}" %>
   <%=name%>:
     Type: AWS::EC2::Instance
     DependsOn: Internet
@@ -72,7 +72,7 @@ Resources:
       ImageId: <%=image_id%>
       SecurityGroupIds: [Ref: WebServerSecurityGroup]
       SubnetId: {Ref: <%=current_subnet%>}
-      InstanceType: <%=server[:instance_type] || instance_type%>
+      InstanceType: <%=server['instance_type'] || instance_type%>
       IamInstanceProfile: {Ref: RootInstanceProfile}
       KeyName: <%=ssh_key_name%>
       Tags: [{Key: Name, Value: <%=name%>}]
@@ -82,8 +82,8 @@ Resources:
             VolumeSize: 64
             VolumeType: gp2
       UserData:
-        Fn::Base64: <%=file.call('chef_role_bootstrap.sh.erb')%>
-  WebServerEIP:
+        Fn::Base64: <%=file.call('chef_role_bootstrap.sh.erb', node_name: name, run_list: server['run_list'])%>
+  <%=name%>EIP:
     Type: AWS::EC2::EIP
     Properties:
       InstanceId: {Ref: <%=name%>}
@@ -93,10 +93,10 @@ Resources:
     Properties:
       HostedZoneName: <%=domain%>.
       RecordSets:
-        - Name: "<%=server[:domain]%>"
+        - Name: "<%=server['domain']%>"
           Type: A
           TTL: 60
-          ResourceRecords: [Ref: WebServerEIP]
+          ResourceRecords: [Ref: <%=name%>EIP]
 <% end %>
   RootRole:
     Type: AWS::IAM::Role

@@ -11,7 +11,7 @@ module AWS
   class CloudFormation
 
     # Hard-coded values for our CloudFormation template.
-    TEMPLATE = 'cloud_formation_adhoc_standalone.yml.erb'
+    TEMPLATE = ENV['TEMPLATE'] || 'cloud_formation_adhoc_standalone.yml.erb'
 
     DOMAIN = 'cdn-code.org'
     STACK_NAME = "#{rack_env}-#{RakeUtils.git_branch}"
@@ -167,13 +167,16 @@ module AWS
       end
 
       # Input filename, output ERB-processed file contents in CloudFormation JSON-compatible syntax (using Fn::Join operator).
-      def file(filename)
+      def file(filename, vars={})
+        local_vars = @@local_variables.dup
+        vars.each { |k, v| local_vars[k] = v }
         str = File.read(aws_dir('cloudformation', filename))
-        {'Fn::Join' => ["", erb_eval(str).each_line.to_a]}.to_json
+        {'Fn::Join' => ["", erb_eval(str, local_vars).each_line.to_a]}.to_json
       end
 
-      def erb_eval(str)
-        ERB.new(str).result(@@local_variables.instance_eval{binding})
+      def erb_eval(str, local_vars=nil)
+        local_vars ||= @@local_variables
+        ERB.new(str).result(local_vars.instance_eval{binding})
       end
 
     end
