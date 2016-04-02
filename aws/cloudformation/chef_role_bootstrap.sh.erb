@@ -12,12 +12,13 @@ S3_BUCKET=<%=s3_bucket%>
 REGION=<%=region%>
 NODE_NAME=<%=node_name%>
 RUN_LIST=<%=run_list%>
+INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 
 sudo -u ubuntu bash -c "aws s3 cp s3://${S3_BUCKET}/chef/bootstrap.sh - | sudo bash -s -- <%=local_mode ? '-z' : ''%> -n ${NODE_NAME} -r ${RUN_LIST}"
 [ $? -eq 0 ] && STATUS=SUCCESS || STATUS=FAILURE
 
 aws cloudformation signal-resource \
-  --unique-id ${NODE_NAME} \
+  --unique-id ${INSTANCE_ID} \
   --stack-name ${STACK} \
   --logical-resource-id ${NODE_NAME} \
   --status ${STATUS} \
