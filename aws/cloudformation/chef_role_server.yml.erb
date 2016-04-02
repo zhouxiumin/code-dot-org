@@ -5,7 +5,7 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/24
+      CidrBlock: 10.0.0.0/16
       EnableDnsHostnames: true
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -27,14 +27,14 @@ Resources:
       GatewayId: {Ref: InternetGateway}
 <%
   current_subnet = "Subnet#{availability_zone[-1].upcase}"
-  availability_zones.each do |zone|
+  availability_zones.each_with_index do |zone, i|
     az = zone[-1].upcase
 %>
   Subnet<%=az%>:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: {Ref: VPC}
-      CidrBlock: 10.0.0.0/26
+      CidrBlock: 10.0.<%=i%>.0/24
       AvailabilityZone: '<%=zone%>'
       MapPublicIpOnLaunch: true
   SubnetRouteAssociation:
