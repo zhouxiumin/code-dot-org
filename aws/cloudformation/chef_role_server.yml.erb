@@ -61,7 +61,7 @@ Resources:
           ToPort: 22
           CidrIp: <%=ssh_ip%>
       VpcId: {Ref: VPC}
-<% YAML.load(File.read(aws_dir 'cloudformation', 'production_servers.yml')).each do |name, server| puts "Server:#{server}" %>
+<% YAML.load(File.read(aws_dir 'cloudformation', 'production_servers.yml')).each do |name, server| %>
   <%=name%>:
     Type: AWS::EC2::Instance
     DependsOn: Internet
