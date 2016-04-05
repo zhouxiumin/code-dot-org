@@ -1,5 +1,0 @@
----
-discourse:
-  instance_type: m3.large
-  domain: discourse.cdn-code.org
-  run_list: role[discourse]

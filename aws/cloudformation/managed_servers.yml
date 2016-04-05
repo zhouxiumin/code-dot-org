@@ -1,0 +1,50 @@
+---
+# Production-environment instances:
+production:
+  discourse:
+    instance_type: m4.large
+    domain: discourse.code.org
+    run_list: role[discourse]
+  wiki:
+    instance_type: t2.medium
+    domain: wiki.code.org
+    run_list: role[confluence]
+  gateway:
+    instance_type: m4.xlarge
+    domain: gateway.code.org
+    run_list: role[gateway]
+  solr:
+    instance_type: m4.2xlarge
+    domain: solr.code.org
+    run_list: role[solr]
+  geocoder:
+    instance_type: m4.large
+    domain: geocoder.code.org
+    run_list: role[geocoder]
+  console:
+    instance_type: c4.xlarge
+    domain: console.code.org
+    run_list: role[console]
+  daemon:
+    instance_type: c4.4xlarge
+    domain: daemon.code.org
+    run_list: role[daemon]
+# Daemon/standalone CI instances:
+staging:
+  staging:
+    instance_type: c4.2xlarge
+    run_list: role[stand-alone]
+test:
+  test:
+    instance_type: c4.2xlarge
+    run_list: role[stand-alone]
+levelbuilder:
+  levelbuilder:
+    instance_type: c4.2xlarge
+    run_list: role[stand-alone]
+# Adhoc instances (for testing with rake adhoc:start)
+adhoc:
+  discourse:
+    instance_type: m4.large
+    domain: discourse.cdn-code.org
+    run_list: role[discourse]
