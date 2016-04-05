@@ -3,13 +3,18 @@
 # Recipe:: default
 #
 # Ref: https://cwiki.apache.org/confluence/display/solr/Taking+Solr+to+Production
+include_recipe 'cdo-java-7'
+apt_package 'unzip'
+
+mirror = "http://mirrors.sonic.net/apache"
 
 version = node['cdo-solr']['version']
 filename = "solr-#{version}.tgz"
 cache = Chef::Config[:file_cache_path]
 archive = "#{cache}/#{filename}"
 remote_file archive do
-  source "http://apache.mesi.com.ar/lucene/solr/#{version}/solr-#{version}.tgz"
+  source "#{mirror}/lucene/solr/#{version}/solr-#{version}.tgz"
+  checksum node['cdo-solr']['sha256']
 end
 
 execute 'extract solr install script' do
