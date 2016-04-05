@@ -13,18 +13,19 @@ filename = "solr-#{version}.tgz"
 cache = Chef::Config[:file_cache_path]
 archive = "#{cache}/#{filename}"
 remote_file archive do
-  source "#{mirror}/lucene/solr/#{version}/solr-#{version}.tgz"
+  source "#{mirror}/lucene/solr/#{version}/#{filename}"
   checksum node['cdo-solr']['sha256']
 end
 
+install_file = 'install_solr_service.sh'
 execute 'extract solr install script' do
-  command "tar xf #{filename} solr-#{version}/bin/install_solr_service.sh --strip-components=2"
+  command "tar xf #{filename} solr-#{version}/bin/#{install_file} --strip-components=2"
   cwd cache
-  creates "#{cache}/install_solr_service.sh"
+  creates "#{cache}/#{install_file}"
 end
 
 execute 'install solr' do
-  command "./install_solr_service.sh #{filename}"
+  command "./#{install_file} #{filename} -f"
   cwd cache
   creates "/opt/solr-#{version}"
 end
