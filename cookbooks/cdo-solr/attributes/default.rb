@@ -1,1 +1,1 @@
-default['cdo-solr']['version'] = '4.10.4'
+default['cdo-solr']['version'] = '5.5.0'

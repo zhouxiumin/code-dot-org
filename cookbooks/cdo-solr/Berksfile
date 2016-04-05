@@ -1,0 +1,7 @@
+source 'https://supermarket.chef.io'
+
+metadata
+
+cookbook 'apt'
+cookbook 'sudo-user', path: '../sudo-user'
+cookbook 'cdo-java-7', path: '../cdo-java-7'
