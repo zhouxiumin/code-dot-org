@@ -1,4 +1,6 @@
 ---
+transport:
+  name: sftp
 driver:
   name: docker
   use_sudo: false
@@ -14,3 +16,6 @@ suites:
   - name: default
     run_list:
       - recipe[cdo-solr]
+    attributes:
+      cdo-secrets:
+        solr_server: solr.code.org

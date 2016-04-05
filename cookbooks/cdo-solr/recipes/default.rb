@@ -24,8 +24,15 @@ execute 'extract solr install script' do
   creates "#{cache}/#{install_file}"
 end
 
+solr_install_dir = "/opt/solr-#{version}"
 execute 'install solr' do
   command "./#{install_file} #{filename} -f"
   cwd cache
-  creates "/opt/solr-#{version}"
+  creates solr_install_dir
+end
+
+template "#{solr_install_dir}/example/files/conf/solrconfig.xml" do
+  source 'solrconfig.xml.erb'
+  user 'solr'
+  group 'solr'
 end
