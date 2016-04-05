@@ -13,3 +13,7 @@ describe service('solr') do
 end
 
 cmd '/opt/solr/bin/solr -version', '5.5.0'
+# Ensure solr API is working and core has been created
+describe command('curl -sSL http://localhost:8983/solr/admin/cores?action=STATUS&core=collection1&wt=json') do
+  its(:stdout) { should match 'instanceDir'}
+end

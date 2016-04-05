@@ -82,8 +82,6 @@
   <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-langid-\d.*\.jar" />
 
   <lib dir="${solr.install.dir:../../../..}/contrib/velocity/lib" regex=".*\.jar" />
-  <!-- browse-resources must come before solr-velocity JAR in order to override localized resources -->
-  <lib path="${solr.install.dir:../../../..}/example/files/browse-resources"/>
   <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />
   <!-- an exact 'path' can be used instead of a 'dir' to specify a
        specific jar file.  This will cause a serious error to be logged
@@ -128,6 +126,9 @@
        are experimental, so if you choose to customize the index format, it's a good
        idea to convert back to the official format e.g. via IndexWriter.addIndexes(IndexReader)
        before upgrading to a newer version to avoid unnecessary reindexing.
+       A "compressionMode" string element can be added to <codecFactory> to choose
+       between the existing compression modes in the default codec: "BEST_SPEED" (default)
+       or "BEST_COMPRESSION".
   -->
   <codecFactory class="solr.SchemaCodecFactory"/>
 
@@ -190,11 +191,12 @@
          Even older versions of Lucene used LogDocMergePolicy.
       -->
     <!--
-        <mergePolicyFactory class="solr.TieredMergePolicyFactory">
+        <mergePolicyFactory class="org.apache.solr.index.TieredMergePolicyFactory">
           <int name="maxMergeAtOnce">10</int>
           <int name="segmentsPerTier">10</int>
+          <double name="noCFSRatio">0.1</double>
         </mergePolicyFactory>
-     -->
+      -->
 
     <!-- Expert: Merge Scheduler
          The Merge Scheduler in Lucene controls how merges are
@@ -295,9 +297,17 @@
          uncommitted changes to the index, so use of a hard autoCommit
          is recommended (see below).
          "dir" - the target directory for transaction logs, defaults to the
-                solr data directory.  -->
+                solr data directory.
+         "numVersionBuckets" - sets the number of buckets used to keep
+                track of max version values when checking for re-ordered
+                updates; increase this value to reduce the cost of
+                synchronizing access to version buckets during high-volume
+                indexing, this requires 8 bytes (long) * numVersionBuckets
+                of heap space per Solr core.
+    -->
     <updateLog>
       <str name="dir">${solr.ulog.dir:}</str>
+      <int name="numVersionBuckets">${solr.ulog.numVersionBuckets:65536}</int>
     </updateLog>
 
     <!-- AutoCommit
@@ -322,7 +332,7 @@
          have some sort of hard autoCommit to limit the log size.
       -->
     <autoCommit>
-      <maxTime>15000</maxTime>
+      <maxTime>${solr.autoCommit.maxTime:15000}</maxTime>
       <openSearcher>false</openSearcher>
     </autoCommit>
 
@@ -331,11 +341,10 @@
          but does not ensure that data is synced to disk.  This is
          faster and more near-realtime friendly than a hard commit.
       -->
-    <!--
-      <autoSoftCommit>
-        <maxTime>1000</maxTime>
-      </autoSoftCommit>
-     -->
+
+    <autoSoftCommit>
+      <maxTime>${solr.autoSoftCommit.maxTime:-1}</maxTime>
+    </autoSoftCommit>
 
     <!-- Update Related Event Listeners
 
@@ -478,6 +487,14 @@
                    size="512"
                    initialSize="512"
                    autowarmCount="0"/>
+
+    <!-- custom cache currently used by block join -->
+    <cache name="perSegFilter"
+           class="solr.search.LRUCache"
+           size="10"
+           initialSize="0"
+           autowarmCount="10"
+           regenerator="solr.NoOpRegenerator" />
 
     <!-- Field Value Cache
 
@@ -830,10 +847,6 @@
     <lst name="defaults">
       <str name="echoParams">explicit</str>
     </lst>
-
-    <lst name="appends">
-      <str name="fq">{!switch v=$type tag=type case='*:*' case.all='*:*' case.unknown='-doc_type:[* TO *]' default=$type_fq}</str>
-    </lst>
   </requestHandler>
 
 
@@ -845,7 +858,7 @@
 
   <initParams path="/update/**">
     <lst name="defaults">
-      <str name="update.chain">files-update-processor</str>
+      <str name="update.chain">add-unknown-fields-to-the-schema</str>
     </lst>
   </initParams>
 
@@ -858,11 +871,9 @@
                   startup="lazy"
                   class="solr.extraction.ExtractingRequestHandler" >
     <lst name="defaults">
-      <str name="xpath">/xhtml:html/xhtml:body/descendant:node()</str>
-      <str name="capture">content</str>
-      <str name="fmap.meta">attr_meta_</str>
-      <str name="uprefix">attr_</str>
       <str name="lowernames">true</str>
+      <str name="fmap.meta">ignored_</str>
+      <str name="fmap.content">_text_</str>
     </lst>
   </requestHandler>
 
@@ -885,8 +896,18 @@
 
 
   <!--
-  Distributed Stream processing.
-  -->
+
+  Uncomment for distributed Stream processing.
+
+  SECURTIY WARNING: This feature uses Java Serialization for RPC (Remote Procedure Calls) to send executable
+                    Java Objects to Worker nodes.
+
+                    Solr also currently has apache commons-collections in it's classpath.
+
+                    This makes Solr vulnerable to this security exploit:
+
+                    https://issues.apache.org/jira/browse/COLLECTIONS-580.
+
 
   <requestHandler name="/stream" class="solr.StreamHandler">
     <lst name="invariants">
@@ -894,6 +915,8 @@
       <str name="distrib">false</str>
     </lst>
   </requestHandler>
+
+  -->
 
 
 
@@ -1023,7 +1046,7 @@
     <!-- a spellchecker built from a field of the main index -->
     <lst name="spellchecker">
       <str name="name">default</str>
-      <str name="field">text</str>
+      <str name="field">_text_</str>
       <str name="classname">solr.DirectSolrSpellChecker</str>
       <!-- the spellcheck distance measure used, the default is the internal levenshtein -->
       <str name="distanceMeasure">internal</str>
@@ -1045,6 +1068,7 @@
     </lst>
 
     <!-- a spellchecker that can break or combine words.  See "/spell" handler below for usage -->
+    <!--
     <lst name="spellchecker">
       <str name="name">wordbreak</str>
       <str name="classname">solr.WordBreakSolrSpellChecker</str>
@@ -1053,44 +1077,7 @@
       <str name="breakWords">true</str>
       <int name="maxChanges">10</int>
     </lst>
-
-    <!-- a spellchecker that uses a different distance measure -->
-    <!--
-       <lst name="spellchecker">
-         <str name="name">jarowinkler</str>
-         <str name="field">spell</str>
-         <str name="classname">solr.DirectSolrSpellChecker</str>
-         <str name="distanceMeasure">
-           org.apache.lucene.search.spell.JaroWinklerDistance
-         </str>
-       </lst>
-     -->
-
-    <!-- a spellchecker that use an alternate comparator
-
-         comparatorClass be one of:
-          1. score (default)
-          2. freq (Frequency first, then score)
-          3. A fully qualified class name
-      -->
-    <!--
-       <lst name="spellchecker">
-         <str name="name">freq</str>
-         <str name="field">lowerfilt</str>
-         <str name="classname">solr.DirectSolrSpellChecker</str>
-         <str name="comparatorClass">freq</str>
-      -->
-
-    <!-- A spellchecker that reads the list of words from a file -->
-    <!--
-       <lst name="spellchecker">
-         <str name="classname">solr.FileBasedSpellChecker</str>
-         <str name="name">file</str>
-         <str name="sourceLocation">spellings.txt</str>
-         <str name="characterEncoding">UTF-8</str>
-         <str name="spellcheckIndexDir">spellcheckerFile</str>
-       </lst>
-      -->
+    -->
   </searchComponent>
 
   <!-- A request handler for demonstrating the spellcheck component.
@@ -1113,7 +1100,6 @@
            collations (re-written queries) can include a combination of
            corrections from both spellcheckers -->
       <str name="spellcheck.dictionary">default</str>
-      <str name="spellcheck.dictionary">wordbreak</str>
       <str name="spellcheck">on</str>
       <str name="spellcheck.extendedResults">true</str>
       <str name="spellcheck.count">10</str>
@@ -1327,7 +1313,7 @@
 
        See http://wiki.apache.org/solr/GuessingFieldTypes
     -->
-  <updateRequestProcessorChain name="files-update-processor">
+  <updateRequestProcessorChain name="add-unknown-fields-to-the-schema">
     <!-- UUIDUpdateProcessorFactory will generate an id if none is present in the incoming document -->
     <processor class="solr.UUIDUpdateProcessorFactory" />
 
@@ -1382,22 +1368,6 @@
         <str name="fieldType">tdoubles</str>
       </lst>
     </processor>
-
-
-    <processor class="org.apache.solr.update.processor.LangDetectLanguageIdentifierUpdateProcessorFactory">
-      <lst name="defaults">
-        <str name="langid.fl">content</str>
-        <str name="langid.langField">language</str>
-      </lst>
-    </processor>
-
-    <processor class="solr.StatelessScriptUpdateProcessorFactory">
-      <str name="script">update-script.js</str>
-      <!--<lst name="params">-->
-        <!--<str name="config_param">example config parameter</str>-->
-      <!--</lst>-->
-    </processor>
-
     <processor class="solr.RunUpdateProcessorFactory"/>
   </updateRequestProcessorChain>
 
@@ -1504,6 +1474,8 @@
     -->
   <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy">
     <str name="template.base.dir">${velocity.template.base.dir:}</str>
+    <str name="solr.resource.loader.enabled">${velocity.solr.resource.loader.enabled:true}</str>
+    <str name="params.resource.loader.enabled">${velocity.params.resource.loader.enabled:false}</str>
   </queryResponseWriter>
 
   <!-- XSLT response writer transforms the XML output by any xslt file found
@@ -1592,17 +1564,19 @@
        the "master" or a "slave".  If this instance is a "slave" you will
        also need to fill in the masterUrl to point to a real machine.
     -->
-    <!--
+<% if node['cdo-solr']['master_enabled'] %>
        <lst name="master">
          <str name="replicateAfter">commit</str>
          <str name="replicateAfter">startup</str>
-         <str name="confFiles">schema.xml,stopwords.txt</str>
+         <str name="confFiles">managed-schema</str>
        </lst>
-    -->
+<% end %>
+<% if node['cdo-solr']['master_url'] %>
        <lst name="slave">
-         <str name="masterUrl">http://<%=node['cdo-secrets']['solr_server']%>:8983/solr</str>
-         <str name="pollInterval">00:00:20</str>
+         <str name="masterUrl">http://<%=node['cdo-solr']['master_url']%>:8983/solr</str>
+         <str name="pollInterval">00:00:60</str>
        </lst>
+<% end %>
   </requestHandler>
 
 </config>
