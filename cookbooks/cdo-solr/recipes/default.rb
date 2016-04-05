@@ -48,8 +48,10 @@ execute 'create solr core' do
   end
 end
 
-template "#{solr_install_dir}/data/collection1/conf/solrconfig.xml" do
+template '/var/solr/data/collection1/conf/solrconfig.xml' do
   source 'solrconfig.xml.erb'
+  user 'solr'
+  group 'solr'
   notifies :reload, 'service[solr]'
 end
 
