@@ -2,7 +2,7 @@ namespace :adhoc do
 
   task :environment do
     require_relative '../../deployment'
-    CDO.chef_local_mode = !ENV['ADHOC_CHEF_SERVER']
+    CDO.chef_local_mode = !ENV['CHEF_SERVER']
     ENV['RAILS_ENV'] = ENV['RACK_ENV'] = CDO.rack_env = 'adhoc'
     require 'cdo/aws/cloud_formation'
   end

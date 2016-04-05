@@ -104,17 +104,13 @@ if [ ! -f ${FIRST_BOOT} ] ; then
 JSON
 fi
 
-# Remove existing Chef Client key every time bootstrap is run.
-if [ -f /etc/chef/client.pem ] ; then
-    rm /etc/chef/client.pem
-fi
-
 # Remove client + node from Chef server on halt/reboot or shutdown.
 SHUTDOWN_SH=/etc/init.d/chef_shutdown
 cat <<SH > ${SHUTDOWN_SH}
 #/bin/sh
 /opt/chef/bin/knife node delete -y ${NODE_NAME}
 /opt/chef/bin/knife client delete -y ${NODE_NAME}
+rm -f /etc/chef/client.pem
 SH
 chmod +x ${SHUTDOWN_SH}
 ln -s ${SHUTDOWN_SH} /etc/rc0.d/S04chef_shutdown

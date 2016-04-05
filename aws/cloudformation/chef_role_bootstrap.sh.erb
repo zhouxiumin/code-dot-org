@@ -1,12 +1,13 @@
 #!/bin/bash -x
 # UserData bootstrap script for CloudFormation stack instances.
+# Note: Minimize changes to this script! Every time its contents change,
+# the next CloudFormation update will reboot all servers using this script.
 
 # Bootstrap prerequisites
 apt-get update
 apt-get -y install python-pip curl
 test "$(pip show awscli)" || pip install awscli
 
-CHEF_VERSION=12.7.2
 STACK=<%=stack_name%>
 S3_BUCKET=<%=s3_bucket%>
 REGION=<%=region%>
