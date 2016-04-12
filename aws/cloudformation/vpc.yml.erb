@@ -1,23 +1,12 @@
-<%
-require 'cdo/aws/cloudfront'
-require 'aws-sdk'
-%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: AWS CloudFormation Template for Code.org application
+Description: VPC, subnets and all security groups for Code.org infrastructure.
 Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/24
+      CidrBlock: 10.0.0.0/16
       EnableDnsHostnames: true
-  SubnetA:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: {Ref: VPC}
-      CidrBlock: 10.0.0.0/26
-      AvailabilityZone: '<%=availability_zone%>'
-      MapPublicIpOnLaunch: true
   InternetGateway:
     Type: AWS::EC2::InternetGateway
   Internet:
@@ -36,11 +25,23 @@ Resources:
       RouteTableId: {Ref: PublicRouteTable}
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: {Ref: InternetGateway}
+<%
+  availability_zones.each_with_index do |zone, i|
+    az = zone[-1].upcase
+%>
+  Subnet<%=az%>:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: {Ref: VPC}
+      CidrBlock: 10.0.<%=i%>.0/24
+      AvailabilityZone: '<%=zone%>'
+      MapPublicIpOnLaunch: true
   SubnetRouteAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: {Ref: PublicRouteTable}
-      SubnetId: {Ref: SubnetA}
+      SubnetId: {Ref: Subnet<%=az%>}
+<% end %>
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     DependsOn: Internet
