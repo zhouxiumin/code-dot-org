@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: VPC, subnets and all security groups for Code.org infrastructure.
+Description: VPC layer including all subnets, NAT gateway and security groups for Code.org infrastructure.
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -29,188 +29,62 @@ Resources:
   availability_zones.each_with_index do |zone, i|
     az = zone[-1].upcase
 %>
+# Create a private subnet in each availability zone.
   Subnet<%=az%>:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: {Ref: VPC}
       CidrBlock: 10.0.<%=i%>.0/24
       AvailabilityZone: '<%=zone%>'
-      MapPublicIpOnLaunch: true
-  SubnetRouteAssociation:
+      MapPublicIpOnLaunch: false
+  PrivateRouteTable<%=az%>:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: {Ref: VPC}
+  PrivateRoute<%=az%>:
+    Type: AWS::EC2::Route
+    DependsOn: NAT
+    Properties:
+      RouteTableId: {Ref: PrivateRouteTable}
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: {Ref: NAT<%=az%>}
+  PrivateSubnetRouteTableAssociation<%=az%>:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: {Ref: PublicRouteTable}
       SubnetId: {Ref: Subnet<%=az%>}
-<% end %>
-  ElasticLoadBalancer:
-    Type: AWS::ElasticLoadBalancing::LoadBalancer
-    DependsOn: Internet
-    Metadata:
-      Comment1: Configure the Load Balancer with a simple health check and cookie-based stickiness
-      Comment2: Use install path for healthcheck to avoid redirects - ELB healthcheck does not handle 302 return codes
+# Create a public subnet and NAT Gateway in each availability zone.
+# The NAT Gateway provides outbound (but not inbound) Internet access for instances in the private subnet.
+  PublicSubnet<%=az%>:
+    Type: AWS::EC2::Subnet
     Properties:
-      CrossZone: true
-      SecurityGroups: [Ref: ELBSecurityGroup]
-      Subnets: [Ref: SubnetA]
-      LBCookieStickinessPolicy:
-        - PolicyName: CookieBasedPolicy
-          CookieExpirationPeriod: 30
-      Listeners:
-        - LoadBalancerPort: 80
-          InstancePort: 80
-          Protocol: HTTP
-          PolicyNames: [CookieBasedPolicy]
-        - LoadBalancerPort: 443
-          InstancePort: 80
-          Protocol: HTTPS
-          SSLCertificateId: <%=elb_cert%>
-          PolicyNames: [CookieBasedPolicy]
-      HealthCheck:
-        Target: HTTP:80/health_check.php
-        HealthyThreshold: 2
-        UnhealthyThreshold: 5
-        Interval: 10
-        Timeout: 5
-      ConnectionDrainingPolicy:
-        Enabled: true
-        Timeout: 60
-  ELBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable HTTP[S] access from the public Internet, HTTP downstream.
       VpcId: {Ref: VPC}
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-  WebServerSecurityGroup:
+      CidrBlock: 10.1.<%=i%>.0/24
+      AvailabilityZone: '<%=zone%>'
+      MapPublicIpOnLaunch: false
+  PublicSubnetRouteTableAssociation<%=az%>:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      SubnetId: {Ref: PublicSubnet<%=az%>}
+  Nat<%=az%>:
+    Type: AWS::EC2::NatGateway
+    DependsOn: Internet
+    Properties:
+      AllocationId: {Fn::GetAtt: [NatEIP<%=az%>, AllocationId]}
+      SubnetId: {Ref: PublicSubnet<%=az%>}
+  NatEIP<%=az%>:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+<% end %>
+  GatewaySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP access via port 80 locked down to the load balancer + SSH access
+      GroupDescription: Enable SSH access from Gateway bastion server.
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          SourceSecurityGroupId: {Ref: ELBSecurityGroup}
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: <%=ssh_ip%>
       VpcId: {Ref: VPC}
-  WebServer:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn: Internet
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT60M
-        Count: 2
-    UpdatePolicy:
-      AutoScalingRollingUpdate:
-        MaxBatchSize: 1
-        MinInstancesInService: 1
-        PauseTime: PT60M
-        WaitOnResourceSignals: true
-    Properties:
-      VPCZoneIdentifier: [Ref: SubnetA]
-      LaunchConfigurationName: {Ref: LaunchConfig}
-      MinSize: 1
-      MaxSize: 5
-      DesiredCapacity: 2
-      HealthCheckType: ELB
-      HealthCheckGracePeriod: 4000
-      LoadBalancerNames: [Ref: ElasticLoadBalancer]
-  LaunchConfig:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Properties:
-      ImageId: <%=image_id%>
-      InstanceType: <%=instance_type%>
-      IamInstanceProfile: {Ref: RootInstanceProfile}
-      SecurityGroups: [Ref: WebServerSecurityGroup]
-      KeyName: <%=ssh_key_name%>
-      BlockDeviceMappings:
-        - DeviceName: /dev/sda1
-          Ebs:
-            VolumeSize: 64
-            VolumeType: gp2
-      UserData:
-        Fn::Base64: <%=file.call('bootstrap.sh.erb')%>
-  RootRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: [ec2.amazonaws.com]
-            Action: ['sts:AssumeRole']
-      Path: '/'
-  RolePolicies:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: s3
-      PolicyDocument:
-        Statement:
-          Effect: Allow
-          Action: ['s3:GetObject']
-          Resource: 'arn:aws:s3:::<%=s3_bucket%>/*'
-      Roles: [Ref: RootRole]
-  RootInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: '/'
-      Roles: [Ref: RootRole]
-  PegasusCDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert)%>
-  DashboardCDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert)%>
-  PegasusDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "pegasus-<%=subdomain%>"
-          Type: A
-          AliasTarget:
-            DNSName: {'Fn::GetAtt': [PegasusCDN, DomainName]}
-            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  DashboardDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "dashboard-<%=subdomain%>"
-          Type: A
-          AliasTarget:
-            DNSName: {'Fn::GetAtt': [DashboardCDN, DomainName]}
-            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  LoadBalancerDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "origin-<%=subdomain%>"
-          Type: A
-          AliasTarget:
-            HostedZoneId: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneNameID]}
-            DNSName: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneName]}
-Outputs:
-  DashboardURL:
-    Value: "https://dashboard-<%=subdomain%>"
-    Description: Dashboard URL
-  PegasusURL:
-    Value: "https://pegasus-<%=subdomain%>"
-    Description: Pegasus URL
