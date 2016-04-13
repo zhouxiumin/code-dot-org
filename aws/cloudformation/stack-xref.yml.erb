@@ -1,0 +1,37 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Implements the "Refer to Resources in Another Stack" layered-architecture pattern. Ref: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/walkthrough-custom-resources-lambda-cross-stack-ref.html'
+Resources:
+  LookupStackOutputs:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: LookupStackOutputs
+      Code:
+        ZipFile: <%=file.call('stack-xref.js')%>
+      Handler: index.handler
+      Runtime: nodejs
+      Timeout: 30
+      Role: {'Fn::GetAtt': [LookupStackExecutionRole, Arn]}
+  LookupStackExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: ['sts:AssumeRole']
+            Effect: Allow
+            Principal: {Service: [lambda.amazonaws.com]}
+      Path: '/'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"]
+                Resource: "arn:aws:logs:*:*:*"
+              - Effect: Allow
+                Action: ["cloudformation:DescribeStacks"]
+                Resource: "*"
+Outputs:
+  ServiceToken:
+    Value: {'Fn::GetAtt': [LookupStackOutputs, Arn]}
+    Description: ServiceToken for LookupStackOutputs Lambda function

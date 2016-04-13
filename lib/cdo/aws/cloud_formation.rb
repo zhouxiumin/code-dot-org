@@ -14,7 +14,7 @@ module AWS
     TEMPLATE = ENV['TEMPLATE'] || 'cloud_formation_adhoc_standalone.yml.erb'
 
     DOMAIN = 'cdn-code.org'
-    STACK_NAME = "#{rack_env}-#{RakeUtils.git_branch}"
+    STACK_NAME = ENV['STACK_NAME'] || "#{rack_env}-#{RakeUtils.git_branch}"
     # Fully qualified domain name
     FQDN = "#{STACK_NAME}.#{DOMAIN}"
     SSH_KEY_NAME = 'server_access_key'
@@ -120,7 +120,7 @@ module AWS
       end
 
       def wait_for_stack(action, start_time)
-        CDO.log.info "Stack #{action} requested, waiting for instance provisioning to complete..."
+        CDO.log.info "Stack #{action} requested, waiting for provisioning to complete..."
         begin
           cfn.wait_until("stack_#{action}_complete".to_sym, stack_name: STACK_NAME) do |w|
             w.max_attempts = 360 # 1 hour
@@ -144,6 +144,8 @@ module AWS
 
       def json_template(cdn_enabled:)
         template_string = File.read(aws_dir('cloudformation', TEMPLATE))
+        availability_zones = Aws::EC2::Client.new.describe_availability_zones.availability_zones.map(&:zone_name)
+        azs = availability_zones.map { |zone| zone[-1].upcase }
         @@local_variables = OpenStruct.new(
           local_mode: !!CDO.chef_local_mode,
           stack_name: STACK_NAME,
@@ -158,12 +160,16 @@ module AWS
           cdn_enabled: cdn_enabled,
           domain: DOMAIN,
           subdomain: FQDN,
-          availability_zone: Aws::EC2::Client.new.describe_availability_zones.availability_zones.first.zone_name,
-          availability_zones: Aws::EC2::Client.new.describe_availability_zones.availability_zones.map(&:zone_name),
+          availability_zone: availability_zones.first,
+          availability_zones: availability_zones,
+          azs: azs,
           s3_bucket: S3_BUCKET,
-          file: method(:file)
+          file: method(:file),
+          subnets: azs.map{|az|{'Fn::GetAtt' => ['VPC', "Subnet#{az}"]}}.to_json,
+          xref: method(:xref)
         )
-        YAML.load(erb_eval(template_string)).to_json
+        erb_output = erb_eval(template_string)
+        YAML.load(erb_output).to_json
       end
 
       # Input filename, output ERB-processed file contents in CloudFormation JSON-compatible syntax (using Fn::Join operator).
@@ -174,9 +180,26 @@ module AWS
         {'Fn::Join' => ["", erb_eval(str, local_vars).each_line.to_a]}.to_json
       end
 
+      # Helper function to refer to the 'LookupStackOutputs' custom resource.
+      def xref(stack_name)
+        {
+          Type: "Custom::#{stack_name}",
+          Properties: {
+            ServiceToken: {'Fn::Join' => [':',[
+              'arn:aws:lambda:',
+              {Ref: 'AWS::Region'},
+              {Ref: 'AWS::AccountId'},
+              'function',
+              'LookupStackOutputs'
+            ]]},
+            StackName: {Ref: stack_name}
+          }
+        }.to_json
+      end
+
       def erb_eval(str, local_vars=nil)
         local_vars ||= @@local_variables
-        ERB.new(str).result(local_vars.instance_eval{binding})
+        ERB.new(str, nil, '-').result(local_vars.instance_eval{binding})
       end
 
     end
