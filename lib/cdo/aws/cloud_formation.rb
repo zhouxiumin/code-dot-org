@@ -202,7 +202,7 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
         local_vars = @@local_variables.dup
         vars.each { |k, v| local_vars[k] = v }
         str = File.read(aws_dir('cloudformation', filename))
-        {'Fn::Join' => ["", erb_eval(str, local_vars).each_line.to_a]}.to_json
+        {'Fn::Join' => ['', erb_eval(str, local_vars).each_line.to_a]}.to_json
       end
 
       # Helper function to refer to the 'LookupStackOutputs' custom resource.
@@ -211,13 +211,13 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
           Type: "Custom::#{stack_name}",
           Properties: {
             ServiceToken: {'Fn::Join' => [':',[
-              'arn:aws:lambda:',
+              'arn:aws:lambda',
               {Ref: 'AWS::Region'},
               {Ref: 'AWS::AccountId'},
               'function',
               'LookupStackOutputs'
             ]]},
-            StackName: {Ref: stack_name}
+            StackName: stack_name
           }
         }.to_json
       end

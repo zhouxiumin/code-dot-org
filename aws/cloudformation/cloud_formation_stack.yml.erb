@@ -1,7 +1,4 @@
-<%
-require 'cdo/aws/cloudfront'
-require 'aws-sdk'
-%>
+<% require 'cdo/aws/cloudfront' -%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: AWS CloudFormation Template for Code.org application
@@ -25,7 +22,7 @@ Resources:
         - LoadBalancerPort: 443
           InstancePort: 80
           Protocol: HTTPS
-          SSLCertificateId: <%=elb_cert%>
+          SSLCertificateId: <%=certificate_arn%>
           PolicyNames: [CookieBasedPolicy]
       HealthCheck:
         Target: HTTP:80/health_check.php
@@ -49,7 +46,7 @@ Resources:
         PauseTime: PT60M
         WaitOnResourceSignals: true
     Properties:
-      VPCZoneIdentifier: {'Fn::GetAtt': [VPC, Subnets]}
+      VPCZoneIdentifier: <%=subnets%>
       LaunchConfigurationName: {Ref: LaunchConfig}
       MinSize: 1
       MaxSize: 12
@@ -62,7 +59,7 @@ Resources:
     Properties:
       ImageId: <%=image_id%>
       InstanceType: <%=instance_type%>
-      IamInstanceProfile: {'Fn::GetAtt': [IAM, RootInstanceProfile]}
+      IamInstanceProfile: {'Fn::GetAtt': [IAM, FrontendInstanceProfile]}
       SecurityGroups: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]
       KeyName: <%=ssh_key_name%>
       BlockDeviceMappings:
@@ -72,35 +69,34 @@ Resources:
             VolumeType: gp2
       UserData:
         Fn::Base64: <%=file.call('bootstrap.sh.erb')%>
-  PegasusCDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert)%>
-  DashboardCDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert)%>
-  PegasusDNS:
+<%
+  %w(Dashboard Pegasus).each do |app|
+    app_domain = "#{app == 'Dashboard' ? 'dashboard-' : ''}#{subdomain}"
+-%>
+  <%=app%>DNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
       HostedZoneName: <%=domain%>.
       RecordSets:
-        - Name: "pegasus-<%=subdomain%>"
+        - Name: <%=app_domain%>
           Type: A
           AliasTarget:
-            DNSName: {'Fn::GetAtt': [PegasusCDN, DomainName]}
+<%   if cdn_enabled -%>
+            DNSName: {'Fn::GetAtt': [<%=app%>CDN, DomainName]}
             HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  DashboardDNS:
-    Type: AWS::Route53::RecordSetGroup
+<%   else -%>
+            DNSName: {'Fn::GetAtt': [LoadBalancer, CanonicalHostedZoneName]}
+            HostedZoneId: {'Fn::GetAtt': [LoadBalancer, CanonicalHostedZoneNameID]}
+<%   end -%>
+<%   if cdn_enabled -%>
+  <%=app%>CDN:
+    Type: AWS::CloudFront::Distribution
     Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "dashboard-<%=subdomain%>"
-          Type: A
-          AliasTarget:
-            DNSName: {'Fn::GetAtt': [DashboardCDN, DomainName]}
-            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  LoadBalancerDNS:
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(app.downcase.to_sym, "origin-#{subdomain}", [app_domain])%>
+<%   end -%>
+<% end -%>
+<% if cdn_enabled%>
+  OriginDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
       HostedZoneName: <%=domain%>.
@@ -110,10 +106,11 @@ Resources:
           AliasTarget:
             HostedZoneId: {'Fn::GetAtt': [LoadBalancer, CanonicalHostedZoneNameID]}
             DNSName: {'Fn::GetAtt': [LoadBalancer, CanonicalHostedZoneName]}
+<% end -%>
 Outputs:
   DashboardURL:
     Value: "https://dashboard-<%=subdomain%>"
     Description: Dashboard URL
   PegasusURL:
-    Value: "https://pegasus-<%=subdomain%>"
+    Value: "https://<%=subdomain%>"
     Description: Pegasus URL

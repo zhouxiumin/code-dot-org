@@ -51,7 +51,7 @@ Resources:
   PrivateSubnetRouteTableAssociation<%=az%>:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: {Ref: PublicRouteTable}
+      RouteTableId: {Ref: PrivateRouteTable<%=az%>}
       SubnetId: {Ref: Subnet<%=az%>}
 # Create a public subnet and NAT Gateway in each availability zone.
 # The NAT Gateway provides outbound (but not inbound) Internet access for the private subnet.
