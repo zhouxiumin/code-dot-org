@@ -1,0 +1,90 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC layer including all subnets, NAT gateway and security groups for Code.org infrastructure.
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  Internet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: {Ref: VPC}
+      InternetGatewayId: {Ref: InternetGateway}
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: {Ref: VPC}
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: Internet
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: {Ref: InternetGateway}
+<%
+  availability_zones.each_with_index do |zone, i|
+    az = zone[-1].upcase
+%>
+# Create a private subnet in each availability zone.
+  Subnet<%=az%>:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: {Ref: VPC}
+      CidrBlock: 10.0.<%=i%>.0/24
+      AvailabilityZone: '<%=zone%>'
+      MapPublicIpOnLaunch: false
+  PrivateRouteTable<%=az%>:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: {Ref: VPC}
+  PrivateRoute<%=az%>:
+    Type: AWS::EC2::Route
+    DependsOn: NAT
+    Properties:
+      RouteTableId: {Ref: PrivateRouteTable}
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: {Ref: NAT<%=az%>}
+  PrivateSubnetRouteTableAssociation<%=az%>:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      SubnetId: {Ref: Subnet<%=az%>}
+# Create a public subnet and NAT Gateway in each availability zone.
+# The NAT Gateway provides outbound (but not inbound) Internet access for instances in the private subnet.
+  PublicSubnet<%=az%>:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: {Ref: VPC}
+      CidrBlock: 10.1.<%=i%>.0/24
+      AvailabilityZone: '<%=zone%>'
+      MapPublicIpOnLaunch: false
+  PublicSubnetRouteTableAssociation<%=az%>:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      SubnetId: {Ref: PublicSubnet<%=az%>}
+  Nat<%=az%>:
+    Type: AWS::EC2::NatGateway
+    DependsOn: Internet
+    Properties:
+      AllocationId: {Fn::GetAtt: [NatEIP<%=az%>, AllocationId]}
+      SubnetId: {Ref: PublicSubnet<%=az%>}
+  NatEIP<%=az%>:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+<% end %>
+  GatewaySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access from Gateway bastion server.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: <%=ssh_ip%>
+      VpcId: {Ref: VPC}

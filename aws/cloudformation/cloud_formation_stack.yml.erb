@@ -171,11 +171,11 @@ Resources:
   PegasusCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert, true)%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert)%>
   DashboardCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert, true)%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert)%>
   PegasusDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
