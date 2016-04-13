@@ -1,23 +1,21 @@
 'use strict';
 
-var _ = require('../../lodash');
+var Radium = require('radium');
 var color = require('../../color');
 var styleConstants = require('../../styleConstants');
 
 var processMarkdown = require('marked');
 
-var Instructions = require('./Instructions.jsx');
-var CollapserIcon = require('./CollapserIcon.jsx');
-var HeightResizer = require('./HeightResizer.jsx');
+var Instructions = require('./Instructions');
+var CollapserIcon = require('./CollapserIcon');
+var HeightResizer = require('./HeightResizer');
 var constants = require('../../constants');
 var msg = require('../../locale');
 
 var HEADER_HEIGHT = styleConstants['workspace-headers-height'];
 var RESIZER_HEIGHT = styleConstants['resize-bar-width'];
 
-// TODO - may want to be smarter about these values
-var INITIAL_HEIGHT = 300;
-var MAX_HEIGHT = 600;
+var MIN_HEIGHT = RESIZER_HEIGHT + 60;
 
 var styles = {
   main: {
@@ -41,7 +39,18 @@ var styles = {
     paddingRight: 10,
     position: 'absolute',
     top: HEADER_HEIGHT,
-    bottom: 0
+    bottom: 0,
+    left: 0,
+    right: 0
+  },
+  hidden: {
+    display: 'none'
+  },
+  embedView: {
+    height: undefined,
+    bottom: 0,
+    // Visualization is hard-coded on embed levels. Do the same for instructions position
+    left: 340
   }
 };
 
@@ -52,27 +61,43 @@ var TopInstructions = React.createClass({
     puzzleNumber: React.PropTypes.number.isRequired,
     stageTotal: React.PropTypes.number.isRequired,
     height: React.PropTypes.number.isRequired,
+    maxHeight: React.PropTypes.number.isRequired,
     markdown: React.PropTypes.string,
     collapsed: React.PropTypes.bool.isRequired,
     onToggleCollapsed: React.PropTypes.func.isRequired,
     onChangeHeight: React.PropTypes.func.isRequired,
+    onLoadImage: React.PropTypes.func.isRequired
   },
 
+  /**
+   * Called externally
+   * @returns {number} The height of the rendered contents in pixels
+   */
+  getContentHeight: function () {
+    var instructionsContent = this.refs.instructions.refs.instructionsMarkdown;
+    return $(ReactDOM.findDOMNode(instructionsContent)).outerHeight(true);
+  },
+
+  /**
+   * Given a prospective delta, determines how much we can actually change the
+   * height (accounting for min/max) and changes height by that much.
+   * @param {number} delta
+   * @returns {number} How much we actually changed
+   */
   onHeightResize: function (delta) {
-    var minHeight = HEADER_HEIGHT + RESIZER_HEIGHT;
+    var minHeight = MIN_HEIGHT;
     var currentHeight = this.props.height;
 
     var newHeight = Math.max(minHeight, currentHeight + delta);
-    newHeight = Math.min(newHeight, MAX_HEIGHT);
+    newHeight = Math.min(newHeight, this.props.maxHeight);
 
     this.props.onChangeHeight(newHeight);
     return newHeight - currentHeight;
   },
 
-  componentWillMount: function () {
-    if (this.props.markdown) {
-      this.props.onChangeHeight(INITIAL_HEIGHT);
-    }
+  componentDidMount: function () {
+    // Parent needs to readjust some sizing after images have loaded
+    $(ReactDOM.findDOMNode(this)).find('img').load(this.props.onLoadImage);
   },
 
   render: function () {
@@ -81,18 +106,9 @@ var TopInstructions = React.createClass({
     }
     var id = this.props.id;
 
-    var mainStyle = _.assign({}, styles.main, {
+    var mainStyle = [styles.main, {
       height: this.props.height - RESIZER_HEIGHT
-    }, this.props.isEmbedView && {
-      height: undefined,
-      bottom: 0,
-      // Visualization is hard-coded on embed levels. Do the same for instructions position
-      left: 340
-    });
-
-    var collapseStyle = {
-      display: this.props.collapsed ? 'none' : undefined
-    };
+    }, this.props.isEmbedView && styles.embedView];
 
     return (
       <div style={mainStyle} className="editor-column">
@@ -106,15 +122,16 @@ var TopInstructions = React.createClass({
             puzzle_number: this.props.puzzleNumber
           })}
         </div>
-        <div style={collapseStyle}>
+        <div style={[this.props.collapsed && styles.hidden]}>
           <div style={styles.body}>
             <Instructions
+              ref="instructions"
               renderedMarkdown={processMarkdown(this.props.markdown)}
               inTopPane
               />
           </div>
           {!this.props.isEmbedView && <HeightResizer
-            position={mainStyle.height}
+            position={this.props.height}
             onResize={this.onHeightResize}/>
           }
         </div>
@@ -122,4 +139,4 @@ var TopInstructions = React.createClass({
     );
   }
 });
-module.exports = TopInstructions;
+module.exports = Radium(TopInstructions);

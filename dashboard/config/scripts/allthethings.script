@@ -103,6 +103,7 @@ level 'allthethings_template_backed1'
 level 'allthethings_template_backed2'
 level 'allthethings_moviebot'
 level 'Applab allthethings onRecordEvent'
+level 'allthethings_embed_video'
 
 stage 'Online PD'
 level 'PDK5 Intro C'
@@ -124,3 +125,6 @@ level 'blockly:Studio:hoc2015_blockly_5'
 
 stage 'Minecraft'
 level 'Overworld Chop Tree - allthethings'
+
+stage 'Rich long assessment'
+assessment 'PS U3 Assessment1'

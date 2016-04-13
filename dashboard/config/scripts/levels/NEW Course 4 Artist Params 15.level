@@ -15,8 +15,8 @@
     "use_modal_function_editor": "true",
     "use_contract_editor": "false",
     "start_direction": "90",
-    "x": "150",
-    "y": "250",
+    "x": "200",
+    "y": "200",
     "free_play": "true",
     "impressive": "false",
     "embed": "false",
@@ -34,7 +34,15 @@
     "never_autoplay_video": "false"
   },
   "published": true,
-  "notes": ""
+  "notes": "",
+  "level_concept_difficulty": {
+    "sequencing": 1,
+    "repeat_loops": 1,
+    "for_loops": 1,
+    "variables": 1,
+    "functions": 1,
+    "functions_with_params": 1
+  }
 }]]></config>
   <blocks>
     <start_blocks>

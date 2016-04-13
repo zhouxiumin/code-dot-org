@@ -102,6 +102,17 @@ Scenario:
   And I wait to see ".congrats"
   And element ".congrats" is visible
   And I see no difference for "maze feedback with blocks"
+
+  Then I am on "http://learn.code.org/s/allthethings/stage/2/puzzle/1/lang/ar-sa"
+  And I rotate to landscape
+  # noautoplay doesn't work with the language redirect, so we have to close the
+  # video dialog and the instructions
+  And I close the dialog
+  And I close the dialog
+  And I wait to see "#runButton"
+  And I see no difference for "maze RTL"
+  Given I am on "http://learn.code.org/reset_session/lang/en"
+  And I wait for 2 seconds
   And I close my eyes
 
 @dashboard_db_access
@@ -202,6 +213,8 @@ Examples:
   | http://studio.code.org/                                           | logged in studio homepage  |
   | http://studio.code.org/s/allthethings                             | logged in script progress  |
   | https://studio.code.org/s/allthethings/stage/13/puzzle/3?noautoplay=true | embedded blocks     |
+  | http://learn.code.org/s/course4/stage/1/puzzle/1                  | unplugged video level |
+  | http://learn.code.org/s/allthethings/stage/18/puzzle/14           | embed video |
 
 Scenario Outline: Logged out simple page view without instructions dialog
   Given I am on "http://learn.code.org/"
