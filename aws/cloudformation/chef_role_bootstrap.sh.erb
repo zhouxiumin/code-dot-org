@@ -9,19 +9,21 @@ apt-get -y install python-pip curl
 test "$(pip show awscli)" || pip install awscli
 
 STACK=<%=stack_name%>
-S3_BUCKET=<%=s3_bucket%>
 REGION=<%=region%>
-NODE_NAME=<%=node_name%>
+S3_BUCKET=<%=s3_bucket%>
+ENVIRONMENT=<%=environment%>
 RUN_LIST=<%=run_list%>
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+NODE_NAME=<%=node_name%>
+RESOURCE_ID=<%=resource_id%>
 
-sudo -u ubuntu bash -c "aws s3 cp s3://${S3_BUCKET}/chef/bootstrap.sh - | sudo bash -s -- <%=local_mode ? '-z' : ''%> -n ${NODE_NAME} -r ${RUN_LIST}"
+sudo -u ubuntu bash -c "aws s3 cp s3://${S3_BUCKET}/chef/bootstrap.sh - | sudo bash -s -- <%=local_mode ? '-z' : ''%> -n ${NODE_NAME} -r ${RUN_LIST} -e ${ENVIRONMENT}"
 [ $? -eq 0 ] && STATUS=SUCCESS || STATUS=FAILURE
 
 aws cloudformation signal-resource \
   --unique-id ${INSTANCE_ID} \
   --stack-name ${STACK} \
-  --logical-resource-id ${NODE_NAME} \
+  --logical-resource-id ${RESOURCE_ID} \
   --status ${STATUS} \
   --region ${REGION} \
   || true
