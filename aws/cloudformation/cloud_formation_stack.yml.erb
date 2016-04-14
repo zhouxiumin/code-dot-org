@@ -10,7 +10,7 @@ Resources:
     Properties:
       CrossZone: true
       SecurityGroups: ['Fn::GetAtt': [VPC, ELBSecurityGroup]]
-      Subnets: <%=subnets%>
+      Subnets: <%=public_subnets%>
       LBCookieStickinessPolicy:
         - PolicyName: CookieBasedPolicy
           CookieExpirationPeriod: 30

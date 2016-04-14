@@ -191,6 +191,7 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
           s3_bucket: S3_BUCKET,
           file: method(:file),
           subnets: azs.map{|az|{'Fn::GetAtt' => ['VPC', "Subnet#{az}"]}}.to_json,
+          public_subnets: azs.map{|az|{'Fn::GetAtt' => ['VPC', "PublicSubnet#{az}"]}}.to_json,
           xref: method(:xref)
         )
         erb_output = erb_eval(template_string)
@@ -205,8 +206,9 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
         {'Fn::Join' => ['', erb_eval(str, local_vars).each_line.to_a]}.to_json
       end
 
-      # Helper function to refer to the 'LookupStackOutputs' custom resource.
-      def xref(stack_name)
+      # Helper function to refer to a 'LookupStackOutputs' custom resource for layered infrastructure.
+      # To force-update an existing stack if a referenced layer has changed, change the `nonce` value in the template.
+      def xref(stack_name, nonce=0)
         {
           Type: "Custom::#{stack_name}",
           Properties: {
@@ -217,7 +219,8 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
               'function',
               'LookupStackOutputs'
             ]]},
-            StackName: stack_name
+            StackName: stack_name,
+            Nonce: nonce
           }
         }.to_json
       end

@@ -114,7 +114,7 @@ Resources:
   FrontendSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Inbound HTTP[S] from load balancer, SSH from Gateway
+      GroupDescription: Inbound HTTP[S] from load balancer, SSH from Gateway.
       VpcId: {Ref: VPC}
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -138,10 +138,10 @@ Outputs:
     Value: {'Fn::GetAtt': [GatewaySecurityGroup, GroupId]}
   ELBSecurityGroup:
     Description: Security group for Load Balancer
-    Value: {'Fn::GetAtt': [GatewaySecurityGroup, GroupId]}
+    Value: {'Fn::GetAtt': [ELBSecurityGroup, GroupId]}
   FrontendSecurityGroup:
     Description: Security group for Frontend server
-    Value: {'Fn::GetAtt': [GatewaySecurityGroup, GroupId]}
+    Value: {'Fn::GetAtt': [FrontendSecurityGroup, GroupId]}
 <%
   availability_zones.each_with_index do |zone, i|
     az = zone[-1].upcase
