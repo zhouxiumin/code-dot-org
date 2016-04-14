@@ -85,7 +85,6 @@ else
 end
 RUBY
 mkdir -p ${HOME}/.chef
-ln -s /etc/chef/client.rb ${HOME}/.chef/knife.rb
 
 # Write default first-boot.json to be used by the chef-client command.
 # Existing file takes precedence.
@@ -108,8 +107,8 @@ fi
 SHUTDOWN_SH=/etc/init.d/chef_shutdown
 cat <<SH > ${SHUTDOWN_SH}
 #/bin/sh
-/opt/chef/bin/knife node delete -y ${NODE_NAME}
-/opt/chef/bin/knife client delete -y ${NODE_NAME}
+/opt/chef/bin/knife node delete ${NODE_NAME} -y -c /etc/chef/client.rb
+/opt/chef/bin/knife client delete ${NODE_NAME} -y -c /etc/chef/client.rb
 rm -f /etc/chef/client.pem
 SH
 chmod +x ${SHUTDOWN_SH}
