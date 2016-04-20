@@ -3,8 +3,8 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: AWS CloudFormation Template for Code.org application
 Resources:
-  VPC: <%= xref.call 'VPC' %>
-  IAM: <%= xref.call 'IAM' %>
+  VPC: <%= lambda.call 'LookupStackOutputs', StackName: 'VPC' %>
+  IAM: <%= lambda.call 'LookupStackOutputs', StackName: 'IAM' %>
   LoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
@@ -33,6 +33,41 @@ Resources:
       ConnectionDrainingPolicy:
         Enabled: true
         Timeout: 60
+  WaitHandlePendingAMI:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  WaitConditionPendingAMI:
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Handle: {Ref: WaitHandlePendingAMI}
+      Timeout: 7200
+  WaitHandleAMIComplete:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  WaitConditionAMIComplete:
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Handle: {Ref: WaitHandleAMIComplete}
+      Timeout: 7200
+  WebServerAMI:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: <%=image_id%>
+      InstanceType: m4.10xlarge
+      IamInstanceProfile: {'Fn::GetAtt': [IAM, FrontendInstanceProfile]}
+      SecurityGroupIds: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]
+      SubnetId: {'Fn::GetAtt': [VPC, Subnet<%=azs.first%>]}
+      KeyName: <%=ssh_key_name%>
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 64
+            VolumeType: gp2
+      UserData:
+        Fn::Base64: <%=file.call('ami_bootstrap.sh.erb', resource_id: 'WebServerAMI', node_name: 'fe-${INSTANCE_ID}', run_list: 'recipe[cdo-apps]')%>
+  AMI: <%= lambda.call 'AMIManager',
+    DependsOn: {Ref: 'WaitConditionPendingAMI'},
+    StackName: {Ref: 'AWS::StackName' },
+    Region: {Ref: 'AWS::Region' },
+    InstanceId: {Ref: 'WebServerAMI' } %>
   WebServer:
     Type: AWS::AutoScaling::AutoScalingGroup
     CreationPolicy:
@@ -57,7 +92,7 @@ Resources:
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      ImageId: <%=image_id%>
+      ImageId: {"Fn::GetAtt": [AMI, ImageId]}
       InstanceType: <%=instance_type%>
       IamInstanceProfile: {'Fn::GetAtt': [IAM, FrontendInstanceProfile]}
       SecurityGroups: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]

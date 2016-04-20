@@ -192,7 +192,7 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
           file: method(:file),
           subnets: azs.map{|az|{'Fn::GetAtt' => ['VPC', "Subnet#{az}"]}}.to_json,
           public_subnets: azs.map{|az|{'Fn::GetAtt' => ['VPC', "PublicSubnet#{az}"]}}.to_json,
-          xref: method(:xref)
+          lambda: method(:lambda)
         )
         erb_output = erb_eval(template_string)
         YAML.load(erb_output).to_json
@@ -203,26 +203,31 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
         local_vars = @@local_variables.dup
         vars.each { |k, v| local_vars[k] = v }
         str = File.read(aws_dir('cloudformation', filename))
-        {'Fn::Join' => ['', erb_eval(str, local_vars).each_line.to_a]}.to_json
+        lines = erb_eval(str, local_vars).each_line.map do |line|
+          line.split(/(%{.*})/).map do |x|
+            x.match(/%{.*}/) ? JSON.parse(x.gsub(/%({.*})/, '\1')) : x
+          end
+        end.flatten
+        {'Fn::Join' => ['', lines]}.to_json
       end
 
-      # Helper function to refer to a 'LookupStackOutputs' custom resource for layered infrastructure.
-      # To force-update an existing stack if a referenced layer has changed, change the `nonce` value in the template.
-      def xref(stack_name, nonce=0)
+      # Helper function to call a Lambda-function Custom Resource by function name.
+      def lambda(function_name, properties={})
+        depends_on = properties.delete('DependsOn')
         {
-          Type: "Custom::#{stack_name}",
+          Type: properties.delete('Type') || "Custom::#{function_name}",
           Properties: {
             ServiceToken: {'Fn::Join' => [':',[
               'arn:aws:lambda',
               {Ref: 'AWS::Region'},
               {Ref: 'AWS::AccountId'},
               'function',
-              'LookupStackOutputs'
-            ]]},
-            StackName: stack_name,
-            Nonce: nonce
-          }
-        }.to_json
+              function_name
+            ]]}
+          }.merge(properties)
+        }.tap do |json|
+          json['DependsOn'] = depends_on if depends_on
+        end.to_json
       end
 
       def erb_eval(str, local_vars=nil)
