@@ -213,7 +213,7 @@ To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
 
       # Helper function to call a Lambda-function Custom Resource by function name.
       def lambda(function_name, properties={})
-        depends_on = properties.delete('DependsOn')
+        depends_on = properties.delete(:DependsOn)
         {
           Type: properties.delete('Type') || "Custom::#{function_name}",
           Properties: {

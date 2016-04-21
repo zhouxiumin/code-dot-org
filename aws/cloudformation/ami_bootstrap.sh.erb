@@ -1,15 +1,15 @@
 #!/bin/bash -x
 # UserData bootstrap script for CloudFormation stack instances.
-# This  script bootstraps, creates an AMI, then shuts itself down to save resources.
-# Note: Minimize changes to this script! Every time its contents change,
-# the next CloudFormation update will reboot all servers using this script.
+# This script bootstraps, creates an AMI, then shuts itself down to save resources.
 
-echo -e "\n### Fetching and Installing Code..."
+# Modify cloud-init to re-run bootstrap script every time instance restarts.
+# Ref: http://stackoverflow.com/a/10455027
+sed -i 's/scripts-user$/\[scripts-user, always\]/' /etc/cloud/cloud.cfg
 
 # Bootstrap prerequisites
 apt-get update
-apt-get -y install python-pip curl
-test "$(pip show awscli)" || pip install awscli
+apt-get -y install python3-pip curl
+test "$(pip3 show awscli)" || pip3 install awscli
 
 STACK=<%=stack_name%>
 REGION=<%=region%>
@@ -19,30 +19,29 @@ RUN_LIST=<%=run_list%>
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 NODE_NAME=<%=node_name%>
 
-PENDING_AMI_HANDLE=%{"Ref": "WaitHandlePendingAMI"}
-AMI_COMPLETE_HANDLE=%{"Ref": "WaitHandleAMIComplete"}
-
 sudo -u ubuntu bash -c "aws s3 cp s3://${S3_BUCKET}/chef/bootstrap.sh - | sudo bash -s -- <%=local_mode ? '-z' : ''%> -n ${NODE_NAME} -r ${RUN_LIST} -e ${ENVIRONMENT}"
 [ $? -eq 0 ] && STATUS=SUCCESS || STATUS=FAILURE
 
-echo -e "\n### Signal for AMI capture..."
 aws cloudformation signal-resource \
-  --unique-id waitingforami \
   --stack-name ${STACK} \
-  --logical-resource-id ${PENDING_AMI_HANDLE} \
+  --logical-resource-id <%=create_id%> \
+  --unique-id ${INSTANCE_ID} \
   --status ${STATUS} \
   --region ${REGION} \
   || true
 
-aws ec2 wait image-available \
+WAIT_CMD="aws ec2 wait image-available \
   --filters Name=tag:cloudformation:amimanager:stack-name,Values=${STACK} \
-  --region ${REGION} \
-  || true
+  --region ${REGION}"
+# aws-cli has hardcoded waiter timeouts (15 sec/attempt, max 40 = 10 min), so we need a dumb loop to extend the timeout.
+# Ref https://github.com/aws/aws-cli/issues/1295
+# AMI creation can take up to 40 minutes with our current application size.
+for i in $(seq 1 10); do ${WAIT_CMD} && break; done
 
 aws cloudformation signal-resource \
-  --unique-id waitedforami \
   --stack-name ${STACK} \
-  --logical-resource-id ${AMI_COMPLETE_HANDLE} \
+  --logical-resource-id <%=complete_id%> \
+  --unique-id ${INSTANCE_ID} \
   --status ${STATUS} \
   --region ${REGION} \
   || true

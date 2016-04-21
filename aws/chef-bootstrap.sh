@@ -112,8 +112,8 @@ cat <<SH > ${SHUTDOWN_SH}
 rm -f /etc/chef/client.pem
 SH
 chmod +x ${SHUTDOWN_SH}
-ln -s ${SHUTDOWN_SH} /etc/rc0.d/S04chef_shutdown
-ln -s ${SHUTDOWN_SH} /etc/rc6.d/S04chef_shutdown
+ln -fs ${SHUTDOWN_SH} /etc/rc0.d/S04chef_shutdown
+ln -fs ${SHUTDOWN_SH} /etc/rc6.d/S04chef_shutdown
 
 if [ "${LOCAL_MODE}" = "1" ]; then
   mkdir -p ${CHEF_REPO_PATH}/{cookbooks,environments}

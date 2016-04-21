@@ -33,22 +33,21 @@ Resources:
       ConnectionDrainingPolicy:
         Enabled: true
         Timeout: 60
-  WaitHandlePendingAMI:
-    Type: AWS::CloudFormation::WaitConditionHandle
-  WaitConditionPendingAMI:
+# Nonce value for AMI resources. Change this value to generate a new base AMI on the next CloudFormation update.
+<% ami = '2' -%>
+  AMIComplete<%=ami%>:
     Type: AWS::CloudFormation::WaitCondition
-    Properties:
-      Handle: {Ref: WaitHandlePendingAMI}
-      Timeout: 7200
-  WaitHandleAMIComplete:
-    Type: AWS::CloudFormation::WaitConditionHandle
-  WaitConditionAMIComplete:
-    Type: AWS::CloudFormation::WaitCondition
-    Properties:
-      Handle: {Ref: WaitHandleAMIComplete}
-      Timeout: 7200
-  WebServerAMI:
+    DependsOn: AMI
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT40M
+        Count: 1
+  WebServerAMI<%=ami%>:
     Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT40M
+        Count: 1
     Properties:
       ImageId: <%=image_id%>
       InstanceType: m4.10xlarge
@@ -56,18 +55,23 @@ Resources:
       SecurityGroupIds: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]
       SubnetId: {'Fn::GetAtt': [VPC, Subnet<%=azs.first%>]}
       KeyName: <%=ssh_key_name%>
+      InstanceInitiatedShutdownBehavior: terminate
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
             VolumeSize: 64
             VolumeType: gp2
       UserData:
-        Fn::Base64: <%=file.call('ami_bootstrap.sh.erb', resource_id: 'WebServerAMI', node_name: 'fe-${INSTANCE_ID}', run_list: 'recipe[cdo-apps]')%>
+        Fn::Base64: <%=file.call('ami_bootstrap.sh.erb',
+          create_id: "WebServerAMI#{ami}",
+          complete_id: "AMIComplete#{ami}",
+          node_name: 'fe-${INSTANCE_ID}',
+          run_list: 'recipe[cdo-apps]') %>
   AMI: <%= lambda.call 'AMIManager',
-    DependsOn: {Ref: 'WaitConditionPendingAMI'},
+    DependsOn: "WebServerAMI#{ami}",
     StackName: {Ref: 'AWS::StackName' },
     Region: {Ref: 'AWS::Region' },
-    InstanceId: {Ref: 'WebServerAMI' } %>
+    InstanceId: {Ref: "WebServerAMI#{ami}" } %>
   WebServer:
     Type: AWS::AutoScaling::AutoScalingGroup
     CreationPolicy:
@@ -76,8 +80,8 @@ Resources:
         Count: 2
     UpdatePolicy:
       AutoScalingRollingUpdate:
-        MaxBatchSize: 1
-        MinInstancesInService: 1
+        MaxBatchSize: 2
+        MinInstancesInService: 2
         PauseTime: PT60M
         WaitOnResourceSignals: true
     Properties:
@@ -91,6 +95,7 @@ Resources:
       LoadBalancerNames: [Ref: LoadBalancer]
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
+    DependsOn: AMIComplete<%=ami%>
     Properties:
       ImageId: {"Fn::GetAtt": [AMI, ImageId]}
       InstanceType: <%=instance_type%>
