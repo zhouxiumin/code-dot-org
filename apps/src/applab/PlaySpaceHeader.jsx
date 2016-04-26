@@ -18,7 +18,11 @@ var PlaySpaceHeader = React.createClass({
     isEditingProject: React.PropTypes.bool.isRequired,
     isShareView: React.PropTypes.bool.isRequired,
     isViewDataButtonHidden: React.PropTypes.bool.isRequired,
-    interfaceMode: React.PropTypes.oneOf([ApplabInterfaceMode.CODE, ApplabInterfaceMode.DESIGN]).isRequired,
+    interfaceMode: React.PropTypes.oneOf([
+      ApplabInterfaceMode.CODE,
+      ApplabInterfaceMode.DESIGN,
+      ApplabInterfaceMode.BOARD
+    ]).isRequired,
     screenIds: React.PropTypes.array.isRequired,
     onScreenChange: React.PropTypes.func.isRequired,
     onScreenCreate: React.PropTypes.func.isRequired,
@@ -47,11 +51,17 @@ var PlaySpaceHeader = React.createClass({
         <ToggleGroup selected={this.props.interfaceMode} onChange={this.props.onInterfaceModeChange}>
           <button id='codeModeButton' value={ApplabInterfaceMode.CODE}>{msg.codeMode()}</button>
           <button id='designModeButton' value={ApplabInterfaceMode.DESIGN}>{msg.designMode()}</button>
+          <button id='makerlabBoardButton' value={ApplabInterfaceMode.BOARD}>Board</button>
+          {/** TODO: i18n */}
         </ToggleGroup>
       );
     }
 
-    if (this.props.interfaceMode === ApplabInterfaceMode.CODE && !this.shouldHideViewDataButton()) {
+    var showViewDataButton = !this.shouldHideViewDataButton() &&
+        (this.props.interfaceMode === ApplabInterfaceMode.CODE ||
+        this.props.interfaceMode === ApplabInterfaceMode.BOARD);
+
+    if (showViewDataButton) {
       rightSide = <ViewDataButton onClick={this.handleViewData} />;
     } else if (this.props.interfaceMode === ApplabInterfaceMode.DESIGN) {
       rightSide = <ScreenSelector
@@ -64,7 +74,7 @@ var PlaySpaceHeader = React.createClass({
         <table style={{width: '100%'}}>
           <tbody>
             <tr>
-              <td style={{width: '120px'}}>{leftSide}</td>
+              <td style={{width: (leftSide.props.children.length - 1) * 120 + 'px'}}>{leftSide}</td>
               <td style={{maxWidth: 0}}>{rightSide}</td>
             </tr>
           </tbody>

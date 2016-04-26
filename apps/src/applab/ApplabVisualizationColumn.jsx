@@ -1,4 +1,5 @@
 var Visualization = require('./Visualization');
+var BoardVisualization = require('./BoardVisualization');
 var GameButtons = require('../templates/GameButtons');
 var CompletionButton = require('./CompletionButton');
 var PlaySpaceHeader = require('./PlaySpaceHeader');
@@ -25,6 +26,7 @@ var ApplabVisualizationColumn = React.createClass({
             screenIds={this.props.screenIds}
             onScreenCreate={this.props.onScreenCreate} />
         }
+        <BoardVisualization/>
         <Visualization/>
         <GameButtons>
           <CompletionButton/>
