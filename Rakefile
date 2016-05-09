@@ -5,6 +5,15 @@ require 'os'
 require 'cdo/hip_chat'
 require 'cdo/rake_utils'
 
+# Helper functions
+def make_blockly_symlink
+  Dir.chdir(apps_dir) do
+    apps_build = CDO.use_my_apps ? apps_dir('build/package') : 'apps-package'
+    puts apps_build
+    RakeUtils.ln_s apps_build, dashboard_dir('public','blockly')
+  end
+end
+
 namespace :lint do
   task :ruby do
     RakeUtils.bundle_exec 'rubocop'
@@ -240,12 +249,7 @@ namespace :install do
   # Create a symlink in the public directory that points at the appropriate blockly
   # code (either the static blockly or the built version, depending on CDO.use_my_apps).
   task :blockly_symlink do
-    if rack_env?(:development) && !CDO.chef_managed
-      Dir.chdir(apps_dir) do
-        apps_build = CDO.use_my_apps ? apps_dir('build/package') : 'apps-package'
-        RakeUtils.ln_s apps_build, dashboard_dir('public','blockly')
-      end
-    end
+    make_blockly_symlink
   end
 
   task :hooks do
