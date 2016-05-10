@@ -176,18 +176,12 @@ file deploy_dir('rebuild') do
   touch deploy_dir('rebuild')
 end
 
-def stop_frontend(name, host, log_path)
-  # NOTE: The order of these prefers deploy-speed over user-experience. Stopping varnish first
-  #   immediately terminates connections to the backends so they stop immediately. Changing the
-  #   order to stop Dashboard and Pegasus first would drain the user connections before stopping
-  #   which can take a minutes. The Load Balancer has health-checks that will pull the instances
-  #   out of rotation and those checks can be directed at either varnish itself, the services through
-  #   varnish, or the services directly. So, changing the order here means evalulating whether or not
-  #   the ELB health-checks make sense to begin diverting traffic at the right time (vs. returning 503s)
+def deregister_frontend(name, host, log_path)
+  # Use the AWS-provided scripts to cleanly remove a frontend instance from its load balancer(s),
+  # with zero downtime and support for auto-scaling groups.
   command = [
-    'sudo service varnish stop',
-    'sudo service dashboard stop',
-    'sudo service pegasus stop',
+    "cd #{rack_env}",
+    'bin/deploy_frontend/deregister_from_elb.sh',
   ].join(' ; ')
 
   RakeUtils.system 'ssh', '-i', '~/.ssh/deploy-id_rsa', host, "'#{command} 2>&1'", '>>', log_path
@@ -203,6 +197,8 @@ def upgrade_frontend(name, host)
     'git pull --ff-only',
     'sudo bundle install',
     'rake build',
+    # Use the AWS-provided script to cleanly add a frontend instance back to its load balancer(s).
+    'bin/deploy_frontend/register_with_elb.sh'
   ]
   command = commands.join(' && ')
 
@@ -210,9 +206,9 @@ def upgrade_frontend(name, host)
 
   log_path = aws_dir "deploy-#{name}.log"
 
-  # Stop the frontend before running the commands so that the git pull doesn't modify files
-  # out from under a running instance. The rake build command will restart the instance.
-  stop_frontend name, host, log_path
+  # Remove the frontend from rotation before running the commands so that the git pull doesn't modify files
+  # out from under a running instance.
+  deregister_frontend name, host, log_path
 
   success = false
   begin
@@ -224,7 +220,7 @@ def upgrade_frontend(name, host)
     HipChat.log "log command: `ssh gateway.code.org ssh production-daemon cat #{log_path}`"
     HipChat.log "/quote #{File.read(log_path)}"
     # The frontend is in indeterminate state, so make sure it is stopped.
-    stop_frontend name, host, log_path
+    deregister_frontend name, host, log_path
     success = false
   end
 
@@ -281,6 +277,36 @@ end
 MAX_FRONTEND_UPGRADE_FAILURES = 5
 task :deploy do
   with_hipchat_logging("deploy frontends") do
+    app_servers = CDO.app_servers
+    if CDO.daemon && app_servers.any?
+      Dir.chdir(deploy_dir) do
+        num_failures = 0
+        thread_count = (app_servers.keys.length * 0.20).ceil
+        threaded_each app_servers.keys, thread_count do |name|
+          succeeded = upgrade_frontend name, app_servers[name]
+          if !succeeded
+            num_failures += 1
+            raise 'too many frontend upgrade failures, aborting deploy' if num_failures > MAX_FRONTEND_UPGRADE_FAILURES
+          end
+        end
+      end
+    end
+  end
+end
+
+task :deploy_immutable do
+  with_hipchat_logging("deploy new frontends") do
+    autoscaling = Aws::AutoScaling::Client.new
+    asg = autoscaling.describe_auto_scaling_groups.auto_scaling_groups.find do |group|
+      tags = group.tags.map{|tag| [tag.key, tag.value]}.to_h
+      tags['aws:cloudformation:stack-name'] == stack_name &&
+        tags['aws:cloudformation:logical-id'] == 'WebServer'
+    end
+
+    min_in_service = asg ? asg.desired_capacity : starting_instances
+    max_size = 12
+
+
     app_servers = CDO.app_servers
     if CDO.daemon && app_servers.any?
       Dir.chdir(deploy_dir) do
