@@ -51,8 +51,10 @@ namespace :build do
 
   task :configure do
     if CDO.chef_managed
-      HipChat.log 'Applying <b>chef</b> profile...'
-      RakeUtils.sudo 'chef-client'
+      # HipChat.log 'Applying <b>chef</b> profile...'
+      # Chef client not wanted for static-hoc build since this is a
+      #  snapshot of a time in the past.
+      #  RakeUtils.sudo 'chef-client'
     end
 
     unless CDO.chef_managed
@@ -122,6 +124,8 @@ namespace :build do
   end
 
   task :dashboard do
+    make_blockly_symlink
+
     Dir.chdir(dashboard_dir) do
       HipChat.log 'Stopping <b>dashboard</b>...'
       RakeUtils.stop_service CDO.dashboard_unicorn_name unless rack_env?(:development)
@@ -224,7 +228,7 @@ task :build => ['build:all']
 # Whether this is a development or adhoc environment where we should install npm and create
 # a local database.
 def local_environment?
-  (rack_env?(:development) && !CDO.chef_managed) || rack_env?(:adhoc)
+  (rack_env?(:development) && !CDO.chef_managed) || rack_env?(:adhoc) || rack_env?(:'static-hoc')
 end
 
 def install_npm
