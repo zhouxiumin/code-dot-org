@@ -2,35 +2,12 @@ var path = require('path');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var glob = require('glob');
-var execSync = require('child_process').execSync;
-var timeGrunt = require('time-grunt-nowatch');
-
-/**
- * A replacement for console.log that will work when called after the watch task
- * has started.
- */
-function log(str) {
-	process.stdout.write(process.stdout, str + '\n', 'utf8');
-}
+var readline = require('readline');
+var logBuildTimes = require('./script/log-build-times');
 
 module.exports = function (grunt) {
-  var email = 'unknown';
-  try {
-    email = execSync('git config --get user.email').toString().trim();
-  } catch (e) {
-    // I guess we are not in a git checkout, or don't have git installed.
-  }
-  timeGrunt(grunt, false, function (stats, done) {
-    try {
-      fs.appendFileSync(
-        path.join(__dirname, 'build-times.log'),
-        JSON.stringify([new Date().toString(), email, stats])+'\n'
-      );
-    } catch (e) {
-      log("failed to write to build-times.log file: "+e);
-    }
-    done();
-  });
+  // Decorate grunt to record and report build durations.
+  logBuildTimes(grunt);
 
   var config = {};
 
@@ -335,7 +312,7 @@ module.exports = function (grunt) {
 
   var browserifyExec = getBrowserifyCommand({
     globalShim: true,
-    cacheFile: 'browserifyinc-cache.json',
+    cacheFile: 'browserifyinc.cache.json',
     srcFiles: allFilesSrc,
     destFiles: allFilesDest,
     factorBundle: APPS.length > 1,
@@ -343,7 +320,7 @@ module.exports = function (grunt) {
 
   var applabAPIExec = getBrowserifyCommand({
     globalShim: false,
-    cacheFile: 'applab-api-cache.json',
+    cacheFile: 'applab-api.cache.json',
     srcFiles: ['build/js/applab/api-entry.js'],
     destFiles: [outputDir + 'applab-api.js'],
     factorBundle: false,

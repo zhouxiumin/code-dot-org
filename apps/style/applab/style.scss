@@ -243,6 +243,12 @@ div#visualizationResizeBar {
   }
 }
 
+body.embedded_iframe {
+  #visualizationColumn.wireframeShare {
+    padding: 0px;
+  }
+}
+
 #visualizationColumn.chromelessShare {
   #playSpaceHeader, #gameButtons {
     display: none;
@@ -454,4 +460,10 @@ div#visualizationResizeBar {
   background: -o-linear-gradient(to bottom right, red, orange, yellow, green, blue); /* For Opera 11.1 to 12.0 */
   background: -moz-linear-gradient(to bottom right, red, orange, yellow, green, blue); /* For Firefox 3.6 to 15 */
   background: linear-gradient(to bottom right, red, orange, yellow, green, blue); /* Standard syntax */
+}
+
+img#turtleImage {
+  position: absolute;
+  height: 24px;
+  margin: 0px;
 }

@@ -443,10 +443,6 @@ html[dir='rtl'] div#visualizationResizeBar {
 
 /* Shrink the visualization area on small displays. */
 
-#visualizationEditor.responsive {
-  margin-left: 400px;
-  padding-left: 15px;
-}
 #visualization.responsive > * {
   -webkit-transform-origin: 0 0;
   -ms-transform-origin: 0 0;
@@ -494,9 +490,6 @@ html[dir='rtl'] div#visualizationResizeBar {
   }
   html[dir='rtl'] div#visualizationResizeBar {
     right: $width;
-  }
-  #visualizationEditor.responsive {
-    margin-left: $width;
   }
   #visualization.responsive > * {
     -webkit-transform: scale($scale);
@@ -611,8 +604,6 @@ button.blocklyLaunch {
   &#resetButton {
     border: 1px solid $cyan;
     background-color: $cyan;
-  }
-  &#runButton div {
   }
 }
 button.share {
@@ -1463,6 +1454,7 @@ $workspace-header-button-margin: ($workspace-headers-height - $workspace-header-
   }
 }
 
+// icon26 run26 and reset26 are currently only used by blockly-core
 // Includes an icon at position x, y (starting from top-left)
 @mixin icon26($x, $y) {
   $x-offset: $x * 26px;
@@ -1473,7 +1465,7 @@ $workspace-header-button-margin: ($workspace-headers-height - $workspace-header-
 }
 
 .run26 {
-  @include icon26(0, 0);
+   @include icon26(0, 0);
 }
 
 .reset26 {

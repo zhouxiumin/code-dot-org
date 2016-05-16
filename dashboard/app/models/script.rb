@@ -301,7 +301,7 @@ class Script < ActiveRecord::Base
   end
 
   def self.beta?(name)
-    name == 'course4' || name == 'edit-code' || name == 'cspunit1' || name == 'cspunit2' || name == 'cspunit3' || name == 'cspunit4' || name == 'cspunit5'
+    name == 'edit-code' || name == 'cspunit1' || name == 'cspunit2' || name == 'cspunit3' || name == 'cspunit4' || name == 'cspunit5'
   end
 
   def is_k1?
@@ -335,7 +335,7 @@ class Script < ActiveRecord::Base
   end
 
   def has_lesson_plan?
-    k5_course? || %w(msm algebra cspunit1 cspunit2 cspunit3 cspunit4 cspunit5).include?(self.name)
+    k5_course? || %w(msm algebra cspunit1 cspunit2 cspunit3 cspunit4 cspunit5 cspunit6 csp1 csp2 cspoptional text-compression netsim pixelation frequency_analysis vigenere).include?(self.name)
   end
 
   def has_banner?
@@ -438,20 +438,8 @@ class Script < ActiveRecord::Base
         raise ActiveRecord::RecordNotFound, "Level: #{row_data.to_json}, Script: #{script.name}"
       end
 
-      # TODO: (bbuchanan) Enable stricter gamelab rule when possible.
-      # There are scripts that are not yet compliant with this
-      # gamelab rule.  Once the new student_of_admin_required option is
-      # deployed to levelbuilder and all scripts are updated to be
-      # compliant, enable this enforcing check to make sure future
-      # scripts are compliant as well.
-      #
-      # Scripts known to be in violation of this rule:
-      #   gamelab-hackathon.script
-      #   CSDU3-Draft.script
-      #   TEMP CSD Unit 3.script
       if Game.gamelab == level.game
-        # unless script.student_of_admin_required || script.admin_required
-        unless script.hidden || script.login_required || script.student_of_admin_required || script.admin_required
+        unless script.student_of_admin_required || script.admin_required
           raise <<-ERROR.gsub(/^\s+/, '')
             Gamelab levels can only be added to scripts that are admin_required, or student_of_admin_required
             (while adding level "#{level.name}" to script "#{script.name}")

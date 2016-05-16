@@ -1982,7 +1982,7 @@ Blockly.Field.prototype.getRootElement = function() {
 };
 Blockly.Field.prototype.updateWidth_ = function() {
   var width;
-  if(this.textElement_.getComputedTextLength) {
+  if(this.textElement_.getComputedTextLength && document.body.contains(this.textElement_)) {
     width = this.textElement_.getComputedTextLength()
   }else {
     width = 1
@@ -15193,7 +15193,12 @@ Blockly.Block.prototype.showContextMenu_ = function(e) {
       block.setNextConnectionDisabled(!block.nextConnectionDisabled_);
       Blockly.ContextMenu.hide()
     }};
-    options.push(nextConnectionDisabledOption)
+    options.push(nextConnectionDisabledOption);
+    var editableOption = {text:this.editable_ ? "Make Uneditable" : "Make editable", enabled:true, callback:function() {
+      block.setEditable(!block.isEditable());
+      Blockly.ContextMenu.hide()
+    }};
+    options.push(editableOption)
   }
   if(this.customContextMenu && !block.isInFlyout) {
     this.customContextMenu(options)

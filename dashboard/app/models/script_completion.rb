@@ -24,7 +24,7 @@
 
 class ScriptCompletion < Level
   serialized_attrs %w(
-    script_id
+    script_name
     skip_dialog
     skip_sound
   )
@@ -32,6 +32,10 @@ class ScriptCompletion < Level
   before_validation do
     self.skip_dialog = true
     self.skip_sound = true
+  end
+
+  def icon
+    'fa-list-ul'
   end
 
   def self.create_from_level_builder(params, level_params)

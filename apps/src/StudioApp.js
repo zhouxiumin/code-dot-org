@@ -28,6 +28,7 @@ var assetPrefix = require('./assetManagement/assetPrefix');
 var annotationList = require('./acemode/annotationList');
 var processMarkdown = require('marked');
 var shareWarnings = require('./shareWarnings');
+var experiments = require('./experiments');
 
 var redux = require('./redux');
 var runState = require('./redux/runState');
@@ -270,6 +271,11 @@ StudioApp.prototype.configureRedux = function (reducers) {
 StudioApp.prototype.createReduxStore_ = function () {
   var combined = combineReducers(_.assign({}, commonReducers, this.reducers_));
   this.reduxStore = redux.createStore(combined);
+
+  if (experiments.isEnabled('reduxGlobalStore')) {
+    // Expose our store globally, to make debugging easier
+    window.reduxStore = this.reduxStore;
+  }
 };
 
 /**
@@ -892,7 +898,7 @@ StudioApp.prototype.toggleRunReset = function (button) {
 };
 
 StudioApp.prototype.isRunning = function () {
-  return this.reduxStore.getState().isRunning;
+  return this.reduxStore.getState().runState.isRunning;
 };
 
 /**
@@ -1386,7 +1392,6 @@ StudioApp.prototype.resizeVisualization = function (width) {
   var visualization = document.getElementById('visualization');
   var visualizationResizeBar = document.getElementById('visualizationResizeBar');
   var visualizationColumn = document.getElementById('visualizationColumn');
-  var visualizationEditor = document.getElementById('visualizationEditor');
 
   var oldVizWidth = $(visualizationColumn).width();
   var newVizWidth = Math.max(this.minVisualizationWidth,
@@ -1417,9 +1422,6 @@ StudioApp.prototype.resizeVisualization = function (width) {
   var scale = (newVizWidth / this.nativeVizWidth);
 
   applyTransformScaleToChildren(visualization, 'scale(' + scale + ')');
-  if (visualizationEditor) {
-    visualizationEditor.style.marginLeft = newVizWidthString;
-  }
 
   if (oldVizWidth < 230 && newVizWidth >= 230) {
     $('#soft-buttons').removeClass('soft-buttons-compact');
@@ -1771,13 +1773,13 @@ StudioApp.prototype.setConfigValues_ = function (config) {
 };
 
 // Overwritten by applab.
-StudioApp.prototype.runButtonClickWrapper = function (callback) {
+function runButtonClickWrapper(callback) {
   if (window.$) {
     $(window).trigger('run_button_pressed');
     $(window).trigger('appModeChanged');
   }
   callback();
-};
+}
 
 /**
  * Begin modifying the DOM based on config.
@@ -1794,7 +1796,8 @@ StudioApp.prototype.configureDom = function (config) {
   var runButton = container.querySelector('#runButton');
   var resetButton = container.querySelector('#resetButton');
   var runClick = this.runButtonClick.bind(this);
-  var throttledRunClick = _.debounce(this.runButtonClickWrapper.bind(this, runClick), 250, true);
+  var clickWrapper = (config.runButtonClickWrapper || runButtonClickWrapper);
+  var throttledRunClick = _.debounce(clickWrapper.bind(null, runClick), 250, true);
   dom.addClickTouchEvent(runButton, _.bind(throttledRunClick, this));
   dom.addClickTouchEvent(resetButton, _.bind(this.resetButtonClick, this));
 
@@ -1823,6 +1826,10 @@ StudioApp.prototype.configureDom = function (config) {
       // Enable param & var editing in levelbuilder, regardless of level setting
       config.level.disableParamEditing = false;
       config.level.disableVariableEditing = false;
+    }
+
+    if (config.iframeEmbed) {
+      document.body.className += ' embedded_iframe';
     }
 
     if (config.pinWorkspaceToBottom) {
@@ -1896,10 +1903,12 @@ StudioApp.prototype.handleHideSource_ = function (options) {
 
         var div = document.createElement('div');
         document.body.appendChild(div);
-        ReactDOM.render(React.createElement(WireframeSendToPhone, {
-          channelId: dashboard.project.getCurrentId(),
-          appType: dashboard.project.getStandaloneApp()
-        }), div);
+        if (!options.iframeEmbed) {
+          ReactDOM.render(React.createElement(WireframeSendToPhone, {
+            channelId: dashboard.project.getCurrentId(),
+            appType: dashboard.project.getStandaloneApp()
+          }), div);
+        }
       }
 
       if (!options.embed && !options.noHowItWorks) {
