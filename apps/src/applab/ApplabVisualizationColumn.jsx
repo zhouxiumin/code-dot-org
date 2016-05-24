@@ -1,15 +1,18 @@
+import GameButtons, {ResetButton} from '../templates/GameButtons';
+import IFrameEmbedOverlay from './IFrameEmbedOverlay';
+import * as color from '../color';
+
 var Radium = require('radium');
 var Visualization = require('./Visualization');
-var GameButtons = require('../templates/GameButtons').default;
 var CompletionButton = require('./CompletionButton');
 var PlaySpaceHeader = require('./PlaySpaceHeader');
 var PhoneFrame = require('./PhoneFrame');
 var BelowVisualization = require('../templates/BelowVisualization');
 var ProtectedStatefulDiv = require('../templates/ProtectedStatefulDiv');
+import {isResponsiveFromState} from '../templates/ProtectedVisualizationDiv';
 var applabConstants = require('./constants');
 var connect = require('react-redux').connect;
 var classNames = require('classnames');
-var experiments = require('../experiments');
 
 var styles = {
   nonResponsive: {
@@ -24,7 +27,30 @@ var styles = {
     marginLeft: 'auto',
     marginRight: 'auto',
     textAlign: 'center'
-  }
+  },
+  resetButtonWrapper: {
+    position: 'absolute',
+    bottom: 5,
+    textAlign: 'center',
+    width: '100%',
+  },
+  resetButton: {
+    display: 'inline-block',
+    width: 42,
+    minWidth: 0,
+    backgroundColor: color.dark_charcoal,
+    borderColor: color.dark_charcoal,
+    padding: 7,
+    height: 42,
+    marginLeft: 5,
+    position: 'relative',
+    left: 2,
+    bottom: 2,
+  },
+  resetButtonImage: {
+    marginLeft: 2,
+    marginTop: -2,
+  },
 };
 
 /**
@@ -36,12 +62,14 @@ var ApplabVisualizationColumn = React.createClass({
     isReadOnlyWorkspace: React.PropTypes.bool.isRequired,
     instructionsInTopPane: React.PropTypes.bool.isRequired,
     visualizationHasPadding: React.PropTypes.bool.isRequired,
-    hideSource: React.PropTypes.bool.isRequired,
     isShareView: React.PropTypes.bool.isRequired,
-    isEmbedView: React.PropTypes.bool.isRequired,
+    isResponsive: React.PropTypes.bool.isRequired,
     isRunning: React.PropTypes.bool.isRequired,
+    hideSource: React.PropTypes.bool.isRequired,
     interfaceMode: React.PropTypes.string.isRequired,
     playspacePhoneFrame: React.PropTypes.bool,
+    isIframeEmbed: React.PropTypes.bool.isRequired,
+    pinWorkspaceToBottom: React.PropTypes.bool.isRequired,
 
     // non redux backed
     isEditingProject: React.PropTypes.bool.isRequired,
@@ -50,13 +78,18 @@ var ApplabVisualizationColumn = React.createClass({
   },
 
   render: function () {
-    let visualization = <Visualization/>;
+    let visualization = [
+      <Visualization key="1"/>,
+      this.props.isIframeEmbed && !this.props.isRunning && <IFrameEmbedOverlay key="2"/>
+    ];
+    // Share view still uses image for phone frame. Would eventually like it to
+    // use same code
     if (this.props.playspacePhoneFrame) {
       // wrap our visualization in a phone frame
       visualization = (
         <PhoneFrame
             isDark={this.props.isRunning}
-            showSelector={this.props.interfaceMode === applabConstants.ApplabInterfaceMode.DESIGN}
+            showSelector={!this.props.isRunning}
             isPaused={this.props.isPaused}
             screenIds={this.props.screenIds}
             onScreenCreate={this.props.onScreenCreate}
@@ -65,13 +98,17 @@ var ApplabVisualizationColumn = React.createClass({
         </PhoneFrame>
       );
     }
+    const visualizationColumnClassNames = classNames({
+      with_padding: this.props.visualizationHasPadding,
+      responsive: this.props.isResponsive,
+      pin_bottom: !this.props.hideSource && this.props.pinWorkspaceToBottom
+    });
+
     return (
       <div
           id="visualizationColumn"
-          className={classNames({with_padding: this.props.visualizationHasPadding})}
-          style={[
-            (this.props.isEmbedView || this.props.hideSource) && styles.nonResponsive
-          ]}
+          className={visualizationColumnClassNames}
+          style={[!this.props.isResponsive && styles.nonResponsive]}
       >
         {!this.props.isReadOnlyWorkspace && <PlaySpaceHeader
             isEditingProject={this.props.isEditingProject}
@@ -79,6 +116,13 @@ var ApplabVisualizationColumn = React.createClass({
             onScreenCreate={this.props.onScreenCreate} />
         }
         {visualization}
+        {this.props.isIframeEmbed && this.props.isRunning &&
+         <div style={styles.resetButtonWrapper}>
+           <ResetButton hideText={true}
+                        style={styles.resetButton}
+                        imageStyle={styles.resetButtonImage} />
+         </div>
+        }
         <GameButtons>
           {/* This div is used to control whether or not our finish button is centered*/}
           <div style={[
@@ -99,12 +143,14 @@ module.exports = connect(function propsFromStore(state) {
     isReadOnlyWorkspace: state.pageConstants.isReadOnlyWorkspace,
     instructionsInTopPane: state.pageConstants.instructionsInTopPane,
     visualizationHasPadding: state.pageConstants.visualizationHasPadding,
-    hideSource: state.pageConstants.hideSource,
     isShareView: state.pageConstants.isShareView,
-    isEmbedView: state.pageConstants.isEmbedView,
+    isResponsive: isResponsiveFromState(state),
+    isIframeEmbed: state.pageConstants.isIframeEmbed,
+    hideSource: state.pageConstants.hideSource,
     isRunning: state.runState.isRunning,
     isPaused: state.runState.isDebuggerPaused,
     interfaceMode: state.interfaceMode,
-    playspacePhoneFrame: state.pageConstants.playspacePhoneFrame
+    playspacePhoneFrame: state.pageConstants.playspacePhoneFrame,
+    pinWorkspaceToBottom: state.pageConstants.pinWorkspaceToBottom
   };
 })(Radium(ApplabVisualizationColumn));
