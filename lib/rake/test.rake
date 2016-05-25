@@ -5,6 +5,8 @@ require 'cdo/test_run_utils'
 require 'cdo/rake_utils'
 require 'cdo/git_utils'
 
+GLOBS_AFFECTING_ALL_TESTS = ['lib/**/*', 'circle.yml']
+
 namespace :test do
   desc 'Runs apps tests.'
   task :apps do
@@ -60,21 +62,21 @@ namespace :test do
 
     desc 'Runs dashboard tests if dashboard might have changed from staging.'
     task :dashboard do
-      run_tests_if_changed('dashboard', ['dashboard/**/*', 'lib/**/*', 'shared/**/*']) do
+      run_tests_if_changed('dashboard', ['dashboard/**/*', 'shared/**/*']) do
         TestRunUtils.run_dashboard_tests
       end
     end
 
     desc 'Runs pegasus tests if pegasus might have changed from staging.'
     task :pegasus do
-      run_tests_if_changed('pegasus', ['pegasus/**/*', 'lib/**/*', 'shared/**/*']) do
+      run_tests_if_changed('pegasus', ['pegasus/**/*', 'shared/**/*']) do
         TestRunUtils.run_pegasus_tests
       end
     end
 
     desc 'Runs shared tests if shared might have changed from staging.'
     task :shared do
-      run_tests_if_changed('shared', ['shared/**/*', 'lib/**/*']) do
+      run_tests_if_changed('shared', ['shared/**/*']) do
         TestRunUtils.run_shared_tests
       end
     end
@@ -93,7 +95,9 @@ def run_tests_if_changed(test_name, changed_globs)
   max_identifier_length = 12
   justified_test_name = test_name.ljust(max_identifier_length)
 
-  relevant_changed_files = GitUtils.files_changed_in_branch_or_local(base_branch, changed_globs)
+  globs = changed_globs + GLOBS_AFFECTING_ALL_TESTS
+
+  relevant_changed_files = GitUtils.files_changed_in_branch_or_local(base_branch, globs)
   if relevant_changed_files.empty?
     HipChat.log "Files affecting #{justified_test_name} tests unmodified from #{base_branch}. Skipping tests."
   else
