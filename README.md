@@ -71,3 +71,4 @@ JavaScript code specific to our **Code Studio** learning platform.  This also be
 * **cookbooks**: Configuration management through [Chef](https://www.chef.io/).
 * **shared**: Source and assets used by many parts of our application.
 * **tools**: Git commit hooks.
+
