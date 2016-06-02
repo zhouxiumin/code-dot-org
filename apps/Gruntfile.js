@@ -8,7 +8,7 @@ var logBuildTimes = require('./script/log-build-times');
 
 module.exports = function (grunt) {
   // Decorate grunt to record and report build durations.
-  logBuildTimes(grunt);
+  var buildTimeLogger = logBuildTimes(grunt);
 
   var config = {};
 
@@ -26,6 +26,8 @@ module.exports = function (grunt) {
 
   /** @const {string} */
   var APP_TO_BUILD = grunt.option('app') || process.env.MOOC_APP;
+
+  var WATCH_APPLAB_API = grunt.option('watch_applab_api');
 
   /** @const {string[]} */
   var APPS = [
@@ -396,7 +398,13 @@ module.exports = function (grunt) {
   config.watch = {
     js: {
       files: ['src/**/*.{js,jsx}'],
-      tasks: ['newer:copy:src', 'exec:browserify', 'exec:applabapi', 'notify:browserify'],
+      tasks: [
+        'newer:copy:src',
+        'exec:browserify',
+        // only want to watch for applabapi if explicitly specified
+        WATCH_APPLAB_API ? 'exec:applabapi' : 'noop',
+        'notify:browserify'
+      ],
       options: {
         interval: DEV_WATCH_INTERVAL,
         livereload: true,
@@ -444,12 +452,6 @@ module.exports = function (grunt) {
         livereload: true
       }
     },
-  };
-
-  config.open = {
-    playground: {
-      path: 'http://localhost:' + PLAYGROUND_PORT
-    }
   };
 
   config.strip_code = {
@@ -531,7 +533,6 @@ module.exports = function (grunt) {
   grunt.registerTask('dev', [
     'build',
     'express:playground',
-    'open:playground',
     'watch'
   ]);
 
@@ -562,6 +563,11 @@ module.exports = function (grunt) {
         chalk.italic('integrationTest') + '.');
   });
   grunt.registerTask('mochaTest', ['showMochaTestWarning', 'test']);
+
+  grunt.registerTask('logBuildTimes', function () {
+    var done = this.async();
+    buildTimeLogger.upload(console.log, done);
+  });
 
   grunt.registerTask('default', ['rebuild', 'test']);
 

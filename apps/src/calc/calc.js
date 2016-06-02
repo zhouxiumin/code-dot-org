@@ -21,6 +21,8 @@ var Calc = module.exports;
 /**
  * Create a namespace for the application.
  */
+var React = require('react');
+var ReactDOM = require('react-dom');
 var studioApp = require('../StudioApp').singleton;
 var jsnums = require('./js-numbers/js-numbers.js');
 var commonMsg = require('../locale');
@@ -768,10 +770,10 @@ Calc.generateResults_ = function () {
     appState.result = ResultType.SUCCESS;
     appState.testResults = TestResults.FREE_PLAY;
   } else {
-    appState = $.extend(appState, Calc.checkExamples_());
+    appState = Object.assign(appState, Calc.checkExamples_());
 
     if (appState.result === null) {
-      appState = $.extend(appState,
+      appState = Object.assign(appState,
         Calc.evaluateResults_(appState.targetSet, appState.userSet));
     }
   }

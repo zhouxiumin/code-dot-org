@@ -10,15 +10,17 @@
   "scripts": {
     "lint": "eslint . --ext .js,.jsx",
     "test": "npm run lint && grunt test",
-    "test:unit": "grunt unitTest",
-    "test:integration": "grunt integrationTest",
+    "test-low-memory": "./test-low-memory.sh",
+    "test:unit": "grunt unitTest; grunt logBuildTimes",
+    "test:integration": "grunt integrationTest; grunt logBuildTimes",
     "clean": "grunt clean",
-    "build": "MOOC_DEV=1 grunt build",
-    "build:dist": "MOOC_DEV=0 grunt clean build",
-    "start": "MOOC_DEV=1 grunt dev",
-    "start:applab": "npm run start -- --app=applab",
-    "start:gamelab": "npm run start -- --app=gamelab",
+    "build": "MOOC_DEV=1 grunt build; grunt logBuildTimes",
+    "build:dist": "MOOC_DEV=0 grunt clean build; grunt logBuildTimes",
+    "start": "MOOC_DEV=1 grunt dev; grunt logBuildTimes",
+    "start:applab": "MOOC_DEV=1 grunt dev --app=applab; grunt logBuildTimes",
+    "start:gamelab": "MOOC_DEV=1 grunt dev --app=gamelab; grunt logBuildTimes",
     "test-audio": "echo \"Open your browser to http://127.0.0.1:8080/test/audio/audio_test.html\" && http-server .",
+    "build:log": "grunt logBuildTimes",
     "build:stats": "node ./script/build-stats.js"
   },
   "browser": {
@@ -31,6 +33,7 @@
     ]
   },
   "browserify-global-shim": {
+    "jquery": "$",
     "react": "React",
     "react-dom": "ReactDOM",
     "radium": "Radium"
@@ -48,6 +51,7 @@
     "@cdo/apps": "file:src",
     "Base64": "0.3.0",
     "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-es2015-classes": "^6.9.0",
     "babel-polyfill": "^6.9.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
@@ -84,10 +88,11 @@
     "grunt-newer": "1.1.1",
     "grunt-notify": "0.4.1",
     "grunt-open": "^0.2.3",
-    "grunt-sass": "1.0.0",
+    "grunt-sass": "1.1.0",
     "grunt-strip-code": "0.1.2",
     "http-proxy": "1.11.1",
     "http-server": "^0.9.0",
+    "immutable": "3.8.1",
     "johnny-five": "bcjordan/johnny-five#with-firmata-fix",
     "jquery": "2.1.4",
     "jquery-ui": "1.10.5",
@@ -127,9 +132,9 @@
     "which": "1.1.1"
   },
   "dependencies": {
-    "query-string": "4.1.0",
     "filesaver.js": "0.2.0",
     "jszip": "3.0.0",
+    "query-string": "4.1.0",
     "react-color": "code-dot-org/react-color#65a688f0ed61da00acea95cb1c8aa0c691b3839e"
   }
 }

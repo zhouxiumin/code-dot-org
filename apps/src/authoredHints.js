@@ -3,6 +3,9 @@
  * Used exclusively by StudioApp.
  */
 
+import $ from 'jquery';
+import React from 'react';
+import ReactDOM from 'react-dom';
 var dom = require('./dom');
 var msg = require('./locale');
 var HintsDisplay = require('./templates/instructions/HintsDisplay');

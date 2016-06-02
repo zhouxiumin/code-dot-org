@@ -1,7 +1,7 @@
 /* global Applab, dashboard */
-
-// TODO (brent) - make it so that we dont need to specify .jsx. This currently
-// works in our grunt build, but not in tests
+import $ from 'jquery';
+import React from 'react';
+import ReactDOM from 'react-dom';
 var DesignWorkspace = require('./DesignWorkspace');
 var assetPrefix = require('../assetManagement/assetPrefix');
 var elementLibrary = require('./designElements/library');
