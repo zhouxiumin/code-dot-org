@@ -30,21 +30,19 @@ class SchoolDistrict < ActiveRecord::Base
   CSV_IMPORT_OPTIONS = { col_sep: "\t", headers: true, quote_char: "\x00" }
 
   def self.find_or_create_all_from_tsv!(filename)
-    created = []
-    CSV.read(filename, CSV_IMPORT_OPTIONS).each do |row|
-      created << self.first_or_create_from_tsv_row!(row)
+    level_source_hints = CSV.read(filename, CSV_IMPORT_OPTIONS).map do |row|
+      SchoolDistrict.new(from_tsv_row(row))
     end
-    created
+    SchoolDistrict.import level_source_hints, validate: false
   end
 
-  def self.first_or_create_from_tsv_row!(row_data)
-    params = {
+  def self.from_tsv_row(row_data)
+    {
       id: row_data[CSV_HEADERS[:id]],
       name: row_data[CSV_HEADERS[:name]],
       city: row_data[CSV_HEADERS[:city]],
       state: row_data[CSV_HEADERS[:state]],
       zip: row_data[CSV_HEADERS[:zip]]}
-    SchoolDistrict.where(params).first_or_create!
   end
 
 end
