@@ -13,7 +13,8 @@ class LevelLoader
       level.run_callbacks(:validate)
       level.run_callbacks(:save) { level.run_callbacks(:create) }
     end
-    Level.import levels, validate: true
+    Level.import levels, validate: true,
+      on_duplicate_key_update: Level.columns.map(&:name).tap{|x|x.delete('id')}
     levels
   end
 

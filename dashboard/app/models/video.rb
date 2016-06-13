@@ -21,6 +21,12 @@ class Video < ActiveRecord::Base
   # Ref: https://developers.google.com/youtube/player_parameters#Manual_IFrame_Embeds
   EMBED_URL_REGEX = /(?:http[s]?:)?\/\/(?:www\.)?(?:youtube(?:education)?)\.com\/embed\/(?<id>#{YOUTUBE_ID_REGEX})/
 
+  after_save { @@video_cache = nil }
+
+  def self.by_key(key)
+    (@@video_cache ||= Video.all.index_by(&:key))[key]
+  end
+
   def self.check_i18n_names
     video_keys = Video.all.collect(&:key)
     i18n_keys = I18n.t('data.video.name').keys.collect(&:to_s)

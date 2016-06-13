@@ -1,3 +1,5 @@
+require 'digest'
+
 class BaseDSL
   def initialize
     @hash = {}
@@ -32,7 +34,9 @@ class BaseDSL
     object = self.new
     object.name(name) if name.present?
     object.instance_eval(str.to_ascii, filename)
-    [object.parse_output, object.i18n_hash]
+    output = object.parse_output
+    output[:md5] = Digest::MD5.hexdigest(str)
+    [output, object.i18n_hash]
   end
 
   # override in subclass

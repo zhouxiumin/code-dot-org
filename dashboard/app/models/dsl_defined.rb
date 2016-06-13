@@ -34,14 +34,17 @@ class DSLDefined < Level
 
   def self.setup(data, levels=nil)
     name = data[:name]
+    md5 = data[:md5]
+    data[:properties].deep_stringify_keys!
+    data[:properties].reject!{|_,v| v.blank?}
     if levels
       level = levels[name] || new(name: name)
       level.send(:write_attribute, 'properties', {})
-      level.assign_attributes(name: name, game_id: Game.by_name(self.to_s), properties: data[:properties])
+      level.assign_attributes(name: name, md5: md5, game_id: Game.by_name(self.to_s), properties: data[:properties])
     else
       level = find_or_initialize_by(name: name)
       level.send(:write_attribute, 'properties', {})
-      level.update!(name: name, game_id: Game.by_name(self.to_s), properties: data[:properties])
+      level.update!(name: name, md5: md5, game_id: Game.by_name(self.to_s), properties: data[:properties])
       level
     end
     level

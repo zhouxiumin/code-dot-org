@@ -390,7 +390,7 @@ class Script < ActiveRecord::Base
                        student_of_admin_required: script_data[:student_of_admin_required].nil? ? false : script_data[:student_of_admin_required], # default false
                       },
         }
-        [options, stages.map{|stage| stage[:levels]}.flatten, fast_seed]
+        [options, stages.map{|stage| stage[:scriptlevels]}.flatten, fast_seed]
       end
       # Stable sort by ID then add each script, ensuring scripts with no ID end up at the end
       sorted_scripts = scripts_to_add.sort_by.with_index{ |args, idx| [args[0][:id] || Float::INFINITY, idx] }
@@ -406,24 +406,38 @@ class Script < ActiveRecord::Base
 
   # Batch setup an array of scripts.
   def self.setup_scripts(scripts)
-    levels = Level.all.index_by{|x|x.key.downcase}
-    # First pass: Bulk add/update all Level objects referenced by the script
-    levels_to_add = scripts.map do |args|
-      add_levels(levels, args[1])
-    end.flatten
-    LevelLoader.import(levels_to_add)
+    levels = nil
 
-    # Update levels index with new level ids
-    levels = Level.all.index_by{|x|x.key.downcase}
-
-    # Second pass: Add/update all Script/Stage/ScriptLevel objects
-    scripts.map do |args|
-      add_script(levels, *args)
+    time = Benchmark.realtime do
+      levels = Level.includes(:level_concept_difficulty, :concepts).all.index_by{|x|x.key.downcase}
+      # First pass: Bulk add/update all Level objects referenced by the script
+      levels_to_add = scripts.map do |args|
+        add_levels(levels, args[1])
+      end.flatten
+      LevelLoader.import(levels_to_add)
     end
+    puts "First pass in #{time} sec"
+
+    time = Benchmark.realtime do
+      # Update levels index with new level ids
+      levels = Level.includes(:level_concept_difficulty, :concepts).all.index_by{|x|x.key.downcase}
+    end
+    puts "reload in #{time} sec"
+
+    result = nil
+    time = Benchmark.realtime do
+      # Second pass: Add/update all Script/Stage/ScriptLevel objects
+      all_scripts = Script.includes(:levels, :script_levels, stages: :script_levels).all.index_by{|x|x.name}
+      result = scripts.map do |args|
+        add_script(levels, all_scripts, *args)
+      end
+    end
+    puts "second pass in #{time} sec"
+    result
   end
 
   def self.add_levels(levels_by_key={}, data)
-    data.map do |row|
+    data.map{|x|x[:levels]}.flatten.map do |row|
       row_data = row.dup
       row_data.delete :stage
       row_data.delete :assessment
@@ -432,43 +446,78 @@ class Script < ActiveRecord::Base
     end.select(&:changed?)
   end
 
-  def self.add_script(levels_by_key, options, data, first_seed=false)
-    script = fetch_script(options)
+  def self.add_script(levels_by_key, scripts_by_name, options, raw_script_levels, first_seed=false)
+    script = fetch_script(scripts_by_name, options)
     chapter = 0
     stage_position = 0; script_level_position = Hash.new(0)
     old_script_stages = script.stages.index_by(&:name)
     script_stages = {}
     script_levels_by_stage = {}
-    sl_level_chapter = script.script_levels.index_by{|sl|[sl.level_id,sl.chapter].join(':')}
+    sl_level_chapter = script.script_levels.index_by{|sl|[sl.level_ids.sort,sl.chapter].join(':')}
 
-    script_level_ids = data.map do |row|
-      row.symbolize_keys!
+    script_levels = raw_script_levels.map do |raw_script_level|
+      raw_script_level.symbolize_keys!
 
-      stage_name = row.delete(:stage)
-      assessment = row.delete(:assessment)
+      assessment = nil
+      named_level = nil
+      stage_flex_category = nil
 
-      # Concepts are comma-separated, indexed by name
-      row[:concept_ids] = (concepts = row.delete(:concepts)) && concepts.split(',').map(&:strip).map do |concept_name|
-        (Concept.by_name(concept_name) || raise("missing concept '#{concept_name}'"))
+      levels = raw_script_level[:levels].map do |raw_level|
+
+        raw_level_data = raw_level.dup
+
+        assessment = raw_level.delete(:assessment)
+        named_level = raw_level.delete(:named_level)
+        stage_flex_category = raw_level.delete(:stage_flex_category)
+
+        # Concepts are comma-separated, indexed by name
+        raw_level[:concept_ids] = (concepts = raw_level.delete(:concepts)) && concepts.split(',').map(&:strip).map do |concept_name|
+          (Concept.by_name(concept_name) || raise("missing concept '#{concept_name}'"))
+        end
+
+        level = fetch_level(levels_by_key, raw_level)
+        if level.changed?
+          puts "Level #{raw_level[:name]} changed: #{level.changes}"
+          level.save!
+        end
+        unless level
+          raise ActiveRecord::RecordNotFound, "Level: #{raw_level_data.to_json}, Script: #{script.name}"
+        end
+
+        if Game.gamelab == level.game
+          unless script.student_of_admin_required || script.admin_required
+            raise <<-ERROR.gsub(/^\s+/, '')
+              Gamelab levels can only be added to scripts that are admin_required, or student_of_admin_required
+              (while adding level "#{level.name}" to script "#{script.name}")
+            ERROR
+          end
+        end
+
+        if Game.applab == level.game
+          unless script.hidden || script.login_required || script.student_of_admin_required || script.admin_required
+            raise <<-ERROR.gsub(/^\s+/, '')
+              Applab levels can only be added to scripts that are hidden or require login
+              (while adding level "#{level.name}" to script "#{script.name}")
+            ERROR
+          end
+        end
+        level
       end
+      level_ids = levels.map(&:id).sort
 
-      level = fetch_level(levels_by_key, row)
-      level.save! if level.changed?
-      unless level
-        raise ActiveRecord::RecordNotFound, "Level: #{row.to_json}, Script: #{script.name}"
-      end
-      if level.game && level.game == Game.applab && !script.hidden && !script.login_required
-        raise 'Applab levels can only be added to a script that requires login'
-      end
 
-      chapter = chapter + 1
+      stage_name = raw_script_level.delete(:stage)
+      properties = raw_script_level.delete(:properties)
+
       script_level_attributes = {
         script_id: script.id,
-        level_id: level.id,
-        chapter: chapter,
+        levels: levels,
+        chapter: (chapter += 1),
+        named_level: named_level,
         assessment: assessment
       }
-      script_level = sl_level_chapter[[level.id,chapter].join(':')] ||
+      script_level_attributes[:properties] = properties.to_json if properties
+      script_level = sl_level_chapter[[level_ids,chapter].join(':')] ||
         ScriptLevel.new(script_level_attributes)
 
       # Set/create Stage containing custom ScriptLevel
@@ -479,7 +528,10 @@ class Script < ActiveRecord::Base
             script: script
           )
         unless script_stages.include?(stage_name)
-          stage.assign_attributes(position: (stage_position += 1))
+          stage.assign_attributes(
+            flex_category: stage_flex_category,
+            position: (stage_position += 1)
+          )
           stage.save! if stage.changed?
           script_stages[stage_name] = stage
         end
@@ -494,36 +546,36 @@ class Script < ActiveRecord::Base
         script_level.assign_attributes(script_level_attributes)
         script_level.save! if script_level.changed?
       end
-      script_level.id
+      script_level
     end
 
     unless first_seed
       # Overwrite current script levels in script
-      script.script_level_ids = script_level_ids
+      script.script_levels = script_levels
       script_stages.values.each do |stage|
         # Overwrite current script levels in stage
-        stage.script_level_ids = script_levels_by_stage[stage.id].map(&:id)
+        stage.script_levels = script_levels_by_stage[stage.id]
       end
       # Overwrite current stages in script
-      script.stage_ids = script_stages.values.map(&:id)
+      script.stages = script_stages.values
       # Ensure the returned script references the updated collections
-      script.reload
+      # script.reload
     end
 
-    script.stages.each do |stage|
-      # Go through all the script levels for this stage, except the last one,
-      # and raise an exception if any of them are a multi-page assessment.
-      # (That's when the script level is marked assessment, and the level itself
-      # has a pages property and more than one page in that array.)
-      # This is because only the final level in a stage can be a multi-page
-      # assessment.
-      stage.script_levels.each do |script_level|
-        if !script_level.end_of_stage? && script_level.long_assessment?
-          raise "Only the final level in a stage may be a multi-page assessment.  Script: #{script.name}"
-        end
-      end
-    end
-    script.generate_plc_objects
+    # script.stages.each do |stage|
+    #   # Go through all the script levels for this stage, except the last one,
+    #   # and raise an exception if any of them are a multi-page assessment.
+    #   # (That's when the script level is marked assessment, and the level itself
+    #   # has a pages property and more than one page in that array.)
+    #   # This is because only the final level in a stage can be a multi-page
+    #   # assessment.
+    #   stage.script_levels.each do |script_level|
+    #     if !script_level.end_of_stage? && script_level.long_assessment?
+    #       raise "Only the final level in a stage may be a multi-page assessment.  Script: #{script.name}"
+    #     end
+    #   end
+    # end
+    # script.generate_plc_objects
 
     script
   end
@@ -535,8 +587,7 @@ class Script < ActiveRecord::Base
       # a levels.js level in a old style script -- give it the same key that we use for levels.js levels in new style scripts
       key = ['blockly', row.delete(:game), row.delete(:level_num)].join(':')
     end
-
-    level = levels_by_key[key.downcase]
+    level = levels_by_key[key.downcase] || Level.find_by_key(key)
 
     if key.starts_with?('blockly')
       # this level is defined in levels.js. find/create the reference to this level
@@ -553,13 +604,18 @@ class Script < ActiveRecord::Base
   end
 
   # script is found/created by 'id' (if provided) otherwise by 'name'
-  def self.fetch_script(options)
+  def self.fetch_script(scripts_by_name, options)
     options.symbolize_keys!
-    v = :wrapup_video; options[v] = Video.find_by(key: options[v]) if options.has_key? v
+    v = :wrapup_video; options[v] = Video.by_key(options[v]) if options.has_key? v
     name = {name: options.delete(:name)}
     script_key = ((id = options.delete(:id)) && {id: id}) || name
-    script = Script.includes(:levels, :script_levels, stages: :script_levels).create_with(name).find_or_initialize_by(script_key)
-    script.update!(options)
+    script = scripts_by_name[name[:name]] ||
+      Script.includes(:levels, :script_levels, stages: :script_levels).create_with(name).find_or_initialize_by(script_key)
+    script.assign_attributes(options)
+    if script.changed?
+      puts "Script #{name} changed: #{script.changes}, options: #{options}"
+      script.save!
+    end
     script
   end
 

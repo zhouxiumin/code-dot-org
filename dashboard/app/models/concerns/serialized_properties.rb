@@ -6,19 +6,21 @@ module SerializedProperties
     class_attribute :serialized_properties
     self.serialized_properties ||= {}
 
-    after_initialize :init_properties
-    before_save { properties.select! { |_, v| v.present? } }
+    before_save { properties && properties.select! { |_, v| v.present? } }
   end
 
   def assign_attributes(new_attributes)
-    init_properties
     attributes = new_attributes.stringify_keys
     new_properties = attributes.delete('properties').try(:stringify_keys!)
 
     super(attributes)
     # If the properties hash is explicitly assigned then merge its keys with existing properties
     # instead of replacing the entire hash
-    super(properties: properties.merge(new_properties)) if new_properties
+    if new_properties
+      # new_properties.select!{|prop, _| self.class.permitted_params.try(:include?, prop)}
+      merged_props = (properties || {}).merge(new_properties).select { |_, v| v.present? }
+      super(properties: merged_props)
+    end
   end
 
   def init_internals
@@ -46,15 +48,18 @@ module SerializedProperties
     end
 
     def define_methods_for_property(property_name)
-      define_method(property_name) { read_attribute('properties')[property_name] }
-#      define_method("#{property_name}=") { |value| read_attribute('properties')[property_name] = value }
+      define_method(property_name) do
+        read_attribute('properties').try(:[], property_name)
+      end
       define_method("#{property_name}=") do |value|
-        attr = read_attribute('properties')
+        attr = read_attribute('properties') || {}
         attr[property_name] = value
         write_attribute('properties', attr)
         value
       end
-      define_method("#{property_name}?") { !!JSONValue.value(read_attribute('properties')[property_name]) }
+      define_method("#{property_name}?") do
+        !!JSONValue.value(read_attribute('properties').try(:[], property_name))
+      end
     end
 
     ENCRYPTED_PROPERTY_REGEX = /^encrypted_/
@@ -89,11 +94,6 @@ module SerializedProperties
         end
       end
     end
-  end
-
-  private
-  def init_properties
-    write_attribute('properties', {}) unless read_attribute('properties')
   end
 
 end
