@@ -612,10 +612,7 @@ class Script < ActiveRecord::Base
     script = scripts_by_name[name[:name]] ||
       Script.includes(:levels, :script_levels, stages: :script_levels).create_with(name).find_or_initialize_by(script_key)
     script.assign_attributes(options)
-    if script.changed?
-      puts "Script #{name} changed: #{script.changes}, options: #{options}"
-      script.save!
-    end
+    script.save! if script.changed?
     script
   end
 

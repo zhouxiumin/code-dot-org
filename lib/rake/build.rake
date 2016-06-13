@@ -118,7 +118,7 @@ namespace :build do
         else
           HipChat.log 'Seeding <b>dashboard</b>...'
           HipChat.log 'consider setting "skip_seed_all" in locals.yml if this is taking too long' if rack_env?(:development)
-          RakeUtils.rake 'seed:all'
+          RakeUtils.rake_stream_output 'seed:all'
         end
       end
 
