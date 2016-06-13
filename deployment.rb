@@ -244,7 +244,10 @@ class CDOImpl < OpenStruct
     @log ||= Logger.new(STDOUT).tap do |l|
       l.level = Logger::INFO
       l.formatter = proc do |severity, _, _, msg|
-        "#{severity != 'INFO' ? "#{severity}: " : ''}#{msg}\n"
+        msg = msg + "\n"
+        msg = "#{severity}: " + msg if severity != 'INFO'
+        msg = "#{Time.now.strftime('%H:%M:%S')} " + msg if ENV['CI']
+        msg
       end
     end
   end
