@@ -21,8 +21,12 @@ class BaseDSL
   end
 
   # returns 'xyz' from 'XyzDSL' subclasses
-  def prefix()
-    self.class.to_s.tap{|s| s.slice!('DSL')}.underscore
+  def self.prefix
+    self.to_s.tap{|s| s.slice!('DSL')}.underscore
+  end
+
+  def prefix
+    self.class.prefix
   end
 
   def self.parse_file(filename, name=nil)
