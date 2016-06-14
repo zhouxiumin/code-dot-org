@@ -46,7 +46,7 @@ namespace :install do
       Dir.chdir(dashboard_dir) do
         RakeUtils.bundle_install
         puts CDO.dashboard_db_writer
-        RakeUtils.rake 'dashboard:setup_db'
+        RakeUtils.rake_stream_output 'dashboard:setup_db'
       end
     end
   end
@@ -56,7 +56,7 @@ namespace :install do
     if RakeUtils.local_environment?
       Dir.chdir(pegasus_dir) do
         RakeUtils.bundle_install
-        RakeUtils.rake 'pegasus:setup_db'
+        RakeUtils.rake_stream_output 'pegasus:setup_db'
       end
     end
   end
