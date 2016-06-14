@@ -12,13 +12,19 @@ namespace :seed do
   file STANFORD_HINTS_IMPORTED => [STANFORD_HINTS_FILE, :environment] do
     LevelSourceHint.transaction do
       source_name = LevelSourceHint::STANFORD
-      LevelSourceHint.delete_all(['source=?', source_name])
+      hint_index = LevelSourceHint.all.index_by(&:level_source_id)
       level_source_hints = CSV.read(STANFORD_HINTS_FILE, { col_sep: "\t" }).map do |row|
-        LevelSourceHint.new(
-            level_source_id: row[0], hint: row[1],
-            status: 'experiment', source: source_name)
-      end
-      LevelSourceHint.import level_source_hints, validate: false
+        id = row[0].to_i
+        hint = hint_index[id] || LevelSourceHint.new(level_source_id: id)
+        hint.assign_attributes(
+          hint: row[1],
+          status: 'experiment',
+          source: source_name
+        )
+        hint
+      end.select(&:changed?)
+      LevelSourceHint.import level_source_hints, validate: false,
+        on_duplicate_key_update: LevelSourceHint.columns.map(&:name).tap{|x|x.delete('id')}
     end
     touch STANFORD_HINTS_IMPORTED
   end
