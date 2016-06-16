@@ -407,6 +407,7 @@ class Script < ActiveRecord::Base
   # Batch setup an array of scripts.
   def self.setup_scripts(scripts)
     levels = nil
+    levels_to_add = nil
 
     time = Benchmark.realtime do
       levels = Level.includes(:level_concept_difficulty, :concepts).all.index_by{|x|x.key.downcase}
@@ -414,22 +415,16 @@ class Script < ActiveRecord::Base
       levels_to_add = scripts.map do |args|
         add_levels(levels, args[1])
       end.flatten
-      LevelLoader.import(levels_to_add)
+      LevelLoader.import(levels_to_add.select(&:changed?))
     end
-    puts "First pass in #{time} sec"
-
-    time = Benchmark.realtime do
-      # Update levels index with new level ids
-      levels = Level.includes(:level_concept_difficulty, :concepts).all.index_by{|x|x.key.downcase}
-    end
-    puts "reload in #{time} sec"
+    puts "First pass in #{time} sec.  #{levels_to_add.count} levels"
 
     result = nil
     time = Benchmark.realtime do
       # Second pass: Add/update all Script/Stage/ScriptLevel objects
       all_scripts = Script.includes(:levels, :script_levels, stages: :script_levels).all.index_by{|x|x.name}
       result = scripts.map do |args|
-        add_script(levels, all_scripts, *args)
+        add_script(levels_to_add.index_by{|x|x.key.downcase}, all_scripts, *args)
       end
     end
     puts "second pass in #{time} sec"
@@ -443,7 +438,7 @@ class Script < ActiveRecord::Base
       row_data.delete :assessment
       row_data.delete :concepts
       fetch_level(levels_by_key, row_data)
-    end.select(&:changed?)
+    end
   end
 
   def self.add_script(levels_by_key, scripts_by_name, options, raw_script_levels, first_seed=false)
@@ -587,7 +582,7 @@ class Script < ActiveRecord::Base
       # a levels.js level in a old style script -- give it the same key that we use for levels.js levels in new style scripts
       key = ['blockly', row.delete(:game), row.delete(:level_num)].join(':')
     end
-    level = levels_by_key[key.downcase] || Level.find_by_key(key)
+    level = levels_by_key[key.downcase]
 
     if key.starts_with?('blockly')
       # this level is defined in levels.js. find/create the reference to this level
@@ -597,9 +592,11 @@ class Script < ActiveRecord::Base
       level = level.with_type(row.delete(:type) || 'Blockly') if level.type.nil?
       level.assign_attributes(row)
     elsif row[:video_key]
+      level ||= Level.find_by_key(key)
       level.video_key = row[:video_key]
     end
     levels_by_key[key.downcase] = level
+    puts "Warning: level #{key} = nil" if level.nil?
     level
   end
 

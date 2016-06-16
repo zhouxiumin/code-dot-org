@@ -7,7 +7,6 @@ module SerializedProperties
     self.serialized_properties ||= {}
 
     before_save { properties && properties.select! { |_, v| v.present? } }
-    after_initialize { self.properties = {} if self.new_record? }
   end
 
   def assign_attributes(new_attributes)

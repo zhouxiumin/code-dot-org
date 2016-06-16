@@ -1,6 +1,6 @@
 class LevelLoader
   def self.load_custom_levels
-    level_index = Level.includes(:game).to_a.index_by(&:name)
+    level_index = Level.includes(:game).where.not(user_id: nil).index_by(&:name)
     levels = Dir.glob(Rails.root.join('config/scripts/**/*.level')).sort.map do |path|
       load_custom_level(path, level_index)
     end.select(&:changed?)
@@ -9,11 +9,14 @@ class LevelLoader
 
   def self.import(levels)
     # activerecord-import doesn't run callbacks, so run them manually before the bulk import.
-    levels.map do |level|
-      level.run_callbacks(:validate)
+    levels.each do |level|
+      level.run_callbacks(:validation)
       level.run_callbacks(:save) { level.run_callbacks(:create) }
     end
-    Level.import levels, validate: true,
+    Level.import levels,
+      validate: false,
+      synchronize: levels,
+      synchronize_keys: [:name, :game_id, :level_num],
       on_duplicate_key_update: Level.columns.map(&:name).tap{|x|x.delete('id')}
     levels
   end

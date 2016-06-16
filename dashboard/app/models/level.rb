@@ -28,8 +28,9 @@ class Level < ActiveRecord::Base
   has_and_belongs_to_many :script_levels
   belongs_to :solution_level_source, :class_name => "LevelSource" # TODO: Do we even use this?
   belongs_to :ideal_level_source, :class_name => "LevelSource" # "see the solution" link uses this
+  accepts_nested_attributes_for :ideal_level_source, update_only: true
   belongs_to :user
-  has_one :level_concept_difficulty, dependent: :destroy
+  has_one :level_concept_difficulty, dependent: :destroy, inverse_of: :level
   has_many :level_sources
   has_many :hint_view_requests
 

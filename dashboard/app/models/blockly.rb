@@ -183,7 +183,7 @@ class Blockly < Level
   # for levels with solutions
   def update_ideal_level_source
     return if !self.respond_to?(:solution_blocks) || solution_blocks.blank?
-    self.ideal_level_source_id = LevelSource.find_identical_or_create(self, solution_blocks).id
+    self.ideal_level_source = LevelSource.find_identical_or_create(self, solution_blocks)
   end
 
   # What blocks should be embedded for the given block_xml. Default behavior is to change nothing.

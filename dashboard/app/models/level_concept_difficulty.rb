@@ -24,7 +24,7 @@
 
 class LevelConceptDifficulty < ActiveRecord::Base
   include ConceptDifficulties
-  belongs_to :level
+  belongs_to :level, inverse_of: :level_concept_difficulty
   validates :level, presence: true
 
   def serializable_hash(options=nil)

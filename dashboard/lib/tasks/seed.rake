@@ -60,7 +60,7 @@ namespace :seed do
     end
   end
 
-  SCRIPTS_DEPENDENCIES = [:environment, :games, :custom_levels, :dsls]
+  SCRIPTS_DEPENDENCIES = [:environment, :concepts, :games, :custom_levels, :dsls]
   task scripts: SCRIPTS_DEPENDENCIES do
     update_scripts(incremental: false)
   end
@@ -81,7 +81,7 @@ namespace :seed do
   require 'digest'
 
   # explicit execution of "seed:dsls"
-  task dsls: [:environment, :games, :custom_levels] do
+  task dsls: [:environment, :concepts, :games, :custom_levels] do
     DSLDefined.transaction do
       all_levels = DSLDefined.all
       levels = all_levels.index_by(&:name)
@@ -136,7 +136,13 @@ namespace :seed do
         dsl_objects = dsl_data.map do |dsl_class, data|
           dsl_class.setup(data, levels)
         end.select(&:changed?)
-        DSLDefined.import(dsl_objects, validate: false,
+        dsl_objects.each do |level|
+          level.run_callbacks(:validation)
+          level.run_callbacks(:save) { level.run_callbacks(:create) }
+        end
+        DSLDefined.import(
+          dsl_objects,
+          validate: false,
           on_duplicate_key_update: DSLDefined.columns.map(&:name).tap{|x|x.delete('id')}
         )
       end
