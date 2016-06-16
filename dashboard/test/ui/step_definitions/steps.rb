@@ -601,8 +601,12 @@ Given(/^I am a (student|teacher)$/) do |user_type|
   }
 end
 
+def random_alphanumeric_of(n)
+  Array.new(n){[*'0'..'9', *'a'..'z', *'A'..'Z'].sample}.join
+end
+
 def generate_user(name)
-  email = "user#{Time.now.to_i}_#{rand(1000)}@testing.xx"
+  email = "user#{Time.now.to_i}_#{random_alphanumeric_of(7)}@testing.xx"
   password = name + "password" # hack
   @users ||= {}
   @users[name] = {
