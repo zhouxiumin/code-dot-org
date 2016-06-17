@@ -77,6 +77,10 @@
         Kas te saaksite muuta "joonista kuusnurk" funktsiooni nõnda, et see teeks
         kuusnurga, mille ühe külje pikkus on 50 pikslit, ning seejärel joonistada
         kujutis funktsiooni abil?
+      2-3 Artist Functions 12 Mike_instruction: 'Funktsioonid hõlbustavad oluliselt
+        keeruliste kujutiste mitmekordset joonistamist. Kas te saate kasutada "joonista
+        lill" funktsiooni, et täita kogu ülejäänud istutuskast? (Vihje: taimed on
+        kõik üksteisest 100 piksli kaugusel)  '
       2-3 Artist Functions 12_instruction: 'Funktsioonid hõlbustavad oluliselt keeruliste
         kujutiste mitmekordset joonistamist. Kas te saate kasutada "joonista lill"
         funktsiooni, et täita kogu ülejäänud istutuskast? (Vihje: taimed on kõik üksteisest
@@ -643,6 +647,12 @@
       4-5 Maze Assessment 1_instruction: "Ülesanne: Mine päevalilleni."
       4-5 Maze Conditionals 1_instruction: Kasuta plokki „korda kuni“, et aidata zombi
         päevalille juurde.
+      4-5 Maze Conditionals 10_instruction: |-
+        Can you add just 3 blocks to help the
+        zombie solve a more complex maze? \r
+        \r
+        If you do it right, he can walk
+        any curvy path no matter the length!
       4-5 Maze Conditionals 2_instruction: Kasuta plokki „korda kuni“, et aidata zombi
         päevalille juurde.
       4-5 Maze Conditionals 3_instruction: 'Kasuta uut „kui“ plokki, et lasta mul
@@ -710,6 +720,20 @@
         mõlema jaoks tsüklit „kuni“."
       4-5 While Loops Assessment 1_instruction: Siin on palju auke ja hunnikuid. Aita
         mul neid täita ja eemaldada, et saada maapind tasaseks.
+      aE1_instruction: |-
+        Draw this square using a loop.\r
+        \r
+        Each side is 20 pixels
+        long.
+      aE2_instruction: |
+        If you place your square loop inside another loop, we call
+        that a nested loop. What do you need to add as an outer loop to make sure
+        all 15 squares line up next to each other?
+      aE3_instruction: |
+        Now let's go one level deeper! We've nested that whole
+        block of code into another loop, but you need to get the artist back in place
+        to draw the next line. Which of these code blocks can you place at the end
+        of the outermost loop to draw the whole grid?
       AlgPD DR Free Play_instruction: Create a function based on your own word problem.
       AllTheThings Applab - Turtle move with button_instruction: |
         Add a button that
@@ -2017,6 +2041,9 @@
       CSD U3 Variables Intro_instruction: |
         Create your own variable, give it a value,
         and display that value in the console.
+      CSD U3 Variables make a big square_instruction: |
+        Change the value of size multiple
+        times. How does it change your drawing?
       CSD U3 Variables make a square_instruction: |
         Change the value of size multiple
         times. How does it change your drawing?
@@ -2759,6 +2786,10 @@
         function even more useful?
       Middle School Hackathon Pt 1_instruction: "(Click to see full instructions)"
       Middle School Hackathon Pt 2_instruction: "(Click to see full instructions)"
+      MikeAssessment1_instruction: Now do it right!
+      MikeTest1_instruction: Who knows what you should do?!?!
+      MikeTest2_instruction: Draw something!
+      MikeTest3_instruction: Build Something
       MSM Big Game Empty_instruction: |
         All variables and functions are currently
         empty stubs. Each puzzle progression will be focused on defining and handful
@@ -3870,6 +3901,7 @@
       U3 - High Low - If_instruction: |
         Add code to the if statement that indicates
         the user guessed the secret number. (Click to see full instructions)
+      U3 - images - bee free play_instruction: Do this
       U3 - Keys - Add Image URLs_instruction: |
         Add image URLs to your array. Replace
         the text area with an image and setText with setImageURL. Then test your app!
@@ -5411,4 +5443,7 @@
         vähemalt kaks sütt.
       Underground Test Level_instruction: Kogu kokku kõik mineraalid!
       Vigenere_instruction: Test
+      WhileAdventure_instruction: |
+        Our adventurer wants to collect coins. Can you
+        help her grab as many as she can using only one remove 1 block?
       XML Scratchpad_instruction: Using this test level to grab xml for unit tests

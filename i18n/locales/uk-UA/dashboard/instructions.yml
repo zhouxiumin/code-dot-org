@@ -34,6 +34,7 @@ uk:
       2-3 Artist Functions 10_instruction: 'Ось дві функції: одна для малювання великої шестірні, друга - для маленької. Використай їх, щоб намалювати середину механізму!'
       2-3 Artist Functions 11.5_instruction: 'Ось така ж функція "намалювати шестикутник". Що станеться, якщо повертати тільки на 60 градусів при кожному виконанні циклу?'
       2-3 Artist Functions 11_instruction: 'Ми перейменували функцію "намалювати квадрат" у "намалювати шестикутник", але вона все ще малює квадрати! Можеш змінити функцію "намалюйте шестикутник" і намалювати шестикутник зі сторонами по 50 пікселів за допомогою функції?'
+      2-3 Artist Functions 12 Mike_instruction: 'Функції дійсно чудово підходять для багаторазового малювання складних речей. Можеш використати функцію "намалювати квітку" для заповнення решти газону? (Підказка: між рослинами відстань у 100 пікселів)  '
       2-3 Artist Functions 12_instruction: 'Функції дійсно чудово підходять для багаторазового малювання складних речей. Можеш використати функцію "намалювати квітку" для заповнення решти газону? (Підказка: між рослинами відстань у 100 пікселів)  '
       2-3 Artist Functions 13_instruction: Ми навели чотири функції. Використай їх, як завгодно, всередині одного чи кількох циклів, щоб створити малюнок, яким можна поділитися з друзями. Клацай Запустити, щоб подивитися приклад.
       2-3 Artist Functions 2_instruction: 'Функції дозволяють визначити нові блоки! Ми перенесли блоки малювання квадрату в функцію під назвою "намалювати квадрат". Можеш використати функцію "намалювати квадрат", щоб створити окуляри? Квадрати розміщені на відстані 75 пікселів один від одного.'
@@ -331,6 +332,7 @@ uk:
       4-5 Maze 9_instruction: 'Створи цикл блоком "повторювати доки".'
       4-5 Maze Assessment 1_instruction: 'Оцінювання: Дістанься соняшника.'
       4-5 Maze Conditionals 1_instruction: Використовуй блок повторення, щоб провести зомбі до соняшника.
+      4-5 Maze Conditionals 10_instruction: "Can you add just 3 blocks to help the\nzombie solve a more complex maze? \\r\n\\r\nIf you do it right, he can walk\nany curvy path no matter the length!"
       4-5 Maze Conditionals 2_instruction: Використовуй блок повторення, щоб провести зомбі до соняшника.
       4-5 Maze Conditionals 3_instruction: 'Блок "якщо" дає змогу самостійно вирішувати, коли повертати. Підказка: потрібно додати всього лише один блок, але досліди, як ми його налаштували, щоб можна було зробити це самостійно наступного разу.'
       4-5 Maze Conditionals 4_instruction: 'Гаразд, це схоже на попереднє завдання, але тобі треба згадати, як ми використовували блоки "якщо" і "повторити" разом.'
@@ -364,6 +366,16 @@ uk:
       4-5 While Loops 7_instruction: Ого, а тут три купи бруду! Можеш написати програму, яка видалить їх усі, зрівнявши землю?
       4-5 While Loops 8_instruction: ' Ого, я знайшла дуже глибоку яму і величезну купу бруду.  Скільки потрібно відер землі, щоб вирівняти поверхню? Підказка: в обох випадках використай цикл поки.'
       4-5 While Loops Assessment 1_instruction: Тут багато ям та куп. Допоможи заповнити або видалити їх, щоб вирівняти землю.
+      aE1_instruction: "Draw this square using a loop.\\r\n\\r\nEach side is 20 pixels\nlong."
+      aE2_instruction: |
+        If you place your square loop inside another loop, we call
+        that a nested loop. What do you need to add as an outer loop to make sure
+        all 15 squares line up next to each other?
+      aE3_instruction: |
+        Now let's go one level deeper! We've nested that whole
+        block of code into another loop, but you need to get the artist back in place
+        to draw the next line. Which of these code blocks can you place at the end
+        of the outermost loop to draw the whole grid?
       AlgPD DR Free Play_instruction: Create a function based on your own word problem.
       AllTheThings Applab - Turtle move with button_instruction: |
         Add a button that
@@ -1204,6 +1216,9 @@ uk:
         Predict: What will get displayed
         in the console?
       CSD U3 Variables Intro_instruction: 'Create your own variable '
+      CSD U3 Variables make a big square_instruction: |
+        Change the value of size multiple
+        times. How does it change your drawing?
       CSD U3 Variables make a square_instruction: |
         Change the value of size multiple
         times. How does it change your drawing?
@@ -1806,6 +1821,10 @@ uk:
         function even more useful?
       Middle School Hackathon Pt 1_instruction: (Click to see full instructions)
       Middle School Hackathon Pt 2_instruction: (Click to see full instructions)
+      MikeAssessment1_instruction: Now do it right!
+      MikeTest1_instruction: Who knows what you should do?!?!
+      MikeTest2_instruction: Draw something!
+      MikeTest3_instruction: Build Something
       MSM Big Game Empty_instruction: |
         All variables and functions are currently
         empty stubs. Each puzzle progression will be focused on defining and handful
@@ -2681,6 +2700,7 @@ uk:
       U3 - High Low - If_instruction: |
         Add code to the if statement that indicates
         the user guessed the secret number. (Click to see full instructions)
+      U3 - images - bee free play_instruction: Do this
       U3 - Keys - Add Image URLs_instruction: |
         Add image URLs to your array. Replace
         the text area with an image and setText with setImageURL. Then test your app!
@@ -4119,4 +4139,7 @@ uk:
       Underground Mining Coal_instruction: Під землею ти знайдеш багато цінних ресурсів, але там темно. Розмісти принаймні 2 факели та добудь принаймні 2 блоки вугілля.
       Underground Test Level_instruction: Збирай усі мінерали!
       Vigenere_instruction: Test
+      WhileAdventure_instruction: |
+        Our adventurer wants to collect coins. Can you
+        help her grab as many as she can using only one remove 1 block?
       XML Scratchpad_instruction: Using this test level to grab xml for unit tests

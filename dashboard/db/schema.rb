@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160527181440) do
+ActiveRecord::Schema.define(version: 20160614000000) do
 
   create_table "activities", force: :cascade do |t|
     t.integer  "user_id",         limit: 4
@@ -352,6 +352,7 @@ ActiveRecord::Schema.define(version: 20160527181440) do
     t.integer  "school_zip",         limit: 4
     t.string   "school_type",        limit: 255
     t.string   "school_state",       limit: 255
+    t.integer  "user_id",            limit: 4
   end
 
   add_index "pd_enrollments", ["pd_workshop_id"], name: "index_pd_enrollments_on_pd_workshop_id", using: :btree
@@ -368,15 +369,16 @@ ActiveRecord::Schema.define(version: 20160527181440) do
   add_index "pd_sessions", ["pd_workshop_id"], name: "index_pd_sessions_on_pd_workshop_id", using: :btree
 
   create_table "pd_workshops", force: :cascade do |t|
-    t.string   "workshop_type",    limit: 255,   null: false
-    t.integer  "organizer_id",     limit: 4,     null: false
-    t.string   "location_name",    limit: 255
-    t.string   "location_address", limit: 255
-    t.string   "course",           limit: 255,   null: false
-    t.string   "subject",          limit: 255
-    t.integer  "capacity",         limit: 4,     null: false
-    t.text     "notes",            limit: 65535
-    t.integer  "section_id",       limit: 4
+    t.string   "workshop_type",      limit: 255,   null: false
+    t.integer  "organizer_id",       limit: 4,     null: false
+    t.string   "location_name",      limit: 255
+    t.string   "location_address",   limit: 255
+    t.text     "processed_location", limit: 65535
+    t.string   "course",             limit: 255,   null: false
+    t.string   "subject",            limit: 255
+    t.integer  "capacity",           limit: 4,     null: false
+    t.text     "notes",              limit: 65535
+    t.integer  "section_id",         limit: 4
     t.datetime "started_at"
     t.datetime "ended_at"
     t.datetime "created_at"
@@ -569,15 +571,16 @@ ActiveRecord::Schema.define(version: 20160527181440) do
   end
 
   create_table "script_levels", force: :cascade do |t|
-    t.integer  "level_id",   limit: 4
-    t.integer  "script_id",  limit: 4,     null: false
-    t.integer  "chapter",    limit: 4
+    t.integer  "level_id",    limit: 4
+    t.integer  "script_id",   limit: 4,     null: false
+    t.integer  "chapter",     limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "stage_id",   limit: 4
-    t.integer  "position",   limit: 4
+    t.integer  "stage_id",    limit: 4
+    t.integer  "position",    limit: 4
     t.boolean  "assessment"
-    t.text     "properties", limit: 65535
+    t.text     "properties",  limit: 65535
+    t.boolean  "named_level"
   end
 
   add_index "script_levels", ["level_id"], name: "index_script_levels_on_level_id", using: :btree
@@ -618,16 +621,17 @@ ActiveRecord::Schema.define(version: 20160527181440) do
   add_index "secret_words", ["word"], name: "index_secret_words_on_word", unique: true, using: :btree
 
   create_table "sections", force: :cascade do |t|
-    t.integer  "user_id",    limit: 4,                     null: false
-    t.string   "name",       limit: 255
+    t.integer  "user_id",      limit: 4,                     null: false
+    t.string   "name",         limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "code",       limit: 255
-    t.integer  "script_id",  limit: 4
-    t.string   "grade",      limit: 255
-    t.string   "admin_code", limit: 255
-    t.string   "login_type", limit: 255, default: "email", null: false
+    t.string   "code",         limit: 255
+    t.integer  "script_id",    limit: 4
+    t.string   "grade",        limit: 255
+    t.string   "admin_code",   limit: 255
+    t.string   "login_type",   limit: 255, default: "email", null: false
     t.datetime "deleted_at"
+    t.boolean  "stage_extras",             default: false,   null: false
   end
 
   add_index "sections", ["code"], name: "index_sections_on_code", unique: true, using: :btree
@@ -856,7 +860,6 @@ ActiveRecord::Schema.define(version: 20160527181440) do
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email",          limit: 255
     t.integer  "prize_teacher_id",           limit: 4
-    t.boolean  "hint_access"
     t.integer  "secret_picture_id",          limit: 4
     t.boolean  "active",                                   default: true,    null: false
     t.string   "hashed_email",               limit: 255

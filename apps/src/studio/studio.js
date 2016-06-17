@@ -32,7 +32,7 @@ var RocketHeightLogic = require('./rocketHeightLogic');
 var SamBatLogic = require('./samBatLogic');
 var utils = require('../utils');
 var dropletUtils = require('../dropletUtils');
-var _ = require('../lodash');
+var _ = require('lodash');
 var dropletConfig = require('./dropletConfig');
 var Hammer = require('../hammer');
 var JSInterpreter = require('../JSInterpreter');
@@ -43,6 +43,7 @@ var ImageFilterFactory = require('./ImageFilterFactory');
 var ThreeSliceAudio = require('./ThreeSliceAudio');
 var MusicController = require('../MusicController');
 var paramLists = require('./paramLists.js');
+var experiments = require('../experiments');
 
 var studioCell = require('./cell');
 
@@ -1980,6 +1981,7 @@ Studio.init = function (config) {
   }
 
   config.appMsg = studioMsg;
+  config.showInstructionsInTopPane = experiments.isEnabled('topInstructionsCSF');
 
   Studio.initSprites();
 
@@ -2005,9 +2007,11 @@ Studio.init = function (config) {
 
   studioApp.setPageConstants(config);
 
-  var visualizationColumn = <StudioVisualizationColumn
-    finishButton={!level.isProjectLevel}
-    inputOutputTable={level.inputOutputTable}/>;
+  var visualizationColumn = (
+    <StudioVisualizationColumn
+      finishButton={!level.isProjectLevel}
+    />
+  );
 
   ReactDOM.render(
     <Provider store={studioApp.reduxStore}>
@@ -2669,7 +2673,7 @@ Studio.checkForBlocklyPreExecutionFailure = function () {
     return true;
   }
 
-  if (studioApp.hasExtraTopBlocks()) {
+  if (studioApp.hasExtraTopBlocks() && !Blockly.showUnusedBlocks) {
     Studio.result = false;
     Studio.testResults = TestResults.EXTRA_TOP_BLOCKS_FAIL;
     Studio.preExecutionFailure = true;

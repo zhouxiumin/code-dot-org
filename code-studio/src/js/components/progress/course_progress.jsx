@@ -1,48 +1,66 @@
 import React from 'react';
+import Radium from 'radium';
 import { connect } from 'react-redux';
-import { STAGE_TYPE } from './types';
 import _ from 'lodash';
+
+import { stageShape } from './types';
 import CourseProgressRow from './course_progress_row.jsx';
-import StageDetails from './stage_details.jsx';
+import color from '../../color';
+
+const styles = {
+  flexHeader: {
+    padding: '8px 11px',
+    margin: '20px 0 0 0',
+    borderRadius: 5,
+    background: color.cyan,
+    color: color.white
+  }
+};
 
 /**
  * Stage progress component used in level header and course overview.
  */
-var CourseProgress = React.createClass({
+const CourseProgress = React.createClass({
   propTypes: {
-    display: React.PropTypes.oneOf(['dots', 'list']).isRequired,
-    stages: React.PropTypes.arrayOf(STAGE_TYPE)
-  },
-
-  getRow(stage) {
-    if (this.props.display === 'dots') {
-      return <CourseProgressRow stage={stage} key={stage.name} />;
-    } else {
-      return <StageDetails stage={stage} key={stage.name} />;
-    }
+    professionalLearningCourse: React.PropTypes.bool,
+    focusAreaPositions: React.PropTypes.arrayOf(React.PropTypes.number),
+    stages: React.PropTypes.arrayOf(stageShape)
   },
 
   render() {
-    var groups = _.groupBy(this.props.stages, stage => (stage.flex_category || 'Content'));
-
-    var rows = _.map(groups, (stages, group) =>
-      <div className="flex-wrapper" key={group}>
-        <div className="flex-category">
-          <h4>{group}</h4>
-          {stages.map(this.getRow)}
-        </div>
-      </div>
-    );
+    const groups = _.groupBy(this.props.stages, stage => (stage.flex_category || 'Content'));
+    let count = 1;
 
     return (
       <div className='user-stats-block'>
-        {rows}
+        {_.map(groups, (stages, group) =>
+          <div key={group}>
+            <h4
+              id={group.toLowerCase().replace(' ', '-')}
+              style={[
+                this.props.professionalLearningCourse ? styles.flexHeader : {display: 'none'},
+                count === 1 && {margin: '2px 0 0 0'}
+              ]}
+            >
+              {group}
+            </h4>
+            {stages.map(stage =>
+              <CourseProgressRow
+                stage={stage}
+                key={stage.name}
+                isFocusArea={this.props.focusAreaPositions.indexOf(count++) > -1}
+                professionalLearningCourse={this.props.professionalLearningCourse}
+              />
+            )}
+          </div>
+        )}
       </div>
     );
   }
 });
 
 export default connect(state => ({
-  display: state.display,
+  professionalLearningCourse: state.professionalLearningCourse,
+  focusAreaPositions: state.focusAreaPositions,
   stages: state.stages
-}))(CourseProgress);
+}))(Radium(CourseProgress));

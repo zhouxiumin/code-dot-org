@@ -1,7 +1,12 @@
 tr-TR:
   hour_of_code: Saat Kodu
   hello: Merhaba dünya
+  "yes": Evet
+  "no": Hayır
   select_language: Lütfen dilinizi seçiniz
+  upgrade_ie_message: Code.org will soon remove support for Internet Explorer 8, 9, and 10. Please upgrade to a modern browser.
+  upgrade_ie_message_csedweek: CSEdWeek.org will soon remove support for Internet Explorer 8, 9, and 10. Please upgrade to a modern browser.
+  upgrade_ie_link: Daha fazlasını öğren
   en: Bilgisayar Bilimi
   computer_science_edweek: Bilgisayar Bilimleri Eğitim Haftası
   csedweek_dates: 8-14 Aralık 2014
@@ -509,6 +514,7 @@ tr-TR:
   dashboard_action_required: gerekli
   dashboard_assessments_view: 'Değerlendirmeleri gör:'
   dashboard_assessments_none: Değerlendirme yok
+  dashboard_assessments_none_part2: "If you are teaching a middle or high school course, we have assessment questions available as part of Code Studio to help your students prepare for the AP test. To use these assessments, first assign the course to your class and then pick the course from the drop down above and you'll see your students' answers here."
   dashboard_assessments_summaries: Summaries
   dashboard_assessments_answers: All answers
   dashboard_filter_by_stage: 'Aşamaya göre filtrele:'
@@ -540,6 +546,7 @@ tr-TR:
   dashboard_progress_submitted: gönderildi
   dashboard_progress_view: İlerlemeyi Görüntüle
   dashboard_progress_student_in_script: 'İlerleme bilgilerini %{script_name} %{student_name} için'
+  dashboard_progress_pair_programming: pair programming
   dashboard_responses_view: Yanıtları Görüntüle
   dashboard_responses_none: Cevap yok
   dashboard_sections_new_section: Yeni bölüm
@@ -548,6 +555,7 @@ tr-TR:
   dashboard_sections_table_secret: Oturum açma türü
   dashboard_sections_table_grade: Sınıf
   dashboard_sections_table_course: Kurs
+  dashboard_sections_table_stage_extras: Stage Extras
   dashboard_sections_table_students: Öğrenciler
   dashboard_sections_table_code: Bölge Kodu
   dashboard_sections_name: Bölüm İsmi
@@ -676,7 +684,7 @@ tr-TR:
   dashboard_announce_message: '<b>4 Nisan 2016</b> - hepimiz Bilgisayar Biliminde bir çeşitlilik sorun olduğunu biliyorum. Kod Studio azınlıklara kod eğitmek için öncülük edecek. Bizim yıllık araştırmamız çeşitliği göstermektedir.'
   dashboard_announce_button_text: Daha fazlasını öğren
   dashboard_announce_petition: "As a teacher, you're leading the way in a movement to give every student in every school the opportunity to learn computer science. Now, it's time to let your representatives hear from you. This week, education leaders, 28 governors, and CEOs of America's largest companies joined together in an open letter asking the U.S. Congress to fund K-12 computer science education."
-  dashboard_announce_petition_button: Add your name
+  dashboard_announce_petition_button: Adınızı Ekleyin
   code_hoc_coming: 'Kod Saati burada - Aralık 8-14!'
   code_sign_up: "CS Education Week' e katılmak için kaydolun."
   learn_more: Daha Fazla Bilgi Edinin

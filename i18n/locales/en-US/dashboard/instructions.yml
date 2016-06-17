@@ -34,6 +34,7 @@ en:
       2-3 Artist Functions 10_instruction: crwdns33949:0crwdne33949:0
       2-3 Artist Functions 11.5_instruction: crwdns33950:0crwdne33950:0
       2-3 Artist Functions 11_instruction: crwdns33951:0crwdne33951:0
+      2-3 Artist Functions 12 Mike_instruction: crwdns56883:0crwdne56883:0
       2-3 Artist Functions 12_instruction: crwdns33952:0crwdne33952:0
       2-3 Artist Functions 13_instruction: crwdns33953:0crwdne33953:0
       2-3 Artist Functions 2_instruction: crwdns33954:0crwdne33954:0
@@ -305,6 +306,7 @@ en:
       4-5 Maze 9_instruction: crwdns31265:0crwdne31265:0
       4-5 Maze Assessment 1_instruction: crwdns30538:0crwdne30538:0
       4-5 Maze Conditionals 1_instruction: crwdns34160:0crwdne34160:0
+      4-5 Maze Conditionals 10_instruction: crwdns56884:0crwdne56884:0
       4-5 Maze Conditionals 2_instruction: crwdns34162:0crwdne34162:0
       4-5 Maze Conditionals 3_instruction: crwdns34163:0crwdne34163:0
       4-5 Maze Conditionals 4_instruction: crwdns34164:0crwdne34164:0
@@ -335,6 +337,9 @@ en:
       4-5 While Loops 7_instruction: crwdns38651:0crwdne38651:0
       4-5 While Loops 8_instruction: crwdns38652:0crwdne38652:0
       4-5 While Loops Assessment 1_instruction: crwdns38653:0crwdne38653:0
+      aE1_instruction: crwdns56955:0crwdne56955:0
+      aE2_instruction: crwdns56956:0crwdne56956:0
+      aE3_instruction: crwdns56957:0crwdne56957:0
       AlgPD DR Free Play_instruction: crwdns43212:0crwdne43212:0
       AllTheThings Applab - Turtle move with button_instruction: crwdns50293:0crwdne50293:0
       allthethings data blocks test_instruction: crwdns55903:0crwdne55903:0
@@ -744,6 +749,7 @@ en:
       CSD U3 Variables eyeBrows_instruction: crwdns56559:0crwdne56559:0
       CSD U3 Variables Initialize_instruction: crwdns56293:0crwdne56293:0
       CSD U3 Variables Intro_instruction: crwdns56294:0crwdne56294:0
+      CSD U3 Variables make a big square_instruction: crwdns56958:0crwdne56958:0
       CSD U3 Variables make a square_instruction: crwdns56560:0crwdne56560:0
       CSD U3 Variables multiple assignments_instruction: crwdns56561:0crwdne56561:0
       CSD U3 Variables naming rules_instruction: crwdns56562:0crwdne56562:0
@@ -1022,6 +1028,10 @@ en:
       Luigi's Pizza 4_instruction: crwdns36011:0crwdne36011:0
       Middle School Hackathon Pt 1_instruction: crwdns56231:0crwdne56231:0
       Middle School Hackathon Pt 2_instruction: crwdns56232:0crwdne56232:0
+      MikeAssessment1_instruction: crwdns56885:0crwdne56885:0
+      MikeTest1_instruction: crwdns56886:0crwdne56886:0
+      MikeTest2_instruction: crwdns56887:0crwdne56887:0
+      MikeTest3_instruction: crwdns56888:0crwdne56888:0
       MSM Big Game Empty_instruction: crwdns35004:0crwdne35004:0
       MSM Big Game Vars 1 (copy 1)_instruction: crwdns35005:0crwdne35005:0
       MSM Big Game Vars 1_instruction: crwdns34577:0crwdne34577:0
@@ -1345,6 +1355,7 @@ en:
       U3 - High Low - Else if_instruction: crwdns51096:0crwdne51096:0
       U3 - High Low - Else_instruction: crwdns54289:0crwdne54289:0
       U3 - High Low - If_instruction: crwdns51098:0crwdne51098:0
+      U3 - images - bee free play_instruction: crwdns56959:0crwdne56959:0
       U3 - Keys - Add Image URLs_instruction: crwdns51099:0crwdne51099:0
       U3 - Keys - Buttons and Keys_instruction: crwdns51100:0crwdne51100:0
       U3 - Keys - Demo App_instruction: crwdns51101:0crwdne51101:0
@@ -1808,4 +1819,5 @@ en:
       Underground Mining Coal_instruction: crwdns54308:0crwdne54308:0
       Underground Test Level_instruction: crwdns54309:0crwdne54309:0
       Vigenere_instruction: crwdns49754:0crwdne49754:0
+      WhileAdventure_instruction: crwdns56960:0crwdne56960:0
       XML Scratchpad_instruction: crwdns31218:0crwdne31218:0

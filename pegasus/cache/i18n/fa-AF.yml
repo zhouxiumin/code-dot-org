@@ -1,7 +1,14 @@
 "fa-AF":
   hour_of_code: "ساعتی با کد"
   hello: "سلام دنیا"
+  'yes': 'Yes'
+  'no': 'No'
   select_language: "لطفا زبان خود را انتخاب کنید"
+  upgrade_ie_message: Code.org will soon remove support for Internet Explorer 8, 9,
+    and 10. Please upgrade to a modern browser.
+  upgrade_ie_message_csedweek: CSEdWeek.org will soon remove support for Internet
+    Explorer 8, 9, and 10. Please upgrade to a modern browser.
+  upgrade_ie_link: Learn more
   en: "علوم کامپیوتر"
   computer_science_edweek: "هفته‌ی آموزش علوم رایانه"
   csedweek_dates: 8-14 دسامبر، 2014
@@ -676,6 +683,11 @@
   dashboard_action_required: "اجباری"
   dashboard_assessments_view: 'View assessments in:'
   dashboard_assessments_none: No assessments
+  dashboard_assessments_none_part2: If you are teaching a Computer Science Principles
+    course, we have assessment questions available as part of Code Studio to help
+    your students prepare for the AP test. To use these assessments, first assign
+    the assessment to your class and then pick it from the drop down above and you'll
+    see your students' answers here.
   dashboard_assessments_summaries: Summaries
   dashboard_assessments_answers: All answers
   dashboard_filter_by_stage: 'Filter by stage:'
@@ -710,6 +722,7 @@
   dashboard_progress_view: 'View progress in:'
   dashboard_progress_student_in_script: Progress information for %{student_name} in
     %{script_name}
+  dashboard_progress_pair_programming: pair programming
   dashboard_responses_view: 'View text responses in:'
   dashboard_responses_none: No text responses
   dashboard_sections_new_section: "بخش تازه"
@@ -720,6 +733,7 @@
   dashboard_sections_table_secret: "نوع ورود"
   dashboard_sections_table_grade: "درجه"
   dashboard_sections_table_course: "دوره"
+  dashboard_sections_table_stage_extras: Stage Extras
   dashboard_sections_table_students: "دانش آموزان"
   dashboard_sections_table_code: "بخش کد"
   dashboard_sections_name: "نام بخش"

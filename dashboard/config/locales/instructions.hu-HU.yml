@@ -73,6 +73,10 @@
         "rajzolj egy hatszöget"-re, de még mindig négyzetet rajzol! Meg tudod változtatni
         a "rajzolj egy hatszöget" függvényt úgy, hogy 50 pixeles oldalhosszúságú hatszöget
         rajzoljon, és segítségével meg tudod rajzolni a képet?
+      2-3 Artist Functions 12 Mike_instruction: 'A függvények nagyszerűen használhatók
+        összetett dolgok többszöri megrajzolására. Fel tudod használni a "rajzolj
+        egy virágot" függvényt  az egész láda beültetésére? (Tipp: A növények 100
+        pixeles távolságban állnak egymástól.)'
       2-3 Artist Functions 12_instruction: 'A függvények nagyszerűen használhatók
         összetett dolgok többszöri megrajzolására. Fel tudod használni a "rajzolj
         egy virágot" függvényt  az egész láda beültetésére? (Tipp: A növények 100
@@ -660,6 +664,12 @@
       4-5 Maze Assessment 1_instruction: "Értékelés: juss el a napraforgóhoz!"
       4-5 Maze Conditionals 1_instruction: Használd az "ismételd amíg" blokkot, hogy
         elvezesd a zombit a napraforgóhoz.
+      4-5 Maze Conditionals 10_instruction: |-
+        Can you add just 3 blocks to help the
+        zombie solve a more complex maze? \r
+        \r
+        If you do it right, he can walk
+        any curvy path no matter the length!
       4-5 Maze Conditionals 2_instruction: Használd az "ismételd amíg" blokkot, hogy
         elvezesd a zombit a napraforgóhoz.
       4-5 Maze Conditionals 3_instruction: 'Használd a "ha" blokkot, annak eldöntésére,
@@ -731,6 +741,20 @@
         az "amíg van" ciklust.'
       4-5 While Loops Assessment 1_instruction: Sok lyuk és sok kupac van. Segíts
         nekem ezeket elegyengetnem.
+      aE1_instruction: |-
+        Draw this square using a loop.\r
+        \r
+        Each side is 20 pixels
+        long.
+      aE2_instruction: |
+        If you place your square loop inside another loop, we call
+        that a nested loop. What do you need to add as an outer loop to make sure
+        all 15 squares line up next to each other?
+      aE3_instruction: |
+        Now let's go one level deeper! We've nested that whole
+        block of code into another loop, but you need to get the artist back in place
+        to draw the next line. Which of these code blocks can you place at the end
+        of the outermost loop to draw the whole grid?
       AlgPD DR Free Play_instruction: Create a function based on your own word problem.
       AllTheThings Applab - Turtle move with button_instruction: |
         Add a button that
@@ -1866,8 +1890,8 @@
       Course 4 Play Lab Params 9_instruction: "Here's our game from an earlier stage,\nbut
         most of the code is hidden. There’s a new function `score_points.`\\r\n\\r\nEdit\nthe
         function so that a new parameter called `points` can be added to `player_score`.\n\\r\n\\r\nThe
-        variable `player_score` should increase each time Dog tags Cat\nwith hearts,
-        and decrease each time that Cat tags Dog with hearts.\\r\n\\r\nNote:\nWhen
+        variable `player_score` should increase each time Dog tags Cat\nwith pie,
+        and decrease each time that Cat tags Dog with a sandwich.\\r\n\\r\nNote:\nWhen
         you're done, click \"Run\" to play.  When Dog scores 6 points, you will\nmove
         on to the next puzzle. "
       Course 4 Play Lab Vars 1_instruction: |
@@ -1897,19 +1921,19 @@
         fireballs hit the cat. You can increment the score by setting score = score
         + 1. Get your score up to 10 (going one at a time!) to pass the level.
       Course 4 Play Lab Vars 6_instruction: |-
-        Use the right arrow to shoot hearts.\r
+        Use the right arrow to throw pie.\r
         \r
         In
         our game, how should we score points? Add 1 to your "points" variable each
-        time Dog hits Cat with a heart. Use the "when actor 2 touches anything"
+        time Dog hits Cat with a piece of pie. Use the "when actor 2 touches anything"
         event to trigger an update to your score. You can increment your variable
         by setting "points = points + 1." Get your score up to 10 (going one at
         a time!) to pass the level.
       Course 4 Play Lab Vars 7_instruction: |
         Nice, now let's make sure this game
-        isn't too easy to play. Any time Dog (actor 1) gets hit by yellow hearts
-        from Cat (actor 2), you should lose a point. Start with 10 points so it's
-        not too hard. Let your score drop down from 10 to 0 to pass the level.
+        isn't too easy to play. Any time Dog (actor 1) gets hit by a sandwich from
+        Cat (actor 2), you should lose a point. Start with 10 points so it's not
+        too hard. Let your score drop down from 10 to 0 to pass the level.
       Course 4 Play Lab Vars 8 (copy 1)_instruction: |
         Alright, one last thing for
         this game - let's set it up so the player can win (or lose). Use a forever
@@ -2220,6 +2244,9 @@
       CSD U3 Variables Intro_instruction: |
         Create your own variable, give it a value,
         and display that value in the console.
+      CSD U3 Variables make a big square_instruction: |
+        Change the value of size multiple
+        times. How does it change your drawing?
       CSD U3 Variables make a square_instruction: |
         Change the value of size multiple
         times. How does it change your drawing?
@@ -2983,6 +3010,10 @@
         function even more useful?
       Middle School Hackathon Pt 1_instruction: "(Click to see full instructions)"
       Middle School Hackathon Pt 2_instruction: "(Click to see full instructions)"
+      MikeAssessment1_instruction: Now do it right!
+      MikeTest1_instruction: Who knows what you should do?!?!
+      MikeTest2_instruction: Draw something!
+      MikeTest3_instruction: Build Something
       MSM Big Game Empty_instruction: |
         All variables and functions are currently
         empty stubs. Each puzzle progression will be focused on defining and handful
@@ -4143,6 +4174,7 @@
       U3 - High Low - If_instruction: |
         Add code to the if statement that indicates
         the user guessed the secret number. (Click to see full instructions)
+      U3 - images - bee free play_instruction: Do this
       U3 - Keys - Add Image URLs_instruction: |
         Add image URLs to your array. Replace
         the text area with an image and setText with setImageURL. Then test your app!
@@ -5684,4 +5716,7 @@
         két szenet.
       Underground Test Level_instruction: Minden ásványt gyűjts össze!
       Vigenere_instruction: Test
+      WhileAdventure_instruction: |
+        Our adventurer wants to collect coins. Can you
+        help her grab as many as she can using only one remove 1 block?
       XML Scratchpad_instruction: Using this test level to grab xml for unit tests

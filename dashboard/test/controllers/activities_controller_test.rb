@@ -168,6 +168,34 @@ class ActivitiesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "milestone creates userlevel with specified level when scriptlevel has multiple levels" do
+    params = @milestone_params
+    level1 = create :maze, name: 'level 1'
+    level2 = create :maze, name: 'level 2'
+    script_level = create :script_level, levels: [level1, level2]
+    params[:script_level_id] = script_level.id
+    params[:level_id] = level1.id
+    params[:result] = 'true'
+
+    post :milestone, params
+
+    assert_equal level1, UserLevel.last.level
+  end
+
+  test "milestone creates userlevel with specified level when scriptlevel has multiple levels for second level" do
+    params = @milestone_params
+    level1 = create :maze, name: 'level 1'
+    level2 = create :maze, name: 'level 2'
+    script_level = create :script_level, levels: [level1, level2]
+    params[:script_level_id] = script_level.id
+    params[:level_id] = level2.id
+    params[:result] = 'true'
+
+    post :milestone, params
+
+    assert_equal level2, UserLevel.last.level
+  end
+
   test "logged in milestone with existing userlevel with script" do
     # do all the logging
     @controller.expects :log_milestone
@@ -1025,7 +1053,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     post :milestone, @milestone_params.merge(script_level_id: last_level_in_stage.id)
     assert_response :success
     response = JSON.parse(@response.body)
-    assert_equal({'previous'=>{'name'=>'The Artist'}}, response['stage_changing'])
+    assert_equal({'previous'=>{'name'=>'The Artist', 'position'=>5}}, response['stage_changing'])
   end
 
   test 'milestone changes to next stage in custom script' do

@@ -1,7 +1,14 @@
 "ro-RO":
   hour_of_code: Hour of Code
   hello: Salutare lume
+  'yes': Da
+  'no': Nu
   select_language: Te rugăm selectează limba ta
+  upgrade_ie_message: Code.org will soon remove support for Internet Explorer 8, 9,
+    and 10. Please upgrade to a modern browser.
+  upgrade_ie_message_csedweek: CSEdWeek.org will soon remove support for Internet
+    Explorer 8, 9, and 10. Please upgrade to a modern browser.
+  upgrade_ie_link: Află mai mult
   en: Tehnologia computerului si programare
   computer_science_edweek: Săptămâna Educatiei in Tehnologia computerului si programare
   csedweek_dates: 8-14 Decembrie 2014
@@ -680,6 +687,11 @@
   dashboard_action_required: necesar
   dashboard_assessments_view: 'View assessments in:'
   dashboard_assessments_none: No assessments
+  dashboard_assessments_none_part2: If you are teaching a Computer Science Principles
+    course, we have assessment questions available as part of Code Studio to help
+    your students prepare for the AP test. To use these assessments, first assign
+    the assessment to your class and then pick it from the drop down above and you'll
+    see your students' answers here.
   dashboard_assessments_summaries: Summaries
   dashboard_assessments_answers: All answers
   dashboard_filter_by_stage: 'Filter by stage:'
@@ -712,6 +724,7 @@
   dashboard_progress_view: 'View progress in:'
   dashboard_progress_student_in_script: Progress information for %{student_name} in
     %{script_name}
+  dashboard_progress_pair_programming: pair programming
   dashboard_responses_view: 'View text responses in:'
   dashboard_responses_none: No text responses
   dashboard_sections_new_section: Secţiune nouă
@@ -722,6 +735,7 @@
   dashboard_sections_table_secret: Tip de conectare
   dashboard_sections_table_grade: Notă
   dashboard_sections_table_course: Curs
+  dashboard_sections_table_stage_extras: Stage Extras
   dashboard_sections_table_students: Elevi
   dashboard_sections_table_code: Cod de Secţiune
   dashboard_sections_name: Numele secţiunii

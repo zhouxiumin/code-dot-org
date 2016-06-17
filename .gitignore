@@ -42,5 +42,6 @@ crowdin.yaml
 *_temp.json
 /.ruby-version
 /levelbuilder_ci_last_run
-/levelbuilder_ci_lock
 /coverage
+/apps/coverage
+/apps/test/entry-tests.js

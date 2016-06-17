@@ -36,6 +36,7 @@ sv:
       2-3 Artist Functions 10_instruction: Här är två funktioner, en för att rita ett stort kugghjul och en för att rita ett litet kugghjul. Använd dem för att rita insidan av en maskin!
       2-3 Artist Functions 11.5_instruction: 'Här är samma "Rita en hexagon"-funktion. Vad händer om du bara vrider 60 grader varje gång du upprepar?'
       2-3 Artist Functions 11_instruction: 'Vi har bytt namn på funktionen "Rita en fyrkant" till "Rita en hexagon", men den ritar fortfarande bara rutor! Kan du ändra funktionen "Rita en hexagon" så att den ritar en hexagon med sidor på 50 pixlar och rita bilden med hjälp av funktionen?'
+      2-3 Artist Functions 12 Mike_instruction: 'Funktioner är riktigt bra för att rita komplexa saker flera gånger. Kan du använda funktionen "Rita en blomma" för att fylla resten av planteringslådan? (Ledtråd: växterna är alla åtskilda med 100 pixlar)  '
       2-3 Artist Functions 12_instruction: 'Funktioner är riktigt bra för att rita komplexa saker flera gånger. Kan du använda funktionen "Rita en blomma" för att fylla resten av planteringslådan? (Ledtråd: växterna är alla åtskilda med 100 pixlar)  '
       2-3 Artist Functions 13_instruction: Vi har försett dig med fyra funktioner. Använd dem hur du vill i en eller flera slingor för att göra bilder du kan dela med dina vänner. Tryck kör för att se ett exempel.
       2-3 Artist Functions 2_instruction: 'Med funktioner kan du definiera nya block! Vi har flyttat blocken för att rita en kvadrat till en funktion som kallas "Rita en kvadrat". Kan du använda funktionen "Rita en kvadrat" för att skapa glasögonen? kvadraterna är 75 pixlar isär.'
@@ -333,6 +334,7 @@ sv:
       4-5 Maze 9_instruction: 'Skapa en slinga med blocket "upprepa tills".'
       4-5 Maze Assessment 1_instruction: 'Uppgift: Ta dig till solrosen.'
       4-5 Maze Conditionals 1_instruction: 'Använd blocket "upprepa tills" för att ta zombien till solrosen.'
+      4-5 Maze Conditionals 10_instruction: "Can you add just 3 blocks to help the\nzombie solve a more complex maze? \\r\n\\r\nIf you do it right, he can walk\nany curvy path no matter the length!"
       4-5 Maze Conditionals 2_instruction: 'Använd blocket "upprepa tills" för att ta zombien till solrosen.'
       4-5 Maze Conditionals 3_instruction: 'Använd "om"-blocket för att låta mig välja när jag ska svänga. Tips: du behöver bara ett block till, men lär dig hur man gör det så att du kan göra det själv nästa gång.'
       4-5 Maze Conditionals 4_instruction: 'Ok, det här är precis som förra pusslet, men du behöver kunna använda "om"-blocket och "upprepa"-blocket tillsammans.'
@@ -365,6 +367,16 @@ sv:
       4-5 While Loops 7_instruction: Wow, nu finns det tre högar av jord! Kan du skriva ett program som tar bort dem tills marken är jämn?
       4-5 While Loops 8_instruction: ' Det finns ett riktigt djupt hål och en riktigt stor hög med jord. Hur många skyfflar med jord behöver flyttas för att göra marken jämn? Tips: använd en "medan"-slinga för båda.'
       4-5 While Loops Assessment 1_instruction: Det finns många hål och högar. Hjälp mig att fylla och ta bort dem för att göra marken slät.
+      aE1_instruction: "Draw this square using a loop.\\r\n\\r\nEach side is 20 pixels\nlong."
+      aE2_instruction: |
+        If you place your square loop inside another loop, we call
+        that a nested loop. What do you need to add as an outer loop to make sure
+        all 15 squares line up next to each other?
+      aE3_instruction: |
+        Now let's go one level deeper! We've nested that whole
+        block of code into another loop, but you need to get the artist back in place
+        to draw the next line. Which of these code blocks can you place at the end
+        of the outermost loop to draw the whole grid?
       AlgPD DR Free Play_instruction: Create a function based on your own word problem.
       AllTheThings Applab - Turtle move with button_instruction: |
         Add a button that
@@ -1233,6 +1245,9 @@ sv:
         Predict: What will get displayed
         in the console?
       CSD U3 Variables Intro_instruction: 'Create your own variable '
+      CSD U3 Variables make a big square_instruction: |
+        Change the value of size multiple
+        times. How does it change your drawing?
       CSD U3 Variables make a square_instruction: |
         Change the value of size multiple
         times. How does it change your drawing?
@@ -1835,6 +1850,10 @@ sv:
         function even more useful?
       Middle School Hackathon Pt 1_instruction: (Click to see full instructions)
       Middle School Hackathon Pt 2_instruction: (Click to see full instructions)
+      MikeAssessment1_instruction: Now do it right!
+      MikeTest1_instruction: Who knows what you should do?!?!
+      MikeTest2_instruction: Draw something!
+      MikeTest3_instruction: Build Something
       MSM Big Game Empty_instruction: |
         All variables and functions are currently
         empty stubs. Each puzzle progression will be focused on defining and handful
@@ -2713,6 +2732,7 @@ sv:
       U3 - High Low - If_instruction: |
         Add code to the if statement that indicates
         the user guessed the secret number. (Click to see full instructions)
+      U3 - images - bee free play_instruction: Do this
       U3 - Keys - Add Image URLs_instruction: |
         Add image URLs to your array. Replace
         the text area with an image and setText with setImageURL. Then test your app!
@@ -4151,4 +4171,7 @@ sv:
       Underground Mining Coal_instruction: Du hittar mer värdefulla resurser under marken, men det är mörkt där. Placera minst 2 facklor och bryt minst 2 kol.
       Underground Test Level_instruction: Samla alla mineraler!
       Vigenere_instruction: Test
+      WhileAdventure_instruction: |
+        Our adventurer wants to collect coins. Can you
+        help her grab as many as she can using only one remove 1 block?
       XML Scratchpad_instruction: Using this test level to grab xml for unit tests

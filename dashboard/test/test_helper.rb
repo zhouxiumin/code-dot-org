@@ -1,7 +1,7 @@
 if ENV['COVERAGE'] # set this environment variable when running tests if you want to see test coverage
   require 'simplecov'
   SimpleCov.start :rails
-elsif ENV['CI'] # this is set by travis and circle
+elsif ENV['CI'] # this is set by circle
   require 'coveralls'
   Coveralls.wear!('rails')
 end
@@ -9,6 +9,7 @@ end
 require 'minitest/reporters'
 MiniTest::Reporters.use!($stdout.tty? ? Minitest::Reporters::ProgressReporter.new : Minitest::Reporters::DefaultReporter.new)
 
+ENV["UNIT_TEST"] = 'true'
 ENV["RAILS_ENV"] = "test"
 ENV["RACK_ENV"] = "test"
 

@@ -1,7 +1,14 @@
 "da-DK":
   hour_of_code: Hour of Code
   hello: Hej verden
+  'yes': Ja
+  'no': Nej
   select_language: Vælg dit sprog
+  upgrade_ie_message: Code.org will soon remove support for Internet Explorer 8, 9,
+    and 10. Please upgrade to a modern browser.
+  upgrade_ie_message_csedweek: CSEdWeek.org will soon remove support for Internet
+    Explorer 8, 9, and 10. Please upgrade to a modern browser.
+  upgrade_ie_link: Lær mere
   en: Datalogi
   computer_science_edweek: Computer Videnskabs Uddannelses Uge
   csedweek_dates: 8.-14. december 2014
@@ -661,6 +668,11 @@
   dashboard_action_required: krævet
   dashboard_assessments_view: 'View assessments in:'
   dashboard_assessments_none: No assessments
+  dashboard_assessments_none_part2: If you are teaching a Computer Science Principles
+    course, we have assessment questions available as part of Code Studio to help
+    your students prepare for the AP test. To use these assessments, first assign
+    the assessment to your class and then pick it from the drop down above and you'll
+    see your students' answers here.
   dashboard_assessments_summaries: Summaries
   dashboard_assessments_answers: All answers
   dashboard_filter_by_stage: 'Filter by stage:'
@@ -693,6 +705,7 @@
   dashboard_progress_view: 'View progress in:'
   dashboard_progress_student_in_script: Progress information for %{student_name} in
     %{script_name}
+  dashboard_progress_pair_programming: pair programming
   dashboard_responses_view: 'View text responses in:'
   dashboard_responses_none: No text responses
   dashboard_sections_new_section: Nyt hold
@@ -703,6 +716,7 @@
   dashboard_sections_table_secret: Login type
   dashboard_sections_table_grade: Graduering
   dashboard_sections_table_course: Kursus
+  dashboard_sections_table_stage_extras: Stage Extras
   dashboard_sections_table_students: Elever
   dashboard_sections_table_code: Holdkode
   dashboard_sections_name: Sektionsnavnet
@@ -868,7 +882,7 @@
     Now, it's time to let your representatives hear from you. This week, education
     leaders, 28 governors, and CEOs of America's largest companies joined together
     in an open letter asking U.S. Congress to fund K-12 computer science education.
-  dashboard_announce_petition_button: Add your name
+  dashboard_announce_petition_button: Tilføj dit navn
   code_hoc_coming: Hour of Code er her - 8.-14. december!
   code_sign_up: Tilmeld dig til at deltage i CS Education Week
   learn_more: Lær mere

@@ -80,6 +80,10 @@
         hernoemd naar "teken een zeskant", maar het tekent nog steeds vierkanten!
         Kun je de "teken een zeskant" functie aanpassen zodat deze een zeskant met
         zijdes van 50 pixels maakt en daarmee de tekening maken?
+      2-3 Artist Functions 12 Mike_instruction: 'Functies zijn echt geweldig om complexe
+        dingen meerdere keren te tekenen. Kun je de functie "tekenen een bloem" gebruiken
+        om de rest van de bloembak te vullen? (Tip: Tussen de bloemen zit een afstand
+        van 100 pixels) '
       2-3 Artist Functions 12_instruction: 'Functies zijn echt geweldig om complexe
         dingen meerdere keren te tekenen. Kun je de functie "tekenen een bloem" gebruiken
         om de rest van de bloembak te vullen? (Tip: Tussen de bloemen zit een afstand
@@ -679,6 +683,12 @@
       4-5 Maze Assessment 1_instruction: 'Test: Ga naar de zonnebloem.'
       4-5 Maze Conditionals 1_instruction: Gebruik het herhaal tot blok om de zombie
         bij de zonnebloem te brengen.
+      4-5 Maze Conditionals 10_instruction: |-
+        Can you add just 3 blocks to help the
+        zombie solve a more complex maze? \r
+        \r
+        If you do it right, he can walk
+        any curvy path no matter the length!
       4-5 Maze Conditionals 2_instruction: Gebruik het herhaal tot blok om de zombie
         bij de zonnebloem te brengen.
       4-5 Maze Conditionals 3_instruction: 'Gebruik het "als" blok om me te laten
@@ -745,6 +755,20 @@
         Hint: gebruik voor allebei de zolang lus."
       4-5 While Loops Assessment 1_instruction: Er zijn veel gaten en hopen. Help
         me met vullen en verwijderen om de grond gelijk te krijgen.
+      aE1_instruction: |-
+        Draw this square using a loop.\r
+        \r
+        Each side is 20 pixels
+        long.
+      aE2_instruction: |
+        If you place your square loop inside another loop, we call
+        that a nested loop. What do you need to add as an outer loop to make sure
+        all 15 squares line up next to each other?
+      aE3_instruction: |
+        Now let's go one level deeper! We've nested that whole
+        block of code into another loop, but you need to get the artist back in place
+        to draw the next line. Which of these code blocks can you place at the end
+        of the outermost loop to draw the whole grid?
       AlgPD DR Free Play_instruction: Create a function based on your own word problem.
       AllTheThings Applab - Turtle move with button_instruction: |
         Add a button that
@@ -2060,6 +2084,9 @@
       CSD U3 Variables Intro_instruction: |
         Create your own variable, give it a value,
         and display that value in the console.
+      CSD U3 Variables make a big square_instruction: |
+        Change the value of size multiple
+        times. How does it change your drawing?
       CSD U3 Variables make a square_instruction: |
         Change the value of size multiple
         times. How does it change your drawing?
@@ -2830,6 +2857,10 @@
         function even more useful?
       Middle School Hackathon Pt 1_instruction: "(Click to see full instructions)"
       Middle School Hackathon Pt 2_instruction: "(Click to see full instructions)"
+      MikeAssessment1_instruction: Now do it right!
+      MikeTest1_instruction: Who knows what you should do?!?!
+      MikeTest2_instruction: Draw something!
+      MikeTest3_instruction: Build Something
       MSM Big Game Empty_instruction: |
         All variables and functions are currently
         empty stubs. Each puzzle progression will be focused on defining and handful
@@ -3947,6 +3978,7 @@
       U3 - High Low - If_instruction: |
         Add code to the if statement that indicates
         the user guessed the secret number. (Click to see full instructions)
+      U3 - images - bee free play_instruction: Do this
       U3 - Keys - Add Image URLs_instruction: |
         Add image URLs to your array. Replace
         the text area with an image and setText with setImageURL. Then test your app!
@@ -5489,4 +5521,7 @@
         2 blokken steenkool.
       Underground Test Level_instruction: Verzamel alle mineralen!
       Vigenere_instruction: Test
+      WhileAdventure_instruction: |
+        Our adventurer wants to collect coins. Can you
+        help her grab as many as she can using only one remove 1 block?
       XML Scratchpad_instruction: Using this test level to grab xml for unit tests

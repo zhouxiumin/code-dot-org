@@ -1,4 +1,4 @@
-import _ from '../lodash';
+import _ from 'lodash';
 
 /**
  * A duck module for instructions, particularly instructions that we show in
@@ -12,6 +12,9 @@ const SET_INSTRUCTIONS_RENDERED_HEIGHT = 'instructions/SET_INSTRUCTIONS_RENDERED
 const SET_INSTRUCTIONS_HEIGHT = 'instructions/SET_INSTRUCTIONS_HEIGHT';
 const SET_INSTRUCTIONS_MAX_HEIGHT_NEEDED = 'instructions/SET_INSTRUCTIONS_MAX_HEIGHT_NEEDED';
 const SET_INSTRUCTIONS_MAX_HEIGHT_AVAILABLE = 'instructions/SET_INSTRUCTIONS_MAX_HEIGHT_AVAILABLE';
+const SET_HAS_AUTHORED_HINTS = 'instructions/SET_HAS_AUTHORED_HINTS';
+
+const ENGLISH_LOCALE = 'en_us';
 
 /**
  * Some scenarios:
@@ -19,12 +22,14 @@ const SET_INSTRUCTIONS_MAX_HEIGHT_AVAILABLE = 'instructions/SET_INSTRUCTIONS_MAX
  *     will both be undefined
  * (2) CSP level: Just longInstructions
  * (3) CSF level with only one set of instructions: Just shortInstructions
- * (4) CSF level with two sets of instructions: shortInstructiosn and
+ * (4) CSF level with two sets of instructions: shortInstructions and
  *     longInstructions will both be set.
+ * (5) CSF level with just long instructions
  */
 const instructionsInitialState = {
   noInstructionsWhenCollapsed: false,
   shortInstructions: undefined,
+  shortInstructions2: undefined,
   longInstructions: undefined,
   collapsed: false,
   // The amount of vertical space consumed by the TopInstructions component
@@ -36,7 +41,9 @@ const instructionsInitialState = {
   maxNeededHeight: Infinity,
   // The maximum height we'll allow the resizer to drag to. This is based in
   // part off of the size of the code workspace.
-  maxAvailableHeight: Infinity
+  maxAvailableHeight: Infinity,
+
+  hasAuthoredHints: false,
 };
 
 export default function reducer(state = instructionsInitialState, action) {
@@ -44,7 +51,12 @@ export default function reducer(state = instructionsInitialState, action) {
     if (state.shortInstructions || state.longInstructions) {
       throw new Error('instructions constants already set');
     }
-    const { noInstructionsWhenCollapsed, shortInstructions, longInstructions } = action;
+    const {
+      noInstructionsWhenCollapsed,
+      shortInstructions,
+      shortInstructions2,
+      longInstructions
+    } = action;
     let collapsed = state.collapsed;
     if (!longInstructions) {
       // If we only have short instructions, we want to be in collapsed mode
@@ -53,6 +65,7 @@ export default function reducer(state = instructionsInitialState, action) {
     return _.assign({}, state, {
       noInstructionsWhenCollapsed,
       shortInstructions,
+      shortInstructions2,
       longInstructions,
       collapsed
     });
@@ -93,14 +106,21 @@ export default function reducer(state = instructionsInitialState, action) {
     });
   }
 
+  if (action.type === SET_HAS_AUTHORED_HINTS) {
+    return _.assign({}, state, {
+      hasAuthoredHints: action.hasAuthoredHints
+    });
+  }
+
   return state;
 }
 
 export const setInstructionsConstants = ({noInstructionsWhenCollapsed,
-    shortInstructions, longInstructions}) => ({
+    shortInstructions, shortInstructions2, longInstructions}) => ({
   type: SET_CONSTANTS,
   noInstructionsWhenCollapsed,
   shortInstructions,
+  shortInstructions2,
   longInstructions
 });
 
@@ -135,3 +155,108 @@ export const setInstructionsMaxHeightAvailable = height => ({
   type: SET_INSTRUCTIONS_MAX_HEIGHT_AVAILABLE,
   maxAvailableHeight: height
 });
+
+export const setHasAuthoredHints = hasAuthoredHints => ({
+  type: SET_HAS_AUTHORED_HINTS,
+  hasAuthoredHints
+});
+
+// HELPERS
+
+/**
+ * Given instructions that look something like
+ *   '[pufferpig] <b>Puffer Pigs</b> roam around slowly<br/>'
+ * Replaces [pufferpig] with the appropriate image html.
+ * In most cases, no substitutions will be necessary and this method will just
+ * return the passed in htmlText. Substitutions currently only exist for star wars.
+ * @param {string} htmlText
+ * @param {Object.<string, string>} [substitutions] Dictionary strings (keys) to
+ *   replacement values.
+ */
+export const substituteInstructionImages = (htmlText, substitutions) => {
+  if (!htmlText) {
+    return htmlText;
+  }
+
+  for (let prop in substitutions) {
+    const imageUrl = substitutions[prop];
+    const substitutionHtml = (
+      '<span class="instructionsImageContainer">' +
+        `<img src="${imageUrl}" class="instructionsImage"/>` +
+      '</span>'
+    );
+    const re = new RegExp('\\[' + prop + '\\]', 'g');
+    htmlText = htmlText.replace(re, substitutionHtml);
+  }
+
+  return htmlText;
+};
+
+
+/**
+ * Given a particular set of config options, determines what our instructions
+ * constants should be
+ * @param {AppOptionsConfig} config
+ * @param {string} config.level.instructions
+ * @param {string} config.level.instructions2
+ * @param {string} config.level.markdownInstructions
+ * @param {array} config.level.inputOutputTable
+ * @param {string} config.locale
+ * @param {boolean} config.noInstructionsWhenCollapsed
+ * @param {boolean} config.showInstructionsInTopPane
+ * @param {Object} config.skin.instructions2ImageSubstitutions
+ * @returns {Object}
+ */
+export const determineInstructionsConstants = config => {
+  const { level, locale, noInstructionsWhenCollapsed, showInstructionsInTopPane } = config;
+  const { instructions, instructions2, markdownInstructions, inputOutputTable } = level;
+
+  let longInstructions, shortInstructions, shortInstructions2;
+  if (noInstructionsWhenCollapsed) {
+    // CSP mode - We dont care about locale, and always want to show English
+    longInstructions = markdownInstructions;
+    shortInstructions = instructions;
+
+    // Never use short instructions in CSP. If that's all we have, make them
+    // our longInstructions instead
+    if (shortInstructions && !longInstructions) {
+      longInstructions = shortInstructions;
+    }
+    shortInstructions = undefined;
+  } else {
+    // CSF mode - For non-English folks, only use the non-markdown instructions
+    longInstructions = (!locale || locale === ENGLISH_LOCALE) ? markdownInstructions : undefined;
+    shortInstructions = instructions;
+    shortInstructions2 = instructions2;
+
+    // In the case that we're in the top pane, if the two sets of instructions
+    // are identical, only use the short version (such that we dont end up
+    // minimizing/expanding between two identical sets).
+    if (showInstructionsInTopPane && shortInstructions === longInstructions) {
+      longInstructions = undefined;
+    }
+
+    // In the case where we have an input output table, we want to ensure we
+    // have long instructions (even if identical to short instructions) since
+    // we only show the inputOutputTable in non-collapsed mode.
+    if (inputOutputTable) {
+      longInstructions = longInstructions || shortInstructions;
+    }
+
+    if (config.skin.instructions2ImageSubstitutions) {
+      longInstructions = substituteInstructionImages(longInstructions,
+        config.skin.instructions2ImageSubstitutions);
+      shortInstructions = substituteInstructionImages(shortInstructions,
+        config.skin.instructions2ImageSubstitutions);
+      shortInstructions2 = substituteInstructionImages(shortInstructions2,
+        config.skin.instructions2ImageSubstitutions);
+    }
+  }
+
+  return {
+    noInstructionsWhenCollapsed: !!noInstructionsWhenCollapsed,
+    shortInstructions,
+    shortInstructions2,
+    longInstructions
+  };
+};

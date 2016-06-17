@@ -86,6 +86,9 @@ kk:
         Біз "шаршыны сал" фунциясын "алтыбұрышты сал" функциясы деп атын өзгерттік, бірақ ол әлі шаршылардын суретін салады!
         "Алтыбұрышты сал" фунциясын қабырғасы 50 пиксель болатын алтыбұрыш салуға өзгерте аласын ба?
         Осы функцияны қолданып алтыбұрыш сал.
+      2-3 Artist Functions 12 Mike_instruction: |
+        Функциялар күрделі заттарды бірнеше рет салуға өте жақсы көмектеседі. "Гүлді сал" функциясын қолданып
+        гүлдер қорабын гүлдермен толтыра аласын ба?(Кеңес: гүлдер арасында 100 пиксель)
       2-3 Artist Functions 12_instruction: |
         Функциялар күрделі заттарды бірнеше рет салуға өте жақсы көмектеседі. "Гүлді сал" функциясын қолданып
         гүлдер қорабын гүлдермен толтыра аласын ба?(Кеңес: гүлдер арасында 100 пиксель)
@@ -412,6 +415,7 @@ kk:
       4-5 Maze 9_instruction: Мені доңызға апар! Дейін қайтала блогымен цикл қолдан.
       4-5 Maze Assessment 1_instruction: 'Бағалау: күнбағысға жет.'
       4-5 Maze Conditionals 1_instruction: Дейін қайтала блогымен күнбағысқа жет.
+      4-5 Maze Conditionals 10_instruction: "Can you add just 3 blocks to help the\nzombie solve a more complex maze? \\r\n\\r\nIf you do it right, he can walk\nany curvy path no matter the length!"
       4-5 Maze Conditionals 2_instruction: Дейін қайтала блогымен күнбағысқа жет.
       4-5 Maze Conditionals 3_instruction: '"Егер" блогын қолданып қашан бұрылатынын айт. Кеңес: саған тағы бір блок қажет, бірақ біз келесі жолы оны қалай орнатқанымызды еске түсір.'
       4-5 Maze Conditionals 4_instruction: Бұл соңғы тапсырма, бірақ сен «егер» және «қайталау» блогын бірге қалай қолдану керегін еске түсүруін тиіс.
@@ -444,6 +448,16 @@ kk:
       4-5 While Loops 7_instruction: Мәссаған, Мен 3 өте үлкен үйінді таптым! Осы үшеуін жер бетіне дейін жоятын код жаза аласызба?
       4-5 While Loops 8_instruction: ' Мұнда терең үңгірмен үлкен үйінді топырақ жатыр. Жерді тегіс қылу үшін қанша күрек топырақ керек? Кеңес: шартты цикл қолдан.'
       4-5 While Loops Assessment 1_instruction: Мұнда үңгірмен топырақтар көп. Маған үңгірді толтырып, топырақты жоюға көмектесші.
+      aE1_instruction: "Draw this square using a loop.\\r\n\\r\nEach side is 20 pixels\nlong."
+      aE2_instruction: |
+        If you place your square loop inside another loop, we call
+        that a nested loop. What do you need to add as an outer loop to make sure
+        all 15 squares line up next to each other?
+      aE3_instruction: |
+        Now let's go one level deeper! We've nested that whole
+        block of code into another loop, but you need to get the artist back in place
+        to draw the next line. Which of these code blocks can you place at the end
+        of the outermost loop to draw the whole grid?
       AlgPD DR Free Play_instruction: Create a function based on your own word problem.
       AllTheThings Applab - Turtle move with button_instruction: |
         Add a button that
@@ -1303,6 +1317,9 @@ kk:
         Predict: What will get displayed
         in the console?
       CSD U3 Variables Intro_instruction: 'Create your own variable '
+      CSD U3 Variables make a big square_instruction: |
+        Change the value of size multiple
+        times. How does it change your drawing?
       CSD U3 Variables make a square_instruction: |
         Change the value of size multiple
         times. How does it change your drawing?
@@ -1905,6 +1922,10 @@ kk:
         function even more useful?
       Middle School Hackathon Pt 1_instruction: (Click to see full instructions)
       Middle School Hackathon Pt 2_instruction: (Click to see full instructions)
+      MikeAssessment1_instruction: Now do it right!
+      MikeTest1_instruction: Who knows what you should do?!?!
+      MikeTest2_instruction: Draw something!
+      MikeTest3_instruction: Build Something
       MSM Big Game Empty_instruction: |
         All variables and functions are currently
         empty stubs. Each puzzle progression will be focused on defining and handful
@@ -2808,6 +2829,7 @@ kk:
       U3 - High Low - If_instruction: |
         Add code to the if statement that indicates
         the user guessed the secret number. (Click to see full instructions)
+      U3 - images - bee free play_instruction: Do this
       U3 - Keys - Add Image URLs_instruction: |
         Add image URLs to your array. Replace
         the text area with an image and setText with setImageURL. Then test your app!
@@ -4261,4 +4283,7 @@ kk:
         2 көмір орналастырыңыз.
       Underground Test Level_instruction: Барлық минералдарды жинап ал!
       Vigenere_instruction: Test
+      WhileAdventure_instruction: |
+        Our adventurer wants to collect coins. Can you
+        help her grab as many as she can using only one remove 1 block?
       XML Scratchpad_instruction: Using this test level to grab xml for unit tests

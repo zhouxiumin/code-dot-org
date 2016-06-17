@@ -1,7 +1,14 @@
 "id-ID":
   hour_of_code: Jam kode
   hello: Halo dunia
+  'yes': Ya
+  'no': Tidak
   select_language: Silahkan pilih bahasa Anda
+  upgrade_ie_message: Code.org will soon remove support for Internet Explorer 8, 9,
+    and 10. Please upgrade to a modern browser.
+  upgrade_ie_message_csedweek: CSEdWeek.org will soon remove support for Internet
+    Explorer 8, 9, and 10. Please upgrade to a modern browser.
+  upgrade_ie_link: Pelajari lebih banyak
   en: Ilmu komputer
   computer_science_edweek: Minggu pendidikan ilmu komputer
   csedweek_dates: 8-14 Desember 2014
@@ -679,6 +686,11 @@
   dashboard_action_required: diperlukan
   dashboard_assessments_view: 'View assessments in:'
   dashboard_assessments_none: No assessments
+  dashboard_assessments_none_part2: If you are teaching a Computer Science Principles
+    course, we have assessment questions available as part of Code Studio to help
+    your students prepare for the AP test. To use these assessments, first assign
+    the assessment to your class and then pick it from the drop down above and you'll
+    see your students' answers here.
   dashboard_assessments_summaries: Summaries
   dashboard_assessments_answers: All answers
   dashboard_filter_by_stage: 'Filter by stage:'
@@ -711,6 +723,7 @@
   dashboard_progress_view: 'View progress in:'
   dashboard_progress_student_in_script: Progress information for %{student_name} in
     %{script_name}
+  dashboard_progress_pair_programming: pair programming
   dashboard_responses_view: 'View text responses in:'
   dashboard_responses_none: No text responses
   dashboard_sections_new_section: Kelompok baru
@@ -721,6 +734,7 @@
   dashboard_sections_table_secret: Jenis login
   dashboard_sections_table_grade: Kelas
   dashboard_sections_table_course: Kursus
+  dashboard_sections_table_stage_extras: Stage Extras
   dashboard_sections_table_students: Siswa
   dashboard_sections_table_code: Kode Sesi
   dashboard_sections_name: Nama kelompok

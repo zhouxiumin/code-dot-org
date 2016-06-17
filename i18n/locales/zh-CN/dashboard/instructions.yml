@@ -38,6 +38,7 @@ zh:
       2-3 Artist Functions 10_instruction: 这里有两个函数，一个是绘制一个大齿轮，另一个是画一个小齿轮。使用它们来绘制一个机器的内部结构！
       2-3 Artist Functions 11.5_instruction: '这里同样是"画一个六边形"的功能。如果在循环中每次只转 60 度会发生什么呢？'
       2-3 Artist Functions 11_instruction: 我们将“画一个正方形”的函数改成了“画一个六边形”，但它实际上还是只能画正方形！能把“画一个六边形”的函数改成能画边长50像素的六边形，然后用它画一个六边形吗？
+      2-3 Artist Functions 12 Mike_instruction: '函数对于多次画一个复杂的事物非常有帮助。能用“画一朵花”的函数来填满整个花盆吗？（提示：植物应该相隔100像素。）  '
       2-3 Artist Functions 12_instruction: '函数对于多次画一个复杂的事物非常有帮助。能用“画一朵花”的函数来填满整个花盆吗？（提示：植物应该相隔100像素。）  '
       2-3 Artist Functions 13_instruction: 我们提供了4个函数。你可以随意把它们放在一个或者多个循环中来画图，然后分享给你的朋友们。点击“运行”来看示例。
       2-3 Artist Functions 2_instruction: 函数能让你定义新的模块。我们将画正方形的模块挪到了一个叫做“画一个正方形”的函数里。能用“画一个正方形”函数来画个眼镜吗？正方形间隔75像素。
@@ -328,6 +329,7 @@ zh:
       4-5 Maze 9_instruction: 用“重复直到”模块创建一个循环。
       4-5 Maze Assessment 1_instruction: 评估：到达太阳花。
       4-5 Maze Conditionals 1_instruction: 用“重复直到”模块让僵尸到达太阳花。
+      4-5 Maze Conditionals 10_instruction: "Can you add just 3 blocks to help the\nzombie solve a more complex maze? \\r\n\\r\nIf you do it right, he can walk\nany curvy path no matter the length!"
       4-5 Maze Conditionals 2_instruction: 用“重复直到”模块让僵尸到达太阳花。
       4-5 Maze Conditionals 3_instruction: '用新的"如果"模块让我来决定什么时候转弯。提示： 你只需要加一个模块，但记住其它模块是怎么排列的，这样下次你就会自己写了。'
       4-5 Maze Conditionals 4_instruction: '好啦，这是最后一个谜题了，但你需要记住如何一起使用"如果"模块和"重复"模块。'
@@ -358,6 +360,16 @@ zh:
       4-5 While Loops 7_instruction: 哇，这里有三堆土！你能写一个程序，将它们一铲铲移除，直到地面平整吗？
       4-5 While Loops 8_instruction: ' 这里有一个很深的坑，和一个很大的土堆？需要移动多少土才能将地面弄平整呢？提示：两个都要用“当”循环。'
       4-5 While Loops Assessment 1_instruction: 这里有好多坑和土堆。帮我填满或移除它们来让地面平整。
+      aE1_instruction: "Draw this square using a loop.\\r\n\\r\nEach side is 20 pixels\nlong."
+      aE2_instruction: |
+        If you place your square loop inside another loop, we call
+        that a nested loop. What do you need to add as an outer loop to make sure
+        all 15 squares line up next to each other?
+      aE3_instruction: |
+        Now let's go one level deeper! We've nested that whole
+        block of code into another loop, but you need to get the artist back in place
+        to draw the next line. Which of these code blocks can you place at the end
+        of the outermost loop to draw the whole grid?
       AlgPD DR Free Play_instruction: Create a function based on your own word problem.
       AllTheThings Applab - Turtle move with button_instruction: |
         Add a button that
@@ -1205,6 +1217,9 @@ zh:
         Predict: What will get displayed
         in the console?
       CSD U3 Variables Intro_instruction: 'Create your own variable '
+      CSD U3 Variables make a big square_instruction: |
+        Change the value of size multiple
+        times. How does it change your drawing?
       CSD U3 Variables make a square_instruction: |
         Change the value of size multiple
         times. How does it change your drawing?
@@ -1803,6 +1818,10 @@ zh:
         function even more useful?
       Middle School Hackathon Pt 1_instruction: (Click to see full instructions)
       Middle School Hackathon Pt 2_instruction: (Click to see full instructions)
+      MikeAssessment1_instruction: Now do it right!
+      MikeTest1_instruction: Who knows what you should do?!?!
+      MikeTest2_instruction: Draw something!
+      MikeTest3_instruction: Build Something
       MSM Big Game Empty_instruction: |
         All variables and functions are currently
         empty stubs. Each puzzle progression will be focused on defining and handful
@@ -2673,6 +2692,7 @@ zh:
       U3 - High Low - If_instruction: |
         Add code to the if statement that indicates
         the user guessed the secret number. (Click to see full instructions)
+      U3 - images - bee free play_instruction: Do this
       U3 - Keys - Add Image URLs_instruction: |
         Add image URLs to your array. Replace
         the text area with an image and setText with setImageURL. Then test your app!
@@ -4111,4 +4131,7 @@ zh:
       Underground Mining Coal_instruction: 你可以在地底下找到最宝贵的资源，但下面很暗。请至少放上 2 根火把，并开采至少 2 块煤炭。
       Underground Test Level_instruction: 收集所有矿石!
       Vigenere_instruction: Test
+      WhileAdventure_instruction: |
+        Our adventurer wants to collect coins. Can you
+        help her grab as many as she can using only one remove 1 block?
       XML Scratchpad_instruction: Using this test level to grab xml for unit tests

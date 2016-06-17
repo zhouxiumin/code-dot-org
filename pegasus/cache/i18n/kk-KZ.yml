@@ -1,7 +1,14 @@
 "kk-KZ":
   hour_of_code: "Код жазу Сағаты"
   hello: "Сәлем, әлем"
+  'yes': "Иә"
+  'no': "Жоқ"
   select_language: "Тілді таңдаңыз"
+  upgrade_ie_message: Code.org will soon remove support for Internet Explorer 8, 9,
+    and 10. Please upgrade to a modern browser.
+  upgrade_ie_message_csedweek: CSEdWeek.org will soon remove support for Internet
+    Explorer 8, 9, and 10. Please upgrade to a modern browser.
+  upgrade_ie_link: "толығырақ білу"
   en: "Информатика"
   computer_science_edweek: "Компьютерлік технологияның білім беру апталығы"
   csedweek_dates: "Желтоқсан 8-14, 2014"
@@ -656,6 +663,11 @@
   dashboard_action_required: "қажет"
   dashboard_assessments_view: 'View assessments in:'
   dashboard_assessments_none: "Бағалаулар жоқ"
+  dashboard_assessments_none_part2: If you are teaching a Computer Science Principles
+    course, we have assessment questions available as part of Code Studio to help
+    your students prepare for the AP test. To use these assessments, first assign
+    the assessment to your class and then pick it from the drop down above and you'll
+    see your students' answers here.
   dashboard_assessments_summaries: Summaries
   dashboard_assessments_answers: All answers
   dashboard_filter_by_stage: 'Filter by stage:'
@@ -689,6 +701,7 @@
   dashboard_progress_view: 'View progress in:'
   dashboard_progress_student_in_script: Progress information for %{student_name} in
     %{script_name}
+  dashboard_progress_pair_programming: pair programming
   dashboard_responses_view: 'View text responses in:'
   dashboard_responses_none: No text responses
   dashboard_sections_new_section: "Жаңа бөлім"
@@ -699,6 +712,7 @@
   dashboard_sections_table_secret: "Кіру түрі"
   dashboard_sections_table_grade: "Сынып"
   dashboard_sections_table_course: "Курс"
+  dashboard_sections_table_stage_extras: Stage Extras
   dashboard_sections_table_students: "Оқушылар"
   dashboard_sections_table_code: "Секция Коды"
   dashboard_sections_name: "Бөлім атауы"

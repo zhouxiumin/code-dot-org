@@ -56,7 +56,7 @@ class Ability
       can :destroy, Follower, student_user_id: user.id
       can :read, UserPermission, user_id: user.id
 
-      if user.permission?(UserPermission::HINT_ACCESS) || user.teacher?
+      if user.teacher? || (user.persisted? && user.permission?(UserPermission::HINT_ACCESS))
         can :manage, [LevelSourceHint, FrequentUnsuccessfulLevelSource]
       end
 
@@ -71,6 +71,9 @@ class Ability
         end
         can :read, Plc::UserCourseEnrollment, user_id: user.id
         can :manage, Pd::Enrollment, teacher_id: user.id
+        can :view_level_solutions, Script do |script|
+          !script.professional_learning_course?
+        end
       end
 
       if user.facilitator?
@@ -160,6 +163,22 @@ class Ability
         can :load_project, project_type_key if user.id
       else
         can :load_project, project_type_key
+      end
+    end
+
+    # In order to accommodate the possibility of there being no database, we
+    # need to check that the user is persisted before checking the user
+    # permissions.
+    if user.persisted? && user.permission?(UserPermission::LEVELBUILDER)
+      can :manage, [
+        Level,
+        Script,
+        ScriptLevel
+      ]
+
+      # Only custom levels are editable.
+      cannot [:update, :destroy], Level do |level|
+        !level.custom?
       end
     end
 

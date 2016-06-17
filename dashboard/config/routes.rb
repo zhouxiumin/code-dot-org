@@ -10,6 +10,8 @@ Dashboard::Application.routes.draw do
 
   resources :user_levels, only: [:update]
 
+  get '/download/:product', to: 'hoc_download#index'
+
   resources :gallery_activities, path: '/gallery' do
     collection do
       get 'art', to: 'gallery_activities#index', app: Game::ARTIST
@@ -141,7 +143,12 @@ Dashboard::Application.routes.draw do
         end
       end
     end
+
+    get 'preview-assignments', to: 'plc/enrollment_evaluations#preview_assignments', as: 'preview_assignments'
+    post 'confirm_assignments', to: 'plc/enrollment_evaluations#confirm_assignments', as: 'confirm_assignments'
   end
+
+  get '/course/:course', to: 'plc/user_course_enrollments#index', as: 'course'
 
   get '/beta', to: redirect('/')
 
@@ -264,30 +271,13 @@ Dashboard::Application.routes.draw do
     concerns :ops_routes
   end
 
-  get '/plc/content_creator/show_courses_and_modules', to: 'plc/content_creator#show_courses_and_modules'
-  %w(courses learning_modules tasks course_units evaluation_questions).each do |object|
-    get '/plc/' + object, to: redirect('plc/content_creator/show_courses_and_modules')
-  end
-
   get '/plc/user_course_enrollments/group_view', to: 'plc/user_course_enrollments#group_view'
   get '/plc/user_course_enrollments/manager_view/:id', to: 'plc/user_course_enrollments#manager_view', as: 'plc_user_course_enrollment_manager_view'
 
   namespace :plc do
     root to: 'plc#index'
-    resources :courses
-    resources :learning_modules
     resources :user_course_enrollments
-    resources :course_units
-    resources :enrollment_unit_assignments
-    resources :evaluation_questions
   end
-
-  get '/plc/enrollment_evaluations/:unit_assignment_id/perform_evaluation', to: 'plc/enrollment_evaluations#perform_evaluation', as: 'perform_evaluation'
-  post '/plc/enrollment_evaluations/:unit_assignment_id/submit_evaluation', to: 'plc/enrollment_evaluations#submit_evaluation'
-  get '/plc/enrollment_evaluations/:unit_assignment_id/preview_assignments', to: 'plc/enrollment_evaluations#preview_assignments', as: 'preview_assignments'
-  post '/plc/enrollment_evaluations/:unit_assignment_id/confirm_assignments', to: 'plc/enrollment_evaluations#confirm_assignments'
-
-  post '/plc/course_units/:id/submit_new_questions_and_answers', to: 'plc/course_units#submit_new_questions_and_answers'
 
   concern :api_v1_pd_routes do
     namespace :pd do

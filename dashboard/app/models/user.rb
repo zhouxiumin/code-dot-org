@@ -38,7 +38,6 @@
 #  confirmation_sent_at       :datetime
 #  unconfirmed_email          :string(255)
 #  prize_teacher_id           :integer
-#  hint_access                :boolean
 #  secret_picture_id          :integer
 #  active                     :boolean          default(TRUE), not null
 #  hashed_email               :string(255)
@@ -255,7 +254,6 @@ class User < ActiveRecord::Base
   validates_confirmation_of :password, if: :password_required?
   validates_length_of       :password, within: 6..128, allow_blank: true
 
-  before_save :dont_reconfirm_emails_that_match_hashed_email
   def dont_reconfirm_emails_that_match_hashed_email
     # we make users "reconfirm" when they change their email
     # addresses. Skip reconfirmation when the user is using the same
@@ -270,7 +268,7 @@ class User < ActiveRecord::Base
   before_save :make_teachers_21,
     :dont_reconfirm_emails_that_match_hashed_email,
     :hash_email,
-    :hide_email_for_students
+    :hide_email_and_full_address_for_students
 
   def make_teachers_21
     return unless teacher?
@@ -286,9 +284,10 @@ class User < ActiveRecord::Base
     self.hashed_email = User.hash_email(email)
   end
 
-  def hide_email_for_students
+  def hide_email_and_full_address_for_students
     if student?
       self.email = ''
+      self.full_address = nil
     end
   end
 
@@ -305,10 +304,17 @@ class User < ActiveRecord::Base
     User.find(user_id)
   end
 
+  validate :presence_of_email, if: :teacher?
   validate :presence_of_email_or_hashed_email, if: :email_required?, on: :create
   validates_format_of :email, with: Devise.email_regexp, allow_blank: true, if: :email_changed?
   validates :email, no_utf8mb4: true
   validate :email_and_hashed_email_must_be_unique, if: 'email_changed? || hashed_email_changed?'
+
+  def presence_of_email
+    if email.blank?
+      errors.add :email, I18n.t('activerecord.errors.messages.blank')
+    end
+  end
 
   def presence_of_email_or_hashed_email
     if email.blank? && hashed_email.blank?
@@ -441,7 +447,7 @@ class User < ActiveRecord::Base
   end
 
   def user_progress_by_stage(stage)
-    levels = stage.script_levels.map(&:level_id)
+    levels = stage.script_levels.map(&:level_ids).flatten
     user_levels.where(script: stage.script, level: levels).pluck(:level_id, :best_result).to_h
   end
 
@@ -678,8 +684,8 @@ SQL
       Script.starwars_blocks_script, Script.minecraft_script]
   end
 
-  def unadvertised_user_scripts
-    [working_on_user_scripts, completed_user_scripts].compact.flatten.delete_if { |user_script| user_script.script.in?(advertised_scripts)}
+  def in_progress_and_completed_scripts
+    [working_on_user_scripts, completed_user_scripts].compact.flatten
   end
 
   def all_advertised_scripts_completed?
@@ -836,8 +842,8 @@ SQL
 
   # returns whether a new level has been completed and asynchronously enqueues an operation
   # to update the level progress.
-  def track_level_progress_async(script_level:, new_result:, submitted:, level_source_id:)
-    level_id = script_level.level_id
+  def track_level_progress_async(script_level:, level:, new_result:, submitted:, level_source_id:)
+    level_id = level.id
     script_id = script_level.script_id
     old_user_level = UserLevel.where(user_id: self.id,
                                  level_id: level_id,
@@ -988,6 +994,10 @@ SQL
 
     # if you log in only through picture passwords you can't edit your account
     return !(sections_as_student.all? {|section| section.login_type == Section::LOGIN_TYPE_PICTURE})
+  end
+
+  def section_for_script(script)
+    followeds.collect(&:section).find { |section| section.script_id == script.id }
   end
 
 end
