@@ -6,11 +6,6 @@
 # Ref: http://stackoverflow.com/a/10455027
 sed -i 's/scripts-user$/\[scripts-user, always\]/' /etc/cloud/cloud.cfg
 
-# Bootstrap prerequisites
-apt-get update
-apt-get -y install python-pip jq curl
-test "$(pip show awscli)" || pip install awscli
-
 STACK=<%=stack_name%>
 CHEF_VERSION=12.7.2
 RUN_LIST='["recipe[cdo-apps]"]'
@@ -18,9 +13,20 @@ BRANCH=<%=branch%>
 SUBDOMAIN=<%=subdomain%>
 S3_BUCKET=<%=s3_bucket%>
 REGION=<%=region%>
+ENVIRONMENT=<%=environment%>
+
+# Initialize blocks from the snapshot-created EBS volume.
+# Ref: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-initialize.html
+# Using `tar` instead of `dd`/`fio` to only initialize blocks currently used by the filesystem.
+time tar cf /dev/null /usr /var /opt /lib /home &
+
+# Bootstrap prerequisites
+apt-get update
+apt-get -y install python-pip jq curl
+test "$(pip show awscli)" || pip install awscli
+
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 NODE_NAME=<%=rack_env%>-${INSTANCE_ID}
-ENVIRONMENT=<%=environment%>
 
 # Fetch acmesmith-provisioned SSL certificate and key from S3
 aws configure set s3.signature_version s3v4
