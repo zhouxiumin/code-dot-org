@@ -27,14 +27,13 @@ directory(env['BUNDLE_APP_CONFIG']) { owner user; group user }
 
 # Export bundler environment to global config ($HOME/.bundle/config).
 # Used in case we run 'bundle' manually without the provided environment.
-# TODO disabled for now because it breaks cookbooks/ 'bundle install' from CI script.
-# directory("#{home}/.bundle") { owner user; group user }
-#
-# file "#{home}/.bundle/config" do
-#   owner user
-#   group user
-#   content env.to_yaml
-# end
+directory("#{home}/.bundle") { owner user; group user }
+
+file "#{home}/.bundle/config" do
+  owner user
+  group user
+  content env.dup.tap{|h| h.delete('BUNDLE_GEMFILE')}.to_yaml
+end
 
 execute 'bundle-install' do
   command 'bundle install'
