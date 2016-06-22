@@ -7,6 +7,7 @@ require 'erb'
 require 'tempfile'
 require 'base64'
 require 'uglifier'
+require 'digest'
 
 # Manages application-specific configuration and deployment of AWS CloudFront distributions.
 module AWS
@@ -58,9 +59,22 @@ module AWS
       def validate
         template = json_template(dry_run: true)
         CDO.log.info JSON.pretty_generate(JSON.parse(template))
-        CDO.log.info cfn.validate_template(
-          template_body: template
-        ).description
+        CDO.log.info cfn.validate_template(string_or_url(template)).description
+      end
+
+      # Returns an inline string or S3 URL depending on the size of the template.
+      def string_or_url(template)
+        # Upload the template to S3 if it's too large to be passed directly.
+        if template.length < 51200
+          {template_body: template}
+        elsif template.length < 460800
+          CDO.log.warn 'Uploading template to S3...'
+          bucket = 'cf-templates-p9nfb0gyyrpf-us-east-1'
+          key = AWS::S3.upload_to_bucket(bucket, "#{STACK_NAME}-#{Digest::MD5.hexdigest(template)}-cfn.json", template, no_random: true)
+          {template_url: "https://s3.amazonaws.com/#{bucket}/#{key}"}
+        else
+          raise 'Template is too large'
+        end
       end
 
       def create_or_update
@@ -70,9 +84,8 @@ module AWS
         start_time = Time.now
         stack_options = {
           stack_name: STACK_NAME,
-          template_body: template,
           capabilities: ['CAPABILITY_IAM']
-        }
+        }.merge(string_or_url(template))
         stack_options[:on_failure] = 'DO_NOTHING' if action == :create
         updated_stack_id = cfn.method("#{action}_stack").call(stack_options).stack_id
         wait_for_stack(action, start_time)

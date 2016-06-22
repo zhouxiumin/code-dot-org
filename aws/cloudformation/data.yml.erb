@@ -1,6 +1,69 @@
+<%
+require 'cdo/aws/data_pipeline'
+require 'active_support/inflector'
+require 'uri'
+
+# Fetch the RDS endpoint and connection info from the corresponding Chef attribute.
+environment_json = JSON.parse(RakeUtils.with_bundle_dir(cookbooks_dir){`knife environment show #{environment} --format json`})
+secrets = environment_json['override_attributes']['cdo-secrets']
+reader = URI.parse(secrets['reporting_db_reader']) || raise('Reporting DB endpoint not found')
+
+tables_to_sync = %w(
+  scripts
+  followers
+  stages
+  script_levels
+  workshops
+  segments
+  puzzle_ratings
+  user_scripts
+  channel_tokens
+  levels
+  user_proficiencies
+  forms
+  storage_apps
+  workshop_attendance
+  hint_view_requests
+  authored_hint_view_requests
+  level_concept_difficulties
+  survey_results
+  sections
+  users:id,deleted_at,created_at,updated_at,current_sign_in_at,last_sign_in_at,sign_in_count,admin,user_type,gender,birthday,locale,total_lines
+)
+-%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: Data layer for Tableau including RedShift cluster configuration and scheduled Data Pipeline activities.
+Parameters:
+  RedshiftPassword:
+    Type: String
+    Default: <%=reader.password%>
+    NoEcho: true
+  RDSPassword:
+    Type: String
+    Default: <%=reader.password%>
+    NoEcho: true
+  RedshiftUsername:
+    Type: String
+    Default: dev
+  RDSUsername:
+    Type: String
+    Default: <%=reader.user%>
+  RedshiftS3:
+    Type: String
+    Default: 's3://redshift-tableau'
+  RedshiftDatabase:
+    Type: String
+    Default: dashboard
+  RDSHostname:
+    Type: String
+    Default: <%=reader.hostname%>
+  RDSPort:
+    Type: Number
+    Default: 3306
+  RDSDatabase:
+    Type: String
+    Default: <%=CDO.dashboard_db_name%>
 Resources:
   VPC: <%= lambda.call 'LookupStackOutputs', StackName: 'VPC', Nonce: 0 %>
   Tableau:
@@ -12,25 +75,28 @@ Resources:
       ClusterSubnetGroupName: {'Fn::GetAtt': [VPC, RedshiftSubnetGroup]}
       ClusterType: single-node
       ClusterVersion: 1.0
-      DBName: dashboard
+      DBName: {Ref: RedshiftDatabase}
       Encrypted: true
-      KmsKeyId: <%=kms('aws/redshift')%>
-      MasterUsername: dev
-      MasterUserPassword: <%=ENV['TABLEAU_PASSWORD'] || raise "TABLEAU_PASSWORD required"%>
+      KmsKeyId: alias/aws/redshift
+      MasterUsername: {Ref: RedshiftUsername}
+      MasterUserPassword: {Ref: RedshiftPassword}
       NodeType: dc1.large
       NumberOfNodes: 1
       PubliclyAccessible: true
       VpcSecurityGroupIds: ['Fn::GetAtt': [VPC, RedshiftSecurityGroup]]
-  TableauSync: {
-    "Type" : "AWS::DataPipeline::Pipeline",
-    "Properties" : {
-      "Description" : String,
-      "Name" : String,
-      "ParameterObjects" : [ Parameter object, ... ],
-      "ParameterValues" : [ Parameter value, ... ],
-      "PipelineObjects" : [ Pipeline object, ... ],
-      "PipelineTags" : [ Pipeline tag, ... ]
-  Outputs:
-    Redshift:
-      Description: Tableau endpoint
-      Value: {Ref: Tableau}
+<%
+tables_to_sync.each do |table_select|
+  table, select_query = table_select.split(':')
+%>
+  RDSRedshift<%=table.camelize%>: <%= AWS::DataPipeline.to_cfn(
+    "rds-to-redshift-#{table}#{'-whitelisted-columns' if select_query}",
+    "Copy #{table} from RDS to Redshift",
+    File.read(aws_dir('cloudformation', 'pipeline.json.erb')),
+    table_name: table,
+    select_query: select_query || '*'
+  )%>
+<% end %>
+Outputs:
+  Redshift:
+    Description: Tableau endpoint
+    Value: {Ref: Tableau}
