@@ -1,33 +1,36 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: Data layer including RedShift cluster, configuration, and scheduled Data Pipeline activities.
+Description: Data layer for Tableau including RedShift cluster configuration and scheduled Data Pipeline activities.
 Resources:
-  Redshift:
+  VPC: <%= lambda.call 'LookupStackOutputs', StackName: 'VPC', Nonce: 0 %>
+  Tableau:
     Type: AWS::Redshift::Cluster
     Properties:
-      AllowVersionUpgrade: #Boolean
-      AutomatedSnapshotRetentionPeriod: #Integer
-      AvailabilityZone: #String
-      ClusterParameterGroupName: #String,
-      ClusterSecurityGroups: #[ String, ... ],
-      ClusterSubnetGroupName: #String,
-      ClusterType: #String,
-      ClusterVersion: #String,
-      DBName: #String,
-      ElasticIp: #String,
-      Encrypted: #Boolean,
-      HsmClientCertificateIdentifier: #String,
-      HsmConfigurationIdentifier: #String,
-      KmsKeyId: #String,
-      MasterUsername: #String,
-      MasterUserPassword: #String,
-      NodeType: #String,
-      NumberOfNodes: #Integer,
-      OwnerAccount: #String,
-      Port: #Integer,
-      PreferredMaintenanceWindow: #String,
-      PubliclyAccessible: #Boolean,
-      SnapshotClusterIdentifier: #String,
-      SnapshotIdentifier: #String,
-      VpcSecurityGroupIds: #[ String, ... ]
+      AllowVersionUpgrade: true
+      AutomatedSnapshotRetentionPeriod: 1
+      ClusterParameterGroupName: default.redshift-1.0
+      ClusterSubnetGroupName: {'Fn::GetAtt': [VPC, RedshiftSubnetGroup]}
+      ClusterType: single-node
+      ClusterVersion: 1.0
+      DBName: dashboard
+      Encrypted: true
+      KmsKeyId: <%=kms('aws/redshift')%>
+      MasterUsername: dev
+      MasterUserPassword: <%=ENV['TABLEAU_PASSWORD'] || raise "TABLEAU_PASSWORD required"%>
+      NodeType: dc1.large
+      NumberOfNodes: 1
+      PubliclyAccessible: true
+      VpcSecurityGroupIds: ['Fn::GetAtt': [VPC, RedshiftSecurityGroup]]
+  TableauSync: {
+    "Type" : "AWS::DataPipeline::Pipeline",
+    "Properties" : {
+      "Description" : String,
+      "Name" : String,
+      "ParameterObjects" : [ Parameter object, ... ],
+      "ParameterValues" : [ Parameter value, ... ],
+      "PipelineObjects" : [ Pipeline object, ... ],
+      "PipelineTags" : [ Pipeline tag, ... ]
   Outputs:
+    Redshift:
+      Description: Tableau endpoint
+      Value: {Ref: Tableau}
