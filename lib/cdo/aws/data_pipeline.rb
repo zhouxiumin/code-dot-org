@@ -50,6 +50,8 @@ module AWS
                     StringValue: value.is_a?(String) ? value : value.to_json
                   }
                 end
+              end.tap do |fields|
+                fields.push(Key: 'type', StringValue: 'Default') if fields.none?{|field| field[:Key] == 'type'}
               end
             }
           end

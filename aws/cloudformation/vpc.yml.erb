@@ -189,7 +189,7 @@ Resources:
   RedshiftSubnetGroup:
     Type: AWS::Redshift::ClusterSubnetGroup
     Properties:
-      DBSubnetGroupDescription: Redshift Public Subnet Group
+      Description: Redshift Public Subnet Group
       SubnetIds: <%=azs.map{|az| {Ref: "PublicSubnet#{az}"}}.to_json%>
   RedshiftSecurityGroup:
     Type: AWS::EC2::SecurityGroup

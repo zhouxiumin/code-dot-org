@@ -6,7 +6,9 @@ require 'uri'
 # Fetch the RDS endpoint and connection info from the corresponding Chef attribute.
 environment_json = JSON.parse(RakeUtils.with_bundle_dir(cookbooks_dir){`knife environment show #{environment} --format json`})
 secrets = environment_json['override_attributes']['cdo-secrets']
-reader = URI.parse(secrets['reporting_db_reader']) || raise('Reporting DB endpoint not found')
+rds = URI.parse(secrets['reporting_db_writer']) || raise('RDS endpoint not found')
+CDO.RedshiftPassword ||= rds.password
+CDO.RDSPassword ||= rds.password
 
 tables_to_sync = %w(
   scripts
@@ -37,18 +39,16 @@ Description: Data layer for Tableau including RedShift cluster configuration and
 Parameters:
   RedshiftPassword:
     Type: String
-    Default: <%=reader.password%>
     NoEcho: true
   RDSPassword:
     Type: String
-    Default: <%=reader.password%>
     NoEcho: true
   RedshiftUsername:
     Type: String
     Default: dev
   RDSUsername:
     Type: String
-    Default: <%=reader.user%>
+    Default: <%=rds.user%>
   RedshiftS3:
     Type: String
     Default: 's3://redshift-tableau'
@@ -57,7 +57,7 @@ Parameters:
     Default: dashboard
   RDSHostname:
     Type: String
-    Default: <%=reader.hostname%>
+    Default: <%=rds.hostname%>
   RDSPort:
     Type: Number
     Default: 3306
@@ -81,7 +81,6 @@ Resources:
       MasterUsername: {Ref: RedshiftUsername}
       MasterUserPassword: {Ref: RedshiftPassword}
       NodeType: dc1.large
-      NumberOfNodes: 1
       PubliclyAccessible: true
       VpcSecurityGroupIds: ['Fn::GetAtt': [VPC, RedshiftSecurityGroup]]
 <%

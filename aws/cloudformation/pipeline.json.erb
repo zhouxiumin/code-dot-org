@@ -143,9 +143,7 @@
       },
       "resourceRole": "DataPipelineDefaultResourceRole",
       "role": "DataPipelineDefaultRole",
-      "pipelineLogUri": {
-        "ref": "myS3StagingLoc"
-      },
+      "pipelineLogUri": "s3://redshift-tableau",
       "scheduleType": "cron",
       "name": "Default",
       "id": "Default"
@@ -246,6 +244,11 @@
       "watermark": "jdbc:postgresql://endpoint:port/database?tcpKeepAlive=true",
       "description": "Redshift JDBC connection string",
       "id": "myRedshiftJdbcConnectStr",
+      "type": "String"
+    },
+    {
+      "description": "RDS MySQL select query",
+      "id": "mySelectQuery",
       "type": "String"
     }
   ],

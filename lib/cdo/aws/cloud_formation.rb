@@ -60,6 +60,7 @@ module AWS
         template = json_template(dry_run: true)
         CDO.log.info JSON.pretty_generate(JSON.parse(template))
         CDO.log.info cfn.validate_template(string_or_url(template)).description
+        CDO.log.info "Parameters: #{parameters(template).join("\n")}"
       end
 
       # Returns an inline string or S3 URL depending on the size of the template.
@@ -77,6 +78,25 @@ module AWS
         end
       end
 
+      def parameters(template)
+        params = JSON.parse(template)['Parameters']
+        return [] unless params
+        params.keys.map do |key|
+          value = CDO[key]
+          if value
+            {
+              parameter_key: key,
+              parameter_value: value
+            }
+          else
+            {
+              parameter_key: key,
+              use_previous_value: true
+            }
+          end
+        end.flatten
+      end
+
       def create_or_update
         template = json_template
         action = stack_exists? ? :update : :create
@@ -84,7 +104,8 @@ module AWS
         start_time = Time.now
         stack_options = {
           stack_name: STACK_NAME,
-          capabilities: ['CAPABILITY_IAM']
+          capabilities: ['CAPABILITY_IAM'],
+          parameters: parameters(template)
         }.merge(string_or_url(template))
         stack_options[:on_failure] = 'DO_NOTHING' if action == :create
         updated_stack_id = cfn.method("#{action}_stack").call(stack_options).stack_id
