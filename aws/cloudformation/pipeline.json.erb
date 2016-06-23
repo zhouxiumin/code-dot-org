@@ -60,7 +60,7 @@
       "runsOn": {
         "ref": "Ec2Instance"
       },
-      "scriptArgument": [
+      "scriptArgument": {"Fn::Join": [" ", [
         "--rds_jdbc=#{myRDSJdbcConnectStr}",
         "--rds_tbl=#{myRDSTableName}",
         "--rds_pwd=#{*myRDSPassword}",
@@ -73,7 +73,7 @@
         "--red_sort=#{myRedshiftSortKeys}",
         "--red_map=#{myRedshiftTypeConvOverrideMap}",
         "--red_ins=#{myInsertMode}"
-      ],
+      ]]},
       "id": "RedshiftTableCreateActivity",
       "type": "ShellCommandActivity"
     },
@@ -90,7 +90,7 @@
     },
     {
       "period": "1 days",
-      "startDateTime": "2016-04-25T07:30:00",
+      "startDateTime": "2016-06-22T07:30:00",
       "name": "Every 1 day",
       "id": "DefaultSchedule",
       "type": "Schedule"
@@ -131,10 +131,11 @@
       "scheduleType": "TIMESERIES",
       "name": "Ec2Instance",
       "actionOnTaskFailure": "terminate",
-      "securityGroups": "#{myRDSRedshiftSecurityGrps}",
       "id": "Ec2Instance",
       "type": "Ec2Resource",
-      "terminateAfter": "2 Hours"
+      "terminateAfter": "2 Hours",
+      "subnetId": "#{myEc2InstanceSubnet}",
+      "securityGroupIds": "#{myRDSRedshiftSecurityGrps}"
     },
     {
       "failureAndRerunMode": "CASCADE",
@@ -265,10 +266,11 @@
       "jdbc:mysql://",{"Ref": "RDSHostname"},":",{"Ref":"RDSPort"},"/",{"Ref":"RDSDatabase"}
     ]]},
     "myInsertMode": "OVERWRITE_EXISTING",
-    "myRDSRedshiftSecurityGrps": {"Fn::GetAtt": ["VPC", "RedshiftSecurityGroup"]},
+    "myRDSRedshiftSecurityGrps": {"Fn::GetAtt": ["VPC", "FrontendSecurityGroup"]},
     "*myRDSPassword": {"Ref": "RDSPassword"},
     "myRedshiftTableName": "<%=table_name%>",
     "myRDSTableName": "<%=table_name%>",
-    "mySelectQuery": "<%=select_query%>"
+    "mySelectQuery": "<%=select_query%>",
+    "myEc2InstanceSubnet": {"Fn::GetAtt": ["VPC", "Subnet<%=az%>"]}
   }
 }

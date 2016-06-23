@@ -87,12 +87,13 @@ Resources:
 tables_to_sync.each do |table_select|
   table, select_query = table_select.split(':')
 %>
-  RDSRedshift<%=table.camelize%>: <%= AWS::DataPipeline.to_cfn(
+  RDSCopy<%=table.camelize%>: <%= AWS::DataPipeline.to_cfn(
     "rds-to-redshift-#{table}#{'-whitelisted-columns' if select_query}",
     "Copy #{table} from RDS to Redshift",
     File.read(aws_dir('cloudformation', 'pipeline.json.erb')),
     table_name: table,
-    select_query: select_query || '*'
+    select_query: select_query || '*',
+    az: azs.first
   )%>
 <% end %>
 Outputs:
