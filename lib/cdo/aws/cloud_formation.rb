@@ -82,7 +82,7 @@ module AWS
         params = JSON.parse(template)['Parameters']
         return [] unless params
         params.keys.map do |key|
-          value = CDO[key]
+          value = CDO[key.underscore]
           if value
             {
               parameter_key: key,

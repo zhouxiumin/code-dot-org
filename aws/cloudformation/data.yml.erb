@@ -1,14 +1,6 @@
 <%
 require 'cdo/aws/data_pipeline'
 require 'active_support/inflector'
-require 'uri'
-
-# Fetch the RDS endpoint and connection info from the corresponding Chef attribute.
-environment_json = JSON.parse(RakeUtils.with_bundle_dir(cookbooks_dir){`knife environment show #{environment} --format json`})
-secrets = environment_json['override_attributes']['cdo-secrets']
-rds = URI.parse(secrets['reporting_db_writer']) || raise('RDS endpoint not found')
-CDO.RedshiftPassword ||= rds.password
-CDO.RDSPassword ||= rds.password
 
 tables_to_sync = %w(
   scripts
@@ -23,7 +15,6 @@ tables_to_sync = %w(
   levels
   user_proficiencies
   forms
-  storage_apps
   workshop_attendance
   hint_view_requests
   authored_hint_view_requests
@@ -36,6 +27,9 @@ tables_to_sync = %w(
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: Data layer for Tableau including RedShift cluster configuration and scheduled Data Pipeline activities.
+# Parameters can be provided via CDO.underscored_parameter, e.g. via locals.yml:
+# redshift_password: abcdef
+# Parameters are only required for initial stack creation, and reused if not provided on stack update.
 Parameters:
   RedshiftPassword:
     Type: String
@@ -48,7 +42,6 @@ Parameters:
     Default: dev
   RDSUsername:
     Type: String
-    Default: <%=rds.user%>
   RedshiftS3:
     Type: String
     Default: 's3://redshift-tableau'
@@ -57,13 +50,11 @@ Parameters:
     Default: dashboard
   RDSHostname:
     Type: String
-    Default: <%=rds.hostname%>
   RDSPort:
     Type: Number
     Default: 3306
-  RDSDatabase:
+  DashboardDbName:
     Type: String
-    Default: <%=CDO.dashboard_db_name%>
 Resources:
   VPC: <%= lambda.call 'LookupStackOutputs', StackName: 'VPC', Nonce: 0 %>
   Tableau:

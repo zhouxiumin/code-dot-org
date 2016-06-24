@@ -44,13 +44,20 @@ module AWS
                     Key: key,
                     RefValue: value['ref']
                   }
+                elsif value.is_a?(Array)
+                  value.map do |val|
+                    {
+                      Key: key,
+                      StringValue: val
+                    }
+                  end
                 else
                   {
                     Key: key,
-                    StringValue: value.is_a?(String) ? value : value.to_json
+                    StringValue: value
                   }
                 end
-              end.tap do |fields|
+              end.flatten.tap do |fields|
                 fields.push(Key: 'type', StringValue: 'Default') if fields.none?{|field| field[:Key] == 'type'}
               end
             }
