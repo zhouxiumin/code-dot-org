@@ -90,7 +90,7 @@
     },
     {
       "period": "1 days",
-      "startDateTime": "2016-06-23T07:30:00",
+      "startDateTime": "2016-06-24T07:45:00",
       "name": "Every 1 day",
       "id": "DefaultSchedule",
       "type": "Schedule"
@@ -256,7 +256,7 @@
   "values": {
     "myRedshiftUsername": {"Ref": "RedshiftUsername"},
     "myRDSUsername": {"Ref": "RDSUsername"},
-    "myS3StagingLoc": {"Ref": "RedshiftS3"},
+    "myS3StagingLoc": {"Fn::Join": ["", [{"Ref": "RedshiftS3"},"<%=table_name%>"]]},
     "myRDSTableLastModifiedCol": "updated_at",
     "myRedshiftJdbcConnectStr": {"Fn::Join": ["", [
       "jdbc:redshift://",{"Fn::GetAtt": ["Tableau", "Endpoint.Address"]},":",{"Fn::GetAtt": ["Tableau", "Endpoint.Port"]},"/",{"Ref": "RedshiftDatabase"},"?tcpKeepAlive=true"

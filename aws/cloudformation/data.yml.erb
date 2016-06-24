@@ -44,7 +44,7 @@ Parameters:
     Type: String
   RedshiftS3:
     Type: String
-    Default: 's3://redshift-tableau'
+    Default: 's3://redshift-tableau/Tableau'
   RedshiftDatabase:
     Type: String
     Default: dashboard
@@ -78,7 +78,7 @@ Resources:
 tables_to_sync.each do |table_select|
   table, select_query = table_select.split(':')
 %>
-  RDSCopy<%=table.camelize%>: <%= AWS::DataPipeline.to_cfn(
+  RDSSync<%=table.camelize%>: <%= AWS::DataPipeline.to_cfn(
     "rds-to-redshift-#{table}#{'-whitelisted-columns' if select_query}",
     "Copy #{table} from RDS to Redshift",
     File.read(aws_dir('cloudformation', 'pipeline.json.erb')),
