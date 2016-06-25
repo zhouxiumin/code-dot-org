@@ -1,6 +1,7 @@
 <%
 require 'cdo/aws/data_pipeline'
 require 'active_support/inflector'
+require 'active_support/core_ext/object/blank'
 
 tables_to_sync = %w(
   scripts
@@ -14,14 +15,15 @@ tables_to_sync = %w(
   channel_tokens
   levels
   user_proficiencies
-  forms
   workshop_attendance
   hint_view_requests
   authored_hint_view_requests
   level_concept_difficulties
   survey_results
   sections
-  users:id,deleted_at,created_at,updated_at,current_sign_in_at,last_sign_in_at,sign_in_count,admin,user_type,gender,birthday,locale,total_lines
+  users::id,deleted_at,created_at,updated_at,current_sign_in_at,last_sign_in_at,sign_in_count,admin,user_type,gender,birthday,locale,total_lines
+  storage_apps:pegasus
+  forms:pegasus
 )
 -%>
 ---
@@ -53,8 +55,6 @@ Parameters:
   RDSPort:
     Type: Number
     Default: 3306
-  DashboardDbName:
-    Type: String
 Resources:
   VPC: <%= lambda.call 'LookupStackOutputs', StackName: 'VPC', Nonce: 0 %>
   Tableau:
@@ -76,7 +76,7 @@ Resources:
       VpcSecurityGroupIds: ['Fn::GetAtt': [VPC, RedshiftSecurityGroup]]
 <%
 tables_to_sync.each do |table_select|
-  table, select_query = table_select.split(':')
+  table, pegasus, select_query = table_select.split(':')
 %>
   RDSSync<%=table.camelize%>: <%= AWS::DataPipeline.to_cfn(
     "rds-to-redshift-#{table}#{'-whitelisted-columns' if select_query}",
@@ -84,6 +84,7 @@ tables_to_sync.each do |table_select|
     File.read(aws_dir('cloudformation', 'pipeline.json.erb')),
     table_name: table,
     select_query: select_query || '*',
+    db_name: pegasus.present? ? CDO.pegasus_db_name : CDO.dashboard_db_name,
     az: azs.first
   )%>
 <% end %>
