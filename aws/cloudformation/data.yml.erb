@@ -2,16 +2,17 @@
 require 'cdo/aws/data_pipeline'
 require 'active_support/inflector'
 require 'active_support/core_ext/object/blank'
+require 'cdo/aws/redshift_table'
 
 tables = %w(
-#  scripts
-#  followers
-#  stages
-#  script_levels
-#  workshops
-#  segments
-#  puzzle_ratings
-#  user_scripts
+  scripts
+  followers
+  stages
+  script_levels
+  workshops
+  segments
+  puzzle_ratings
+  user_scripts
   channel_tokens
   levels
   user_proficiencies
@@ -32,7 +33,7 @@ end.concat([
     name: 'users',
     db: 'dashboard',
     schema: 'dashboard',
-    select: 'id,deleted_at,created_at,updated_at,current_sign_in_at,last_sign_in_at,sign_in_count,admin,user_type,gender,birthday,locale,total_lines'
+    columns: 'id,deleted_at,created_at,updated_at,current_sign_in_at,last_sign_in_at,sign_in_count,admin,user_type,gender,birthday,locale,total_lines'.split(',')
   },
 ]).concat(%w(
   storage_apps
@@ -44,6 +45,10 @@ end.concat([
     schema: 'pegasus'
   }
 end)
+
+tables.each do |table|
+  table[:create_sql] = RedshiftTable.dump(table[:db], table[:schema], table[:name], table[:columns])
+end
 
 -%>
 ---

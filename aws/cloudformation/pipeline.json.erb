@@ -57,7 +57,7 @@ table_names = tables.map do |table|
       "type": "SqlDataNode",
       "database": {"ref": "RDSDatabase"},
       "table": "<%=t%>",
-      "selectQuery": "select <%=table[:select] || '*'%> from <%=t%> where #{myRDSTableLastModifiedCol} >= '#{format(@scheduledStartTime, 'YYYY-MM-dd HH-mm-ss')}' and #{myRDSTableLastModifiedCol} <= '#{format(@scheduledEndTime, 'YYYY-MM-dd HH-mm-ss')}'",
+      "selectQuery": "select <%=table[:columns] ? table[:columns].join(',') : '*'%> from <%=t%> where #{myRDSTableLastModifiedCol} >= '#{format(@scheduledStartTime, 'YYYY-MM-dd HH-mm-ss')}' and #{myRDSTableLastModifiedCol} <= '#{format(@scheduledEndTime, 'YYYY-MM-dd HH-mm-ss')}'",
       "scheduleType": "TIMESERIES"
     },
     {
@@ -74,31 +74,7 @@ table_names = tables.map do |table|
       "database": {"ref": "RedshiftCluster"},
       "tableName": "<%=t%>",
       "schemaName": "<%=table[:schema]%>",
-      "scheduleType": "TIMESERIES"
-    },
-    {
-      "id": "RedshiftCreate<%=table_name%>",
-      "name": "RedshiftCreate<%=table_name%>",
-      "type": "ShellCommandActivity",
-      "input": {"ref": "RDS<%=table_name%>"},
-      "output": {"ref": "Redshift<%=table_name%>"},
-      "scriptUri": "s3://cdo-dist/dbconv.sh",
-      "scriptArgument": [
-        "--rds_jdbc=#{myRDSJdbcConnectStr}",
-        "--rds_tbl=<%=t%>",
-        "--rds_pwd=#{*myRDSPassword}",
-        "--rds_usr=#{myRDSUsername}",
-        "--red_jdbc=#{myRedshiftJdbcConnectStr}",
-        "--red_usr=#{myRedshiftUsername}",
-        "--red_pwd=#{*myRedshiftPassword}",
-        "--red_tbl=<%=table[:schema]%>.<%=t%>",
-        "--red_dist=#{myRedshiftDistributionKey}",
-        "--red_sort=#{myRedshiftSortKeys}",
-        "--red_map=#{myRedshiftTypeConvOverrideMap}",
-        "--red_ins=#{myInsertMode}",
-        "--rds_cols=<%=table[:select] ? table[:select] : ''%>"
-      ],
-      "runsOn": {"ref": "Ec2Instance"},
+      "createTableSql": <%=table[:create_sql].to_json%>,
       "scheduleType": "TIMESERIES"
     },
     {
@@ -114,10 +90,7 @@ table_names = tables.map do |table|
       "id": "S3ToRedshift<%=table_name%>",
       "name": "S3ToRedshift<%=table_name%>",
       "type": "RedshiftCopyActivity",
-      "dependsOn": [
-        {"ref": "RedshiftCreate<%=table_name%>"},
-        {"ref": "RDSToS3<%=table_name%>"}
-      ],
+      "dependsOn": {"ref": "RDSToS3<%=table_name%>"},
       "input": {"ref": "S3<%=table_name%>"},
       "output": {"ref": "Redshift<%=table_name%>"},
       "insertMode": "#{myInsertMode}",
