@@ -3,12 +3,19 @@
 # Original from: s3://datapipeline-us-east-1/sample-scripts/dbconv.sh
 
 #Example Invocation
-#./dbconv.sh --rds_jdbc=jdbc:mysql://dbtest.cob91vaba6fq.us-east-1.rds.amazonaws.com:3306/sakila
-# --rds_tbl=customer --rds_pwd=testpassword --rds_usr=admin
-# --red_jdbc=jdbc:postgresql://eudb3.cvprvckckqrm.eu-west-1.redshift.amazonaws.com:5439/dbtest?tcpKeepAlive=true
-# --red_usr=admin --red_pwd=test123E —red_tbl=RedTub
-# —red_dist=customer_id —red_sort=create_date --red_ins=OVERWRITE_EXISTING
-
+#./dbconv.sh \
+#  --rds_jdbc=jdbc:mysql://dbtest.cob91vaba6fq.us-east-1.rds.amazonaws.com:3306/sakila \
+#  --rds_usr=admin \
+#  --rds_pwd=testpassword \
+#  --rds_tbl=customer \
+#  --red_jdbc=jdbc:postgresql://eudb3.cvprvckckqrm.eu-west-1.redshift.amazonaws.com:5439/dbtest?tcpKeepAlive=true \
+#  --red_usr=admin \
+#  --red_pwd=test123E \
+#  --red_tbl=RedTub \
+#  --red_dist=customer_id \
+#  --red_sort=create_date \
+#  --red_ins=OVERWRITE_EXISTING \
+#  --rds_cols=id,created_at,updated_at
 
 echo "Number of arguments: $#"
 #echo "Arguments: $@"
@@ -64,6 +71,10 @@ case "$i" in
     REDIns="${i#*=}"
     shift
     ;;
+    -m=*|--rds_cols=*)
+    RDSCols="${i#*=}"
+    shift
+    ;;
     *)
     echo "unknown option"
     ;;
@@ -115,6 +126,17 @@ echo "REDShift DB: $REDDb"
 MySQLFile=rdsmy$(date +%m%d%H%M%S).sql
 echo "My SQL dump file: $MySQLFile"
 `mysqldump -h $RDSHost --port=$RDSPort -u $RDSUsr --password=$RDSPwd  --compatible=postgresql --default-character-set=utf8 -n -d -r $MySQLFile $MySQLDb $RDSTbl`
+
+#5a. Filter the table definition dumped to whitelisted columns
+if [ -n "$RDSCols" ]; then
+  START_TABLE='CREATE TABLE'
+  END_TABLE='\);'
+  COL_FILTER=$(echo $RDSCols | tr ',' '|')
+  # Extended regex: match any of COL_FILTER elements as ` "x"` or `("x"`
+  FILTER="(\s|\()\"($COL_FILTER)\""
+  # Between $START_TABLE and $END_TABLE, keep only lines matching $FILTER
+  sed -iE "/$START_TABLE/,/$END_TABLE/{/START_TABLE/n;/$END_TABLE/n;/$FILTER/! d}" $MySQLFile
+fi
 
 #6. Download the translator python script
 curl -O https://s3.amazonaws.com/datapipeline-us-east-1/sample-scripts/mysql_to_redshift.py

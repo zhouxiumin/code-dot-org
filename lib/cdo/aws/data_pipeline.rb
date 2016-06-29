@@ -46,10 +46,17 @@ module AWS
                   }
                 elsif value.is_a?(Array)
                   value.map do |val|
-                    {
-                      Key: key,
-                      StringValue: val
-                    }
+                    if val.is_a?(Hash) && val['ref']
+                      {
+                        Key: key,
+                        RefValue: val['ref']
+                      }
+                    else
+                      {
+                        Key: key,
+                        StringValue: val
+                      }
+                    end
                   end
                 else
                   {

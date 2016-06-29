@@ -1,164 +1,156 @@
 {
   "objects": [
     {
-      "output": {
-        "ref": "S3StagingDataNode"
-      },
-      "input": {
-        "ref": "SrcRDSTable"
-      },
-      "scheduleType": "TIMESERIES",
-      "name": "RDSToS3CopyActivity",
-      "id": "RDSToS3CopyActivity",
-      "runsOn": {
-        "ref": "Ec2Instance"
-      },
-      "type": "CopyActivity"
+      "id": "Default",
+      "name": "Default",
+      "failureAndRerunMode": "CASCADE",
+      "schedule": {"ref": "DefaultSchedule"},
+      "resourceRole": "DataPipelineDefaultResourceRole",
+      "role": "DataPipelineDefaultRole",
+      "pipelineLogUri": "s3://redshift-tableau",
+      "scheduleType": "cron"
     },
     {
-      "output": {
-        "ref": "DestRedshiftTable"
-      },
-      "input": {
-        "ref": "S3StagingDataNode"
-      },
-      "dependsOn": {
-        "ref": "RedshiftTableCreateActivity"
-      },
-      "scheduleType": "TIMESERIES",
-      "name": "S3ToRedshiftCopyActivity",
-      "id": "S3ToRedshiftCopyActivity",
-      "runsOn": {
-        "ref": "Ec2Instance"
-      },
-      "type": "RedshiftCopyActivity",
-      "insertMode": "#{myInsertMode}"
-    },
-    {
-      "database": {
-        "ref": "RedshiftCluster"
-      },
-      "scheduleType": "TIMESERIES",
-      "name": "DestRedshiftTable",
-      "id": "DestRedshiftTable",
-      "type": "RedshiftDataNode",
-      "tableName": "#{myRedshiftTableName}"
-    },
-    {
-      "output": {
-        "ref": "DestRedshiftTable"
-      },
-      "input": {
-        "ref": "SrcRDSTable"
-      },
-      "scheduleType": "TIMESERIES",
-      "scriptUri": "s3://datapipeline-us-east-1/sample-scripts/dbconv.sh",
-      "dependsOn": {
-        "ref": "RDSToS3CopyActivity"
-      },
-      "name": "RedshiftTableCreateActivity",
-      "runsOn": {
-        "ref": "Ec2Instance"
-      },
-      "scriptArgument": [
-        "--rds_jdbc=#{myRDSJdbcConnectStr}",
-        "--rds_tbl=#{myRDSTableName}",
-        "--rds_pwd=#{*myRDSPassword}",
-        "--rds_usr=#{myRDSUsername}",
-        "--red_jdbc=#{myRedshiftJdbcConnectStr}",
-        "--red_usr=#{myRedshiftUsername}",
-        "--red_pwd=#{*myRedshiftPassword}",
-        "--red_tbl=#{myRedshiftTableName}",
-        "--red_dist=#{myRedshiftDistributionKey}",
-        "--red_sort=#{myRedshiftSortKeys}",
-        "--red_map=#{myRedshiftTypeConvOverrideMap}",
-        "--red_ins=#{myInsertMode}"
-      ],
-      "id": "RedshiftTableCreateActivity",
-      "type": "ShellCommandActivity"
-    },
-    {
-      "connectionString": "#{myRDSJdbcConnectStr}",
-      "scheduleType": "TIMESERIES",
-      "*password": "#{*myRDSPassword}",
-      "name": "SrcRDSTable",
-      "id": "SrcRDSTable",
-      "type": "MySqlDataNode",
-      "table": "#{myRDSTableName}",
-      "selectQuery": "select #{mySelectQuery} from #{table} where #{myRDSTableLastModifiedCol} >= '#{format(@scheduledStartTime, 'YYYY-MM-dd HH-mm-ss')}' and #{myRDSTableLastModifiedCol} <= '#{format(@scheduledEndTime, 'YYYY-MM-dd HH-mm-ss')}'",
-      "username": "#{myRDSUsername}"
-    },
-    {
-      "period": "1 days",
-      "startDateTime": "2016-06-23T07:45:00",
-      "name": "Every 1 day",
       "id": "DefaultSchedule",
-      "type": "Schedule"
+      "name": "Every 1 day",
+      "type": "Schedule",
+      "period": "1 days",
+      "startDateTime": "2016-06-27T07:45:00"
     },
     {
-      "connectionString": "#{myRedshiftJdbcConnectStr}",
-      "*password": "#{*myRedshiftPassword}",
-      "name": "RedshiftCluster",
-      "id": "RedshiftCluster",
-      "type": "RedshiftDatabase",
-      "username": "#{myRedshiftUsername}"
-    },
-    {
-      "scheduleType": "TIMESERIES",
-      "directoryPath": "#{myS3StagingLoc}/#{format(@scheduledStartTime, 'YYYY-MM-dd-HH-mm-ss')}",
-      "name": "S3StagingDataNode",
-      "id": "S3StagingDataNode",
-      "type": "S3DataNode"
-    },
-    {
-      "input": {
-        "ref": "S3StagingDataNode"
-      },
-      "dependsOn": {
-        "ref": "S3ToRedshiftCopyActivity"
-      },
-      "stage": "false",
-      "scheduleType": "TIMESERIES",
-      "name": "S3StagingCleanupActivity",
-      "id": "S3StagingCleanupActivity",
-      "runsOn": {
-        "ref": "Ec2Instance"
-      },
-      "type": "ShellCommandActivity",
-      "command": "(sudo yum -y update aws-cli) && (aws s3 rm #{input.directoryPath} --recursive)"
-    },
-    {
-      "scheduleType": "TIMESERIES",
-      "name": "Ec2Instance",
-      "actionOnTaskFailure": "terminate",
       "id": "Ec2Instance",
+      "name": "Ec2Instance",
       "type": "Ec2Resource",
+      "scheduleType": "TIMESERIES",
+      "actionOnTaskFailure": "terminate",
       "terminateAfter": "2 Hours",
       "subnetId": "#{myEc2InstanceSubnet}",
       "securityGroupIds": "#{myRDSRedshiftSecurityGrps}"
     },
     {
-      "failureAndRerunMode": "CASCADE",
-      "schedule": {
-        "ref": "DefaultSchedule"
-      },
-      "resourceRole": "DataPipelineDefaultResourceRole",
-      "role": "DataPipelineDefaultRole",
-      "pipelineLogUri": "s3://redshift-tableau",
-      "scheduleType": "cron",
-      "name": "Default",
-      "id": "Default"
+      "id": "RDSDatabase",
+      "name": "RDSDatabase",
+      "type": "JdbcDatabase",
+      "jdbcProperties": "allowMultiQueries=true",
+      "jdbcDriverClass": "com.mysql.jdbc.Driver",
+      "connectionString": "#{myRDSJdbcConnectStr}",
+      "username": "#{myRDSUsername}",
+      "*password": "#{*myRDSPassword}"
+    },
+    {
+      "id": "RedshiftCluster",
+      "name": "RedshiftCluster",
+      "type": "RedshiftDatabase",
+      "connectionString": "#{myRedshiftJdbcConnectStr}",
+      "*password": "#{*myRedshiftPassword}",
+      "username": "#{myRedshiftUsername}"
+    },
+
+<%
+table_names = tables.map do |table|
+  t = table[:name]
+  table_name = table[:name].camelize
+-%>
+    {
+      "id": "RDS<%=table_name%>",
+      "name": "RDS<%=table_name%>",
+      "type": "SqlDataNode",
+      "database": {"ref": "RDSDatabase"},
+      "table": "<%=t%>",
+      "selectQuery": "select <%=table[:select] || '*'%> from <%=t%> where #{myRDSTableLastModifiedCol} >= '#{format(@scheduledStartTime, 'YYYY-MM-dd HH-mm-ss')}' and #{myRDSTableLastModifiedCol} <= '#{format(@scheduledEndTime, 'YYYY-MM-dd HH-mm-ss')}'",
+      "scheduleType": "TIMESERIES"
+    },
+    {
+      "id": "S3<%=table_name%>",
+      "name": "S3<%=table_name%>",
+      "type": "S3DataNode",
+      "scheduleType": "TIMESERIES",
+      "directoryPath": "#{myS3StagingLoc}/#{format(@scheduledStartTime, 'YYYY-MM-dd-HH-mm-ss')}/<%=t%>"
+    },
+    {
+      "id": "Redshift<%=table_name%>",
+      "name": "Redshift<%=table_name%>",
+      "type": "RedshiftDataNode",
+      "database": {"ref": "RedshiftCluster"},
+      "tableName": "<%=t%>",
+      "schemaName": "<%=table[:schema]%>",
+      "scheduleType": "TIMESERIES"
+    },
+    {
+      "id": "RedshiftCreate<%=table_name%>",
+      "name": "RedshiftCreate<%=table_name%>",
+      "type": "ShellCommandActivity",
+      "input": {"ref": "RDS<%=table_name%>"},
+      "output": {"ref": "Redshift<%=table_name%>"},
+      "scriptUri": "s3://cdo-dist/dbconv.sh",
+      "scriptArgument": [
+        "--rds_jdbc=#{myRDSJdbcConnectStr}",
+        "--rds_tbl=<%=t%>",
+        "--rds_pwd=#{*myRDSPassword}",
+        "--rds_usr=#{myRDSUsername}",
+        "--red_jdbc=#{myRedshiftJdbcConnectStr}",
+        "--red_usr=#{myRedshiftUsername}",
+        "--red_pwd=#{*myRedshiftPassword}",
+        "--red_tbl=<%=table[:schema]%>.<%=t%>",
+        "--red_dist=#{myRedshiftDistributionKey}",
+        "--red_sort=#{myRedshiftSortKeys}",
+        "--red_map=#{myRedshiftTypeConvOverrideMap}",
+        "--red_ins=#{myInsertMode}",
+        "<%=table[:select] ? "--rds_cols=#{table[:select]}" : ''%>"
+      ],
+      "runsOn": {"ref": "Ec2Instance"},
+      "scheduleType": "TIMESERIES"
+    },
+    {
+      "id": "RDSToS3<%=table_name%>",
+      "name": "RDSToS3<%=table_name%>",
+      "type": "CopyActivity",
+      "input": {"ref": "RDS<%=table_name%>"},
+      "output": {"ref": "S3<%=table_name%>"},
+      "runsOn": {"ref": "Ec2Instance"},
+      "scheduleType": "TIMESERIES"
+    },
+    {
+      "id": "S3ToRedshift<%=table_name%>",
+      "name": "S3ToRedshift<%=table_name%>",
+      "type": "RedshiftCopyActivity",
+      "dependsOn": [
+        {"ref": "RedshiftCreate<%=table_name%>"},
+        {"ref": "RDSToS3<%=table_name%>"}
+      ],
+      "input": {"ref": "S3<%=table_name%>"},
+      "output": {"ref": "Redshift<%=table_name%>"},
+      "insertMode": "#{myInsertMode}",
+      "runsOn": {"ref": "Ec2Instance"},
+      "scheduleType": "TIMESERIES"
+    },
+<%
+  table_name
+end
+-%>
+
+    {
+      "id": "S3",
+      "name": "S3",
+      "type": "S3DataNode",
+      "scheduleType": "TIMESERIES",
+      "directoryPath": "#{myS3StagingLoc}/#{format(@scheduledStartTime, 'YYYY-MM-dd-HH-mm-ss')}"
+    },
+    {
+      "id": "S3Cleanup",
+      "name": "S3Cleanup",
+      "type": "ShellCommandActivity",
+      "input": {"ref": "S3"},
+      "dependsOn": <%= table_names.map{|name| {ref: "S3ToRedshift#{name}"}}.to_json %>,
+      "runsOn": {"ref": "Ec2Instance"},
+      "command": "(sudo yum -y update aws-cli) && (aws s3 rm #{input.directoryPath} --recursive)",
+      "scheduleType": "TIMESERIES"
     }
   ],
   "parameters": [
     {
       "description": "RDS MySQL password",
       "id": "*myRDSPassword",
-      "type": "String"
-    },
-    {
-      "description": "RDS MySQL table name",
-      "id": "myRDSTableName",
       "type": "String"
     },
     {
@@ -184,12 +176,6 @@
       "description": "MySQL to Redshift type conversion overrides",
       "optional": "true",
       "id": "myRedshiftTypeConvOverrideMap",
-      "type": "String"
-    },
-    {
-      "helpText": "The name of an existing table or a new table that will be automatically created.",
-      "description": "Redshift table name",
-      "id": "myRedshiftTableName",
       "type": "String"
     },
     {
@@ -246,31 +232,23 @@
       "description": "Redshift JDBC connection string",
       "id": "myRedshiftJdbcConnectStr",
       "type": "String"
-    },
-    {
-      "description": "RDS MySQL select query",
-      "id": "mySelectQuery",
-      "type": "String"
     }
   ],
   "values": {
-    "myRedshiftUsername": {"Ref": "RedshiftUsername"},
-    "myRDSUsername": {"Ref": "RDSUsername"},
-    "myS3StagingLoc": {"Fn::Join": ["/", [{"Ref": "RedshiftS3"},"<%=table_name%>"]]},
+    "myS3StagingLoc": {"Fn::Join": ["/", [{"Ref": "RedshiftS3"}, "<%=db_name%>"]]},
     "myRDSTableLastModifiedCol": "updated_at",
-    "myRedshiftJdbcConnectStr": {"Fn::Join": ["", [
-      "jdbc:redshift://",{"Fn::GetAtt": ["Tableau", "Endpoint.Address"]},":",{"Fn::GetAtt": ["Tableau", "Endpoint.Port"]},"/",{"Ref": "RedshiftDatabase"},"?tcpKeepAlive=true"
-    ]]},
-    "*myRedshiftPassword": {"Ref": "RedshiftPassword"},
     "myRDSJdbcConnectStr": {"Fn::Join": ["", [
       "jdbc:mysql://",{"Ref": "RDSHostname"},":",{"Ref":"RDSPort"},"/","<%=db_name%>"
     ]]},
-    "myInsertMode": "OVERWRITE_EXISTING",
-    "myRDSRedshiftSecurityGrps": {"Fn::GetAtt": ["VPC", "FrontendSecurityGroup"]},
+    "myRDSUsername": {"Ref": "RDSUsername"},
     "*myRDSPassword": {"Ref": "RDSPassword"},
-    "myRedshiftTableName": "<%=table_name%>",
-    "myRDSTableName": "<%=table_name%>",
-    "mySelectQuery": "<%=select_query%>",
+    "myRDSRedshiftSecurityGrps": {"Fn::GetAtt": ["VPC", "FrontendSecurityGroup"]},
+    "myRedshiftJdbcConnectStr": {"Fn::Join": ["", [
+      "jdbc:redshift://",{"Fn::GetAtt": ["Tableau", "Endpoint.Address"]},":",{"Fn::GetAtt": ["Tableau", "Endpoint.Port"]},"/",{"Ref": "RedshiftDatabase"},"?tcpKeepAlive=true"
+    ]]},
+    "myRedshiftUsername": {"Ref": "RedshiftUsername"},
+    "*myRedshiftPassword": {"Ref": "RedshiftPassword"},
+    "myInsertMode": "OVERWRITE_EXISTING",
     "myEc2InstanceSubnet": {"Fn::GetAtt": ["VPC", "Subnet<%=az%>"]}
   }
 }
