@@ -1,12 +1,12 @@
 require 'cdo/db'
+require 'digest/md5'
 require_relative 'email_validator'
 require 'mail'
 require 'openssl'
 require 'base64'
 
 module Poste
-
-  def self.logger()
+  def self.logger
     @@logger ||= $log
   end
 
@@ -56,7 +56,7 @@ module Poste
     nil
   end
 
-  def self.template_extnames()
+  def self.template_extnames
     ['.md','.haml','.html']
   end
 
@@ -78,6 +78,7 @@ module Poste
     else
       contacts.insert(
         email: email,
+        hashed_email: Digest::MD5.hexdigest(email.downcase),
         created_at: now,
         created_ip: params[:ip_address],
         unsubscribed_at: now,
@@ -87,11 +88,9 @@ module Poste
       )
     end
   end
-
 end
 
 module Poste2
-
   @@url_cache = {}
   @@message_id_cache = {}
 
@@ -137,6 +136,7 @@ module Poste2
     else
       id = contacts.insert({}.tap do |contact|
         contact[:email] = address
+        contact[:hashed_email] = Digest::MD5.hexdigest(address.downcase)
         contact[:name] = name if name
         contact[:created_at] = now
         contact[:created_ip] = ip_address
@@ -163,6 +163,7 @@ module Poste2
     unless contact
       id = contacts.insert({}.tap do |contact|
         contact[:email] = address
+        contact[:hashed_email] = Digest::MD5.hexdigest(address.downcase)
         contact[:name] = name if name
         contact[:created_at] = now
         contact[:created_ip] = ip_address
@@ -198,7 +199,12 @@ module Poste2
 
   class DeliveryMethod
 
-    ALLOWED_SENDERS = Set.new ['pd@code.org', 'noreply@code.org', 'teacher@code.org']
+    ALLOWED_SENDERS = Set.new %w[
+      pd@code.org
+      noreply@code.org
+      teacher@code.org
+      hadi_partovi@code.org
+    ]
     def initialize(settings = nil)
     end
 

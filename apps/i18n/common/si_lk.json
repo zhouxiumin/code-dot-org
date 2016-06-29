@@ -241,5 +241,9 @@
   "watchVideo": "වීඩියෝව නරඹන්න",
   "when": "විට",
   "whenRun": "දුවන විට",
-  "workspaceHeaderShort": "වැඩ අවකාශය: "
+  "workspaceHeaderShort": "වැඩ අවකාශය: ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

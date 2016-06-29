@@ -241,5 +241,9 @@
   "watchVideo": "უყურეთ ვიდეოს",
   "when": "როდის",
   "whenRun": "გაშვებისას",
-  "workspaceHeaderShort": "სამუშაო სივრცე: "
+  "workspaceHeaderShort": "სამუშაო სივრცე: ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

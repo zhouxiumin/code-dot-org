@@ -128,6 +128,7 @@ module AWS
       end
 
       private
+
       def cfn
         @@cfn ||= Aws::CloudFormation::Client.new
       end

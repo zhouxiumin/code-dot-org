@@ -241,5 +241,9 @@
   "watchVideo": "Shiko Videon",
   "when": "kur",
   "whenRun": "kur vrapon",
-  "workspaceHeaderShort": "Vendi i punës: "
+  "workspaceHeaderShort": "Vendi i punës: ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

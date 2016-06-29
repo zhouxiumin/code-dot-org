@@ -241,5 +241,9 @@
   "watchVideo": "Videoyu İzle",
   "when": "Ne zaman",
   "whenRun": "Çalıştığı zaman",
-  "workspaceHeaderShort": "Çalışma alanı: "
+  "workspaceHeaderShort": "Çalışma alanı: ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

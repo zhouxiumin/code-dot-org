@@ -241,5 +241,9 @@
   "watchVideo": "Vaata videot",
   "when": "kui",
   "whenRun": "pärast käivitamist",
-  "workspaceHeaderShort": "Tööruum: "
+  "workspaceHeaderShort": "Tööruum: ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

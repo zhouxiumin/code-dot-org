@@ -241,5 +241,9 @@
   "watchVideo": "ویڈیو دیکھیں",
   "when": "کب",
   "whenRun": "جب رن ہو تو",
-  "workspaceHeaderShort": "ورک اسپیس "
+  "workspaceHeaderShort": "ورک اسپیس ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

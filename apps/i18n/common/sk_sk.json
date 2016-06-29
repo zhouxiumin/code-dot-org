@@ -241,5 +241,9 @@
   "watchVideo": "Pozrieť video",
   "when": "keď",
   "whenRun": "pri spustení",
-  "workspaceHeaderShort": "Pracovná plocha: "
+  "workspaceHeaderShort": "Pracovná plocha: ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

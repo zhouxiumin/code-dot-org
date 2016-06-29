@@ -241,5 +241,9 @@
   "watchVideo": "ये वीडियो देखें",
   "when": "कब",
   "whenRun": "जब चलाएँ",
-  "workspaceHeaderShort": "Workspace: "
+  "workspaceHeaderShort": "Workspace: ",
+  "dataMode": "Data",
+  "dataTableNamePlaceholder": "Table name",
+  "dataWorkspaceHeader": "Data Browser",
+  "keyValuePairLink": "Key/value pairs"
 }

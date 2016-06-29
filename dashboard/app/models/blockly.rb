@@ -62,6 +62,7 @@ class Blockly < Level
     is_project_level
     edit_code
     code_functions
+    palette_category_at_start
     failure_message_override
     droplet_tooltips_disabled
     lock_zero_param_functions
@@ -303,13 +304,5 @@ class Blockly < Level
   def autoplay_blocked_by_level?
     # Wrapped since we store our serialized booleans as strings.
     self.never_autoplay_video == 'true'
-  end
-
-  # Returns an array of all the contained levels
-  # (based on the contained_level_names property)
-  def contained_levels
-    names = properties["contained_level_names"]
-    return [] unless names.present?
-    Level.where(name: properties["contained_level_names"])
   end
 end
