@@ -28,6 +28,6 @@ class RedshiftTable
 
     # Normalize whitespace.
     create_table_sql.gsub!(/\s+/m, ' ')
-    create_table_sql
+    "CREATE SCHEMA IF NOT EXISTS #{schema}; #{create_table_sql}"
   end
 end
