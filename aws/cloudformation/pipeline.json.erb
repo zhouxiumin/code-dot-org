@@ -96,7 +96,7 @@ table_names = tables.map do |table|
         "--red_sort=#{myRedshiftSortKeys}",
         "--red_map=#{myRedshiftTypeConvOverrideMap}",
         "--red_ins=#{myInsertMode}",
-        "<%=table[:select] ? "--rds_cols=#{table[:select]}" : ''%>"
+        "--rds_cols=<%=table[:select] ? table[:select] : ''%>"
       ],
       "runsOn": {"ref": "Ec2Instance"},
       "scheduleType": "TIMESERIES"
