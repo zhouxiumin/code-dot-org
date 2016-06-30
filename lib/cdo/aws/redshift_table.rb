@@ -13,7 +13,9 @@ class RedshiftTable
 
   def self.dump(app, schema, table, whitelist_columns=nil)
     db_name = "#{app}_development"
-    dump_string = "mysqldump #{command_options(app).join(' ')} --compatible=postgresql -n -d #{db_name} #{table} | #{__dir__}/mysql_to_redshift --input_file=- --output_file=- --table_name=#{schema}.#{table}"
+    # Add extra inner quotes to separate schema from table in conversion script.
+    table_name = "#{schema}\\\".\\\"#{table}"
+    dump_string = "mysqldump #{command_options(app).join(' ')} --compatible=postgresql -n -d #{db_name} #{table} | #{__dir__}/mysql_to_redshift --input_file=- --output_file=- --table_name=#{table_name}"
     dump = %x(#{dump_string})
     create_table_sql = /CREATE TABLE.*?;/m.match(dump).to_s
 
@@ -28,6 +30,6 @@ class RedshiftTable
 
     # Normalize whitespace.
     create_table_sql.gsub!(/\s+/m, ' ')
-    "CREATE SCHEMA IF NOT EXISTS #{schema}; #{create_table_sql}"
+    create_table_sql
   end
 end

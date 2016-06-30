@@ -15,7 +15,7 @@
       "name": "Every 1 day",
       "type": "Schedule",
       "period": "1 days",
-      "startDateTime": "2016-06-27T07:45:00"
+      "startDateTime": "2016-06-29T07:45:00"
     },
     {
       "id": "Ec2Instance",
@@ -44,6 +44,20 @@
       "connectionString": "#{myRedshiftJdbcConnectStr}",
       "*password": "#{*myRedshiftPassword}",
       "username": "#{myRedshiftUsername}"
+    },
+    {
+      "id": "RedshiftCreateSchema",
+      "name": "RedshiftCreateSchema",
+      "type": "SqlActivity",
+      "database": {"ref": "RedshiftCluster"},
+<%
+schema_sql = tables.map{|table| table[:schema]}.uniq.map do |schema|
+  "CREATE SCHEMA IF NOT EXISTS #{schema};"
+end.join(" ")
+-%>
+      "script": "<%=schema_sql%>",
+      "runsOn": {"ref": "Ec2Instance"},
+      "scheduleType": "TIMESERIES"
     },
 
 <%
@@ -75,6 +89,7 @@ table_names = tables.map do |table|
       "tableName": "<%=t%>",
       "schemaName": "<%=table[:schema]%>",
       "createTableSql": <%=table[:create_sql].to_json%>,
+      "dependsOn": {"ref": "RedshiftCreateSchema"},
       "scheduleType": "TIMESERIES"
     },
     {
