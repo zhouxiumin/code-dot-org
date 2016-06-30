@@ -113,3 +113,14 @@ Outputs:
   Redshift:
     Description: Tableau endpoint
     Value: {Ref: Tableau}
+  RedshiftAddress:
+    Description: Tableau address
+    Value: {"Fn::GetAtt": ["Tableau", "Endpoint.Address"]}
+  RedshiftPort:
+    Description: Tableau port
+    Value: {"Fn::GetAtt": ["Tableau", "Endpoint.Port"]}
+  RedshiftConnectStr:
+    Description: Tableau JDBC connect string
+    Value: {"Fn::Join": ["", [
+      "jdbc:redshift://",{"Fn::GetAtt": ["Tableau", "Endpoint.Address"]},":",{"Fn::GetAtt": ["Tableau", "Endpoint.Port"]},"/",{"Ref": "RedshiftDatabase"},"?tcpKeepAlive=true"
+    ]]}
