@@ -208,7 +208,8 @@ module AWS
       end
 
       def json_template(dry_run: false)
-        template_string = File.read(aws_dir('cloudformation', TEMPLATE))
+        filename = aws_dir('cloudformation', TEMPLATE)
+        template_string = File.read(filename)
         availability_zones = Aws::EC2::Client.new.describe_availability_zones.availability_zones.map(&:zone_name)
         azs = availability_zones.map { |zone| zone[-1].upcase }
         @@local_variables = OpenStruct.new(
@@ -240,15 +241,15 @@ module AWS
           update_cookbooks: method(:update_cookbooks),
           update_bootstrap_script: method(:update_bootstrap_script)
         )
-        erb_output = erb_eval(template_string)
-        YAML.load(erb_output).to_json
+        erb_output = erb_eval(template_string, filename)
+        YAML.load(erb_output.tap{|x| puts x}).to_json
       end
 
       # Input string, output ERB-processed file contents in CloudFormation JSON-compatible syntax (using Fn::Join operator).
-      def source(str, vars={})
+      def source(str, filename, vars={})
         local_vars = @@local_variables.dup
         vars.each { |k, v| local_vars[k] = v }
-        lines = erb_eval(str, local_vars).each_line.map do |line|
+        lines = erb_eval(str, filename, local_vars).each_line.map do |line|
           # Support special %{"Key": "Value"} syntax for inserting Intrinsic Functions into processed file contents.
           line.split(/(%{.*})/).map do |x|
             x =~ /%{.*}/ ? JSON.parse(x.gsub(/%({.*})/, '\1')) : x
@@ -259,8 +260,8 @@ module AWS
 
       # Inline a file into a CloudFormation template.
       def file(filename, vars={})
-        str = File.read(aws_dir('cloudformation', filename))
-        source(str, vars)
+        str = File.read(filename.start_with?('/') ? filename : aws_dir('cloudformation', filename))
+        source(str, filename, vars)
       end
 
       # Ref: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-code.html#cfn-lambda-function-code-zipfile
@@ -275,7 +276,7 @@ module AWS
         if str.length > LAMBDA_ZIPFILE_MAX
           raise "Length of JavaScript file '#{filename}' (#{str.length}) cannot exceed #{LAMBDA_ZIPFILE_MAX} characters."
         end
-        source(str)
+        source(str, filename)
       end
 
       # Helper function to call a Lambda-function-based AWS::CloudFormation::CustomResource.
@@ -298,9 +299,9 @@ module AWS
         custom_resource.to_json
       end
 
-      def erb_eval(str, local_vars=nil)
+      def erb_eval(str, filename=nil, local_vars=nil)
         local_vars ||= @@local_variables
-        ERB.new(str, nil, '-').result(local_vars.instance_eval{binding})
+        ERB.new(str, nil, '-').tap{|erb| erb.filename = filename}.result(local_vars.instance_eval{binding})
       end
 
     end

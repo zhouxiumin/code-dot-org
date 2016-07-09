@@ -1,0 +1,48 @@
+# Generates table mappings
+<%
+require 'yaml'
+tables = YAML.load File.read File.expand_path File.join __dir__, 'tables.yml'
+-%>
+---
+<% index = 0 -%>
+rules:
+<%
+whitelist_columns = Hash.new({})
+%w(pegasus dashboard).each do |app|
+  tables[app].each do |table|
+    index += 1
+    if table.is_a?(Hash)
+      table, options = table.first
+      whitelist_columns[app][table] = options['whitelist'] if options['whitelist']
+    end
+-%>
+- rule-name: <%=index%>
+  rule-id: <%=index%>
+  rule-type: selection
+  rule-action: include
+  object-locator:
+    table-name: <%=table%>
+    schema-name: <%=CDO["#{app}_db_name"]%>
+<%end-%>
+
+<%
+  whitelist_columns[app].each do |table, columns|
+    require 'cdo/db'
+    exclude_columns = Object.const_get("#{app.upcase}_DB")[table.to_sym].columns - columns.map(&:to_sym)
+    exclude_columns.each do |column|
+      index += 1
+-%>
+- rule-name: <%=index%>
+  rule-id: <%=index%>
+  rule-type: transformation
+  rule-action: remove-column
+  rule-target: column
+  object-locator:
+    schema-name: <%=CDO["#{app}_db_name"]%>
+    table-name: <%=table%>
+    column-name: <%=column%>
+<%
+    end
+  end
+end
+-%>

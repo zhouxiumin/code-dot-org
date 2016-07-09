@@ -1,0 +1,39 @@
+# Static list of DB tables to include in data sync to Redshift.
+---
+dashboard:
+  - scripts
+  - followers
+  - stages
+  - script_levels
+  - workshops
+  - segments
+  - puzzle_ratings
+  - user_scripts
+  - channel_tokens
+  - levels
+  - user_proficiencies
+  - workshop_attendance
+  - hint_view_requests
+  - authored_hint_view_requests
+  - level_concept_difficulties
+  - survey_results
+  - sections
+  - user_levels
+  - users:
+      whitelist:
+        - id
+        - deleted_at
+        - created_at
+        - updated_at
+        - current_sign_in_at
+        - last_sign_in_at
+        - sign_in_count
+        - admin
+        - user_type
+        - gender
+        - birthday
+        - locale
+        - total_lines
+pegasus:
+  - forms
+  - storage_apps

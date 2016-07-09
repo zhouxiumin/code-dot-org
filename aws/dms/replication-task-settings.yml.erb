@@ -1,0 +1,61 @@
+---
+  ErrorBehavior:
+    FullLoadIgnoreConflicts: true
+    RecoverableErrorCount: 0
+    TableErrorEscalationCount: 50
+    TableErrorEscalationPolicy: STOP_TASK
+    TableErrorPolicy: SUSPEND_TABLE
+    DataErrorEscalationCount: 50
+    DataErrorEscalationPolicy: SUSPEND_TABLE
+    DataTruncationErrorPolicy: LOG_ERROR
+    DataErrorPolicy: LOG_ERROR
+    RecoverableErrorInterval: 5
+    RecoverableErrorThrottling: true
+    RecoverableErrorThrottlingMax: 1800
+    ApplyErrorDeletePolicy: IGNORE_RECORD
+    ApplyErrorInsertPolicy: LOG_ERROR
+    ApplyErrorUpdatePolicy: LOG_ERROR
+    ApplyErrorEscalationPolicy: LOG_ERROR
+    ApplyErrorEscalationCount: 0
+  ChangeProcessingDdlHandlingPolicy:
+    HandleSourceTableAltered: true
+    HandleSourceTableTruncated: true
+    HandleSourceTableDropped: true
+  StreamBufferSettings:
+    CtrlStreamBufferSizeInMB: 5
+    StreamBufferSizeInMB: 8
+    StreamBufferCount: 3
+  ControlTablesSettings:
+    StatusTableEnabled: false
+    SuspendedTablesTableEnabled: false
+    HistoryTableEnabled: false
+    HistoryTimeslotInMinutes: 5
+    ControlSchema: ""
+    historyTimeslotInMinutes: 5
+  Logging:
+    CloudWatchLogStream: {Ref: TableauSyncLogStream}
+    CloudWatchLogGroup: {Ref: TableauSyncLogGroup}
+    LogComponents: []
+    EnableLogging: true
+  FullLoadSettings:
+    CommitRate: 10000
+    TransactionConsistencyTimeout: 600
+    MaxFullLoadSubTasks: 8
+    ResumeOnlyClusteredPKTables: true
+    FullLoadEnabled: true
+    ApplyChangesEnabled: true
+    TargetTablePrepMode: DO_NOTHING
+    CreatePkAfterFullLoad: false
+    StopTaskCachedChangesApplied: false
+    StopTaskCachedChangesNotApplied: false
+    ResumeEnabled: false
+    ResumeMinTableSize: 100000
+  TargetMetadata:
+    BatchApplyEnabled: true
+    LoadMaxFileSize: 0
+    LobMaxSize: 32
+    LimitedSizeLobMode: true
+    LobChunkSize: 0
+    FullLobMode: false
+    SupportLobs: true
+    TargetSchema: ""

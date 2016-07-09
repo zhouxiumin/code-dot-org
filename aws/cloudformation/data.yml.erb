@@ -1,85 +1,26 @@
-<%
-require 'cdo/aws/data_pipeline'
-require 'active_support/inflector'
-require 'active_support/core_ext/object/blank'
-require 'cdo/aws/redshift_table'
-
-tables = %w(
-  scripts
-  followers
-  stages
-  script_levels
-  workshops
-  segments
-  puzzle_ratings
-  user_scripts
-  channel_tokens
-  levels
-  user_proficiencies
-  workshop_attendance
-  hint_view_requests
-  authored_hint_view_requests
-  level_concept_difficulties
-  survey_results
-  sections
-).map do |table|
-  {
-    name: table,
-    db: 'dashboard',
-    schema: 'dashboard'
-  }
-end.concat([
-  {
-    name: 'users',
-    db: 'dashboard',
-    schema: 'dashboard',
-    columns: 'id,deleted_at,created_at,updated_at,current_sign_in_at,last_sign_in_at,sign_in_count,admin,user_type,gender,birthday,locale,total_lines'.split(',')
-  },
-]).concat(%w(
-  storage_apps
-  forms
-).map do |table|
-  {
-    name: table,
-    db: 'pegasus',
-    schema: 'pegasus'
-  }
-end)
-
-tables.each do |table|
-  table[:create_sql] = RedshiftTable.dump(table[:db], table[:schema], table[:name], table[:columns])
-end
-
--%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: Data layer for Tableau including RedShift cluster configuration and scheduled Data Pipeline activities.
+Description: Data layer for Tableau including RedShift cluster configuration and synchronization with RDS instance.
 # Parameters can be provided via CDO.underscored_parameter, e.g. via locals.yml:
 # redshift_password: abcdef
 # Parameters are only required for initial stack creation, and reused if not provided on stack update.
 Parameters:
-  RedshiftPassword:
+  RDSIdentifier:
     Type: String
-    NoEcho: true
+  <% rds = Aws::RDS::Client.new.describe_db_instances(db_instance_identifier: CDO.rds_identifier).db_instances.first -%>
+  # MySQL user must have granted REPLICATION CLIENT and REPLICATION SLAVE permissions.
+  # Ref: http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MySQL.html#CHAP_Source.MySQL.Security
+  RDSUsername:
+    Type: String
   RDSPassword:
     Type: String
     NoEcho: true
   RedshiftUsername:
     Type: String
     Default: dev
-  RDSUsername:
+  RedshiftPassword:
     Type: String
-  RedshiftS3:
-    Type: String
-    Default: 's3://redshift-tableau/Tableau'
-  RedshiftDatabase:
-    Type: String
-    Default: dashboard
-  RDSHostname:
-    Type: String
-  RDSPort:
-    Type: Number
-    Default: 3306
+    NoEcho: true
 Resources:
   VPC: <%= lambda.call 'LookupStackOutputs', StackName: 'VPC', Nonce: 0 %>
   Tableau:
@@ -99,16 +40,90 @@ Resources:
       NodeType: dc1.large
       PubliclyAccessible: true
       VpcSecurityGroupIds: ['Fn::GetAtt': [VPC, RedshiftSecurityGroup]]
-<% %w(dashboard pegasus).map do |app| -%>
-  RDSSync<%=app.camelize%>: <%= AWS::DataPipeline.to_cfn(
-    "rds-to-redshift-#{app}",
-    "Sync RDS-#{app} to Redshift",
-    File.read(aws_dir('cloudformation', 'pipeline.json.erb')),
-    tables: tables.select{|table| table[:db] == app},
-    db_name: app == 'pegasus' ? CDO.pegasus_db_name : CDO.dashboard_db_name,
-    az: azs.first
-  )%>
-<% end -%>
+
+  # RDS Read Replica used as the DMS data source.
+  TableauSyncDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      SourceDBInstanceIdentifier: {Ref: RDSIdentifier}
+      AvailabilityZone: <%=rds.availability_zone%> # Same AZ as the source RDS instance.
+      DBInstanceClass: db.t2.large
+      DBSubnetGroupName: {Ref: DBSubnetGroup}
+      PubliclyAccessible: false
+      Engine: mysql
+      VPCSecurityGroups: ['Fn::GetAtt': [VPC, DBSecurityGroup]]
+      DBParameterGroupName: {Ref: TableauSyncDBParameter}
+  # Custom parameters needed for DMS CDC to work on the RDS instance.
+  # Ref: http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MySQL.html#CHAP_Source.MySQL.Prerequisites
+  TableauSyncDBParameter:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: Compatibility with Data Migration Service's Change Data Capture feature.
+      Family: mysql5.6
+      Parameters:
+        binlog_checksum: NONE
+        binlog_format: ROW
+  # Apply custom parameter group to read replica (using a custom resource step due to API limitations).
+  TableauAttachParameterGroup: <%= lambda.call 'RDSAttachParameterGroup',
+    DependsOn: ['TableauSyncDB', 'TableauSyncDBParameter'],
+    InstanceId: {Ref: 'TableauSyncDB'},
+    ParameterGroup: {Ref: 'TableauSyncDBParameter'}
+  %>
+
+  # Set read replica's backup retention period (using a custom resource step due to API limitations).
+  # This is required for the read replica to itself act as a replication source for CDC.
+  TableauSyncEnableBackups: <%= lambda.call 'RDSEnableBackups',
+    DependsOn: 'TableauSyncDB',
+    InstanceId: {Ref: 'TableauSyncDB'}
+  %>
+
+  # DMS custom resources for configuring a replication task from the RDS read replica to the Redshift cluster for the specified tables:
+  # - DMSSubnetGroup
+  # - DMSReplicationInstance
+  # - DMSEndpoint
+  # - DMSReplicationTask
+  DMSSubnetGroup: <%= lambda.call 'DMSSubnetGroup',
+    Description: 'DMS Private Subnet Group',
+    SubnetIds: azs.map{|az| {Ref: "PrivateSubnet#{az}"}}.to_json
+  %>
+  TableauSyncInstance: <%= lambda.call 'DMSReplicationInstance',
+    VpcSecurityGroupIds: ['Fn::GetAtt' => ['VPC', 'DBSecurityGroup']],
+    ReplicationInstanceClass: 'dms.t2.micro',
+    PubliclyAccessible: false,
+    ReplicationSubnetGroupIdentifier: {Ref: 'DMSSubnetGroup'}
+  %>
+  RDSEndpoint: <%= lambda.call 'DMSEndpoint',
+    Type: 'source',
+    EngineName: 'mysql',
+    ServerName: rds.endpoint.address,
+    Port: rds.endpoint.port,
+    Username: {Ref: 'RDSUsername'},
+    Password: {Ref: 'RDSPassword'}
+  %>
+  RedshiftEndpoint: <%= lambda.call 'DMSEndpoint',
+    Type: 'target',
+    EngineName: 'redshift',
+    ServerName: {'Fn::GetAtt' => ['Tableau', 'Endpoint.Address']},
+    Port: {'Fn::GetAtt' => ['Tableau', 'Endpoint.Port']},
+    Username: {Ref: 'RedshiftUsername'},
+    Password: {Ref: 'RedshiftPassword'}
+  %>
+  TableauSyncTask: <%= lambda.call 'DMSReplicationTask',
+    MigrationType: 'full-load-and-cdc',
+    ReplicationInstanceArn: {Ref: 'TableauSyncInstance'},
+    SourceEndpointArn: {Ref: 'RDSEndpoint'},
+    TargetEndpointArn: {Ref: 'RedshiftEndpoint'},
+    ReplicationTaskSettings: YAML.load(file.call(File.expand_path(File.join(__dir__, '../dms/replication-task-settings.yml.erb')))).to_json,
+    TableMappings: YAML.load(file.call(File.expand_path(File.join(__dir__, '../dms/table-mappings.yml.erb')))).to_json
+  %>
+  TableauSyncLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+  TableauSyncLogStream:
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: {Ref: DMSLogGroup}
 Outputs:
   Redshift:
     Description: Tableau endpoint
@@ -119,8 +134,3 @@ Outputs:
   RedshiftPort:
     Description: Tableau port
     Value: {"Fn::GetAtt": ["Tableau", "Endpoint.Port"]}
-  RedshiftConnectStr:
-    Description: Tableau JDBC connect string
-    Value: {"Fn::Join": ["", [
-      "jdbc:redshift://",{"Fn::GetAtt": ["Tableau", "Endpoint.Address"]},":",{"Fn::GetAtt": ["Tableau", "Endpoint.Port"]},"/",{"Ref": "RedshiftDatabase"},"?tcpKeepAlive=true"
-    ]]}
