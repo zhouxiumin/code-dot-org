@@ -102,6 +102,51 @@ Resources:
                   - "ec2:EnableVpcClassicLinkDnsSupport"
                   - "ec2:DisableVpcClassicLinkDnsSupport"
                 Resource: "*"
+  DMS:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: 'DMS Custom Resource'
+      FunctionName: DMS
+      Code: <%=js_zip.call%>
+      Handler: dms.handler
+      Runtime: nodejs4.3
+      Timeout: 300
+      Role: {'Fn::GetAtt': [DMSRole, Arn]}
+  DMSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: ['sts:AssumeRole']
+            Effect: Allow
+            Principal: {Service: [lambda.amazonaws.com]}
+      Path: '/'
+      Policies:
+      # Ref: http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Security.IAMPermissions.html
+        - PolicyName: root
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"]
+                Resource: "arn:aws:logs:*:*:*"
+              - Effect: Allow
+                Action: ['dms:*']
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'redshift:Describe*'
+                  - 'redshift:ModifyClusterIamRoles'
+                Resource: '*'
+              - Effect: Allow
+                Action: ['kms:listKeys']
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - "iam:GetRole"
+                  - "iam:PassRole"
+                  - "iam:CreateRole"
+                  - "iam:AttachRolePolicy"
+                Resource: '*'
 Outputs:
   LookupStackOutputs:
     Value: {'Fn::GetAtt': [LookupStackOutputs, Arn]}

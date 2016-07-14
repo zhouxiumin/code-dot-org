@@ -15,6 +15,9 @@ Parameters:
   RDSPassword:
     Type: String
     NoEcho: true
+  RedshiftDatabase:
+    Type: String
+    Default: dashboard
   RedshiftUsername:
     Type: String
     Default: dev
@@ -41,66 +44,36 @@ Resources:
       PubliclyAccessible: true
       VpcSecurityGroupIds: ['Fn::GetAtt': [VPC, RedshiftSecurityGroup]]
 
-  # RDS Read Replica used as the DMS data source.
-  TableauSyncDB:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      SourceDBInstanceIdentifier: {Ref: RDSIdentifier}
-      AvailabilityZone: <%=rds.availability_zone%> # Same AZ as the source RDS instance.
-      DBInstanceClass: db.t2.large
-      DBSubnetGroupName: {Ref: DBSubnetGroup}
-      PubliclyAccessible: false
-      Engine: mysql
-      VPCSecurityGroups: ['Fn::GetAtt': [VPC, DBSecurityGroup]]
-      DBParameterGroupName: {Ref: TableauSyncDBParameter}
-  # Custom parameters needed for DMS CDC to work on the RDS instance.
-  # Ref: http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MySQL.html#CHAP_Source.MySQL.Prerequisites
-  TableauSyncDBParameter:
-    Type: AWS::RDS::DBParameterGroup
-    Properties:
-      Description: Compatibility with Data Migration Service's Change Data Capture feature.
-      Family: mysql5.6
-      Parameters:
-        binlog_checksum: NONE
-        binlog_format: ROW
-  # Apply custom parameter group to read replica (using a custom resource step due to API limitations).
-  TableauAttachParameterGroup: <%= lambda.call 'RDSAttachParameterGroup',
-    DependsOn: ['TableauSyncDB', 'TableauSyncDBParameter'],
-    InstanceId: {Ref: 'TableauSyncDB'},
-    ParameterGroup: {Ref: 'TableauSyncDBParameter'}
-  %>
-
-  # Set read replica's backup retention period (using a custom resource step due to API limitations).
-  # This is required for the read replica to itself act as a replication source for CDC.
-  TableauSyncEnableBackups: <%= lambda.call 'RDSEnableBackups',
-    DependsOn: 'TableauSyncDB',
-    InstanceId: {Ref: 'TableauSyncDB'}
-  %>
-
   # DMS custom resources for configuring a replication task from the RDS read replica to the Redshift cluster for the specified tables:
-  # - DMSSubnetGroup
-  # - DMSReplicationInstance
-  # - DMSEndpoint
-  # - DMSReplicationTask
-  DMSSubnetGroup: <%= lambda.call 'DMSSubnetGroup',
-    Description: 'DMS Private Subnet Group',
-    SubnetIds: azs.map{|az| {Ref: "PrivateSubnet#{az}"}}.to_json
+  # - ReplicationSubnetGroup
+  # - ReplicationInstance
+  # - Endpoint
+  # - ReplicationTask
+  DMSSubnetGroup: <%= lambda.call 'DMS',
+    CustomType: 'ReplicationSubnetGroup',
+    ReplicationSubnetGroupDescription: 'DMS Private Subnet Group',
+    SubnetIds: azs.map{|az| {'Fn::GetAtt' => ['VPC', "Subnet#{az}"]}}
   %>
-  TableauSyncInstance: <%= lambda.call 'DMSReplicationInstance',
+
+  TableauSyncInstance: <%= lambda.call 'DMS',
+    CustomType: 'ReplicationInstance',
     VpcSecurityGroupIds: ['Fn::GetAtt' => ['VPC', 'DBSecurityGroup']],
     ReplicationInstanceClass: 'dms.t2.micro',
+    AvailabilityZone: rds.availability_zone, # Same AZ as the source RDS instance.
     PubliclyAccessible: false,
     ReplicationSubnetGroupIdentifier: {Ref: 'DMSSubnetGroup'}
   %>
-  RDSEndpoint: <%= lambda.call 'DMSEndpoint',
+  RDSEndpoint: <%= lambda.call 'DMS',
+    CustomType: 'Endpoint',
     Type: 'source',
     EngineName: 'mysql',
-    ServerName: rds.endpoint.address,
-    Port: rds.endpoint.port,
+    ServerName: {'Fn::GetAtt' => ['TableauSyncDB', 'Endpoint.Address']},
+    Port: {'Fn::GetAtt' => ['TableauSyncDB', 'Endpoint.Port']},
     Username: {Ref: 'RDSUsername'},
     Password: {Ref: 'RDSPassword'}
   %>
-  RedshiftEndpoint: <%= lambda.call 'DMSEndpoint',
+  RedshiftEndpoint: <%= lambda.call 'DMS',
+    CustomType: 'Endpoint'
     Type: 'target',
     EngineName: 'redshift',
     ServerName: {'Fn::GetAtt' => ['Tableau', 'Endpoint.Address']},
@@ -108,14 +81,7 @@ Resources:
     Username: {Ref: 'RedshiftUsername'},
     Password: {Ref: 'RedshiftPassword'}
   %>
-  TableauSyncTask: <%= lambda.call 'DMSReplicationTask',
-    MigrationType: 'full-load-and-cdc',
-    ReplicationInstanceArn: {Ref: 'TableauSyncInstance'},
-    SourceEndpointArn: {Ref: 'RDSEndpoint'},
-    TargetEndpointArn: {Ref: 'RedshiftEndpoint'},
-    ReplicationTaskSettings: YAML.load(file.call(File.expand_path(File.join(__dir__, '../dms/replication-task-settings.yml.erb')))).to_json,
-    TableMappings: YAML.load(file.call(File.expand_path(File.join(__dir__, '../dms/table-mappings.yml.erb')))).to_json
-  %>
+
   TableauSyncLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -123,7 +89,17 @@ Resources:
   TableauSyncLogStream:
     Type: AWS::Logs::LogStream
     Properties:
-      LogGroupName: {Ref: DMSLogGroup}
+      LogGroupName: {Ref: TableauSyncLogGroup}
+  TableauSyncTask: <%= lambda.call 'DMS',
+    CustomType: 'ReplicationTask',
+    MigrationType: 'full-load-and-cdc',
+    ReplicationInstanceArn: {Ref: 'TableauSyncInstance'},
+    SourceEndpointArn: {Ref: 'RDSEndpoint'},
+    TargetEndpointArn: {Ref: 'RedshiftEndpoint'},
+    ReplicationTaskSettings: YAML.load(file.call(File.expand_path(File.join(__dir__, '../dms/replication-task-settings.yml.erb')))).to_json,
+    TableMappings: YAML.load(file.call(File.expand_path(File.join(__dir__, '../dms/table-mappings.yml.erb')))).to_json
+  %>
+
 Outputs:
   Redshift:
     Description: Tableau endpoint
