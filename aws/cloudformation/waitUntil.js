@@ -1,15 +1,10 @@
 'use strict';
 
 /**
- * @file AWS Lambda Custom Resource for CRUD operations on DMS resources.
- * @see {@link http://docs.aws.amazon.com/dms/latest/APIReference|DMS API Reference}
- * @see {@link http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DMS.html|DMS JavaScript SDK Reference}
+ * @file Long polling using Lambda function and delayed invocations.
  */
 
-// This module is automatically provided to ZipFile-based Lambda functions.
-// Ref: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-code.html#cfn-lambda-function-code-cfnresponsemodule
 const response = require('./cfn-response');
-const crypto = require('crypto');
 const AWS = require("aws-sdk");
 
 function parseJson(str) {

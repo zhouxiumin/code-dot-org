@@ -13,3 +13,4 @@ deploy-*.log
 /.website-ci-built
 /.websites-built
 /.websites-test-built
+/cloudformation/node_modules
