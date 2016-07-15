@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "license": "apache-2.0",
   "dependencies": {
-    "async": "^2.0.0",
-    "aws-sdk": "^2.4.7"
+    "aws-sdk": "wjordan/aws-sdk-js#dms-waiters"
   }
 }

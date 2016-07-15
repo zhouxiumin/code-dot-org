@@ -147,6 +147,10 @@ Resources:
                   - "iam:CreateRole"
                   - "iam:AttachRolePolicy"
                 Resource: '*'
+              # allow recursive calls
+              - Effect: Allow
+                Action: ['lambda:InvokeFunction']
+                Resource: '*'
 Outputs:
   LookupStackOutputs:
     Value: {'Fn::GetAtt': [LookupStackOutputs, Arn]}

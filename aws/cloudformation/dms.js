@@ -6,8 +6,6 @@
  * @see {@link http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DMS.html|DMS JavaScript SDK Reference}
  */
 
-// This module is automatically provided to ZipFile-based Lambda functions.
-// Ref: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-code.html#cfn-lambda-function-code-cfnresponsemodule
 const response = require('./cfn-response');
 const crypto = require('crypto');
 const AWS = require("aws-sdk");
@@ -45,17 +43,23 @@ function handle(event, context) {
     globalError(event, context, err, msg, physicalId);
   }
 
+  function success() {
+    response.send(event, context, response.SUCCESS, responseData, physicalId, '');
+  }
+
   function randomHex(len) {
     return require('crypto').randomBytes(len / 2).toString('hex').toUpperCase();
   }
 
   try {
     for(let x in props) {
+      // Specific properties require a JSON string instead of a parsed JSON object.
       if(x == 'TableMappings' || x == 'ReplicationTaskSettings') { continue; }
       props[x] = parseJson(props[x]);
     }
   } catch (e) {
     error(e);
+    return;
   }
 
   const configMap = {
@@ -63,17 +67,26 @@ function handle(event, context) {
     ReplicationInstance: {
       suffix: 'ReplicationInstance',
       createId: 'ReplicationInstanceIdentifier',
-      id: 'ReplicationInstanceArn'
+      id: 'ReplicationInstanceArn',
+      waiter: 'replicationInstanceAvailable',
+      deleteWaiter: 'replicationInstanceDeleted',
+      waiterFilter: 'replication-instance-arn'
     },
     Endpoint: {
       suffix: 'Endpoint',
       createId: 'EndpointIdentifier',
-      id: 'EndpointArn'
+      id: 'EndpointArn',
+      waiter: 'endpointActive',
+      deleteWaiter: 'endpointDeleted',
+      waiterFilter: 'endpoint-arn'
     },
     ReplicationTask: {
       suffix: 'ReplicationTask',
       createId: 'ReplicationTaskIdentifier',
-      id: 'ReplicationTaskArn'
+      id: 'ReplicationTaskArn',
+      waiter: 'replicationTaskReady',
+      deleteWaiter: 'replicationTaskDeleted',
+      waiterFilter: 'replication-task-arn'
     },
     ReplicationSubnetGroup: {
       suffix: 'ReplicationSubnetGroup',
@@ -85,6 +98,7 @@ function handle(event, context) {
 
   if (!config) {
     error(null, `${resourceType} is not a valid resource type`);
+    return;
   }
 
   // Valid RequestTypes: "Create", "Delete", "Update".
@@ -100,15 +114,21 @@ function handle(event, context) {
 
   let method = '';
   let params = props;
-  if (requestType == "Create") {
+  if (event.waiting) {
+    wait();
+  } else if (requestType == "Create") {
     params[config.createId || config.id] = newPhysicalId;
     method = 'create' + config.suffix;
     client[method](params, function(err, data) {
       if (err) {
         error(err, 'error in ' + method);
       } else {
-        physicalId = data[config.suffix][config.id];
-        response.send(event, context, response.SUCCESS, responseData, physicalId, '');
+        physicalId = event.PhysicalResourceId = data[config.suffix][config.id];
+        if (config.waiter) {
+          wait();
+        } else {
+          success();
+        }
       }
     });
   } else if (requestType == "Delete") {
@@ -117,13 +137,54 @@ function handle(event, context) {
     method = "delete" + config.suffix;
     client[method](params, function(err, data) {
       if (err) {
-        console.log("Error in " + method + ":", err);
+        if (err.code == "ResourceNotFoundFault") {
+          success();
+        } else if (err.code == "InvalidParameterValueException") {
+          console.log(`error in ${method}: ${err.message}`);
+          success();
+        } else {
+          error(err, 'error in ' + method);
+        }
+      } else if (config.deleteWaiter) {
+        wait();
+      } else {
+        success();
       }
-      // Always return success on delete, so stack doesn't get stuck.
-      response.send(event, context, response.SUCCESS, responseData, physicalId, '');
     });
   } else {
     error(null, "Invalid RequestType: " + requestType);
+  }
+
+  // Execute a waiter and recurse if it doesn't complete before the timeout.
+  function wait() {
+  try {
+    let state = requestType == "Create" ? config.waiter : config.deleteWaiter;
+    event.waiting = true;
+    params = {
+      Filters: [{
+          Name: config.waiterFilter,
+          Values: [physicalId]
+      }]
+    };
+    client.waitFor(state, params, (err, data) => {
+      if (err) { error(err, 'error in ' + method);}
+      else success();
+    });
+    setTimeout(() => {
+     console.log("Timeout reached, re-executing function");
+     let lambda = new AWS.Lambda();
+      lambda.invoke({
+        FunctionName: context.invokedFunctionArn,
+        InvocationType: 'Event',
+        Payload: JSON.stringify(event)
+      }, (err, data) => {
+        if (err) { error(err, 'error in lambda recurse'); }
+        else context.done();
+      });
+    }, context.getRemainingTimeInMillis() - 1000);
+    } catch (e) {
+      globalError(event, context, e, '');
+    }
   }
 }
 

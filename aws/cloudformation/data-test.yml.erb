@@ -33,7 +33,6 @@ Resources:
     ReplicationSubnetGroupDescription: 'DMS Private Subnet Group',
     SubnetIds: azs.map{|az| {'Fn::GetAtt' => ['VPC', "Subnet#{az}"]}}
   %>
-
   TableauSyncInstance: <%= lambda.call 'DMS',
     CustomType: 'ReplicationInstance',
     VpcSecurityGroupIds: [{'Fn::GetAtt' => ['VPC', 'DBSecurityGroup']}],
@@ -42,7 +41,6 @@ Resources:
     PubliclyAccessible: false,
     ReplicationSubnetGroupIdentifier: {Ref: 'DMSSubnetGroup'}
   %>
-
   RDSEndpoint: <%= lambda.call 'DMS',
     CustomType: 'Endpoint',
     EndpointType: 'source',
@@ -79,20 +77,3 @@ Resources:
     ReplicationTaskSettings: YAML.load(erb.call(File.expand_path(File.join(__dir__, '../dms/replication-task-settings.yml.erb')))).to_json,
     TableMappings: YAML.load(erb.call(File.expand_path(File.join(__dir__, '../dms/table-mappings.yml.erb')))).to_json
   %>
-
-  ScheduledRule:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: ScheduledRule
-      ScheduleExpression: rate(10 minutes)
-      State: ENABLED
-      Targets:
-      - Arn: {"Fn::GetAtt": [LambdaFunction, Arn]}
-        Id: TargetFunctionV1
-  PermissionForEventsToInvokeLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: {Ref: LambdaFunction}
-      Action: lambda:InvokeFunction
-      Principal: events.amazonaws.com
-      SourceArn: {"Fn::GetAtt": [ScheduledRule, Arn]}

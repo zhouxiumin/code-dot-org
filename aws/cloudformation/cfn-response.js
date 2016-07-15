@@ -6,7 +6,7 @@ exports.send = function(event, context, responseStatus, responseData, physicalRe
 
   // If this lambda function does not have permissions to CloudWatch Logs
   // a PhysicalResourceId is still needed to send to CloudFormation.
-  if (event.RequestType === 'Create' && responseStatus === exports.FAILED) {
+  if (responseStatus === exports.FAILED) {
     physicalResourceId = physicalResourceId || exports.FAILED;
   }
 
