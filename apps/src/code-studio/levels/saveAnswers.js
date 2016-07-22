@@ -36,7 +36,7 @@ function saveAnswers(completeFn, beforeHook, subLevelId) {
     var submitted = appOptions.submitted;
 
     window.dashboard.reporting.sendReport({
-      program: response,
+      program: encodeURIComponent(response),
       fallbackResponse: appOptions.dialog.fallbackResponse,
       callback: appOptions.dialog.callback,
       app: appOptions.dialog.app,
