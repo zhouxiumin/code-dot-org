@@ -24,7 +24,6 @@ Scenario: Opening the function editor and hitting the ESC key should close the e
   When I press SVG selector ".blocklyIconGroup:contains(edit)"
   And I wait to see "#modalEditorClose"
   And the modal function editor is open
-  Then I press keys ":escape" for element "body"
   And the modal function editor is closed
 
 @chrome
@@ -34,8 +33,4 @@ Scenario: Opening / closing the function editor, shouldn't be able to connect to
   And I press "modalEditorClose"
 
   And "invisible repeat loop within function" refers to block "43"
-  And I open the blockly category with ID "1"
-  And "move forward in toolbox" refers to block "51"
-  And I drag block "move forward in toolbox" into first position in repeat block "invisible repeat loop within function"
-  And "move forward on blockspace" refers to block "59"
   And block "move forward on blockspace" is not child of block "invisible repeat loop within function"

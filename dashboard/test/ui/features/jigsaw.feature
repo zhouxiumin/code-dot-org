@@ -35,4 +35,4 @@ Scenario: Can't delete blocks or lose them outside the workspace
 Scenario: Solving puzzle
   And I drag "[block-id=1]" to "rect[fill-opacity='0.2']"
   Then I wait to see ".modal"
-  And element ".modal .congrats" contains text "You completed Puzzle 1"
+  And element ".modal .congrats" contains text "You ASDASDSDS Dcompleted Puzzle 1"

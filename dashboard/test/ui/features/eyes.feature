@@ -31,6 +31,7 @@ Scenario:
   And I see no difference for "closed dialog"
   And I press "runButton"
   And I hold key "LEFT"
+  And I see no difference for "THIS IS A NEW STEP"
   And I wait to see ".congrats"
   And element ".congrats" is visible
   And I see no difference for "freeplay artist level completion"
@@ -42,8 +43,8 @@ Scenario:
   And I am on "http://studio.code.org/s/playlab/stage/1/puzzle/10?noautoplay=true"
   When I rotate to landscape
   And I see no difference for "initial load"
-  And I close the dialog
   And I see no difference for "closed dialog"
+  And I close the dialog
   And I press "runButton"
   And I press "finishButton"
   And I hold key "LEFT"
