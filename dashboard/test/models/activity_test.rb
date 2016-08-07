@@ -62,7 +62,7 @@ class ActivityTest < ActiveSupport::TestCase
 
     # The new activity returned by create_async doesn't have an id yet, but it should
     # have other attributes.
-    assert_equal 5, activity.id
+    assert_equal activity.id
     assert_equal time.to_i, activity.created_at.to_i
     assert_equal time.to_i, activity.updated_at.to_i
     assert_equal student.id, activity.user_id
