@@ -16,6 +16,7 @@ require 'cdo/aws/s3'
 raise 'Test helper must only be used in `test` environment!' unless rack_env? :test
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
+Minitest::Ci.clean = false
 WebMock.disable_net_connect!
 
 VCR.configure do |c|
