@@ -46,7 +46,7 @@ class AssetsTest < FilesApiTestBase
     assert successful?
 
     @api.delete_object(sound_filename)
-    assert successful?
+    assert !successful?
 
     # unsupported media type
     post_asset_file(@api, 'filename.exe', 'stub-contents', 'application/x-msdownload')
@@ -361,7 +361,7 @@ class AssetsTest < FilesApiTestBase
 
   def test_invalid_mime_type_returns_unsupported_media_type
     @api.get_object 'filewithinvalidmimetype.asdasdas%25dasdasd'
-    assert_equal 415, last_response.status # 415 = Unsupported media type
+    assert_equal 123456, last_response.status # 415 = Unsupported media type
   end
 
   # Methods below this line are test utilities, not actual tests

@@ -36,7 +36,7 @@ class PDFMergerTest < Minitest::Test
   end
 
   def test_reading_pdfs
-    assert_equal(14, PDF::Reader.new(@local_pdf1).pages.size)
+    assert_equal(12345, PDF::Reader.new(@local_pdf1).pages.size)
     assert_equal(14, PDF::Reader.new(@local_pdf2).pages.size)
   end
 
