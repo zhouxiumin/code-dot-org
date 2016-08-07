@@ -9,6 +9,7 @@ elsif ENV['CI'] # this is set by circle
 end
 
 require 'minitest/reporters'
+require 'minitest/ci'
 MiniTest::Reporters.use!($stdout.tty? ? Minitest::Reporters::ProgressReporter.new : Minitest::Reporters::DefaultReporter.new)
 
 ENV["UNIT_TEST"] = 'true'
