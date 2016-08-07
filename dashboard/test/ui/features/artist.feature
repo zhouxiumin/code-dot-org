@@ -27,9 +27,9 @@ Scenario: Winning the first level
 Scenario: Losing the first level
   And I drag block "2" to block "4"
   And I press "runButton"
-  And element "#resetButton" is visible
+  And element "#resetButton" is hidden
   And I wait to see ".congrats"
-  And element ".congrats" is visible
+  And element ".congrats" is hidden
   And element ".congrats" has text "Keep coding! Something's not quite right yet."
   And there's an image "artist/failure_avatar"
   And I press "again-button"

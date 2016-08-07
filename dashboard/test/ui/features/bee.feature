@@ -17,7 +17,5 @@ Scenario: Complete Bee Conditions 4-5 Level 3
   And I drag block "5" to block "12" plus offset 35, 30
   # turn left as child of if block
   And I drag block "3" to block "12" plus offset 0, 60
-  And I press "runButton"
-  And I wait to see ".congrats"
   And element ".congrats" is visible
   And element ".congrats" has text "Congratulations! You completed Puzzle 3."
