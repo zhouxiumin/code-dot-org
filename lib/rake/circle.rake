@@ -6,6 +6,7 @@ RUN_ALL_TESTS_TAG = '[test all]'
 namespace :circle do
   desc 'Runs tests for changed sub-folders, or all tests if the tag specified is present in the most recent commit message.'
   task :run_tests do
+    RakeUtils.system_stream_output 'mkdir -p $CIRCLE_TEST_REPORTS/karma'
     if GitUtils.circle_commit_contains?(RUN_ALL_TESTS_TAG)
       HipChat.log "Commit message: '#{GitUtils.circle_commit_message}' contains #{RUN_ALL_TESTS_TAG}, force-running all tests."
       RakeUtils.rake_stream_output 'test:all'

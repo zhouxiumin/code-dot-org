@@ -66,7 +66,7 @@ module.exports = function (config) {
     reporters: reporters,
 
     junitReporter: {
-      outputDir: envConstants.CIRCLECI ? envConstants.CIRCLE_TEST_REPORTS : '',
+      outputDir: envConstants.CIRCLECI ? envConstants.CIRCLE_TEST_REPORTS + '/karma' : '',
     },
     coverageReporter: {
       dir: 'coverage',
