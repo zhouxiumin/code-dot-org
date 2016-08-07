@@ -429,6 +429,7 @@ Parallel.map(lambda { browser_features.pop || Parallel::Stop }, :in_processes =>
 
   if ENV['CI']
     arguments += " --format json --out $CIRCLE_TEST_REPORTS/cucumber/#{test_run_string}.cucumber"
+    arguments += " --format json --out #{test_run_string}.cucumber"
   end
 
   FileUtils.rm rerun_filename, force: true
