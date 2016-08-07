@@ -6,13 +6,6 @@ GIT
     active_model_serializers (0.10.0.pre)
       activemodel (>= 4.0)
 
-GIT
-  remote: https://github.com/circleci/minitest-ci.git
-  revision: 1e655bbfeafe9120db9a527794fa1125e3d99081
-  specs:
-    minitest-ci (3.0.4.pre)
-      minitest (~> 5.0, >= 5.0.6)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -302,6 +295,8 @@ GEM
     minitest (5.8.4)
     minitest-around (0.3.2)
       minitest (~> 5.0)
+    minitest-ci (3.0.3)
+      minitest (~> 5.0, >= 5.0.6)
     minitest-reporters (1.0.19)
       ansi
       builder
@@ -639,7 +634,7 @@ DEPENDENCIES
   mini_magick
   minitest (~> 5.5)
   minitest-around
-  minitest-ci!
+  minitest-ci
   minitest-reporters
   mocha
   mysql2 (~> 0.3.13)
