@@ -9,8 +9,11 @@ elsif ENV['CI'] # this is set by circle
 end
 
 require 'minitest/reporters'
-require 'minitest/ci'
-Minitest::Ci.clean = false
+if ENV['CI']
+  require 'minitest/ci'
+  Minitest::Ci.clean = false
+  Minitest::Ci.report_dir = "#{ENV['CIRCLE_TEST_REPORTS']}/dashboard"
+end
 MiniTest::Reporters.use!($stdout.tty? ? Minitest::Reporters::ProgressReporter.new : Minitest::Reporters::DefaultReporter.new)
 
 ENV["UNIT_TEST"] = 'true'

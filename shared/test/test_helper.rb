@@ -5,7 +5,6 @@ ENV['RACK_ENV'] = 'test'
 require 'minitest/autorun'
 require 'rack/test'
 require 'minitest/reporters'
-require 'minitest/ci'
 require 'minitest/around/unit'
 require 'webmock'
 require 'vcr'
@@ -15,8 +14,14 @@ require 'cdo/aws/s3'
 
 raise 'Test helper must only be used in `test` environment!' unless rack_env? :test
 
+if ENV['CI']
+  require 'minitest/ci'
+  Minitest::Ci.clean = false
+  Minitest::Ci.report_dir = "#{ENV['CIRCLE_TEST_REPORTS']}/shared-and-pegasus"
+end
+
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
-Minitest::Ci.clean = false
+
 WebMock.disable_net_connect!
 
 VCR.configure do |c|

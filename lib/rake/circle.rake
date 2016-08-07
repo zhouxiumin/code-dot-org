@@ -16,7 +16,8 @@ namespace :circle do
 
   desc 'Runs UI tests only if the tag specified is present in the most recent commit message.'
   task :run_ui_tests do
-    RakeUtils.exec_in_background 'mkdir -p $CIRCLE_TEST_REPORTS/minitest'
+    RakeUtils.exec_in_background 'mkdir -p $CIRCLE_TEST_REPORTS/shared-and-pegasus'
+    RakeUtils.exec_in_background 'mkdir -p $CIRCLE_TEST_REPORTS/dashboard'
     RakeUtils.exec_in_background 'RACK_ENV=test RAILS_ENV=test ./bin/dashboard-server'
     RakeUtils.system_stream_output 'wget https://saucelabs.com/downloads/sc-4.3.15-linux.tar.gz'
     RakeUtils.system_stream_output 'tar -xzf sc-4.3.15-linux.tar.gz'
