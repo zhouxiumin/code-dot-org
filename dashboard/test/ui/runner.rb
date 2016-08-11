@@ -161,7 +161,7 @@ opt_parser = OptionParser.new do |opts|
 end
 
 opt_parser.parse!(ARGV)
-passed_features = ARGV + ($options.feature || [])
+passed_features = $options.feature || []
 # Standardize: Drop leading dot-slash on feature paths
 passed_features.map! {|feature| feature.gsub(/^\.\//, '')}
 
