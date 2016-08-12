@@ -442,7 +442,7 @@ Parallel.map(lambda { browser_features.pop || Parallel::Stop }, parallel_config)
   end
 
   if ENV['CI']
-    arguments += " --format json --out $CIRCLE_TEST_REPORTS/cucumber/#{test_run_string}.cucumber"
+    arguments += " --format junit --out $CIRCLE_TEST_REPORTS/cucumber/#{test_run_string}.xml"
   end
 
   FileUtils.rm rerun_filename, force: true
