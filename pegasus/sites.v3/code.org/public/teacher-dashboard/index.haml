@@ -12,6 +12,7 @@ title: <%= I18n.t('dashboard_landing_title').inspect %>
 %link(rel='stylesheet' type='text/css' href='/style.css')
 %link(rel='stylesheet' type='text/css' href='/css/page.css')
 %link(rel='stylesheet' type='text/css' href='/shared/css/course-blocks.css')
+%link(rel='stylesheet' type='text/css' href='/shared/css/teacher-announcement.css')
 %link(rel='stylesheet' type='text/css' href='/shared/css/teacher-dashboard.css')
 %link(rel='stylesheet' type='text/css' href='/shared/css/user-progress.css')
 
@@ -945,12 +946,14 @@ title: <%= I18n.t('dashboard_landing_title').inspect %>
         }
       });
 
-      // Sort by stage, question.
+      // Sort by stage, question, result text.
       surveyResults.sort(function (a, b) {
         if (a.stage !== b.stage) {
           return a.stage - b.stage;
-        } else {
+        } else if (a.question !== b.question) {
           return a.question - b.question;
+        } else {
+          return a.resultText - b.resultText;
         }
       });
 
