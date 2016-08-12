@@ -19,3 +19,11 @@ end
 After('@as_student') do
   steps 'When I sign out'
 end
+
+Around do |scenario, block|
+  begin
+    block.call
+  rescue => e
+    fail e.message
+  end
+end
