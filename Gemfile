@@ -64,7 +64,7 @@ group :development, :test do
   gem 'fakeredis', require: false
 
   # for ui testing
-  gem 'cucumber'
+  gem 'cucumber', '~> 2.4'
   gem 'selenium-webdriver', '~> 2.45.0'
   gem 'net-http-persistent'
   gem 'rspec'
