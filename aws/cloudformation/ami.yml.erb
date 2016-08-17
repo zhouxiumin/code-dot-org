@@ -5,7 +5,13 @@ unless dry_run
 end
 
 # Nonce value for AMI resources. Change this value to generate a new base AMI on the next CloudFormation update.
-ami = 1
+ami = 2
+# Reuse an existing AMI on update.
+old_ami = 1
+
+image_id = Aws::CloudFormation::Client.new.describe_stack_resource(
+  stack_name: stack_name, logical_resource_id: "AMI#{old_ami}"
+).stack_resource_detail.physical_resource_id if defined?(old_ami)
 -%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
