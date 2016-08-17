@@ -103,15 +103,14 @@ export default class BoardController {
     const componentConstructors = {
       Led: five.Led,
       Board: five.Board,
-      RGB: five.Led.RGB,
+      RGBs: five.Led.RGBs,
       Button: five.Button,
       Switch: five.Switch,
       Piezo: five.Piezo,
       Thermometer: five.Thermometer,
       Sensor: five.Sensor,
       Pin: five.Pin,
-      CapTouch: PlaygroundIO.CapTouch,
-      Tap: PlaygroundIO.Tap,
+      Touchpad: five.Touchpad,
       Accelerometer: five.Accelerometer,
       TouchSensor: TouchSensor
     };

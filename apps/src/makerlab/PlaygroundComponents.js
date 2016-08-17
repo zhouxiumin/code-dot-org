@@ -20,10 +20,10 @@ import _ from 'lodash';
  * @returns {Object.<String, Object>} board components
  */
 export function initializeCircuitPlaygroundComponents(io, five, PlaygroundIO) {
-  const colorLeds = _.range(N_COLOR_LEDS).map(index => new five.Led.RGB({
+  const colorLeds = new five.Led.RGBs({
     controller: PlaygroundIO.Pixel,
-    pin: index
-  }));
+    pins: _.range(N_COLOR_LEDS)
+  });
 
   /**
    * Must initialize sound sensor BEFORE left button, otherwise left button
@@ -54,19 +54,12 @@ export function initializeCircuitPlaygroundComponents(io, five, PlaygroundIO) {
     return accelerometer[accelerationDirection];
   };
 
-  const capTouch = new PlaygroundIO.CapTouch(io);
-  const touchSensors = {};
-  _.each(TOUCH_PINS, (index) => {
-    touchSensors[`touchSensor${index}`] = new TouchSensor(index, capTouch);
-  });
-
   const lightSensor = new five.Sensor({
     pin: "A5",
     freq: 100
   });
   const tempSensor = new five.Thermometer({
-    controller: "TINKERKIT",
-    pin: "A0",
+    controller: PlaygroundIO.Thermometer,
     freq: 100
   });
 
@@ -74,7 +67,7 @@ export function initializeCircuitPlaygroundComponents(io, five, PlaygroundIO) {
     addSensorFeatures(five.Board.fmap, s);
   });
 
-  return _.assign({}, touchSensors, {
+  return _.assign({}, {
     colorLeds: colorLeds,
 
     led: new five.Led(13),
@@ -92,9 +85,10 @@ export function initializeCircuitPlaygroundComponents(io, five, PlaygroundIO) {
 
     accelerometer: accelerometer,
 
-    tap: new PlaygroundIO.Tap(io),
-
-    touch: capTouch,
+    touch: new five.Touchpad({
+      controller: PlaygroundIO.Touchpad,
+      pads: [0, 10]
+    }),
 
     soundSensor: soundSensor,
 
