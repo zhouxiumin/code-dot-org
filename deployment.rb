@@ -188,6 +188,10 @@ class CDOImpl < OpenStruct
 
   def site_url(domain, path = '', scheme = '')
     host = canonical_hostname(domain)
+    if ENV['CI']
+      port = ['studio.code.org'].include?(domain) ? CDO.dashboard_port : CDO.pegasus_port
+      host += ":#{port}"
+    end
     if rack_env?(:development) && !CDO.https_development
       port = ['studio.code.org'].include?(domain) ? CDO.dashboard_port : CDO.pegasus_port
       host += ":#{port}"
