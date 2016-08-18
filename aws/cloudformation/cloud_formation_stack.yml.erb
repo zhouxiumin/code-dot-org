@@ -146,7 +146,7 @@ Resources:
           resource_id: 'WebServer',
           node_name: 'fe-${INSTANCE_ID}',
           run_list: ['role[front-end]'],
-          commit: `git ls-remote origin #{branch} | cut -f1`.strip )%>
+          commit: (ENV['COMMIT'] || `git ls-remote origin #{branch} | cut -f1`.strip) )%>
   WebServerHook:
     Type: AWS::AutoScaling::LifecycleHook
     Properties:
@@ -236,11 +236,11 @@ Resources:
   FileSystem:
     Type: AWS::EFS::FileSystem
 <% azs.each do |az| %>
-  FileSystemMount<%=az%>
+  FileSystemMount<%=az%>:
     Type: AWS::EFS::MountTarget
     Properties:
       FileSystemId: {Ref: FileSystem}
-      SubnetId: {'Fn::GetAtt' => ['VPC', "Subnet#{az}"]}}
+      SubnetId: {'Fn::GetAtt': [VPC, Subnet<%=az%>]}
       SecurityGroups: ['Fn::GetAtt': [VPC, EFSSecurityGroup]]
 <% end -%>
 Outputs:
