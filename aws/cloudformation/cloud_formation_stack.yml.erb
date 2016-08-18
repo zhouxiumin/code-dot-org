@@ -252,18 +252,6 @@ Resources:
       ReceiveMessageWaitTimeSeconds: 20
       VisibilityTimeout: 15
       QueueName: <%="activities_dead-#{stack_name}"%>
-<% if false -%>
-  FileSystem:
-    Type: AWS::EFS::FileSystem
-<% azs.each do |az| -%>
-  FileSystemMount<%=az%>:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: {Ref: FileSystem}
-      SubnetId: {'Fn::GetAtt': [VPC, Subnet<%=az%>]}
-      SecurityGroups: ['Fn::GetAtt': [VPC, EFSSecurityGroup]]
-<% end -%>
-<% end -%>
 Outputs:
   DashboardURL:
     Value: "https://dashboard-<%=subdomain%>"

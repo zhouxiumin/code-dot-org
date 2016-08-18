@@ -1,0 +1,24 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: EFS shared filesystem service layer.
+Resources:
+  VPC: <%= lambda_fn.call 'LookupStackOutputs', StackName: 'VPC', Nonce: 0 %>
+  FileSystem:
+    Type: AWS::EFS::FileSystem
+<% azs.each do |az| -%>
+  FileSystemMount<%=az%>:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: {Ref: FileSystem}
+      SubnetId: {'Fn::GetAtt': [VPC, Subnet<%=az%>]}
+      SecurityGroups: ['Fn::GetAtt': [VPC, EFSSecurityGroup]]
+<% end -%>
+Outputs:
+  FileSystem:
+    Description: EFS FileSystem
+    Value: {Ref: FileSystem}
+<% azs.each do |az| -%>
+  FileSystemMount<%=az%>:
+    Description: EFS FileSystem mount <%=az%>
+    Value: {Ref: FileSystemMount<%=az%>}
+<% end -%>

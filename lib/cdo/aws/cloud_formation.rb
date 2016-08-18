@@ -63,6 +63,7 @@ module AWS
         template = json_template(dry_run: true)
         CDO.log.info JSON.pretty_generate(JSON.parse(template))
         template_info = string_or_url(template)
+        CDO.log.info "Stack name: #{STACK_NAME}"
         CDO.log.info cfn.validate_template(template_info).description
         CDO.log.info "Parameters: #{parameters(template).join("\n")}"
 
