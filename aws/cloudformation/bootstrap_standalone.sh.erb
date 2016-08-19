@@ -25,6 +25,8 @@ HOME_DIR=/home/ubuntu/${ENVIRONMENT}
 # Bootstrap prerequisites
 apt-get -qq update
 apt-get -qq -y install python3-pip jq curl
+apt-get -qq -y install nfs-common
+
 pip3 show -q awscli || pip3 install -q awscli
 
 STACK=<%=stack_name%>
@@ -35,7 +37,16 @@ SUBDOMAIN=<%=subdomain%>
 S3_BUCKET=<%=s3_bucket%>
 REGION=<%=region%>
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
 NODE_NAME=<%=rack_env%>-${INSTANCE_ID}
+
+# Mount EFS
+EFS_ID=%{"Fn::GetAtt": ["EFS", "FileSystem"]}
+EFS_SRC=$AZ.$EFS_ID.efs.$REGION.amazonaws.com
+EFS_TARGET=/mnt/efs
+mkdir -p $EFS_TARGET
+mount -t nfs4 -o vers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 $EFS_SRC:/ $EFS_TARGET
+chown ubuntu: $EFS_TARGET
 
 # Install AWS CloudWatch Logs
 # Ref: http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/EC2NewInstanceCWL.html
