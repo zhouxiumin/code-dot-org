@@ -44,6 +44,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'puma'
   gem 'rack-cache'
   # Use debugger
   #gem 'debugger' unless ENV['RM_INFO']
