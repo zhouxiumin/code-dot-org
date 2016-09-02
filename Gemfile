@@ -39,11 +39,11 @@ group :development do
   gem 'rack-mini-profiler'
   gem 'rerun', '~> 0.10.0'
   gem 'shotgun'
-  gem 'thin'
   gem 'web-console'
 end
 
 group :development, :test do
+  gem 'thin'
   gem 'rack-cache'
   # Use debugger
   #gem 'debugger' unless ENV['RM_INFO']
