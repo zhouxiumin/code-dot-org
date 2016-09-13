@@ -17,7 +17,8 @@ describe('FirebaseStorage', () => {
       },
       maxRecordSize: 100,
       maxPropertySize: 100,
-      maxTableRows: 20
+      maxTableRows: 20,
+      maxTableCount: 3
     }).then(() => {
       getDatabase(Applab.channelId).set(null);
     });
@@ -99,6 +100,42 @@ describe('FirebaseStorage', () => {
         },
         error => {throw error;});
     });
+
+    it('cant create more than maxTableCount tables', done => {
+      FirebaseStorage.createRecord(
+        'table1',
+        {name: 'bob'},
+        createTable2,
+        error => {throw error;});
+
+      function createTable2() {
+        FirebaseStorage.createRecord(
+          'table2',
+          {name: 'bob'},
+          createTable3,
+          error => {throw error;});
+      }
+
+      function createTable3() {
+        FirebaseStorage.createRecord(
+          'table3',
+          {name: 'bob'},
+          createTable4,
+          error => {throw error;});
+      }
+
+      function createTable4() {
+        FirebaseStorage.createRecord(
+          'table4',
+          {name: 'bob'},
+          () => {throw "unexpectedly allowed to create 4th table";},
+          error => {
+            expect(error.indexOf('maximum number of tables') !== -1).to.be.true;
+            done();
+          });
+      }
+    });
+
   });
 
   describe('deleteRecord', () => {
@@ -175,6 +212,109 @@ describe('FirebaseStorage', () => {
           // MockFirebase doesn't enforce security rules, so explicitly verify that the
           // row count is set to a legal value.
           expect(snapshot.val()).to.equal(0);
+          done();
+        });
+      }
+    });
+  });
+
+  /**
+   * Verifies the table has no records but that an entry for it exists in counters,
+   * then calls the callback.
+   * @param {function} callback
+   */
+  function verifyEmptyTable(callback) {
+    const rowCountRef = getDatabase(Applab.channelId).child('counters/tables/mytable/rowCount');
+    rowCountRef.once('value').then(snapshot => {
+      expect(snapshot.val()).to.equal(0);
+      const recordsRef = getDatabase(Applab.channelId).child('storage/tables/mytable/records');
+      return recordsRef.once('value');
+    }).then(snapshot => {
+      expect(snapshot.val()).to.equal(null);
+      callback();
+    });
+  }
+
+  describe('createTable', () => {
+    it('creates a table but not a record', done => {
+      FirebaseStorage.createTable(
+        'mytable',
+        () => verifyEmptyTable(done),
+        error => {throw error;});
+    });
+
+    it('cant create more than maxTableCount tables', done => {
+      FirebaseStorage.createTable(
+        'table1',
+        createTable2,
+        error => {throw error;});
+
+      function createTable2() {
+        FirebaseStorage.createTable(
+          'table2',
+          createTable3,
+          error => {throw error;});
+      }
+
+      function createTable3() {
+        FirebaseStorage.createTable(
+          'table3',
+          createTable4,
+          error => {throw error;});
+      }
+
+      function createTable4() {
+        FirebaseStorage.createTable(
+          'table4',
+          () => {throw "unexpectedly allowed to create 4th table";},
+          error => {
+            expect(error.indexOf('maximum number of tables') !== -1).to.be.true;
+            done();
+          });
+      }
+    });
+  });
+
+  describe('clearTable', () => {
+    it ('deletes records but not the table', done => {
+      FirebaseStorage.createRecord(
+        'mytable',
+        {name: 'bob', age: 8},
+        clearTable,
+        error => {throw error;});
+
+      function clearTable() {
+        FirebaseStorage.clearTable(
+          'mytable',
+          () => verifyEmptyTable(done),
+          error => {throw error;});
+      }
+    });
+  });
+
+  describe('deleteTable', () => {
+    it('deletes the records and the table', done => {
+      FirebaseStorage.createRecord(
+        'mytable',
+        {name: 'bob', age: 8},
+        deleteTable,
+        error => {throw error;});
+
+      function deleteTable() {
+        FirebaseStorage.deleteTable(
+          'mytable',
+          verifyNoTable,
+          error => {throw error;});
+      }
+
+      function verifyNoTable() {
+        const countersRef = getDatabase(Applab.channelId).child('counters/tables/mytable');
+        countersRef.once('value').then(snapshot => {
+          expect(snapshot.val()).to.equal(null);
+          const recordsRef = getDatabase(Applab.channelId).child('storage/tables/mytable/records');
+          return recordsRef.once('value');
+        }).then(snapshot => {
+          expect(snapshot.val()).to.equal(null);
           done();
         });
       }
@@ -298,5 +438,94 @@ describe('FirebaseStorage', () => {
             error => {throw error;});
         });
     });
+  });
+
+  describe('importCsv', () => {
+    const csvData =
+      'id,name,age,male\n' +
+      '4,alice,7,false\n' +
+      '5,bob,8,true\n' +
+      '6,charlie,9,true\n';
+
+    const expectedTableData = {
+      1: '{"id":1,"name":"alice","age":7,"male":false}',
+      2: '{"id":2,"name":"bob","age":8,"male":true}',
+      3: '{"id":3,"name":"charlie","age":9,"male":true}'
+    };
+
+    it('imports a valid csv', done => {
+      FirebaseStorage.importCsv(
+        'mytable',
+        csvData,
+        validateTableData,
+        error => {throw error;});
+
+      function validateTableData() {
+        const rowCountRef = getDatabase(Applab.channelId).child('counters/tables/mytable/rowCount');
+        rowCountRef.once('value').then(snapshot => {
+          expect(snapshot.val()).to.equal(3);
+          const recordsRef = getDatabase(Applab.channelId).child('storage/tables/mytable/records');
+          return recordsRef.once('value');
+        }).then(snapshot => {
+          expect(snapshot.val()).to.deep.equal(expectedTableData);
+          done();
+        });
+      }
+    });
+
+    it('overwrites existing data', done => {
+      FirebaseStorage.createRecord(
+        'mytable',
+        {name:"eve", age:11, male:false},
+        doImport,
+        error => {throw error;});
+
+      function doImport() {
+        FirebaseStorage.importCsv(
+        'mytable',
+        csvData,
+        validateTableData,
+        error => {throw error;});
+      }
+
+      function validateTableData() {
+        const rowCountRef = getDatabase(Applab.channelId).child('counters/tables/mytable/rowCount');
+        rowCountRef.once('value').then(snapshot => {
+          expect(snapshot.val()).to.equal(3);
+          const recordsRef = getDatabase(Applab.channelId).child('storage/tables/mytable/records');
+          return recordsRef.once('value');
+        }).then(snapshot => {
+          expect(snapshot.val()).to.deep.equal(expectedTableData);
+          done();
+        });
+      }
+    });
+
+    it('rejects long inputs', done => {
+      const name150 = 'abcdefghij'.repeat(15);
+      expect(name150.length).to.equal(150);
+      const longCsvData = `name\n${name150}\n`;
+      FirebaseStorage.importCsv(
+        'mytable',
+        longCsvData,
+        () => { throw 'expected import to fail on large record'; },
+        error => {
+          expect(error).to.contain('one of of the records is too large');
+          done();
+        });
+    });
+
+    it('rejects too many rows', done => {
+      const longCsvData = 'name\n' + 'bob\n'.repeat(25);
+      FirebaseStorage.importCsv(
+        'mytable',
+        longCsvData,
+        () => { throw 'expected import to fail on large table'; },
+        error => {
+          expect(error).to.contain('the data is too large');
+          done();
+        });
+    });
+
   });
 });

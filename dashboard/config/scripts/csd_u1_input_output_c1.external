@@ -1,0 +1,50 @@
+name 'CSD U1 Input Output C1'
+title 'Challenge 1'
+description 'description here'
+href 'path/to/html/in/asset/folder'
+markdown <<MARKDOWN
+# Challenge 1
+
+
+This piece of software tells you whether or not it’s Halloween.
+
+Look at the possible information that you can input to your app, and decide which ones your app needs to work.  Remember, you can use the phone to get information that is specific to the user, and use the Internet to get general information about the world.
+
+Once you have the information that you need as input, decide what your app will output.
+
+## Input from Phone Sensors
+
+Sensor | Input Information
+------|--------
+**Date (Clock)** | September 5
+**Location (GPS)** | A, 3
+**Light Sensor** | Very bright
+**Motion Sensor** | Not moving
+
+
+## User Input
+
+User Prompt | User Information
+------|--------
+**Birthday** | January 7
+**Favorite Holiday** | St. Patrick's Day
+**Favorite Flavor of Ice Cream** | Neopolitan
+
+## Input from the Internet
+
+????? | Information
+------|--------
+**The Date of Halloween** | October 31
+  |  
+**The Temperature Anywhere in the World** | Shanghai: 77F
+ | Adelaide: 54F
+ | Paris: 75F
+ | Cairo: 79F
+ | Buenos Aires: 52F
+ | Boston: 66F
+ | Vancouver: 63F
+ | Guam: 84F
+**The Most Popular Song This Week** | "Closer"
+
+
+MARKDOWN

@@ -147,6 +147,21 @@ en:
         title: title
       CSD - Headers and Lists - Hobbies Project: {}
       CSD - Headers and Lists - Recipe Project: {}
+      CSD U1 Input Output C1:
+        Challenge 1: Challenge 1
+        description here: description here
+      CSD U1 Input Output C2:
+        description here: description here
+        title: title
+      CSD U1 Input Output C3:
+        description here: description here
+        title: title
+      CSD U1 Input Output C4:
+        description here: description here
+        title: title
+      CSD U1 Input Output Intro:
+        description here: description here
+        title: title
       CSD U3 - Booleans - 1: {}
       CSD U3 - Sprites - Stop: {}
       CSD U3 - complex conditionals - SFLP: {}
@@ -190,6 +205,7 @@ en:
       CSDU2 - Rating Quality Websites: {}
       CSDU2 - further styling suggestions: {}
       CSDU2- home page examples: {}
+      CSDU2L04 - Stop: {}
       CSP Journal Entry Placeholder:
         CSP Journal Entry Placeholder: CSP Journal Entry Placeholder
         Eventually replace this with a free-response journal entry level: Eventually replace this with a free-response journal entry level
@@ -205,6 +221,9 @@ en:
       CSP U4 - Basic Terms: {}
       CSP Unit 3 - Learning JavaScript Resources:
         Learning JavaScript Resources: Learning JavaScript Resources
+        description here: description here
+      CSP assessment Hex interstitial:
+        Hexadecimal: Hexadecimal
         description here: description here
       CSP-mod1-unit1overview: {}
       CSPPD PD Phases:
@@ -383,6 +402,12 @@ en:
       Cleaning Data: {}
       'Collection A: Good and Bad Visualizations': {}
       'Collection B: Good and Bad Visualizations': {}
+      Digital Footprint Chirpr johnsnow:
+        Chirpr - @johnsnow: Chirpr - @johnsnow
+      Digital Footprint FaceSpace John:
+        FaceSpace - John T: FaceSpace - John T
+      Digital Footprint instantframe:
+        instantframe - johnsnow: instantframe - johnsnow
       Downloading the Data Set: {}
       ECS PD1 classroom culture:
         ECS classroom culture: ECS classroom culture
@@ -609,6 +634,7 @@ en:
       ECSPD what is growth mindset:
         An exploration of Growth Mindset: An exploration of Growth Mindset
         What is Growth Mindset?: What is Growth Mindset?
+      ECSPD-unit2 What is the Challenge: {}
       ECSPD1  intro to The Hour of Code:
         Introduction to The Hour of Code: Introduction to The Hour of Code
       ECSPD1 Code Studio:
@@ -1398,6 +1424,12 @@ en:
         description here: description here
         title: title
       U4 Inspirational Data Video: {}
+      U4 caesar cipher interstitial:
+        That was easy, what's next?: That was easy, what's next?
+        description here: description here
+      U4 how to crack substitution cipher:
+        How to crack a substitution cipher: How to crack a substitution cipher
+        description here: description here
       U4L01 Student Lesson Introduction:
         description here: description here
         title: title
@@ -1839,6 +1871,7 @@ en:
         Timeline of PD Phases: Timeline of PD Phases
       sciPD2 wiggle:
         Walk with a Wiggle: Walk with a Wiggle
+      sciPD2Part4_S1_L2: {}
       sciPD2Part4_S1_L3:
         description here: description here
         title: title
@@ -1952,9 +1985,6 @@ en:
       text compression lesson plan: {}
       u3L04 Student Lesson Introduction:
         Creating Procedures Part 2: Creating Procedures Part 2
-      unique level name here:
-        description here: description here
-        title: title
       v1 U1L13 Student Lesson Introduction:
         The Need for DNS: The Need for DNS
       v2 U1 Internet is for Everyone Student Lesson Introduction:
@@ -2062,6 +2092,7 @@ en:
       name:
         CSP Culminating Assessment: {}
         CSP Unit 1 Ch1 Cumulative Assessment MC Group: {}
+        CSP Unit 1 Ch1 Cumulative Assessment MC Group v2: {}
         CSP Unit 1 Ch2 Cumulative Assessment MC Group: {}
         CSP Unit 1 Cumulative Assessment MC: {}
         CSP Unit 2 Ch1 Cumulative Assessment MC: {}
@@ -3308,6 +3339,11 @@ en:
         L: L
         V: V
         Y: Y
+      CB_Question_3update:
+        'ASCII Character: <code> A </code>': 'ASCII Character: <code> A </code>'
+        'ASCII Character: <code> B </code>': 'ASCII Character: <code> B </code>'
+        'ASCII Character: <code> D </code>': 'ASCII Character: <code> D </code>'
+        The table does not contain the value represented by the binary number <code>0100  0010</code>: The table does not contain the value represented by the binary number <code>0100  0010</code>
       CB_Question_4:
         Input A can be either true or false: Input A can be either true or false
         Input A must be false: Input A must be false
@@ -3634,6 +3670,14 @@ en:
         It displays the smallest number in the list.: It displays the smallest number in the list.
         Which of the following best describes the result after the program is executed on a given list?: Which of the following best describes the result after the program is executed on a given list?
       CSPFinal_Question_4:
+        ? 32-bit addresses could not accommodate the increased size and amount of data traveling on the Internet as it has grown in popularity
+        : 32-bit addresses could not accommodate the increased size and amount of data traveling on the Internet as it has grown in popularity
+        32-bit addresses could not ensure that every internet-connected device can receive a unique IP address: 32-bit addresses could not ensure that every internet-connected device can receive a unique IP address
+        IPv4 proved unreliable in some cases where network redundancy could not be ensured: IPv4 proved unreliable in some cases where network redundancy could not be ensured
+        IPv6 will allow problems with IPv4's address hierarchy to be resolved: IPv6 will allow problems with IPv4's address hierarchy to be resolved
+        ? The world is currently in a transition to using IPv6, a newer version of the IP protocol that uses 64-bit addresses instead of 32-bit addresses used by IPv4. What is the main problem that IPv6 was created to solve?
+        : The world is currently in a transition to using IPv6, a newer version of the IP protocol that uses 64-bit addresses instead of 32-bit addresses used by IPv4. What is the main problem that IPv6 was created to solve?
+      CSPFinal_Question_4_original:
         'The weight of <code>A-to-C</code> increases by 2 (total cost: 4)': 'The weight of <code>A-to-C</code> increases by 2 (total cost: 4)'
         'The weight of <code>A-to-C</code> increases by 3 (total cost: 5)': 'The weight of <code>A-to-C</code> increases by 3 (total cost: 5)'
         'The weight of <code>A-to-C</code> increases by 4 (total cost: 6)': 'The weight of <code>A-to-C</code> increases by 4 (total cost: 6)'
@@ -3659,30 +3703,15 @@ en:
         'DEC: <strong>13</strong>, HEX: <strong>F</strong>, BIN: <strong>1110</strong>': 'DEC: <strong>13</strong>, HEX: <strong>F</strong>, BIN: <strong>1110</strong>'
         'HEX: <strong>F</strong> DEC: <strong>13</strong>, BIN: <strong>1110</strong>': 'HEX: <strong>F</strong> DEC: <strong>13</strong>, BIN: <strong>1110</strong>'
       CSPFinal_Question_8update:
-        'BIN: 10001, BIN: 00001, BIN: 1110': 'BIN: 10001, BIN: 00001, BIN: 1110'
-        'BIN: 10001, BIN: 1110, BIN: 00001': 'BIN: 10001, BIN: 1110, BIN: 00001'
-        'BIN: 1110, BIN: 00001, BIN: 10001': 'BIN: 1110, BIN: 00001, BIN: 10001'
-        'BIN: 1110, BIN: 10001, BIN: 00001': 'BIN: 1110, BIN: 10001, BIN: 00001'
-        ? |-
-          Consider the following numbers given in Binary (BIN) representations:
-
-          BIN: 1110
-
-          BIN: 00001
-
-          BIN: 10001
-
-          Which of the following lists the numbers in order from least to greatest?
-        : |-
-          Consider the following numbers given in Binary (BIN) representations:
-
-          BIN: 1110
-
-          BIN: 00001
-
-          BIN: 10001
-
-          Which of the following lists the numbers in order from least to greatest?
+        " ": " "
+        ? 'a. <code style="color: black">01010</code><br> b. <code style="color: black">010000</code><br> c. <code style="color: black">1110</code> <br> <br>'
+        : 'a. <code style="color: black">01010</code><br> b. <code style="color: black">010000</code><br> c. <code style="color: black">1110</code> <br> <br>'
+        ? 'a. <code style="color: black">01010</code><br>c. <code style="color: black">1110</code><br>b. <code style="color: black">010000</code> <br> <br>'
+        : 'a. <code style="color: black">01010</code><br>c. <code style="color: black">1110</code><br>b. <code style="color: black">010000</code> <br> <br>'
+        ? 'b. <code style="color: black">010000</code><br> c. <code style="color: black">1110</code><br> a. <code style="color: black">01010</code> <br> <br>'
+        : 'b. <code style="color: black">010000</code><br> c. <code style="color: black">1110</code><br> a. <code style="color: black">01010</code> <br> <br>'
+        ? 'c. <code style="color: black">1110</code><br> a. <code style="color: black">01010</code><br> b. <code style="color: black">010000</code> <br> <br>'
+        : 'c. <code style="color: black">1110</code><br> a. <code style="color: black">01010</code><br> b. <code style="color: black">010000</code> <br> <br>'
       CSPFinal_Question_9:
         ? At one of the lowest levels of abstraction, all digital data can be represented in binary using only combinations of the digits zero and one.
         : At one of the lowest levels of abstraction, all digital data can be represented in binary using only combinations of the digits zero and one.
@@ -3692,6 +3721,14 @@ en:
         : Hexadecimal is used to represent digital data because hexadecimal representation uses only 1 digit to represent groups of 4 binary digits.
         ? 'There is a limit to the number of things that can be represented in binary data at which point switching to hexadecimal representation is necessary. '
         : 'There is a limit to the number of things that can be represented in binary data at which point switching to hexadecimal representation is necessary. '
+      CSPFinal_Question_9update:
+        ? At one of the lowest levels of abstraction, all digital data can be represented in binary using only combinations of the digits zero and one.
+        : At one of the lowest levels of abstraction, all digital data can be represented in binary using only combinations of the digits zero and one.
+        ? Binary can be used to represent more complex, higher level abstractions, including but not limited to numbers, characters, and colors.
+        : Binary can be used to represent more complex, higher level abstractions, including but not limited to numbers, characters, and colors.
+        The number system you use to view data has no effect on the underlying digital data.: The number system you use to view data has no effect on the underlying digital data.
+        ? When data is large enough computers switch to using decimal representation instead of binary, because you can represent larger numbers with fewer digits.
+        : When data is large enough computers switch to using decimal representation instead of binary, because you can represent larger numbers with fewer digits.
       CSPPD2 pixel video 1:
         How many different light channels make up a single pixel on a standard monitor?: How many different light channels make up a single pixel on a standard monitor?
         four: four
