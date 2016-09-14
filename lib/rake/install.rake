@@ -48,7 +48,7 @@ namespace :install do
   task :pegasus do
     if RakeUtils.local_environment?
       Dir.chdir(pegasus_dir) do
-        RakeUtils.bundle_install
+        RakeUtils.bundle_install(ENV['CI'] ? '--verbose' : '')
         RakeUtils.rake 'pegasus:setup_db'
       end
     end
