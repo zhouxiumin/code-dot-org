@@ -1,7 +1,7 @@
 require "csv"
 
 namespace :seed do
-  verbose false
+  verbose true
 
   task videos: :environment do
     Video.setup
