@@ -39,7 +39,9 @@ namespace :install do
       Dir.chdir(dashboard_dir) do
         RakeUtils.bundle_install
         puts CDO.dashboard_db_writer
+        puts 'Starting setting up dashboard DB'
         RakeUtils.rake 'dashboard:setup_db'
+        puts 'Ended setting up dashboard DB'
       end
     end
   end
@@ -48,8 +50,12 @@ namespace :install do
   task :pegasus do
     if RakeUtils.local_environment?
       Dir.chdir(pegasus_dir) do
+        puts 'Starting bundle installing for pegasus'
         RakeUtils.bundle_install(ENV['CI'] ? '--verbose' : '')
+        puts 'Ending bundle installing for pegasus'
+        puts 'Starting setup DB for pegasus'
         RakeUtils.rake 'pegasus:setup_db'
+        puts 'Ending setup DB for pegasus'
       end
     end
   end
