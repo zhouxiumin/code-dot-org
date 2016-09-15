@@ -30,7 +30,7 @@ dependencies:
     - "~/.rvm/gems/ruby-2.2.3"
     - ".tmputils"
   override:
-    - sudo apt-get install libicu-dev enscript
+    - sudo apt-get install libicu-dev enscript moreutils
     - bundle install --without ''
     - 'echo "bundler_use_sudo: false" >> locals.yml'
     - 'echo "npm_use_sudo: false" >> locals.yml'
@@ -56,7 +56,7 @@ dependencies:
     - 'case $CIRCLE_NODE_INDEX in 0) echo "Skipping" ;; *) echo "override_dashboard: \"localhost-studio.code.org:3000\"" >> locals.yml ;; esac'
     - 'case $CIRCLE_NODE_INDEX in 0) echo "Skipping" ;; *) echo "override_pegasus: \"localhost.code.org:3000\"" >> locals.yml ;; esac'
     # Run rake install
-    - bundle exec rake install:
+    - bundle exec rake install | ts '[%Y-%m-%d %H:%M:%S]':
         environment:
           RAKE_VERBOSE: true
     # Run rake build (twice in case of intermittent test failures within rake build)
