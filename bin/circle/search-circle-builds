@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+require 'memoist'
+require 'open-uri'
+require_relative '../../lib/cdo/git_utils'
+require_relative '../../lib/cdo/eyes_utils'
+
+CIRCLE_API_BASE = 'https://circleci.com/api/v1.1/project/github/code-dot-org/code-dot-org'
+
+extend Memoist
+
+def get_build(id)
+  JSON.parse(open("#{CIRCLE_API_BASE}/#{id}").read)
+end
+memoize :get_build
+
+def container_result(build, container, step_includes)
+  build['steps'].select { |o| o['name'].include? step_includes }[0]['actions'][container]
+rescue => _
+  ''
+end
+memoize :container_result
+
+def output_url(build, container, step_includes)
+  container_result(build, container, step_includes)['output_url']
+rescue => _
+  ''
+end
+memoize :output_url
+
+def get_output(id, container, step_includes)
+  JSON.parse(open(output_url(get_build(id), container, step_includes)).read)
+rescue => _
+  ''
+end
+memoize :get_output
+
+start_build = 21752
+end_build = 21761
+start_container = 0
+end_container = 2
+
+builds = (start_build..end_build).to_a
+containers = (start_container..end_container).to_a
+
+build_containers = builds.product(containers)
+
+build_containers = build_containers.select { |build, container| !get_output(build, container, 'rake build').empty? }
+
+output = build_containers.map{|build, container| get_output(build, container, 'rake install')}
+container_results = build_containers.map{|build, container| container_result(get_build(build), container, 'rake install')}
+
+output_messages = output.map{|output| output[0]['message']}
+output_timeouts = container_results.map{|result| result['timedout']}
+
+# output_messages.select{|message| message.include?}
+pp output_timeouts
+puts build_containers.length
+
+exit(0)

@@ -43,7 +43,7 @@ LOG_UPLOADER = AWS::S3::LogUploader.new(S3_LOGS_BUCKET, S3_LOGS_PREFIX, true)
 def upload_log_and_get_public_link(filename, metadata)
   return '' unless $options.html
   log_url = LOG_UPLOADER.upload_file(filename, {metadata: metadata})
-  " <a href='#{log_url}'>☁ Log on S3</a>"
+  log_url
 rescue Exception => msg
   HipChat.log "Uploading log to S3 failed: #{msg}"
   return ''
@@ -521,6 +521,8 @@ run_results = Parallel.map(lambda { browser_features.pop || Parallel::Stop }, pa
       'failed'.red
     end
   print "UI tests for #{test_run_string} #{result_string} (#{RakeUtils.format_duration(test_duration)}#{scenario_info}#{rerun_info})\n"
+  system('open', log_link)
+  puts log_link
 
   if scenario_count == 0
     skip_warning = "We didn't actually run any tests, did you mean to do this?\n".yellow

@@ -87,6 +87,8 @@ group :development, :test do
 
   # for pegasus PDF generation / merging testing
   gem 'pdf-reader', require: false
+
+  gem 'memoist'
 end
 
 group :doc do
