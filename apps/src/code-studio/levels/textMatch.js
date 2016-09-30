@@ -1,8 +1,6 @@
 import $ from 'jquery';
 import { registerGetResult } from './codeStudioLevels';
 
-window.levelGroup = window.levelGroup || {levels: {}};
-
 var TextMatch = window.TextMatch = function (levelId, id, app, standalone, answers, lastAttempt) {
 
   // The dashboard levelId.
@@ -38,14 +36,10 @@ TextMatch.prototype.ready = function () {
 
   var textarea = $("#" + this.id + " textarea.response");
   textarea.blur(() => {
-    if (window.levelGroup && window.levelGroup.answerChangedFn) {
-      window.levelGroup.answerChangedFn(this.levelId, true);
-    }
+    window.dashboard.codeStudioLevels.onAnswerChanged(this.levelId, true);
   });
   textarea.on("input", null, null, () => {
-    if (window.levelGroup && window.levelGroup.answerChangedFn) {
-      window.levelGroup.answerChangedFn(this.levelId);
-    }
+    window.dashboard.codeStudioLevels.onAnswerChanged(this.levelId, false);
   });
 };
 

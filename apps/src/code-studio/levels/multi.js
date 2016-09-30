@@ -2,8 +2,6 @@
 import $ from 'jquery';
 import { registerGetResult } from './codeStudioLevels';
 
-window.levelGroup = window.levelGroup || {levels: {}};
-
 var Multi = window.Multi = function (levelId, id, app, standalone, numAnswers, answers, answersFeedback, lastAttemptString, containedMode) {
 
   // The dashboard levelId.
@@ -65,9 +63,7 @@ Multi.prototype.choiceClicked = function (button) {
 
   this.clickItem(index);
 
-  if (window.levelGroup && window.levelGroup.answerChangedFn) {
-    window.levelGroup.answerChangedFn(this.levelId, true);
-  }
+  window.dashboard.codeStudioLevels.onAnswerChanged(this.levelId, true);
 };
 
 
