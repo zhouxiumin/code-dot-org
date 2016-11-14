@@ -3,11 +3,21 @@ require 'cdo/hip_chat'
 require 'cdo/rake_utils'
 require 'cdo/git_utils'
 require 'cdo/aws/cloudfront'
+require 'tempfile'
 
 namespace :ci do
   # Synchronize the Chef cookbooks to the Chef repo for this environment using Berkshelf.
   task :chef_update do
-    if CDO.daemon && CDO.chef_managed && !CDO.chef_local_mode
+    if CDO.chef_local_mode
+      # Update local cookbooks from repository in local mode.
+      HipChat.log 'Updating local <b>chef</b> cookbooks...'
+      RakeUtils.with_bundle_dir(cookbooks_dir) do
+        Tempfile.open(['berks', '.tgz']) do |file|
+          RakeUtils.bundle_exec "berks package #{file.path}"
+          RakeUtils.sudo "tar xzf #{file.path} -C /var/chef"
+        end
+      end
+    else if CDO.daemon && CDO.chef_managed
       HipChat.log('Updating Chef cookbooks...')
       RakeUtils.with_bundle_dir(cookbooks_dir) do
         # Automatically update Chef cookbook versions in staging environment.
