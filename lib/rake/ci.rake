@@ -17,7 +17,7 @@ namespace :ci do
           RakeUtils.sudo "tar xzf #{file.path} -C /var/chef"
         end
       end
-    else if CDO.daemon && CDO.chef_managed
+    elsif CDO.daemon && CDO.chef_managed
       HipChat.log('Updating Chef cookbooks...')
       RakeUtils.with_bundle_dir(cookbooks_dir) do
         # Automatically update Chef cookbook versions in staging environment.
