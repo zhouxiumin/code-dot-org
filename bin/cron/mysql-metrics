@@ -3,7 +3,7 @@ require_relative '../../deployment'
 require 'cdo/db'
 require 'aws-sdk'
 
-# Report details MySQL metrics to CloudWatch.
+# Report detailed MySQL metrics to CloudWatch.
 # Intended to be run at 1-minute intervals.
 
 STATUS_CACHE = pegasus_dir('cache', 'mysql-status-cache.json')
