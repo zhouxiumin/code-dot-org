@@ -54,7 +54,6 @@ Qcache_queries_in_cache
 Qcache_total_blocks
 Threads_cached
 Threads_connected
-Threads_created
 Threads_running
 )
 
@@ -314,6 +313,7 @@ Table_open_cache_hits
 Table_open_cache_misses
 Table_open_cache_overflows
 Tc_log_page_waits
+Threads_created
 )
 
 intervals = interval_keys.map do |key|
