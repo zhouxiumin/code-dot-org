@@ -1,0 +1,99 @@
+#!/usr/bin/env ruby
+require_relative '../../deployment'
+require 'aws-sdk'
+require 'httparty'
+
+# Report detailed Varnish metrics to CloudWatch.
+# Intended to be run at 1-minute intervals.
+
+STATUS_CACHE = pegasus_dir('cache', 'varnish-status-cache.json')
+
+instance_name = `sudo lsof -Fn +d /var/lib/varnish/ | tail -1 | cut -c19-`.strip
+
+old_status = File.file?(STATUS_CACHE) ? JSON.parse(IO.read(STATUS_CACHE)) : {}
+
+status = JSON.parse(`varnishstat -n #{instance_name} -1 -j`)
+status['time'] = Time.now.to_f
+IO.write STATUS_CACHE, JSON.pretty_generate(status)
+
+last_timestamp = old_status['time']
+exit 0 unless last_timestamp
+
+varnish_keys = %w(
+  sess_conn
+  sess_dropped
+  client_req
+  client_req_400
+  client_req_411
+  client_req_413
+  client_req_417
+  cache_hit
+  cache_miss
+  cache_hitpass
+  fetch_length
+  fetch_chunked
+  fetch_failed
+  n_expired
+  n_lru_nuked
+  sess_queued
+  backend_toolate
+  backend_fail
+  backend_unhealthy
+  backend_busy
+  backend_req
+)
+
+varnish_metrics = varnish_keys.map do |key|
+  varnish_key = "MAIN.#{key}"
+  value = status[varnish_key]['value'].to_i - old_status[varnish_key]['value'].to_i
+  [key, value]
+end.to_h
+
+varnishtop = `varnishtop -n #{instance_name} -i BeRespStatus -q 'Timestamp:Resp[1] > #{last_timestamp}' -g request -1`
+varnishtop_metrics = varnishtop.lines.map{|x| x.split ' '}.map{|line| line.map(&:to_i)}.map do |count, _, code|
+  ["HTTP_#{code}", count]
+end.to_h
+
+varnish_metrics.merge!(varnishtop_metrics)
+
+metrics = varnish_metrics.map do |key, value|
+  {
+    metric_name: key,
+    dimensions: [
+      {
+        name: 'Environment',
+        value: rack_env
+      },
+      {
+        name: 'InstanceId',
+        value: (HTTParty.get('http://169.254.169.254/latest/meta-data/instance-id').body rescue nil)
+      }
+    ],
+    timestamp: Time.now,
+    value: value.to_f,
+    unit: 'Count'
+  }
+end
+
+batches = []
+current_batch = []
+batch_size = 0
+# Chunk metrics into max-20k or 20-count API-call batches.
+metrics.each do |metric|
+  size = JSON.generate(metric).bytesize
+  if current_batch.length >= 20 || batch_size + size > 1024 * 20
+    batches << current_batch
+    current_batch = []
+    batch_size = 0
+  end
+  current_batch << metric
+  batch_size += size
+end
+batches << current_batch
+
+batches.each do |batch|
+  Aws::CloudWatch::Client.new.put_metric_data(
+    namespace: 'Varnish',
+    metric_data: batch
+  )
+end
