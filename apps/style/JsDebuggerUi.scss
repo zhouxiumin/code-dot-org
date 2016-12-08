@@ -97,15 +97,15 @@ $debug-header-border-width: 1px;
 }
 
 .debug-watch {
-  &.no-commands {
-    max-width: calc(100% - #{$debug-console-min-column-width});
-  }
-  right: 0;
-  width: $debug-watch-max-column-width;
-  max-width: calc(100% - #{$debug-commands-column-width} - #{$debug-console-min-column-width});
-  font-family: monospace;
-  font-size: 12px;
-  overflow-y: scroll;
+  //&.no-commands {
+  //  max-width: calc(100% - #{$debug-console-min-column-width});
+  //}
+  //right: 0;
+  //width: $debug-watch-max-column-width;
+  //max-width: calc(100% - #{$debug-commands-column-width} - #{$debug-console-min-column-width});
+  //font-family: monospace;
+  //font-size: 12px;
+  //overflow-y: scroll;
 }
 
 .debug-watch-item {

@@ -1,8 +1,11 @@
 import React from 'react';
 import Immutable from 'immutable';
-import {connect} from 'react-redux';
+import {combineReducers, createStore} from 'redux';
+import {connect, Provider} from 'react-redux';
+
 import i18n from '@cdo/locale';
 import {add, update, remove} from '../../redux/watchedExpressions';
+import commonReducers from '../../redux/commonReducers';
 import TetherComponent from 'react-tether';
 import AutocompleteSelector from './AutocompleteSelector';
 
@@ -22,18 +25,16 @@ const DEFAULT_AUTOCOMPLETE_OPTIONS = [
   'sprite.height',
 ];
 
-const buttonSize = '34px';
-const inputValueWidth = 159;
-const inputElementHeight = 29;
+const buttonSize = '36px';
 
 const styles = {
   watchContainer: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    overflowY: 'scroll'
   },
   watchRemoveButton: {
-    fontSize: 23,
-    float: 'right',
+    fontSize: 16,
     cursor: 'pointer',
     width: buttonSize,
     lineHeight: buttonSize,
@@ -45,12 +46,11 @@ const styles = {
     padding: 0
   },
   watchAddButton: {
-    fontSize: 20,
+    fontSize: 16,
     width: buttonSize,
     lineHeight: buttonSize,
     height: buttonSize,
     textAlign: 'center',
-    float: 'right',
     cursor: 'pointer',
     backgroundColor: '#1e93cd',
     color: 'white',
@@ -58,20 +58,27 @@ const styles = {
     padding: 0
   },
   watchValue: {
+    marginRight: 3,
+    width: 0, // needs width 0 to avoid content affecting item size
+    flexGrow: 1,
     whiteSpace: 'nowrap',
     height: buttonSize,
     lineHeight: buttonSize,
     marginLeft: 3,
     overflow: 'scroll',
-    width: inputValueWidth,
   },
   watchInputSection: {
+    display: 'flex',
+    clear: 'both'
+  },
+  watchItemSection: {
+    display: 'flex',
     clear: 'both'
   },
   watchInput: {
-    width: inputValueWidth,
+    width: 0, // needs width 0 to avoid content affecting item size
+    flexGrow: 1,
     marginTop: 0,
-    height: inputElementHeight,
     fontFamily: 'monospace',
     fontSize: '12px'
   }
@@ -295,6 +302,10 @@ const Watchers = React.createClass({
     });
   },
 
+  componentDidMount() {
+    this.scrollToBottom();
+  },
+
   componentDidUpdate(_, prevState) {
     if (prevState.autocompleteOpen && !this.state.autocompleteOpen) {
       this.resetAutocomplete();
@@ -331,20 +342,18 @@ const Watchers = React.createClass({
       <div
         id="debugger-watch-container"
         style={styles.watchContainer}
+        ref="scrollableContainer"
       >
-        <div id="debug-watch" ref="scrollableContainer" className="debug-watch">
+        <div
+          id="debug-watch"
+          //className="debug-watch"
+        >
           {
             this.props.watchedExpressions.map(wv => {
               const varName = wv.get('expression');
               const varValue = wv.get('lastValue');
               return (
-              <div className="debug-watch-item" key={wv.get('uuid')}>
-                <div
-                  style={styles.watchRemoveButton}
-                  onClick={()=> this.props.remove(wv.get('expression'))}
-                >
-                  ×
-                </div>
+              <div style={styles.watchItemSection} className="debug-watch-item" key={wv.get('uuid')}>
                 <div
                   style={styles.watchValue}
                 >
@@ -352,17 +361,17 @@ const Watchers = React.createClass({
                   <span className="watch-separator">: </span>
                   {this.renderValue(varValue)}
                 </div>
+                <div
+                  style={styles.watchRemoveButton}
+                  onClick={()=> this.props.remove(wv.get('expression'))}
+                >
+                  <i className="fa fa-remove"></i>
+                </div>
               </div>
                 );
               })
             }
           <div style={styles.watchInputSection}>
-            <div
-              style={styles.watchAddButton}
-              onClick={()=>this.addButtonClick()}
-            >
-              +
-            </div>
             <TetherComponent
               attachment="top center"
               constraints={[{
@@ -391,6 +400,12 @@ const Watchers = React.createClass({
                 onClickOutside={this.closeAutocomplete}
               />}
             </TetherComponent>
+            <div
+              style={styles.watchAddButton}
+              onClick={()=>this.addButtonClick()}
+            >
+              <i className="fa fa-plus"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -398,7 +413,7 @@ const Watchers = React.createClass({
   }
 });
 
-export default connect(state => {
+const ConnectedWatchers = connect(state => {
   return {
     watchedExpressions: state.watchedExpressions,
     isRunning: state.runState.isRunning
@@ -417,34 +432,58 @@ export default connect(state => {
   };
 })(Watchers);
 
+export default ConnectedWatchers;
+
 if (BUILD_STYLEGUIDE) {
   Watchers.styleGuideExamples = storybook => {
+    const storyTable = [];
+
+    const store = createStore(combineReducers(commonReducers));
+    storyTable.push(
+      {
+        name: 'with no watchers',
+        story: () => (
+          <Provider store={store}>
+            <ConnectedWatchers />
+          </Provider>
+        )
+      });
+
+    const storeWithWatchers = createStore(combineReducers(commonReducers));
+    storeWithWatchers.dispatch(add('myVarOne'));
+    storeWithWatchers.dispatch(add('myCoolVarTwo'));
+    storeWithWatchers.dispatch(add('mySweetVarThree'));
+    storeWithWatchers.dispatch(add('myReallyLongSoThatItHasToOverflowInManyScenariosSweetVarFour'));
+    storyTable.push(
+      {
+        name: 'with width overflow',
+        story: () => (
+          <Provider store={storeWithWatchers}>
+            <ConnectedWatchers />
+          </Provider>
+        )
+      }
+    );
+
+    const storeWithOverflow = createStore(combineReducers(commonReducers));
+    storeWithOverflow.dispatch(add('myVarOne'));
+    storeWithOverflow.dispatch(add('myCoolVarTwo'));
+    storeWithOverflow.dispatch(add('mySweetVarThree'));
+    storyTable.push(
+      {
+        name: 'with height overflow',
+        story: () => (
+          <Provider store={storeWithOverflow}>
+            <div style={{height: 100}}>
+              <ConnectedWatchers />
+            </div>
+          </Provider>
+        )
+      }
+    );
+
     storybook
       .storiesOf('Watchers', module)
-      .addStoryTable([
-        {
-          name: 'with no watchers',
-          story: () => (
-            // TODO(bjordan): get rid of/inline the .debug-watch style
-            <div style={{width: 100, height: 100}}>
-              <Watchers
-                watchedExpressions={[]}
-                isRunning={true}
-              />
-            </div>
-          )
-        },
-        {
-          name: 'with one watcher',
-          story: () => (
-            <div style={{width: 100, height: 100}}>
-              <Watchers
-                watchedExpressions={Immutable.fromJS([{expression: 'cool', uuid: 1234}])}
-                isRunning={true}
-              />
-            </div>
-          )
-        },
-      ]);
+      .addStoryTable(storyTable);
   };
 }
