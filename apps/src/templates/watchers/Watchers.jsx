@@ -62,8 +62,8 @@ const styles = {
   },
   watchValue: {
     marginRight: 3,
-    width: 0, // needs width 0 to avoid content affecting item size
     flexGrow: 1,
+    width: 0, // needed to avoid content affecting button size
     whiteSpace: 'nowrap',
     height: buttonSize,
     lineHeight: buttonSize,
@@ -79,8 +79,9 @@ const styles = {
     clear: 'both'
   },
   watchInput: {
-    width: 0, // needs width 0 to avoid content affecting item size
+    paddingLeft: 4,
     flexGrow: 1,
+    width: 0, // needed to avoid content affecting button size
     marginTop: 0,
     fontFamily: 'monospace',
     fontSize: '12px'
