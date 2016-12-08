@@ -1,13 +1,16 @@
 import React from 'react';
 import Immutable from 'immutable';
-import {combineReducers, createStore} from 'redux';
-import {connect, Provider} from 'react-redux';
-
+import FontAwesome from '@cdo/apps/templates/FontAwesome';
 import i18n from '@cdo/locale';
-import {add, update, remove} from '../../redux/watchedExpressions';
-import commonReducers from '../../redux/commonReducers';
+import {add, update, remove} from '@cdo/apps/redux/watchedExpressions';
+import {connect, Provider} from 'react-redux';
 import TetherComponent from 'react-tether';
 import AutocompleteSelector from './AutocompleteSelector';
+
+// Used solely for styleguide generation:
+import {combineReducers, createStore} from 'redux';
+import commonReducers from '@cdo/apps/redux/commonReducers';
+import {setIsRunning} from '@cdo/apps/redux/runState';
 
 const WATCH_VALUE_NOT_RUNNING = "undefined";
 const DEFAULT_AUTOCOMPLETE_OPTIONS = [
@@ -365,7 +368,7 @@ const Watchers = React.createClass({
                   style={styles.watchRemoveButton}
                   onClick={()=> this.props.remove(wv.get('expression'))}
                 >
-                  <i className="fa fa-remove"></i>
+                  <FontAwesome icon="remove"/>
                 </div>
               </div>
                 );
@@ -404,7 +407,7 @@ const Watchers = React.createClass({
               style={styles.watchAddButton}
               onClick={()=>this.addButtonClick()}
             >
-              <i className="fa fa-plus"></i>
+              <FontAwesome icon="plus"/>
             </div>
           </div>
         </div>
@@ -450,9 +453,6 @@ if (BUILD_STYLEGUIDE) {
       });
 
     const storeWithWatchers = createStore(combineReducers(commonReducers));
-    storeWithWatchers.dispatch(add('myVarOne'));
-    storeWithWatchers.dispatch(add('myCoolVarTwo'));
-    storeWithWatchers.dispatch(add('mySweetVarThree'));
     storeWithWatchers.dispatch(add('myReallyLongSoThatItHasToOverflowInManyScenariosSweetVarFour'));
     storyTable.push(
       {
@@ -477,6 +477,30 @@ if (BUILD_STYLEGUIDE) {
             <div style={{height: 100}}>
               <ConnectedWatchers />
             </div>
+          </Provider>
+        )
+      }
+    );
+
+    const storeRunning = createStore(combineReducers(commonReducers));
+    storeRunning.dispatch(add('myUndefVar'));
+    storeRunning.dispatch(add('myStringVar'));
+    storeRunning.dispatch(add('myNumberVar'));
+    storeRunning.dispatch(add('myObjectVar'));
+    storeRunning.dispatch(add('myNamedFnVar'));
+    storeRunning.dispatch(add('myCallbackVar'));
+    storeRunning.dispatch(update('myStringVar', 'my sweet striiiiiiiiing'));
+    storeRunning.dispatch(update('myNumberVar', 5));
+    storeRunning.dispatch(update('myObjectVar', {a: 5}));
+    storeRunning.dispatch(update('myNamedFnVar', function cool() {console.log('ayy');}));
+    storeRunning.dispatch(update('myCallbackVar', () => {console.log('ayy');}));
+    storeRunning.dispatch(setIsRunning(true));
+    storyTable.push(
+      {
+        name: 'is running',
+        story: () => (
+          <Provider store={storeRunning}>
+            <ConnectedWatchers />
           </Provider>
         )
       }
