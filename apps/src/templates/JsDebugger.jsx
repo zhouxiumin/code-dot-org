@@ -16,12 +16,15 @@ var PaneButton = PaneHeader.PaneButton;
 var SpeedSlider = require('./SpeedSlider');
 import {setStepSpeed} from '../redux/runState';
 
+// Used in storybook only
+import {Provider} from 'react-redux';
+import {combineReducers, createStore} from 'redux';
+import commonReducers from '@cdo/apps/redux/commonReducers';
+
 var styles = {
   debugAreaHeader: {
-    position: 'absolute',
+    display: 'flex',
     top: styleConstants['resize-bar-width'],
-    left: 0,
-    right: 0,
     textAlign: 'center',
     lineHeight: '30px'
   },
@@ -35,10 +38,7 @@ var styles = {
     userSelect: 'none',
   },
   showHideIcon: {
-    position: 'absolute',
-    top: 0,
-    left: 8,
-    margin: 0,
+    marginLeft: 8,
     lineHeight: styleConstants['workspace-headers-height'] + 'px',
     fontSize: 18,
     ':hover': {
@@ -47,17 +47,25 @@ var styles = {
     }
   },
   showDebugWatchIcon: {
-    position: 'absolute',
-    top: 0,
-    right: '6px',
-    width: '18px',
     margin: 0,
+    marginLeft: 'auto',
+    marginRight: 6,
     lineHeight: styleConstants['workspace-headers-height'] + 'px',
     fontSize: 18,
     ':hover': {
       cursor: 'pointer',
       color: 'white'
     }
+  },
+  watchersHeaderTextShowing: {
+    margin: '0px 6px 0 auto',
+  },
+  watchersHeaderTextHidden: {
+    flexGrow: 1,
+    marginRight: 7
+  },
+  consoleHeaderText: {
+    flexGrow: 1
   }
 };
 
@@ -162,13 +170,13 @@ var JsDebugger = React.createClass({
           hasFocus={hasFocus}
           style={styles.debugAreaHeader}
         >
+          <i id="show-hide-debug-icon" className="fa fa-chevron-circle-down" style={styles.showHideIcon}/>
           <span
-            style={styles.noUserSelect}
+            style={{...styles.noUserSelect, ...styles.consoleHeaderText}}
             className="header-text"
           >
             {i18n.debugConsoleHeader()}
           </span>
-          <i id="show-hide-debug-icon" className="fa fa-chevron-circle-down" style={styles.showHideIcon}/>
           {this.props.debugButtons &&
           <PaneSection id="debug-commands-header">
             <i id="running-spinner" style={commonStyles.hidden} className="fa fa-spinner fa-spin"/>
@@ -181,6 +189,13 @@ var JsDebugger = React.createClass({
             </span>
           </PaneSection>
           }
+          <PaneButton
+            id="clear-console-header"
+            iconClass="fa fa-eraser"
+            label="Clear"
+            headerHasFocus={hasFocus}
+            isRtl={false}
+          />
           {this.props.debugWatch &&
           <PaneSection
             id="debug-watch-header"
@@ -190,29 +205,26 @@ var JsDebugger = React.createClass({
             style={this.state.watchersHidden ? {
               borderLeft: 'none',
               textAlign: 'right',
-              marginRight: '30px'
-            } : {}}
+              display: 'flex',
+              flexGrow: 1
+            } : {
+              display: 'flex',
+              flexGrow: 1
+            }}
           >
+            <span
+              style={{...styles.noUserSelect, ...this.state.watchersHidden ? styles.watchersHeaderTextHidden : styles.watchersHeaderTextShowing}}
+              className="header-text"
+            >
+              {this.state.watchersHidden ? 'Show Watch' : i18n.debugWatchHeader()}
+            </span>
             <i
               id="hide-toolbox-icon"
               style={styles.showDebugWatchIcon}
               className={"fa " + (this.state.watchersHidden ? "fa-chevron-circle-left" : "fa-chevron-circle-right")}
             />
-            <span
-              style={styles.noUserSelect}
-              className="header-text"
-            >
-              {this.state.watchersHidden ? 'Show Watch' : i18n.debugWatchHeader()}
-            </span>
           </PaneSection>
           }
-          <PaneButton
-            id="clear-console-header"
-            iconClass="fa fa-eraser"
-            label="Clear"
-            headerHasFocus={hasFocus}
-            isRtl={false}
-          />
           {this.props.debugSlider && <SpeedSlider style={sliderStyle} hasFocus={hasFocus} value={this.props.stepSpeed} lineWidth={130} onChange={this.props.setStepSpeed}/>}
         </PaneHeader>
         {this.props.debugButtons && <DebugButtons/>}
@@ -223,7 +235,7 @@ var JsDebugger = React.createClass({
   }
 });
 
-module.exports = connect(function propsFromStore(state) {
+const ConnectedJsDebugger = connect(function propsFromStore(state) {
   return {
     debugButtons: state.pageConstants.showDebugButtons,
     debugConsole: state.pageConstants.showDebugConsole,
@@ -239,3 +251,60 @@ module.exports = connect(function propsFromStore(state) {
     }
   };
 })(JsDebugger);
+module.exports = ConnectedJsDebugger;
+
+if (BUILD_STYLEGUIDE) {
+  JsDebugger.styleGuideExamples = storybook => {
+    const storyTable = [];
+
+    storyTable.push(
+      {
+        name: 'empty',
+        story: () => (
+          <JsDebugger />
+        )
+      });
+
+    storyTable.push(
+      {
+        name: 'empty paused',
+        story: () => (
+          <JsDebugger isDebuggerPaused/>
+        )
+      });
+
+    storyTable.push(
+      {
+        name: 'with debug buttons',
+        story: () => (
+          <JsDebugger debugButtons/>
+        )
+      });
+
+    storyTable.push(
+      {
+        name: 'with debug console',
+        story: () => (
+          <div style={{height: 200}}>
+            <JsDebugger debugConsole/>
+          </div>
+        )
+      });
+
+    const store = createStore(combineReducers(commonReducers));
+    storyTable.push(
+      {
+        name: 'connected',
+        story: () => (
+          <Provider store={store}>
+            <JsDebugger debugWatch />
+          </Provider>
+        )
+      });
+
+    storybook
+      .storiesOf('JsDebugger', module)
+      .addStoryTable(storyTable);
+  };
+}
+

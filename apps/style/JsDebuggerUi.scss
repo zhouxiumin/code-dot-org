@@ -46,7 +46,7 @@
 
 $debug-area-initial-height: 120px;
 #debug-area {
-  position: absolute;
+  //position: absolute;
   bottom: 0;
   height: $debug-area-initial-height;
   left: 0;
@@ -75,9 +75,9 @@ $debug-header-border-width: 1px;
 }
 
 #debug-watch-header {
-  width: $debug-watch-max-column-width + $debug-header-border-width;
-  max-width: calc(100% - #{$debug-commands-column-width} - #{$debug-console-min-column-width} + #{$debug-header-border-width});
-  float: right;
+  //width: $debug-watch-max-column-width + $debug-header-border-width;
+  //max-width: calc(100% - #{$debug-commands-column-width} - #{$debug-console-min-column-width} + #{$debug-header-border-width});
+  //float: right;
   border-left: $debug-header-border-width solid gray;
 }
 
@@ -85,7 +85,7 @@ $debug-header-border-width: 1px;
   display: block;
   background-color: $white;
   border: 1px solid #ddd;
-  position: absolute;
+  //position: absolute;
   top: $resize-bar-width + $workspace-headers-height;
   bottom: 0;
 }
@@ -144,7 +144,7 @@ $debug-prompt-width: 15px;
 $debug-input-height: 16px;
 
 .debug-input-prompt {
-  position: absolute;
+  //position: absolute;
   bottom: 0;
   height: $debug-input-height;
   display: block;
@@ -153,7 +153,7 @@ $debug-input-height: 16px;
 }
 
 .debug-input, .debug-output {
-  position: absolute;
+  //position: absolute;
   border-width: 0px;
   padding: 0px;
   outline: none;
@@ -161,10 +161,10 @@ $debug-input-height: 16px;
 }
 
 .debug-output {
-  top: 0;
+  //top: 0;
   bottom: $debug-input-height;
   left: $debug-console-left-padding;
-  right: 0;
+  //right: 0;
   overflow: auto;
   line-height: normal;
   cursor: text;
