@@ -5,7 +5,6 @@
 
 var React = require('react');
 var connect = require('react-redux').connect;
-
 var i18n = require('@cdo/locale');
 var commonStyles = require('../commonStyles');
 var styleConstants = require('../styleConstants');
@@ -20,13 +19,37 @@ import {setStepSpeed} from '../redux/runState';
 import {Provider} from 'react-redux';
 import {combineReducers, createStore} from 'redux';
 import commonReducers from '@cdo/apps/redux/commonReducers';
+import {setPageConstants} from '@cdo/apps/redux/pageConstants';
+
+const HEADER_BORDER = '1px solid gray';
 
 var styles = {
-  debugAreaHeader: {
+  debugArea: {
+    position: 'absolute',
+    minHeight: 200
+  },
+  watchHeader: {
     display: 'flex',
+    float: 'right',
+    borderLeft: HEADER_BORDER
+  },
+  watchHeaderHidden: {
+    borderLeft: 'none',
+    textAlign: 'right',
+  },
+  headerDebugCommands: {
+    width: 270,
+    borderRight: HEADER_BORDER
+  },
+  debugCommandsIcon: {
+    margin: '0 0.25em'
+  },
+  debugAreaHeader: {
     top: styleConstants['resize-bar-width'],
     textAlign: 'center',
-    lineHeight: '30px'
+    lineHeight: '30px',
+
+    display: 'flex',
   },
   noPadding: {
     padding: 0
@@ -144,6 +167,7 @@ var JsDebugger = React.createClass({
     debugSlider: React.PropTypes.bool.isRequired,
     isDebuggerPaused: React.PropTypes.bool.isRequired,
     stepSpeed: React.PropTypes.number.isRequired,
+    extraStyles: React.PropTypes.object,
     setStepSpeed: React.PropTypes.func.isRequired
   },
 
@@ -163,7 +187,7 @@ var JsDebugger = React.createClass({
 
     const showWatchPane = this.props.debugWatch && !this.state.watchersHidden;
     return (
-      <div id="debug-area">
+      <div id="debug-area" style={{...styles.debugArea, ...this.props.extraStyles}}>
         <div id="debugResizeBar" className="fa fa-ellipsis-h"></div>
         <PaneHeader
           id="debug-area-header"
@@ -178,9 +202,9 @@ var JsDebugger = React.createClass({
             {i18n.debugConsoleHeader()}
           </span>
           {this.props.debugButtons &&
-          <PaneSection id="debug-commands-header">
-            <i id="running-spinner" style={commonStyles.hidden} className="fa fa-spinner fa-spin"/>
-            <i id="paused-icon" style={commonStyles.hidden} className="fa fa-pause"/>
+          <PaneSection style={styles.headerDebugCommands} id="debug-commands-header">
+            <i id="running-spinner" style={{...commonStyles.hidden, ...styles.debugCommandsIcon}} className="fa fa-spinner fa-spin"/>
+            <i id="paused-icon" style={{...commonStyles.hidden, ...styles.debugCommandsIcon}} className="fa fa-pause"/>
             <span
               style={styles.noUserSelect}
               className="header-text"
@@ -202,15 +226,7 @@ var JsDebugger = React.createClass({
             onClick={() => {
               this.setState({watchersHidden: !this.state.watchersHidden});
             }}
-            style={this.state.watchersHidden ? {
-              borderLeft: 'none',
-              textAlign: 'right',
-              display: 'flex',
-              flexGrow: 1
-            } : {
-              display: 'flex',
-              flexGrow: 1
-            }}
+            style={{...styles.watchHeader, ...this.state.watchersHidden ? styles.watchHeaderHidden : {}}}
           >
             <span
               style={{...styles.noUserSelect, ...this.state.watchersHidden ? styles.watchersHeaderTextHidden : styles.watchersHeaderTextShowing}}
@@ -261,7 +277,7 @@ if (BUILD_STYLEGUIDE) {
       {
         name: 'empty',
         story: () => (
-          <JsDebugger />
+          <JsDebugger extraStyles={{position: 'relative'}} />
         )
       });
 
@@ -269,7 +285,7 @@ if (BUILD_STYLEGUIDE) {
       {
         name: 'empty paused',
         story: () => (
-          <JsDebugger isDebuggerPaused/>
+          <JsDebugger extraStyles={{position: 'relative'}} isDebuggerPaused/>
         )
       });
 
@@ -277,7 +293,7 @@ if (BUILD_STYLEGUIDE) {
       {
         name: 'with debug buttons',
         story: () => (
-          <JsDebugger debugButtons/>
+          <JsDebugger extraStyles={{position: 'relative'}} debugButtons/>
         )
       });
 
@@ -286,18 +302,35 @@ if (BUILD_STYLEGUIDE) {
         name: 'with debug console',
         story: () => (
           <div style={{height: 200}}>
-            <JsDebugger debugConsole/>
+            <JsDebugger extraStyles={{position: 'relative'}} debugConsole/>
           </div>
         )
       });
 
-    const store = createStore(combineReducers(commonReducers));
+    const emptyStore = createStore(combineReducers(commonReducers));
     storyTable.push(
       {
-        name: 'connected',
+        name: 'connected to redux stores with nothing enabled',
         story: () => (
-          <Provider store={store}>
-            <JsDebugger debugWatch />
+          <Provider store={emptyStore}>
+            <ConnectedJsDebugger extraStyles={{position: 'relative'}} />
+          </Provider>
+        )
+      });
+
+    const everythingStore = createStore(combineReducers(commonReducers));
+    everythingStore.dispatch(setPageConstants({
+      showDebugButtons: true,
+      showDebugConsole: true,
+      showDebugWatch: true,
+      showDebugSlider: true
+    }));
+    storyTable.push(
+      {
+        name: 'connected to redux stores with everything enabled',
+        story: () => (
+          <Provider store={everythingStore}>
+            <ConnectedJsDebugger extraStyles={{position: 'relative'}} debugWatch />
           </Provider>
         )
       });

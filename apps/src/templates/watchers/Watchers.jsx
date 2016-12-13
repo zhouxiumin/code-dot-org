@@ -32,9 +32,12 @@ const buttonSize = '36px';
 
 const styles = {
   watchContainer: {
-    width: '100%',
-    height: '100%',
-    overflowY: 'scroll'
+    position: 'absolute',
+    right: 0,
+    width: 200,
+    fontFamily: 'monospace',
+    fontSize: 12,
+    overflowY: 'scroll',
   },
   watchRemoveButton: {
     fontSize: 16,
@@ -60,6 +63,15 @@ const styles = {
     margin: 0,
     padding: 0
   },
+  watchVariable: {
+    color: 'purple'
+  },
+  watchSeparator: {
+    color: 'purple'
+  },
+  watchUnavailable: {
+    color: 'red'
+  },
   watchValue: {
     marginRight: 3,
     flexGrow: 1,
@@ -75,8 +87,12 @@ const styles = {
     clear: 'both'
   },
   watchItemSection: {
+    margin: 0, // TODO(bjordan) needed?
+    lintHeight: 14,
+    clear: 'both',
+    marginBottom: 1,
+
     display: 'flex',
-    clear: 'both'
   },
   watchInput: {
     paddingLeft: 4,
@@ -134,7 +150,7 @@ const Watchers = React.createClass({
 
     if (isError) {
       return (
-        <span className="watch-value watch-unavailable">
+        <span style={{...styles.watchUnavailable, ...styles.watchValue}}>
           {i18n.debugWatchNotAvailable()}
         </span>
       );
@@ -357,12 +373,12 @@ const Watchers = React.createClass({
               const varName = wv.get('expression');
               const varValue = wv.get('lastValue');
               return (
-              <div style={styles.watchItemSection} className="debug-watch-item" key={wv.get('uuid')}>
+              <div style={styles.watchItemSection} key={wv.get('uuid')}>
                 <div
                   style={styles.watchValue}
                 >
-                  <span className="watch-variable">{varName}</span>
-                  <span className="watch-separator">: </span>
+                  <span style={styles.watchVariable} className="watch-variable">{varName}</span>
+                  <span style={styles.watchSeparator} className="watch-separator">: </span>
                   {this.renderValue(varValue)}
                 </div>
                 <div
@@ -485,12 +501,14 @@ if (BUILD_STYLEGUIDE) {
 
     const storeRunning = createStore(combineReducers(commonReducers));
     storeRunning.dispatch(add('myUndefVar'));
+    storeRunning.dispatch(add('myErrorVar'));
     storeRunning.dispatch(add('myStringVar'));
     storeRunning.dispatch(add('myNumberVar'));
     storeRunning.dispatch(add('myObjectVar'));
     storeRunning.dispatch(add('myNamedFnVar'));
     storeRunning.dispatch(add('myCallbackVar'));
     storeRunning.dispatch(update('myStringVar', 'my sweet striiiiiiiiing'));
+    storeRunning.dispatch(update('myErrorVar', new Error('broken')));
     storeRunning.dispatch(update('myNumberVar', 5));
     storeRunning.dispatch(update('myObjectVar', {a: 5}));
     storeRunning.dispatch(update('myNamedFnVar', function cool() {console.log('ayy');}));
