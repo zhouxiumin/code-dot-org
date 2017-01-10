@@ -52,6 +52,7 @@ module.exports.blocks = [
   {func: 'pinMode', parent: api, category: MAKERLAB_CATEGORY, paletteParams: ['pin', 'mode'], params: ['13', '"output"'], dropdown: { 1: ['"output"', '"input"', '"analog"'] }},
   {func: 'digitalWrite', parent: api, category: MAKERLAB_CATEGORY, paletteParams: ['pin', 'value'], params: ['13', '1'], dropdown: { 1: ['1', '0'] }},
   {func: 'digitalRead', parent: api, category: MAKERLAB_CATEGORY, type: 'value', nativeIsAsync: true, paletteParams: ['pin'], params: ['"D4"']},
+  {func: 'wait', parent: api, category: MAKERLAB_CATEGORY, nativeIsAsync: true, paletteParams: ['time'], params: ['50']},
   {func: 'analogWrite', parent: api, category: MAKERLAB_CATEGORY, paletteParams: ['pin', 'value'], params: ['5', '150']},
   {func: 'analogRead', parent: api, category: MAKERLAB_CATEGORY, type: 'value', nativeIsAsync: true, paletteParams: ['pin'], params: ['5']},
 

@@ -10,6 +10,10 @@ exports.digitalRead = function (pin, callback) {
   return Applab.executeCmd(null, 'digitalRead', {pin, callback});
 };
 
+exports.wait = function (time, callback) {
+  return Applab.executeCmd(null, 'wait', {time, callback});
+};
+
 exports.analogWrite = function (pin, value) {
   return Applab.executeCmd(null, 'analogWrite', {pin, value});
 };

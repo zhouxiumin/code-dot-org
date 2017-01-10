@@ -1705,6 +1705,10 @@ applabCommands.digitalWrite = function (opts) {
   Applab.makerlabController.digitalWrite(opts.pin, opts.value);
 };
 
+applabCommands.wait = function (opts) {
+  setTimeout(opts.callback, opts.time);
+};
+
 applabCommands.digitalRead = function (opts) {
   apiValidateType(opts, 'digitalRead', 'pin', opts.pin, 'pinid');
 
