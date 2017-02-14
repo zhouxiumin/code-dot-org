@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170206173655) do
+ActiveRecord::Schema.define(version: 20170214024121) do
 
   create_table "activities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "user_id"
@@ -26,6 +26,16 @@ ActiveRecord::Schema.define(version: 20170206173655) do
     t.integer  "lines",           default: 0, null: false
     t.index ["level_source_id"], name: "index_activities_on_level_source_id", using: :btree
     t.index ["user_id", "level_id"], name: "index_activities_on_user_id_and_level_id", using: :btree
+  end
+
+  create_table "arenas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "user_id"
+    t.integer  "level_id"
+    t.text     "properties", limit: 65535
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.index ["level_id"], name: "index_arenas_on_level_id", using: :btree
+    t.index ["user_id"], name: "index_arenas_on_user_id", using: :btree
   end
 
   create_table "authored_hint_view_requests", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -1007,6 +1017,8 @@ ActiveRecord::Schema.define(version: 20170206173655) do
     t.index ["program_type"], name: "index_workshops_on_program_type", using: :btree
   end
 
+  add_foreign_key "arenas", "levels"
+  add_foreign_key "arenas", "users"
   add_foreign_key "authored_hint_view_requests", "levels"
   add_foreign_key "authored_hint_view_requests", "scripts"
   add_foreign_key "authored_hint_view_requests", "users"

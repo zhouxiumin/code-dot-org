@@ -117,6 +117,8 @@ Dashboard::Application.routes.draw do
     end
   end
 
+  get '/arena', to: 'arena#show'
+
   post '/locale', to: 'home#set_locale', as: 'locale'
 
   # quick links for cartoon network arabic
