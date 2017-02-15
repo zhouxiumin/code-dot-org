@@ -72,7 +72,7 @@ module LevelsHelper
   end
 
   def select_and_track_autoplay_video
-    return if @level.try(:autoplay_blocked_by_level?)
+    return if @level.try(:autoplay_blocked_by_level?) || @never_autoplay_video
 
     autoplay_video = nil
 

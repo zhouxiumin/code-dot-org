@@ -3,6 +3,8 @@ class ArenaController < ApplicationController
 
   # GET /arenas
   def show
+    @never_autoplay_video = true
+
     view_options(
       full_width: true,
       callouts: [],
