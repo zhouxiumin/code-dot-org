@@ -31,7 +31,7 @@ class ArenaController < ApplicationController
 
   def cached_level_for_concept(concept)
     # Find all non-trivial levels (concept difficulty 2-5).
-    @@level_concept_cache[concept] ||= LevelConceptDifficulty.with_difficulty(concept => (2..5)).pluck(:level_id)
+    @@level_concept_cache[concept] ||= LevelConceptDifficulty.with_exact_concepts(concept => (2..5)).pluck(:level_id)
 
     # Pick one level at random.
     Level.cache_find(@@level_concept_cache[concept].sample)

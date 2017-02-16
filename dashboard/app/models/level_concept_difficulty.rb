@@ -34,10 +34,14 @@ class LevelConceptDifficulty < ActiveRecord::Base
   # For example, `with_difficulty(repeat_loops: 2..5)` will find all non-trivial
   # loop LevelConceptDifficulties (difficulty 2-5), excluding any that are also
   # tagged with other concepts (but allowing 'sequencing' and 'debugging').
-  scope :with_difficulty, ->(concepts) do
+  scope :with_exact_concepts, ->(concepts) do
     others = LevelConceptDifficulty::CONCEPTS.map(&:to_sym) - [:sequencing, :debugging] - concepts.keys
     others_query = others.map{ |s| [s, nil] }.to_h
-    LevelConceptDifficulty.where(concepts).where(others_query)
+    where(concepts).where(others_query)
+  end
+
+  scope :combined_incidence, ->(concept_a, concept_b) do
+    where.not(concept_a => nil, concept_b => nil)
   end
 
   def serializable_hash(options=nil)
