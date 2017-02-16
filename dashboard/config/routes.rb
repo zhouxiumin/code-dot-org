@@ -117,6 +117,8 @@ Dashboard::Application.routes.draw do
     end
   end
 
+  get '/concepts', to: 'concept_difficulties#index'
+
   get '/arena', to: 'arena#show'
 
   post '/locale', to: 'home#set_locale', as: 'locale'

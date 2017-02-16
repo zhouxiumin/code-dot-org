@@ -42,7 +42,7 @@ class LevelConceptDifficulty < ActiveRecord::Base
   # Find LCDs that share the given concenpts.
   # Example: `combined_incidence(:for_loops, :variables)` returns LCDs tagged
   # with both 'for_loops' and 'variables' (and possibly others).
-  scope :combined_incidence, ->(*concepts) do
+  scope :matching, ->(*concepts) do
     where.not(nil_hash(concepts))
   end
 
@@ -50,6 +50,10 @@ class LevelConceptDifficulty < ActiveRecord::Base
   # Example: `nil_hash(:a, :b)` returns `{a: nil, b: nil}`.
   def self.nil_hash(items)
     items.map{ |s| [s, nil] }.to_h
+  end
+
+  def self.relative_incidence(*concepts)
+    concepts.map{ |c| matching(*concepts).count.to_f / matching(c).count }
   end
 
   def serializable_hash(options=nil)

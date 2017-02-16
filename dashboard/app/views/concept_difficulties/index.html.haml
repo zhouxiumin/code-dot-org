@@ -1,0 +1,13 @@
+%table{style: 'user-select: auto'}
+  %tr
+    %td
+      \% of levels tagged with →
+      %br
+      that are also tagged with ⤵
+    - @concepts.each do |concept|
+      %th= concept
+  - @matrix.each_with_index do |row, index|
+    %tr
+      %th= @concepts[index]
+      - row.each do |value|
+        %td= value
