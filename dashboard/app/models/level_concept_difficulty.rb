@@ -31,17 +31,25 @@ class LevelConceptDifficulty < ActiveRecord::Base
   # concept will default to `nil` (except 'sequencing' and 'debugging' because
   # we treat those as incorporated with other concepts).
   #
-  # For example, `with_difficulty(repeat_loops: 2..5)` will find all non-trivial
+  # Example: `with_exact_concepts(repeat_loops: 2..5)` will find all non-trivial
   # loop LevelConceptDifficulties (difficulty 2-5), excluding any that are also
   # tagged with other concepts (but allowing 'sequencing' and 'debugging').
   scope :with_exact_concepts, ->(concepts) do
     others = LevelConceptDifficulty::CONCEPTS.map(&:to_sym) - [:sequencing, :debugging] - concepts.keys
-    others_query = others.map{ |s| [s, nil] }.to_h
-    where(concepts).where(others_query)
+    where(concepts).where(self.nil_hash(others))
   end
 
-  scope :combined_incidence, ->(concept_a, concept_b) do
-    where.not(concept_a => nil, concept_b => nil)
+  # Find LCDs that share the given concenpts.
+  # Example: `combined_incidence(:for_loops, :variables)` returns LCDs tagged
+  # with both 'for_loops' and 'variables' (and possibly others).
+  scope :combined_incidence, ->(*concepts) do
+    where.not(nil_hash(concepts))
+  end
+
+  # Returns a hash with all given keys mapped to nil.
+  # Example: `nil_hash(:a, :b)` returns `{a: nil, b: nil}`.
+  def self.nil_hash(items)
+    items.map{ |s| [s, nil] }.to_h
   end
 
   def serializable_hash(options=nil)
