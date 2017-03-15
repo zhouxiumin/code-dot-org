@@ -67,6 +67,7 @@ $options.auto_retry = false
 $options.magic_retry = false
 $options.parallel_limit = 1
 $options.abort_when_failures_exceed = Float::INFINITY
+$calculate_flakiness = true
 
 # start supporting some basic command line filtering of which browsers we run against
 opt_parser = OptionParser.new do |opts|
@@ -97,6 +98,7 @@ opt_parser = OptionParser.new do |opts|
     $options.pegasus_domain = 'localhost.code.org:3000'
     $options.dashboard_domain = 'localhost.studio.code.org:3000'
     $options.hourofcode_domain = 'localhost.hourofcode.com:3000'
+    $calculate_flakiness = false
   end
   opts.on("-p", "--pegasus Domain", String, "Specify an override domain for code.org, e.g. localhost.code.org:3000") do |p|
     if p == 'localhost:3000'
@@ -234,16 +236,40 @@ def log_browser_error(msg)
   puts msg if $options.verbose
 end
 
-def run_tests(env, arguments, log_prefix)
-  start_time = Time.now
-  puts "#{log_prefix}cucumber #{arguments}"
-  Open3.popen3(env, "cucumber #{arguments}") do |stdin, stdout, stderr, wait_thr|
-    stdin.close
-    stdout = stdout.read
-    stderr = stderr.read
-    succeeded = wait_thr.value.exitstatus == 0
-    return succeeded, stdout, stderr, Time.now - start_time
+require 'cucumber/cli/main'
+# Prevent support files from being re-loaded on every execution.
+module SupportCodePatch
+  def load_files!(files)
+    unless @loaded
+      super(files)
+      @loaded = true
+    end
   end
+end
+Cucumber::Runtime::SupportCode.prepend SupportCodePatch
+
+class KernelStub
+  attr_reader :status
+  def exit(code)
+    @status = code
+  end
+  alias_method :exit!, :exit
+end
+
+def run_tests(env, arguments, log_prefix)
+  env.each do |k, v|
+    ENV[k] = v
+  end
+
+  start_time = Time.now
+  puts "#{log_prefix}cucumber #{arguments.join(' ')}"
+  # Reuse existing Cucumber runtime across multiple runs.
+  $runtime ||= Cucumber::Runtime.new
+  stdout = StringIO.new
+  stderr = StringIO.new
+  kernel = KernelStub.new
+  Cucumber::Cli::Main.new(arguments, nil, stdout, stderr, kernel).execute!($runtime)
+  [kernel.status == 0, stdout.string, stderr.string, Time.now - start_time]
 end
 
 if $options.force_db_access
@@ -262,13 +288,22 @@ end
 
 all_features = Dir.glob('features/**/*.feature')
 features_to_run = passed_features.empty? ? all_features : passed_features
-browser_features = $browsers.product features_to_run
+# Each scenario is represented as either a string name, if no name is given, an integer line number.
+scenarios = features_to_run.map do |feature|
+  [feature].product(
+    File.readlines(feature).
+    each.with_index(1).
+    map { |s, i| (match = s.match(/Scenario:\s*(.*?)\s*$/)) && (match[1].empty? ? i : match[1]) }.
+    reject(&:nil?)
+  )
+end
+browser_feature_scenarios = scenarios.flat_map{|scenario| scenario.product($browsers).map(&:flatten)}
 
 ENV['BATCH_NAME'] = "#{GIT_BRANCH} | #{Time.now}"
 
 test_type = $options.run_eyes_tests ? 'Eyes' : 'UI'
 applitools_batch_url = nil
-ChatClient.log "Starting #{browser_features.count} <b>dashboard</b> #{test_type} tests in #{$options.parallel_limit} threads..."
+ChatClient.log "Starting #{browser_feature_scenarios.count} <b>dashboard</b> #{test_type} tests in #{$options.parallel_limit} threads..."
 puts
 if test_type == 'Eyes'
   # Generate a batch ID, unique to this test run.
@@ -307,17 +342,17 @@ if $options.with_status_page
   ChatClient.log "A <a href=\"#{status_page_url}\">status page</a> has been generated for this #{test_type} test run."
 end
 
-def test_run_identifier(browser, feature)
+def test_run_identifier(feature, scenario, browser)
   feature_name = feature.gsub('features/', '').gsub('.feature', '').tr('/', '_')
   browser_name = browser_name_or_unknown(browser)
-  "#{browser_name}_#{feature_name}" + ($options.run_eyes_tests ? '_eyes' : '')
+  scenario = scenario.downcase.gsub(/[^[:alnum:]]/, '_') if scenario.is_a?(String)
+  "#{browser_name}_#{feature_name}_#{scenario}#{$options.run_eyes_tests && '_eyes'}"
 end
 
 def browser_name_or_unknown(browser)
   browser['name'] || 'UnknownBrowser'
 end
 
-$calculate_flakiness = true
 # Retrieves / calculates flakiness for given test run identifier, giving up for
 # the rest of this script execution if an error occurs during calculation.
 # returns the flakiness from 0.0 to 1.0 or nil if flakiness is unknown
@@ -331,9 +366,9 @@ rescue Exception => e
 end
 
 # Sort by flakiness (most flaky at end of array, will get run first)
-browser_features.sort! do |browser_feature_a, browser_feature_b|
-  (flakiness_for_test(test_run_identifier(browser_feature_b[0], browser_feature_b[1])) || 1.0) <=>
-    (flakiness_for_test(test_run_identifier(browser_feature_a[0], browser_feature_a[1])) || 1.0)
+browser_feature_scenarios.sort! do |browser_feature_a, browser_feature_b|
+  (flakiness_for_test(test_run_identifier(*browser_feature_b)) || 1.0) <=>
+    (flakiness_for_test(test_run_identifier(*browser_feature_a)) || 1.0)
 end
 
 # We track the number of failed features in this test run so we can abort the run
@@ -348,14 +383,12 @@ next_feature = lambda do
     ChatClient.log message, color: 'red'
     return Parallel::Stop
   end
-  return Parallel::Stop if browser_features.empty?
-  browser_features.pop
+  return Parallel::Stop if browser_feature_scenarios.empty?
+  browser_feature_scenarios.pop
 end
 
 parallel_config = {
-  # Run in parallel threads on CircleCI (less memory), processes on main test machine (better CPU utilization)
-  in_threads: ENV['CI'] ? $options.parallel_limit : nil,
-  in_processes: ENV['CI'] ? nil : $options.parallel_limit,
+  in_processes: $options.parallel_limit,
 
   # This 'finish' lambda runs on the main thread after each Parallel.map work
   # item is completed.
@@ -365,9 +398,9 @@ parallel_config = {
     failed_features += 1 unless succeeded
   end
 }
-run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
+run_results = Parallel.map(next_feature, parallel_config) do |feature, scenario, browser|
   browser_name = browser_name_or_unknown(browser)
-  test_run_string = test_run_identifier(browser, feature)
+  test_run_string = test_run_identifier(feature, scenario, browser)
   log_prefix = "[#{feature.gsub(/.*features\//, '').gsub('.feature', '')}] "
 
   if $options.pegasus_domain =~ /test/ && rack_env?(:development) && RakeUtils.git_updates_available?
@@ -429,25 +462,28 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
     full_error ? full_error.strip.split("\n").first : 'no selenium error found'
   end
 
-  arguments = ''
-  # arguments += "#{$options.feature}" if $options.feature
-  arguments += feature
-  arguments += " -t #{$options.run_eyes_tests && !browser['mobile'] ? '' : '~'}@eyes"
-  arguments += " -t #{$options.run_eyes_tests && browser['mobile'] ? '' : '~'}@eyes_mobile"
-  arguments += " -t ~@local_only" unless $options.local
-  arguments += " -t ~@no_mobile" if browser['mobile']
-  arguments += " -t ~@no_circle" if $options.is_circle
-  arguments += " -t ~@no_circle_ie" if $options.is_circle && browser['browserName'] == 'Internet Explorer'
-  arguments += " -t ~@no_ie" if browser['browserName'] == 'Internet Explorer'
-  arguments += " -t ~@chrome" if browser['browserName'] != 'chrome' && !$options.local
-  arguments += " -t ~@no_safari" if browser['browserName'] == 'Safari'
-  arguments += " -t ~@no_firefox" if browser['browserName'] == 'firefox'
-  arguments += " -t ~@skip"
-  arguments += " -t ~@webpurify" unless CDO.webpurify_key
-  arguments += " -t ~@pegasus_db_access" unless $options.pegasus_db_access
-  arguments += " -t ~@dashboard_db_access" unless $options.dashboard_db_access
-  arguments += " -S" # strict mode, so that we fail on undefined steps
-  arguments += " --format html --out #{html_output_filename} -f pretty" if $options.html # include the default (-f pretty) formatter so it does both
+  arguments = []
+  if scenario.is_a?(String)
+    arguments.push feature, "--name", scenario
+  else
+    arguments.push "#{feature}:#{scenario}"
+  end
+  arguments.push "-t", "#{$options.run_eyes_tests && !browser['mobile'] ? '' : '~'}@eyes"
+  arguments.push "-t", "#{$options.run_eyes_tests && browser['mobile'] ? '' : '~'}@eyes_mobile"
+  arguments.push "-t", "~@local_only" unless $options.local
+  arguments.push "-t","~@no_mobile" if browser['mobile']
+  arguments.push "-t","~@no_circle" if $options.is_circle
+  arguments.push "-t","~@no_circle_ie" if $options.is_circle && browser['browserName'] == 'Internet Explorer'
+  arguments.push "-t","~@no_ie" if browser['browserName'] == 'Internet Explorer'
+  arguments.push "-t","~@chrome" if browser['browserName'] != 'chrome' && !$options.local
+  arguments.push "-t","~@no_safari" if browser['browserName'] == 'Safari'
+  arguments.push "-t","~@no_firefox" if browser['browserName'] == 'firefox'
+  arguments.push "-t","~@skip"
+  arguments.push "-t","~@webpurify" unless CDO.webpurify_key
+  arguments.push "-t","~@pegasus_db_access" unless $options.pegasus_db_access
+  arguments.push "-t","~@dashboard_db_access" unless $options.dashboard_db_access
+  arguments.push "-S" # strict mode, so that we fail on undefined steps
+  arguments.push "--format","html","--out","#{html_output_filename}","-f","pretty" if $options.html # include the default (-f pretty) formatter so it does both
 
   # return all text after "Failing Scenarios"
   def output_synopsis(output_text, log_prefix)
@@ -514,14 +550,14 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
   # if autorertrying, output a rerun file so on retry we only run failed tests
   rerun_filename = test_run_string + ".rerun"
   if max_reruns > 0
-    arguments += " --format rerun --out #{rerun_filename}"
+    arguments.push "--format", "rerun", "--out", "#{rerun_filename}"
   end
 
   # In CircleCI we export additional logs in junit xml format so CircleCI can
   # provide pretty test reports with success/fail/timing data upon completion.
   # See: https://circleci.com/docs/test-metadata/#cucumber
   if ENV['CI']
-    arguments += " --format junit --out $CIRCLE_TEST_REPORTS/cucumber/#{test_run_string}.xml"
+    arguments.push " --format", "junit", "--out", "$CIRCLE_TEST_REPORTS/cucumber/#{test_run_string}.xml"
   end
 
   FileUtils.rm rerun_filename, force: true
