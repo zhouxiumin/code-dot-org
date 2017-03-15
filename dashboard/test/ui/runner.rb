@@ -262,13 +262,20 @@ end
 
 all_features = Dir.glob('features/**/*.feature')
 features_to_run = passed_features.empty? ? all_features : passed_features
-browser_features = $browsers.product features_to_run
+scenarios = features_to_run.map do |feature|
+  scenarios = File.readlines(feature).
+    each_with_index.
+    select { |s, _| s.match /Scenario:/}.
+    map(&:last)
+  [feature].product(scenarios)
+end
+browser_feature_scenarios = scenarios.flat_map{|scenario| scenario.product($browsers).map(&:flatten)}
 
 ENV['BATCH_NAME'] = "#{GIT_BRANCH} | #{Time.now}"
 
 test_type = $options.run_eyes_tests ? 'Eyes' : 'UI'
 applitools_batch_url = nil
-ChatClient.log "Starting #{browser_features.count} <b>dashboard</b> #{test_type} tests in #{$options.parallel_limit} threads..."
+ChatClient.log "Starting #{browser_feature_scenarios.count} <b>dashboard</b> #{test_type} tests in #{$options.parallel_limit} threads..."
 puts
 if test_type == 'Eyes'
   # Generate a batch ID, unique to this test run.
@@ -307,10 +314,10 @@ if $options.with_status_page
   ChatClient.log "A <a href=\"#{status_page_url}\">status page</a> has been generated for this #{test_type} test run."
 end
 
-def test_run_identifier(browser, feature)
+def test_run_identifier(feature, scenario, browser)
   feature_name = feature.gsub('features/', '').gsub('.feature', '').tr('/', '_')
   browser_name = browser_name_or_unknown(browser)
-  "#{browser_name}_#{feature_name}" + ($options.run_eyes_tests ? '_eyes' : '')
+  "#{browser_name}_#{feature_name}_#{scenario}#{$options.run_eyes_tests && '_eyes'}"
 end
 
 def browser_name_or_unknown(browser)
@@ -331,9 +338,9 @@ rescue Exception => e
 end
 
 # Sort by flakiness (most flaky at end of array, will get run first)
-browser_features.sort! do |browser_feature_a, browser_feature_b|
-  (flakiness_for_test(test_run_identifier(browser_feature_b[0], browser_feature_b[1])) || 1.0) <=>
-    (flakiness_for_test(test_run_identifier(browser_feature_a[0], browser_feature_a[1])) || 1.0)
+browser_feature_scenarios.sort! do |browser_feature_a, browser_feature_b|
+  (flakiness_for_test(test_run_identifier(*browser_feature_b)) || 1.0) <=>
+    (flakiness_for_test(test_run_identifier(*browser_feature_a)) || 1.0)
 end
 
 # We track the number of failed features in this test run so we can abort the run
@@ -348,8 +355,8 @@ next_feature = lambda do
     ChatClient.log message, color: 'red'
     return Parallel::Stop
   end
-  return Parallel::Stop if browser_features.empty?
-  browser_features.pop
+  return Parallel::Stop if browser_feature_scenarios.empty?
+  browser_feature_scenarios.pop
 end
 
 parallel_config = {
@@ -365,9 +372,9 @@ parallel_config = {
     failed_features += 1 unless succeeded
   end
 }
-run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
+run_results = Parallel.map(next_feature, parallel_config) do |feature, scenario, browser|
   browser_name = browser_name_or_unknown(browser)
-  test_run_string = test_run_identifier(browser, feature)
+  test_run_string = test_run_identifier(feature, scenario, browser)
   log_prefix = "[#{feature.gsub(/.*features\//, '').gsub('.feature', '')}] "
 
   if $options.pegasus_domain =~ /test/ && rack_env?(:development) && RakeUtils.git_updates_available?
@@ -431,7 +438,7 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
 
   arguments = ''
   # arguments += "#{$options.feature}" if $options.feature
-  arguments += feature
+  arguments += "#{feature}:#{scenario}"
   arguments += " -t #{$options.run_eyes_tests && !browser['mobile'] ? '' : '~'}@eyes"
   arguments += " -t #{$options.run_eyes_tests && browser['mobile'] ? '' : '~'}@eyes_mobile"
   arguments += " -t ~@local_only" unless $options.local
