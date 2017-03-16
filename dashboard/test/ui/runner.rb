@@ -443,7 +443,9 @@ run_results = Parallel.map(next_feature, parallel_config) do |feature, scenario,
   # arguments += "#{$options.feature}" if $options.feature
   arguments += feature
   if scenario.is_a?(String)
-    arguments += " --name '#{scenario}'"
+    # Escape single-quotes for shell command.
+    name = scenario.gsub("'"){"'\\''"}
+    arguments += " --name '#{name}'"
   else
     arguments += ":#{scenario}"
   end
