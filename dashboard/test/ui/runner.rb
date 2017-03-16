@@ -262,12 +262,14 @@ end
 
 all_features = Dir.glob('features/**/*.feature')
 features_to_run = passed_features.empty? ? all_features : passed_features
+# Each scenario is represented as either a string name, if no name is given, an integer line number.
 scenarios = features_to_run.map do |feature|
-  scenarios = File.readlines(feature).
-    each_with_index.
-    select { |s, _| s.match /Scenario:/}.
-    map(&:last)
-  [feature].product(scenarios)
+  [feature].product(
+    File.readlines(feature).
+    each.with_index(1).
+    map { |s, i| (match = s.match(/Scenario:\s*(.*?)\s*$/)) && (match[1].empty? ? i : match[1]) }.
+    reject(&:nil?)
+  )
 end
 browser_feature_scenarios = scenarios.flat_map{|scenario| scenario.product($browsers).map(&:flatten)}
 
@@ -317,6 +319,7 @@ end
 def test_run_identifier(feature, scenario, browser)
   feature_name = feature.gsub('features/', '').gsub('.feature', '').tr('/', '_')
   browser_name = browser_name_or_unknown(browser)
+  scenario = scenario.downcase.gsub(/[^[:alnum:]]/, '_') if scenario.is_a?(String)
   "#{browser_name}_#{feature_name}_#{scenario}#{$options.run_eyes_tests && '_eyes'}"
 end
 
@@ -438,7 +441,12 @@ run_results = Parallel.map(next_feature, parallel_config) do |feature, scenario,
 
   arguments = ''
   # arguments += "#{$options.feature}" if $options.feature
-  arguments += "#{feature}:#{scenario}"
+  arguments += feature
+  if scenario.is_a?(String)
+    arguments += " --name '#{scenario}'"
+  else
+    arguments += ":#{scenario}"
+  end
   arguments += " -t #{$options.run_eyes_tests && !browser['mobile'] ? '' : '~'}@eyes"
   arguments += " -t #{$options.run_eyes_tests && browser['mobile'] ? '' : '~'}@eyes_mobile"
   arguments += " -t ~@local_only" unless $options.local
