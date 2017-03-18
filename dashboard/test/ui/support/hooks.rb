@@ -29,6 +29,10 @@ end
 # sign-out steps etc. change the page the browser is currently on.
 After do
   check_window_for_js_errors('after scenario')
+  unless @browser.nil?
+    logs = @browser.manage.logs.get(:browser)
+    puts logs.map(&:to_s).join("\n") unless logs.empty?
+  end
 end
 
 Around do |_, block|
