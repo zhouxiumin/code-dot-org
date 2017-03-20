@@ -63,7 +63,7 @@ execute 'update-locale' do
   not_if { File.exist? '/etc/default/locale' }
 end
 
-include_recipe 'cdo-repository'
+include_recipe 'cdo-repository' unless node['cdo-repository'] && node['cdo-repository']['disable']
 
 include_recipe 'cdo-apps::workers'
 
