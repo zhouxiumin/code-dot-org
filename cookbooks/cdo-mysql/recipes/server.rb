@@ -1,4 +1,4 @@
-apt_package 'mysql-server-5.6'
+apt_package 'mysql-server'
 service 'mysql' do
   action [:enable, :start]
   # Detect if upstart service is running on Ubuntu 14.04.

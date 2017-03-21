@@ -1,2 +1,2 @@
 apt_package 'libmysqlclient-dev'
-apt_package 'mysql-client-5.6'
+apt_package 'mysql-client'
