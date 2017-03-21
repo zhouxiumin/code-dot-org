@@ -59,8 +59,8 @@ fi
 
 mkdir -p ${CHEF_REPO_PATH}/{cookbooks,environments}
 # Install branch-specific Chef cookbooks from local repo.
-/opt/chef/embedded/bin/bundle install
-/opt/chef/embedded/bin/bundle exec berks vendor ${CHEF_REPO_PATH}/cookbooks
+bundle install
+bundle exec berks vendor ${CHEF_REPO_PATH}/cookbooks
 
 # Boilerplate `test` environment for local Chef.
 cat <<JSON > ${CHEF_REPO_PATH}/environments/${ENVIRONMENT}.json
