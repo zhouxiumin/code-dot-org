@@ -67,6 +67,7 @@ $options.auto_retry = false
 $options.magic_retry = false
 $options.parallel_limit = 1
 $options.abort_when_failures_exceed = Float::INFINITY
+$calculate_flakiness = true
 
 # start supporting some basic command line filtering of which browsers we run against
 opt_parser = OptionParser.new do |opts|
@@ -97,6 +98,7 @@ opt_parser = OptionParser.new do |opts|
     $options.pegasus_domain = 'localhost.code.org:3000'
     $options.dashboard_domain = 'localhost.studio.code.org:3000'
     $options.hourofcode_domain = 'localhost.hourofcode.com:3000'
+    $calculate_flakiness = false
   end
   opts.on("-p", "--pegasus Domain", String, "Specify an override domain for code.org, e.g. localhost.code.org:3000") do |p|
     if p == 'localhost:3000'
@@ -327,7 +329,6 @@ def browser_name_or_unknown(browser)
   browser['name'] || 'UnknownBrowser'
 end
 
-$calculate_flakiness = true
 # Retrieves / calculates flakiness for given test run identifier, giving up for
 # the rest of this script execution if an error occurs during calculation.
 # returns the flakiness from 0.0 to 1.0 or nil if flakiness is unknown
