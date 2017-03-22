@@ -149,7 +149,7 @@ class Pd::Workshop < ActiveRecord::Base
 
   def sessions_must_start_on_separate_days
     if sessions.all(&:valid?)
-      unless sessions.map{|session| session.start.to_datetime.to_date}.uniq.length == sessions.length
+      unless sessions.map {|session| session.start.to_datetime.to_date}.uniq.length == sessions.length
         errors.add(:sessions, 'must start on separate days.')
       end
     else
@@ -202,12 +202,12 @@ class Pd::Workshop < ActiveRecord::Base
   end
 
   # Filters by scheduled start date (date of first session)
-  def self.start_on_or_before(date)
+  def self.scheduled_start_on_or_before(date)
     joins(:sessions).group(:pd_workshop_id).having('(DATE(MIN(start)) <= ?)', date)
   end
 
   # Filters by scheduled start date (date of first session)
-  def self.start_on_or_after(date)
+  def self.scheduled_start_on_or_after(date)
     joins(:sessions).group(:pd_workshop_id).having('(DATE(MIN(start)) >= ?)', date)
   end
 
@@ -239,6 +239,24 @@ class Pd::Workshop < ActiveRecord::Base
     )
   end
 
+  # Filters by scheduled end date (date of last session)
+  def self.scheduled_end_on_or_before(date)
+    joins(:sessions).group(:pd_workshop_id).having("(DATE(MAX(end)) <= ?)", date)
+  end
+
+  # Filters by scheduled end date (date of last session)
+  def self.scheduled_end_on_or_after(date)
+    joins(:sessions).group(:pd_workshop_id).having("(DATE(MAX(end)) >= ?)", date)
+  end
+
+  def self.scheduled_start_in_days(days)
+    Pd::Workshop.joins(:sessions).group(:pd_workshop_id).having("(DATE(MIN(start)) = ?)", Date.today + days.days)
+  end
+
+  def self.scheduled_end_in_days(days)
+    Pd::Workshop.joins(:sessions).group(:pd_workshop_id).having("(DATE(MAX(end)) = ?)", Date.today + days.days)
+  end
+
   # Filters by date the workshop actually ended, regardless of scheduled session times.
   def self.end_on_or_before(date)
     where('(DATE(ended_at) <= ?)', date)
@@ -249,12 +267,10 @@ class Pd::Workshop < ActiveRecord::Base
     where('(DATE(ended_at) >= ?)', date)
   end
 
-  def self.start_in_days(days)
-    Pd::Workshop.joins(:sessions).group(:pd_workshop_id).having("(DATE(MIN(start)) = ?)", Date.today + days.days)
-  end
-
-  def self.end_in_days(days)
-    Pd::Workshop.joins(:sessions).group(:pd_workshop_id).having("(DATE(MAX(end)) = ?)", Date.today + days.days)
+  # Filters those those workshops that have not yet ended, but whose
+  # final session was scheduled to end more than two days ago
+  def self.should_have_ended
+    in_state(STATE_IN_PROGRESS).scheduled_end_on_or_before(Time.zone.now - 2.days)
   end
 
   def course_name
@@ -307,7 +323,7 @@ class Pd::Workshop < ActiveRecord::Base
   def self.send_reminder_for_upcoming_in_days(days)
     # Collect errors, but do not stop batch. Rethrow all errors below.
     errors = []
-    start_in_days(days).each do |workshop|
+    scheduled_start_in_days(days).each do |workshop|
       workshop.enrollments.each do |enrollment|
         begin
           email = Pd::WorkshopMailer.teacher_enrollment_reminder(enrollment)
@@ -333,9 +349,23 @@ class Pd::Workshop < ActiveRecord::Base
     raise "Failed to send #{days} day workshop reminders: #{errors.join(', ')}" unless errors.empty?
   end
 
+  def self.send_reminder_to_close
+    # Collect errors, but do not stop batch. Rethrow all errors below.
+    errors = []
+    should_have_ended.each do |workshop|
+      begin
+        Pd::WorkshopMailer.organizer_should_close_reminder(workshop).deliver_now
+      rescue => e
+        errors << "organizer should close workshop #{workshop.id} - #{e.message}"
+      end
+    end
+    raise "Failed to send reminders: #{errors.join(', ')}" unless errors.empty?
+  end
+
   def self.send_automated_emails
     send_reminder_for_upcoming_in_days(3)
     send_reminder_for_upcoming_in_days(10)
+    send_reminder_to_close
   end
 
   def self.process_ended_workshop_async(id)
@@ -395,7 +425,7 @@ class Pd::Workshop < ActiveRecord::Base
   # Apply max # days for payment, if applicable, to the number of scheduled days (sessions).
   # @return [Integer] number of payment days, after applying constraints
   def effective_num_days
-    max_days = TIME_CONSTRAINTS_BY_SUBJECT[subject].try{|constraints| constraints[:max_days]}
+    max_days = TIME_CONSTRAINTS_BY_SUBJECT[subject].try {|constraints| constraints[:max_days]}
     [sessions.count, max_days].compact.min
   end
 
@@ -403,7 +433,7 @@ class Pd::Workshop < ActiveRecord::Base
   # @return [Integer] number of payment hours, after applying constraints
   def effective_num_hours
     actual_hours = sessions.map(&:hours).reduce(&:+)
-    max_hours = TIME_CONSTRAINTS_BY_SUBJECT[subject].try{|constraints| constraints[:max_hours]}
+    max_hours = TIME_CONSTRAINTS_BY_SUBJECT[subject].try {|constraints| constraints[:max_hours]}
     [actual_hours, max_hours].compact.min
   end
 

@@ -594,6 +594,9 @@ en:
       CSD U3 collisions STOP isTouching:
         STOP: STOP
         description here: description here
+      CSD U3 combining rep:
+        description here: description here
+        title: title
       CSD U3 complex sprite movement SFLP: {}
       CSD U3 game intro:
         Create Your Own Game: Create Your Own Game
@@ -642,6 +645,9 @@ en:
         description here: description here
         title: title
       CSD U5 data visualization sheet:
+        description here: description here
+        title: title
+      CSD U5 student record:
         description here: description here
         title: title
       CSD U5 video2:
@@ -7216,7 +7222,7 @@ en:
         B: B
         C: C
         Correct!: Correct!
-        D.: D.
+        D: D
         Incorrect.: Incorrect.
         Take a close look at the code below.  Which image will it create after you click "Run"?: Take a close look at the code below.  Which image will it create after you click "Run"?
       courseD_multi_artist_nestedLoops9_predict1:
