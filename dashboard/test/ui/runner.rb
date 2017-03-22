@@ -25,6 +25,7 @@ require 'open3'
 require 'parallel'
 require 'securerandom'
 require 'socket'
+require 'parallel_tests/cucumber/scenarios'
 
 require_relative './utils/selenium_browser'
 
@@ -234,10 +235,11 @@ def log_browser_error(msg)
   puts msg if $options.verbose
 end
 
-def run_tests(env, arguments, log_prefix)
+def run_tests(env, arguments, features, log_prefix)
   start_time = Time.now
-  puts "#{log_prefix}cucumber #{arguments}"
-  Open3.popen3(env, "cucumber #{arguments}") do |stdin, stdout, stderr, wait_thr|
+  cmd = "bundle exec parallel_cucumber --group-by scenarios -- #{arguments} -- #{features.join(' ')}"
+  puts "#{log_prefix}#{cmd}"
+  Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
     stdin.close
     stdout = stdout.read
     stderr = stderr.read
@@ -262,14 +264,11 @@ end
 
 all_features = Dir.glob('features/**/*.feature')
 features_to_run = passed_features.empty? ? all_features : passed_features
-browser_features = $browsers.product features_to_run
-
 ENV['BATCH_NAME'] = "#{GIT_BRANCH} | #{Time.now}"
 
 test_type = $options.run_eyes_tests ? 'Eyes' : 'UI'
 applitools_batch_url = nil
-ChatClient.log "Starting #{browser_features.count} <b>dashboard</b> #{test_type} tests in #{$options.parallel_limit} threads..."
-puts
+
 if test_type == 'Eyes'
   # Generate a batch ID, unique to this test run.
   # Each Eyes instance will use the same one so that tests from this
@@ -307,10 +306,9 @@ if $options.with_status_page
   ChatClient.log "A <a href=\"#{status_page_url}\">status page</a> has been generated for this #{test_type} test run."
 end
 
-def test_run_identifier(browser, feature)
-  feature_name = feature.gsub('features/', '').gsub('.feature', '').tr('/', '_')
+def test_run_identifier(browser)
   browser_name = browser_name_or_unknown(browser)
-  "#{browser_name}_#{feature_name}" + ($options.run_eyes_tests ? '_eyes' : '')
+  "#{browser_name}" + ($options.run_eyes_tests ? '_eyes' : '')
 end
 
 def browser_name_or_unknown(browser)
@@ -330,65 +328,28 @@ rescue Exception => e
   nil
 end
 
-# Sort by flakiness (most flaky at end of array, will get run first)
-browser_features.sort! do |browser_feature_a, browser_feature_b|
-  (flakiness_for_test(test_run_identifier(browser_feature_b[0], browser_feature_b[1])) || 1.0) <=>
-    (flakiness_for_test(test_run_identifier(browser_feature_a[0], browser_feature_a[1])) || 1.0)
-end
-
 # We track the number of failed features in this test run so we can abort the run
 # if we exceed a certain limit.  See $options.abort_when_failures_exceed.
 failed_features = 0
 
-# This lambda function is called by Parallel.map each time it needs a new work
-# item.  It should return Parallel::Stop when there is no more work to do.
-next_feature = lambda do
-  if failed_features > $options.abort_when_failures_exceed
-    message = "Abandoning test run; passed limit of #{$options.abort_when_failures_exceed} failed features."
-    ChatClient.log message, color: 'red'
-    return Parallel::Stop
-  end
-  return Parallel::Stop if browser_features.empty?
-  browser_features.pop
-end
-
-parallel_config = {
-  # Run in parallel threads on CircleCI (less memory), processes on main test machine (better CPU utilization)
-  in_threads: ENV['CI'] ? $options.parallel_limit : nil,
-  in_processes: ENV['CI'] ? nil : $options.parallel_limit,
-
-  # This 'finish' lambda runs on the main thread after each Parallel.map work
-  # item is completed.
-  finish: lambda do |_, _, result|
-    succeeded, _, _ = result
-    # Count failures so we can abort the whole test run if we exceed the limit
-    failed_features += 1 unless succeeded
-  end
-}
-run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
-  browser_name = browser_name_or_unknown(browser)
-  test_run_string = test_run_identifier(browser, feature)
-  log_prefix = "[#{feature.gsub(/.*features\//, '').gsub('.feature', '')}] "
-
-  if $options.pegasus_domain =~ /test/ && rack_env?(:development) && RakeUtils.git_updates_available?
-    message = "Killing <b>dashboard</b> UI tests (changes detected)"
-    ChatClient.log message, color: 'yellow'
-    raise Parallel::Kill
-  end
-
+$browsers.select! do |browser|
   if $options.browser && browser['browser'] && $options.browser.casecmp(browser['browser']) != 0
-    next
+    return false
   end
   if $options.os_version && browser['os_version'] && $options.os_version.casecmp(browser['os_version']) != 0
-    next
+    return false
   end
   if $options.browser_version && browser['browser_version'] && $options.browser_version.casecmp(browser['browser_version']) != 0
-    next
+    return false
   end
+  true
+end
 
-  # Don't log individual tests because we hit ChatClient rate limits
-  # ChatClient.log "Testing <b>dashboard</b> UI with <b>#{test_run_string}</b>..."
-  puts "#{log_prefix}Starting UI tests for #{test_run_string}"
+$browsers.each do |browser|
+  browser_name = browser_name_or_unknown(browser)
+
+  test_run_string = test_run_identifier(browser)
+  log_prefix = "[#{test_run_string}] "
 
   run_environment = {}
   run_environment['BROWSER_CONFIG'] = browser_name
@@ -402,6 +363,7 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
   run_environment['MOBILE'] = browser['mobile'] ? "true" : "false"
   run_environment['FAIL_FAST'] = $options.fail_fast ? "true" : nil
   run_environment['TEST_RUN_NAME'] = test_run_string
+  run_environment['PARALLEL_TEST_PROCESSORS'] = ($options.parallel_limit / $browsers.length).to_s
 
   # disable some stuff to make require_rails_env run faster within cucumber.
   # These things won't be disabled in the dashboard instance we're testing against.
@@ -430,8 +392,6 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
   end
 
   arguments = ''
-  # arguments += "#{$options.feature}" if $options.feature
-  arguments += feature
   arguments += " -t #{$options.run_eyes_tests && !browser['mobile'] ? '' : '~'}@eyes"
   arguments += " -t #{$options.run_eyes_tests && browser['mobile'] ? '' : '~'}@eyes_mobile"
   arguments += " -t ~@local_only" unless $options.local
@@ -511,7 +471,7 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
 
   max_reruns = how_many_reruns?(test_run_string)
 
-  # if autorertrying, output a rerun file so on retry we only run failed tests
+  # if auto-retrying, output a rerun file so on retry we only run failed tests
   rerun_filename = test_run_string + ".rerun"
   if max_reruns > 0
     arguments += " --format rerun --out #{rerun_filename}"
@@ -527,7 +487,12 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
   FileUtils.rm rerun_filename, force: true
 
   reruns = 0
-  succeeded, output_stdout, output_stderr, test_duration = run_tests(run_environment, arguments, log_prefix)
+
+  scenarios = ParallelTests::Cucumber::Scenarios.all(features_to_run, :test_options => arguments)
+  ChatClient.log "Starting #{scenarios.length} <b>dashboard</b> #{test_type} tests in #{($options.parallel_limit / $browsers.length).to_s} threads..."
+
+  succeeded, output_stdout, output_stderr, test_duration = run_tests(run_environment, arguments, features_to_run, log_prefix)
+
   log_link = upload_log_and_get_public_link(
     html_output_filename,
     {
@@ -548,7 +513,7 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
 
     rerun_arguments = File.exist?(rerun_filename) ? " @#{rerun_filename}" : ''
 
-    succeeded, output_stdout, output_stderr, test_duration = run_tests(run_environment, arguments + rerun_arguments, log_prefix)
+    succeeded, output_stdout, output_stderr, test_duration = run_tests(run_environment, arguments + rerun_arguments, features_to_run, log_prefix)
     log_link = upload_log_and_get_public_link(
       html_output_filename,
       {
@@ -598,7 +563,7 @@ run_results = Parallel.map(next_feature, parallel_config) do |browser, feature|
     message = "#{log_prefix}<b>dashboard</b> UI tests failed with <b>#{test_run_string}</b> (#{RakeUtils.format_duration(test_duration)}#{scenario_info}#{rerun_info})#{log_link}"
     short_message = message
 
-    message += "<br/>rerun:<br/>bundle exec ./runner.rb --html#{' --eyes' if $options.run_eyes_tests} -c #{browser_name} -f #{feature}"
+    message += "<br/>rerun:<br/>bundle exec ./runner.rb --html#{' --eyes' if $options.run_eyes_tests} -c #{browser_name} -f #{features_to_run.join(',')}"
     ChatClient.log message, color: 'red'
     if rack_env?(:test)
       ChatClient.message 'server operations', short_message, color: 'red'
