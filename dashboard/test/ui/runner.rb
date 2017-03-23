@@ -236,16 +236,40 @@ def log_browser_error(msg)
   puts msg if $options.verbose
 end
 
-def run_tests(env, arguments, log_prefix)
-  start_time = Time.now
-  puts "#{log_prefix}cucumber #{arguments}"
-  Open3.popen3(env, "cucumber #{arguments}") do |stdin, stdout, stderr, wait_thr|
-    stdin.close
-    stdout = stdout.read
-    stderr = stderr.read
-    succeeded = wait_thr.value.exitstatus == 0
-    return succeeded, stdout, stderr, Time.now - start_time
+require 'cucumber/cli/main'
+# Prevent support files from being re-loaded on every execution.
+module SupportCodePatch
+  def load_files!(files)
+    unless @loaded
+      super(files)
+      @loaded = true
+    end
   end
+end
+Cucumber::Runtime::SupportCode.prepend SupportCodePatch
+
+class KernelStub
+  attr_reader :status
+  def exit(code)
+    @status = code
+  end
+  alias_method :exit!, :exit
+end
+
+def run_tests(env, arguments, log_prefix)
+  env.each do |k, v|
+    ENV[k] = v
+  end
+
+  start_time = Time.now
+  puts "#{log_prefix}cucumber #{arguments.join(' ')}"
+  # Reuse existing Cucumber runtime across multiple runs.
+  $runtime ||= Cucumber::Runtime.new
+  stdout = StringIO.new
+  stderr = StringIO.new
+  kernel = KernelStub.new
+  Cucumber::Cli::Main.new(arguments, nil, stdout, stderr, kernel).execute!($runtime)
+  [kernel.status == 0, stdout.string, stderr.string, Time.now - start_time]
 end
 
 if $options.force_db_access
@@ -364,9 +388,7 @@ next_feature = lambda do
 end
 
 parallel_config = {
-  # Run in parallel threads on CircleCI (less memory), processes on main test machine (better CPU utilization)
-  in_threads: ENV['CI'] ? $options.parallel_limit : nil,
-  in_processes: ENV['CI'] ? nil : $options.parallel_limit,
+  in_processes: $options.parallel_limit,
 
   # This 'finish' lambda runs on the main thread after each Parallel.map work
   # item is completed.
@@ -440,32 +462,32 @@ run_results = Parallel.map(next_feature, parallel_config) do |feature, scenario,
     full_error ? full_error.strip.split("\n").first : 'no selenium error found'
   end
 
-  arguments = ''
-  # arguments += "#{$options.feature}" if $options.feature
-  arguments += feature
+  arguments = []
+  # arguments.push "#{$options.feature}" if $options.feature
   if scenario.is_a?(String)
     # Escape single-quotes for shell command.
     name = scenario.gsub("'"){"'\\''"}
-    arguments += " --name '#{name}'"
+    arguments.push feature
+    arguments.push "--name", name
   else
-    arguments += ":#{scenario}"
+    arguments.push "#{feature}:#{scenario}"
   end
-  arguments += " -t #{$options.run_eyes_tests && !browser['mobile'] ? '' : '~'}@eyes"
-  arguments += " -t #{$options.run_eyes_tests && browser['mobile'] ? '' : '~'}@eyes_mobile"
-  arguments += " -t ~@local_only" unless $options.local
-  arguments += " -t ~@no_mobile" if browser['mobile']
-  arguments += " -t ~@no_circle" if $options.is_circle
-  arguments += " -t ~@no_circle_ie" if $options.is_circle && browser['browserName'] == 'Internet Explorer'
-  arguments += " -t ~@no_ie" if browser['browserName'] == 'Internet Explorer'
-  arguments += " -t ~@chrome" if browser['browserName'] != 'chrome' && !$options.local
-  arguments += " -t ~@no_safari" if browser['browserName'] == 'Safari'
-  arguments += " -t ~@no_firefox" if browser['browserName'] == 'firefox'
-  arguments += " -t ~@skip"
-  arguments += " -t ~@webpurify" unless CDO.webpurify_key
-  arguments += " -t ~@pegasus_db_access" unless $options.pegasus_db_access
-  arguments += " -t ~@dashboard_db_access" unless $options.dashboard_db_access
-  arguments += " -S" # strict mode, so that we fail on undefined steps
-  arguments += " --format html --out #{html_output_filename} -f pretty" if $options.html # include the default (-f pretty) formatter so it does both
+  arguments.push "-t", "#{$options.run_eyes_tests && !browser['mobile'] ? '' : '~'}@eyes"
+  arguments.push "-t", "#{$options.run_eyes_tests && browser['mobile'] ? '' : '~'}@eyes_mobile"
+  arguments.push "-t", "~@local_only" unless $options.local
+  arguments.push "-t","~@no_mobile" if browser['mobile']
+  arguments.push "-t","~@no_circle" if $options.is_circle
+  arguments.push "-t","~@no_circle_ie" if $options.is_circle && browser['browserName'] == 'Internet Explorer'
+  arguments.push "-t","~@no_ie" if browser['browserName'] == 'Internet Explorer'
+  arguments.push "-t","~@chrome" if browser['browserName'] != 'chrome' && !$options.local
+  arguments.push "-t","~@no_safari" if browser['browserName'] == 'Safari'
+  arguments.push "-t","~@no_firefox" if browser['browserName'] == 'firefox'
+  arguments.push "-t","~@skip"
+  arguments.push "-t","~@webpurify" unless CDO.webpurify_key
+  arguments.push "-t","~@pegasus_db_access" unless $options.pegasus_db_access
+  arguments.push "-t","~@dashboard_db_access" unless $options.dashboard_db_access
+  arguments.push "-S" # strict mode, so that we fail on undefined steps
+  arguments.push "--format","html","--out","#{html_output_filename}","-f","pretty" if $options.html # include the default (-f pretty) formatter so it does both
 
   # return all text after "Failing Scenarios"
   def output_synopsis(output_text, log_prefix)
@@ -532,14 +554,14 @@ run_results = Parallel.map(next_feature, parallel_config) do |feature, scenario,
   # if autorertrying, output a rerun file so on retry we only run failed tests
   rerun_filename = test_run_string + ".rerun"
   if max_reruns > 0
-    arguments += " --format rerun --out #{rerun_filename}"
+    arguments.push "--format", "rerun", "--out", "#{rerun_filename}"
   end
 
   # In CircleCI we export additional logs in junit xml format so CircleCI can
   # provide pretty test reports with success/fail/timing data upon completion.
   # See: https://circleci.com/docs/test-metadata/#cucumber
   if ENV['CI']
-    arguments += " --format junit --out $CIRCLE_TEST_REPORTS/cucumber/#{test_run_string}.xml"
+    arguments.push " --format", "junit", "--out", "$CIRCLE_TEST_REPORTS/cucumber/#{test_run_string}.xml"
   end
 
   FileUtils.rm rerun_filename, force: true
