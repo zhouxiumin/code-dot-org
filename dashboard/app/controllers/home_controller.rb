@@ -34,6 +34,7 @@ class HomeController < ApplicationController
 
   GALLERY_PER_PAGE = 5
   def index
+    view_options(no_footer: true)
     if current_user
       @gallery_activities =
         current_user.gallery_activities.order(id: :desc).page(params[:page]).per(GALLERY_PER_PAGE)
