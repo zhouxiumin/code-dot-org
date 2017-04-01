@@ -68,6 +68,8 @@ module Dashboard
 
     require 'cdo/rack/upgrade_insecure_requests'
     config.middleware.use ::Rack::UpgradeInsecureRequests
+    require 'cdo/rack/optimize'
+    config.middleware.insert_before ActionDispatch::Static, ::Rack::Optimize
 
     config.encoding = 'utf-8'
 

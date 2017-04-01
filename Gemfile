@@ -245,3 +245,6 @@ gem 'full-name-splitter', github: 'pahanix/full-name-splitter'
 gem 'rambling-trie'
 
 gem 'omniauth-openid-connect', github: 'wjordan/omniauth-openid-connect', ref: 'cdo'
+gem 'image_optim', github: 'ignisf/image_optim', ref: 'guetzli'
+gem 'image_optim_pack'
+gem 'image_optim_rails'

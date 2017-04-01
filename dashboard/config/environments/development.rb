@@ -5,7 +5,7 @@ Dashboard::Application.configure do
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
-  config.cache_store = :null_store
+  config.cache_store = :memory_store
 
   # Cache assets in memory instead of on disk
   if CDO.with_default(true).cache_assets_in_memory
@@ -52,6 +52,9 @@ Dashboard::Application.configure do
   config.assets.digest = false
 
   config.assets.quiet = true
+
+  # No need to optimize images in development.
+  config.assets.image_optim = false
 
   # Whether or not to display pretty apps (formerly called blockly).
   config.pretty_apps = true
