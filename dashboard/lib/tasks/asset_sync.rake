@@ -10,9 +10,10 @@ namespace :assets do
   task pre_precompile: :environment do
     next unless CDO.sync_assets
     require 'cdo/aws/sprockets_cache_s3store'
-    Rails.application.config.assets.configure do |env|
-      env.cache = Sprockets::Cache::S3Store.new(CDO.assets_bucket, "#{rack_env}/sprockets_cache.gz")
-    end
+    Rails.application.assets.cache = Sprockets::Cache::S3Store.new(
+      CDO.assets_bucket,
+      "#{rack_env}/sprockets_cache.gz"
+    )
   end
 end
 

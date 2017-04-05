@@ -66,7 +66,6 @@ dependencies:
     - 'echo "build_pegasus: true" >> locals.yml'
     - 'echo "build_apps: true" >> locals.yml'
     - 'echo "localize_apps: true" >> locals.yml'
-    - 'echo "sync_assets: false" >> locals.yml'
     - 'echo "dashboard_enable_pegasus: true" >> locals.yml'
     - 'echo "dashboard_workers: 7" >> locals.yml'
     # Avoid double-seeding. `rake install` runs a dashboard seed, this stops
@@ -91,7 +90,7 @@ dependencies:
     # Run rake build (twice in case of intermittent test failures within rake build)
     # See notes above rake install for timeout, ts, and mispipe reasoning
     - for i in 1 2; do mispipe "bundle exec rake build" "ts '[%Y-%m-%d %H:%M:%S]'" && break; done:
-        timeout: 840
+        timeout: 8400
     # Update firebase security rules and config params. If these security rules change in a
     # non-backward-compatible way, this may cause a new test run to make an older one fail.
     - bundle exec rake firebase:ci

@@ -7,8 +7,8 @@ module Sprockets
     # Basic Sprockets cache store over S3.
     #
     # Individual S3 requests are too high-latency for each cache entry to use its own S3 object.
-    # Instead, load the entire cache from a single S3 object at startup, and flush the cache back to S3 after
-    # all Sprockets processing has completed.
+    # Instead, load the entire cache from a single S3 object at startup,
+    # and flush the cache back to S3 after all Sprockets processing has completed.
     #
     # Assign the instance to the Environment#cache, e.g.:
     #
@@ -65,7 +65,7 @@ module Sprockets
       def load_cache
         logger.info 'Loading Sprockets cache from S3..'
         @dirty = false
-        @cache = EncodingUtils.unmarshalled_deflated(
+        @cache = EncodingUtils.unmarshaled_deflated(
           s3.get_object(bucket: bucket, key: key).
             body.read.force_encoding(Encoding::BINARY)
         )
