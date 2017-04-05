@@ -17,6 +17,10 @@ namespace :assets do
 end
 
 Rake::Task['assets:precompile'].enhance([:pre_precompile]) do
+  application_js_path = dashboard_dir('public', ActionController::Base.helpers.asset_path("application.js"))
+  puts "minifying", application_js_path
+  uglified = Uglifier.compile(File.read(application_js_path))
+  File.write(application_js_path, uglified)
   next unless CDO.sync_assets
   cache = Rails.application.assets.cache.instance_variable_get(:@cache_wrapper).cache
   cache.flush if cache.respond_to?(:flush)
