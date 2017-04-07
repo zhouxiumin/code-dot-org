@@ -18,6 +18,7 @@ require 'json'
 require 'uri'
 require 'cdo/rack/upgrade_insecure_requests'
 require 'cdo/rack/prebake_images'
+require 'cdo/rack/optimize'
 require_relative 'helper_modules/dashboard'
 require 'dynamic_config/dcdo'
 require 'active_support/core_ext/hash'
@@ -69,6 +70,7 @@ class Documents < Sinatra::Base
   use Rack::CdoDeflater
   use Rack::UpgradeInsecureRequests
   use Rack::PrebakeImages
+  use Rack::Optimize
 
   # Use dynamic config for max_age settings, with the provided default as fallback.
   def self.set_max_age(type, default)
@@ -164,14 +166,6 @@ class Documents < Sinatra::Base
     end
   end
 
-  # Static files
-  get '*' do |uri|
-    pass unless path = resolve_static('public', uri)
-    cache :static
-    NewRelic::Agent.set_transaction_name(uri) if defined? NewRelic
-    send_file(path)
-  end
-
   get '/style.css' do
     content_type :css
     css_last_modified = Time.at(0)
@@ -207,6 +201,14 @@ class Documents < Sinatra::Base
     cache :image
     send_file(image_data[:file]) if image_data[:file]
     image_data[:content]
+  end
+
+  # Static files
+  get '*' do |uri|
+    pass unless path = resolve_static('public', uri)
+    cache :static
+    NewRelic::Agent.set_transaction_name(uri) if defined? NewRelic
+    send_file(path)
   end
 
   # Documents

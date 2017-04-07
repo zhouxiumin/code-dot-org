@@ -1,12 +1,11 @@
 require 'cdo/optimizer'
+
 # Rack middleware that applies an optimizing filter pass on response content.
 module Rack
   class Optimize
-    DEFAULT_CONTENT_TYPES = ImageOptim::Railtie::MIME_TYPES
-
     def initialize(app, options = {})
       @app = app
-      @content_types = options.delete(:content_types) || DEFAULT_CONTENT_TYPES
+      @content_types = options.delete(:content_types) || Cdo::Optimizer::MIME_TYPES
     end
 
     def call(env)
@@ -22,7 +21,13 @@ module Rack
 
       content_type = headers['Content-Type'] || 'application/octet-stream'
       optimized_content = Cdo::Optimizer.optimize(content, content_type)
-      headers['Cache-Control'] = 'private, no-store' if content.equal?(optimized_content)
+
+      # If the optimizer returns nil, the optimization is still pending.
+      # Return `no-store` cache header so the un-optimized content won't get cached.
+      if optimized_content.nil?
+        headers['Cache-Control'] = 'private, no-store'
+        optimized_content = content
+      end
 
       # Update content-length after transform
       headers['content-length'] = optimized_content.bytesize.to_s
