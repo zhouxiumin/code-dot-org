@@ -277,7 +277,7 @@ module Pegasus
       content_type format.to_sym
       cache_control :public, :must_revalidate, max_age: settings.image_max_age
 
-      load_manipulated_image(path, mode, width, height, format)
+      Cdo::Graphics.load_manipulated_image(path, mode, width, height, format)
     end
 
     def http_vary_add_type(vary, type)

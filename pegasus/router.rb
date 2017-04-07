@@ -5,7 +5,7 @@ require 'sinatra/base'
 require 'sinatra/verbs'
 require 'cdo/sinatra'
 require 'cdo/geocoder'
-require 'cdo/pegasus/graphics'
+require 'cdo/graphics'
 require 'cdo/rack/cdo_deflater'
 require 'cdo/rack/request'
 require 'cdo/properties'
@@ -17,6 +17,7 @@ require 'cgi'
 require 'json'
 require 'uri'
 require 'cdo/rack/upgrade_insecure_requests'
+require 'cdo/rack/prebake_images'
 require_relative 'helper_modules/dashboard'
 require 'dynamic_config/dcdo'
 require 'active_support/core_ext/hash'
@@ -67,6 +68,7 @@ class Documents < Sinatra::Base
   use Rack::Locale
   use Rack::CdoDeflater
   use Rack::UpgradeInsecureRequests
+  use Rack::PrebakeImages
 
   # Use dynamic config for max_age settings, with the provided default as fallback.
   def self.set_max_age(type, default)
@@ -187,9 +189,18 @@ class Documents < Sinatra::Base
   # rubocop:enable Lint/Eval
 
   # Manipulated images
+  MD5_REGEX = /-[a-fA-F0-9]{32}/
   get '/images/*' do |path|
     path = File.join('/images', path)
-    image_data = process_image(path, settings.image_extnames, @language, request.site)
+    language = request.site == 'hourofcode.com' ? @language : nil
+    dirs = @dirs.map{|dir| content_dir(dir, 'public')}
+
+    unless (md5 = path.match(MD5_REGEX))
+      redirect Cdo::Graphics.digest_path(path, dirs)
+    end
+
+    path.slice!(md5.to_s)
+    image_data = Cdo::Graphics.process_image(path, settings.image_extnames, dirs, language)
     pass if image_data.nil?
     last_modified image_data[:last_modified]
     content_type image_data[:content_type]

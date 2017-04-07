@@ -1,7 +1,7 @@
 require 'sinatra/base'
 require 'erb'
 require 'sass/plugin/rack'
-require 'cdo/pegasus/graphics'
+require 'cdo/graphics'
 require 'dynamic_config/dcdo'
 
 class SharedResources < Sinatra::Base
@@ -87,20 +87,12 @@ class SharedResources < Sinatra::Base
   # Images
   get '/shared/images/*' do |path|
     path = request.path_info
-    image_data = process_image(path, settings.image_extnames)
+    image_data = Cdo::Graphics.process_image(path, settings.image_extnames, [deploy_dir])
     pass if image_data.nil?
     last_modified image_data[:last_modified]
     content_type image_data[:content_type]
     cache :image
     send_file(image_data[:file]) if image_data[:file]
     image_data[:content]
-  end
-
-  def resolve_image(uri)
-    settings.image_extnames.each do |extname|
-      path = deploy_dir("#{uri}#{extname}")
-      return path if File.file?(path)
-    end
-    nil
   end
 end
