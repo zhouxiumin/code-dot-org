@@ -35,7 +35,6 @@ var shareWarnings = require('./shareWarnings');
 import { setPageConstants } from './redux/pageConstants';
 import { lockContainedLevelAnswers } from './code-studio/levels/codeStudioLevels';
 import SmallFooter from '@cdo/apps/code-studio/components/SmallFooter';
-import firehoseClient from '@cdo/apps/lib/util/firehose';
 
 import {blocks as makerDropletBlocks} from './lib/kits/maker/dropletConfig';
 import { getStore, registerReducers } from './redux';
@@ -49,7 +48,11 @@ import {
   closeDialog as closeInstructionsDialog
 } from './redux/instructionsDialog';
 import { setIsRunning } from './redux/runState';
+import { setVisualizationScale } from './redux/layout';
 var commonReducers = require('./redux/commonReducers');
+
+// Make sure polyfills are available in all code studio apps and level tests.
+import './polyfills';
 
 var copyrightStrings;
 
@@ -395,14 +398,6 @@ StudioApp.prototype.init = function (config) {
         var nonDropletError = false;
         // are we trying to toggle from blocks to text (or the opposite)
         var fromBlocks = this.editor.currentlyUsingBlocks;
-        var event = fromBlocks ? "block-to-text" : "text-to-block";
-        firehoseClient.putRecord(
-          'analysis-events',
-          {
-            study: 'block-and-text-transitions',
-            event: event,
-            project_id: dashboard.project.getCurrentId()
-          });
         try {
           result = this.editor.toggleBlocks();
         } catch (err) {
@@ -1373,6 +1368,7 @@ StudioApp.prototype.resizeVisualization = function (width) {
     visualization.style.width = newVizWidthString;
   }
   var scale = (newVizWidth / this.nativeVizWidth);
+  this.reduxStore.dispatch(setVisualizationScale(scale));
 
   applyTransformScaleToChildren(visualization, 'scale(' + scale + ')');
 
@@ -2105,13 +2101,12 @@ StudioApp.prototype.handleEditCode_ = function (config) {
   this.dropletTooltipManager.registerBlocks();
 
   // Bind listener to palette/toolbox 'Hide' and 'Show' links
-  var hideToolboxHeader = document.getElementById('toolbox-header');
-  var hideToolboxIcon = document.getElementById('hide-toolbox-icon');
-  var showToolboxHeader = document.getElementById('show-toolbox-header');
-  if (hideToolboxHeader && hideToolboxIcon && showToolboxHeader) {
-    hideToolboxHeader.className += ' toggleable';
+  const hideToolboxIcon = document.getElementById('hide-toolbox-icon');
+  const showToolboxHeader = document.getElementById('show-toolbox-header');
+  const showToolboxClickTarget = document.getElementById('show-toolbox-click-target');
+  if (hideToolboxIcon && showToolboxHeader) {
     hideToolboxIcon.style.display = 'inline-block';
-    var handleTogglePalette = (function () {
+    const handleTogglePalette = () => {
       if (this.editor) {
         this.editor.enablePalette(!this.editor.paletteEnabled);
         showToolboxHeader.style.display =
@@ -2120,9 +2115,9 @@ StudioApp.prototype.handleEditCode_ = function (config) {
             !this.editor.paletteEnabled ? 'none' : 'inline-block';
         this.resizeToolboxHeader();
       }
-    }).bind(this);
-    dom.addClickTouchEvent(hideToolboxHeader, handleTogglePalette);
-    dom.addClickTouchEvent(showToolboxHeader, handleTogglePalette);
+    };
+    dom.addClickTouchEvent(hideToolboxIcon, handleTogglePalette);
+    dom.addClickTouchEvent(showToolboxClickTarget, handleTogglePalette);
   }
 
   this.resizeToolboxHeader();
@@ -2819,7 +2814,7 @@ StudioApp.prototype.forLoopHasDuplicatedNestedVariables_ = function (block) {
 
   // Not the most efficient of algo's, but we shouldn't have enough blocks for
   // it to matter.
-  return block.getVars().some(function (varName) {
+  return innerBlock && block.getVars().some(function (varName) {
     return innerBlock.getDescendants().some(function (descendant) {
       if (descendant.type !== 'controls_for' &&
           descendant.type !== 'controls_for_counter') {

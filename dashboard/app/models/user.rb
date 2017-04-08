@@ -356,6 +356,7 @@ class User < ActiveRecord::Base
     :dont_reconfirm_emails_that_match_hashed_email,
     :hash_email,
     :hide_email_and_full_address_for_students,
+    :hide_school_info_for_students,
     :sanitize_race_data
 
   def make_teachers_21
@@ -393,6 +394,10 @@ class User < ActiveRecord::Base
       self.unconfirmed_email = nil
       self.full_address = nil
     end
+  end
+
+  def hide_school_info_for_students
+    self.school_info = nil if student?
   end
 
   def sanitize_race_data
@@ -481,7 +486,6 @@ class User < ActiveRecord::Base
       user.user_type = params['user_type'] || auth.info.user_type || User::TYPE_STUDENT
 
       if auth.provider == :the_school_project
-
         user.username = auth.extra.raw_info.nickname
         user.user_type = auth.extra.raw_info.role
         user.locale = auth.extra.raw_info.locale
@@ -730,7 +734,7 @@ class User < ActiveRecord::Base
   end
 
   def student_of?(teacher)
-    followeds.find_by_user_id(teacher.id).present?
+    teachers.include? teacher
   end
 
   def locale
@@ -1208,7 +1212,7 @@ class User < ActiveRecord::Base
   end
 
   def section_for_script(script)
-    followeds.collect(&:section).find {|section| section.script_id == script.id}
+    sections_as_student.find {|section| section.script_id == script.id}
   end
 
   # Returns the version of our Terms of Service we consider the user as having
@@ -1219,14 +1223,7 @@ class User < ActiveRecord::Base
     if teacher?
       return terms_of_service_version
     end
-    # As of August 2016, it may be the case that the `followed` exists but
-    # `followed.user` does not as the result of user deletion. In this case, we
-    # ignore any terms of service versions associated with deleted teacher
-    # accounts.
-    followeds.
-      collect {|followed| followed.user.try(:terms_of_service_version)}.
-      compact.
-      max
+    teachers.map(&:terms_of_service_version).try(:compact).try(:max)
   end
 
   # Returns whether the user has accepted the latest major version of the Terms of Service
