@@ -29,7 +29,7 @@ module Rack
         optimized_content = content
       end
 
-      # Update content-length after transform
+      # Update content-length after transform.
       headers['content-length'] = optimized_content.bytesize.to_s
       response = [optimized_content]
 
@@ -37,8 +37,7 @@ module Rack
     end
 
     def should_process?(env, status, headers, body)
-      # Skip empty entity body responses and responses with
-      # no-transform set.
+      # Skip empty entity body responses and responses with no-transform set.
       if Utils::STATUS_WITH_NO_ENTITY_BODY.include?(status) ||
         headers['Cache-Control'].to_s =~ /\bno-transform\b/
         return false

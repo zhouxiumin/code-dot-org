@@ -1,5 +1,6 @@
 require 'timeout'
 require 'image_optim'
+require 'image_compressor_pack'
 require 'digest/md5'
 require 'active_job'
 require 'active_support/core_ext/module/attribute_accessors'
@@ -10,9 +11,6 @@ require 'active_support/cache'
 # and the optimization will finish asynchronously.
 module Cdo
   class Optimizer
-    DEFAULT_TIMEOUT = 0.5
-    SLEEP_INTERVAL = 0.1
-
     MIME_TYPES = %w[
       image/gif
       image/jpeg
@@ -34,11 +32,15 @@ module Cdo
       end
     end
 
+    # Set timeout to non-zero to wait the specified number of seconds for the
+    # optimization to finish, before returning nil.
+    # Default no timeout.
+    mattr_accessor(:timeout) {0}
+
     # @param data [String] input content
     # @param content_type [String] content type
-    # @param timeout [Numeric] timeout duration in seconds.
-    # @return [String] output content (or input content on timeout)
-    def self.optimize(data, content_type, timeout=DEFAULT_TIMEOUT)
+    # @return [String] optimized content (or nil if optimization is pending)
+    def self.optimize(data, content_type)
       Timeout.timeout(timeout) do
         case content_type
           when *MIME_TYPES
@@ -48,50 +50,54 @@ module Cdo
         end
       end
     rescue Timeout::Error
-      # Return `nil` if optimization times out.
+      # Optimization is still pending after timeout.
       nil
     end
 
+    SLEEP_INTERVAL = 0.1
+
     # Optimizes image content.
     def self.optimize_image(data)
-      cache_key = Digest::MD5.hexdigest(data)
+      cache_key = cache_key(data)
       result = cache.read(cache_key)
       OptimizeJob.perform_later(data) if result.nil?
+      raise Timeout::Error if !result && timeout.zero?
       sleep SLEEP_INTERVAL until (result = cache.read(cache_key))
       result
+    end
+
+    # Increment OPTIMIZE_VERSION to change the cache key.
+    OPTIMIZE_VERSION = 0
+
+    def self.cache_key(data)
+      Digest::MD5.new.
+        update(data).
+        update(OPTIMIZE_VERSION.to_s).
+        hexdigest
     end
   end
 
   # ActiveJob that optimizes an image using ImageOptim, writing the result to cache.
   class OptimizeJob < ActiveJob::Base
-    logger.level = Logger::INFO
+    logger.level = Logger::WARN
 
     IMAGE_OPTIM = ImageOptim.new(
-      {
-        guetzli: {
-          quality: 84,
-          allow_lossy: true
-        },
-        pngquant: {
-          allow_lossy: true,
-          quality: 50..80
-        }
-      }
+      config_paths: dashboard_dir('config/image_optim.yml'),
+      cache_dir: dashboard_dir('tmp/cache/image_optim')
     )
 
     def perform(data)
-      cache_key = Digest::MD5.hexdigest(data)
+      cache = Optimizer.cache
+      cache_key = Optimizer.cache_key(data)
       cache.fetch(cache_key) do
         # Write `false` to cache to prevent concurrent image optimizations.
         cache.write(cache_key, false)
-        begin
-          IMAGE_OPTIM.optimize_image_data(data) || data
-        rescue => e
-          logger.fatal "Error: #{e}\n#{CDO.backtrace e}"
-          # Return original un-optimized content if there's an error.
-          data
-        end
+        IMAGE_OPTIM.optimize_image_data(data) || data
       end
+    rescue => e
+      # Log error and return original content.
+      logger.fatal "Error: #{e}\n#{CDO.backtrace e}"
+      data
     end
   end
 end

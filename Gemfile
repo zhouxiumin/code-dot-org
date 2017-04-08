@@ -245,6 +245,10 @@ gem 'full-name-splitter', github: 'pahanix/full-name-splitter'
 gem 'rambling-trie'
 
 gem 'omniauth-openid-connect', github: 'wjordan/omniauth-openid-connect', ref: 'cdo'
-gem 'image_optim', github: 'ignisf/image_optim', ref: 'guetzli'
-gem 'image_optim_pack'
-gem 'image_optim_rails'
+
+# Install image-optim tools in all non-development environments.
+group :staging, :test, :production, :adhoc, :levelbuilder do
+  gem 'image_compressor_pack', github: 'wjordan/image_compressor_pack', ref: 'cdo'
+  gem 'image_optim', github: 'wjordan/image_optim', ref: 'guetzli'
+  gem 'image_optim_rails'
+end

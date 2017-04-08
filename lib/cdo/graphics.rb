@@ -1,7 +1,16 @@
 require 'rmagick'
+require 'active_support/core_ext/module/attribute_accessors'
+require 'active_support/cache'
 
 module Cdo
   module Graphics
+
+    # Since image manipulation can take a while, memoize results in cache to avoid duplicate work.
+    mattr_accessor :cache do
+      (defined?(Rails) && Rails.cache) ||
+        ActiveSupport::Cache::FileStore.new(dashboard_dir('tmp', 'cache'))
+    end
+
     MAX_DIMENSION = 2880
     IMAGE_EXTENSIONS = %w(.png .jpeg .jpg .gif)
 
@@ -142,7 +151,16 @@ module Cdo
         scale = 0.5 if retina_in && !retina_out
       end
 
-      image = load_manipulated_image(image_file, mode, width, height, image_format, scale)
+      # Memoize image manipulation based on file contents and arguments.
+      args = [image_file, mode, width, height, image_format, scale]
+      cache_key = [
+        'load_manipulated_image',
+        Digest::MD5.file(image_file).hexdigest
+      ].concat(args)
+      image = cache.fetch(cache_key) do
+        load_manipulated_image(*args)
+      end
+
       output.merge(content: image)
     end
 

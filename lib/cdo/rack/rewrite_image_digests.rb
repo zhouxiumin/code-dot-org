@@ -4,7 +4,7 @@ require 'cdo/rack/process_html'
 require 'dynamic_config/dcdo'
 
 module Rack
-  class PrebakeImages < ProcessHtml
+  class RewriteImageDigests < ProcessHtml
     attr_reader :request
 
     def initialize(app)

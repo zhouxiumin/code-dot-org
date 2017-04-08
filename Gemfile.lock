@@ -15,18 +15,6 @@ GIT
       redis
 
 GIT
-  remote: https://github.com/ignisf/image_optim.git
-  revision: e43d05d62e29d93d08659ca9079606326ee0a758
-  ref: guetzli
-  specs:
-    image_optim (0.24.2)
-      exifr (~> 1.2, >= 1.2.2)
-      fspath (~> 3.0)
-      image_size (~> 1.5)
-      in_threads (~> 1.3)
-      progress (~> 3.0, >= 3.0.1)
-
-GIT
   remote: https://github.com/pahanix/full-name-splitter.git
   revision: 316b4f3f4b1e5902dedc2a369d1d9052f042dd50
   specs:
@@ -46,6 +34,26 @@ GIT
   ref: rack-request-fix
   specs:
     geocoder (1.3.7)
+
+GIT
+  remote: https://github.com/wjordan/image_compressor_pack.git
+  revision: 7d937c2becf4417123721764343ceb60ac97b720
+  ref: cdo
+  specs:
+    image_compressor_pack (1.0.1.1)
+      mini_portile2 (~> 2)
+
+GIT
+  remote: https://github.com/wjordan/image_optim.git
+  revision: e43d05d62e29d93d08659ca9079606326ee0a758
+  ref: guetzli
+  specs:
+    image_optim (0.24.2)
+      exifr (~> 1.2, >= 1.2.2)
+      fspath (~> 3.0)
+      image_size (~> 1.5)
+      in_threads (~> 1.3)
+      progress (~> 3.0, >= 3.0.1)
 
 GIT
   remote: https://github.com/wjordan/ims-lti.git
@@ -336,9 +344,6 @@ GEM
       multi_xml (>= 0.5.2)
     httpclient (2.8.2.2)
     i18n (0.7.0)
-    image_optim_pack (0.3.1.20170318)
-      fspath (>= 2.1, < 4)
-      image_optim (~> 0.19)
     image_optim_rails (0.3.0)
       image_optim (~> 0.24.0)
       rails
@@ -751,8 +756,8 @@ DEPENDENCIES
   highline (~> 1.6.21)
   honeybadger
   httparty
+  image_compressor_pack!
   image_optim!
-  image_optim_pack
   image_optim_rails
   ims-lti!
   jbuilder (~> 2.5)
