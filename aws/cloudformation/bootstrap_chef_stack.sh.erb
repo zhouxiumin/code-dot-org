@@ -22,6 +22,14 @@ INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 NODE_NAME=<%=node_name%>
 RESOURCE_ID=<%=resource_id%>
 
+# Pass the `CDO` CloudFormation Stack Output as the `cdo-secrets` Chef attribute.
+CDO=$(aws cloudformation describe-stacks \
+    --region ${REGION} \
+    --stack-name ${STACK} \
+    --query 'Stacks[].Outputs[?OutputKey == `CDO`][].OutputValue'
+    --output text \
+)
+
 # Customize Chef configuration.
 FIRST_BOOT=/etc/chef/first-boot.json
 mkdir -p $(dirname ${FIRST_BOOT})
@@ -34,13 +42,7 @@ cat <<JSON > ${FIRST_BOOT}
     "branch": "<%=branch%>",
     "sync": true
   },
-  "cdo-secrets": {
-<% if local_mode -%>
-    "build_apps": true,
-    "use_my_apps": true,
-<% end -%>
-    "stack_name": "${STACK}"
-  },
+  "cdo-secrets": ${CDO},
 <% if local_mode -%>
   "omnibus_updater": {
     "version": "${CHEF_VERSION}"

@@ -112,11 +112,19 @@ Resources:
           ResourceRecords: [{'Fn::GetAtt':[WebServer, PublicIp]}]
 <%end %>
 Outputs:
-<%
-  %w(Dashboard Pegasus).each do |app|
-    app_domain = "#{app == 'Pegasus' ? '' : (app.downcase + '-')}#{subdomain}";
-%>
-  <%=app%>URL:
-    Value: "https://<%=app_domain%>"
-    Description: <%=app%> URL
-<% end%>
+  DashboardURL:
+    Value: "https://dashboard-<%=subdomain%>"
+    Description: Dashboard URL
+  PegasusURL:
+    Value: "https://<%=subdomain%>"
+    Description: Pegasus URL
+  CDO:
+    Description: CDO application configuration
+    Value:
+      stack_name: !Ref AWS::StackName
+<% if local_mode -%>
+      build_apps: true
+      use_my_apps: true
+<% end -%>
+      override_dashboard: dashboard-<%=subdomain%>
+      override_pegasus: <%=subdomain%>

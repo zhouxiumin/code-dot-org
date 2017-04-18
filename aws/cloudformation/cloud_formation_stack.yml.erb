@@ -369,6 +369,25 @@ Resources:
       CacheNodeType: cache.r3.large
       SecurityGroupIds: [!GetAtt [VPC, RedisSecurityGroup]]
       CacheSubnetGroupName: !Ref GeocoderSubnetGroup
+  MemcachedParameterGroup:
+    Type: AWS::ElastiCache::ParameterGroup
+    Properties:
+      CacheParameterGroupFamily: memcached1.4
+      Description: Memcached modified max_item_size.
+      Properties:
+        max_item_size: <%=64.megabytes%>
+  Memcached:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      CacheNodeType: cache.r3.large
+      CacheParameterGroupName: !Ref MemcachedParameterGroup
+      CacheSubnetGroupName: !Ref GeocoderSubnetGroup
+      ClusterName: memcached-<%=stack_name%>
+      Engine: memcached
+      NumCacheNodes: 2
+      AZMode: cross-az
+      PreferredAvailabilityZones: <%= azs.first(2).to_json %>
+      VpcSecurityGroupIds: [!ImportValue VPC-MemcachedSecurityGroup]
 <% end -%>
   ActivitiesQueue:
     Type: AWS::SQS::Queue
@@ -427,3 +446,17 @@ Outputs:
   PegasusURL:
     Value: "https://<%=subdomain%>"
     Description: Pegasus URL
+  CDO:
+    Description: CDO application configuration
+    Value:
+      stack_name: !Ref AWS::StackName
+<% if local_mode -%>
+      build_apps: true
+      use_my_apps: true
+<% end -%>
+<%  if environment == :production -%>
+      memcached_endpoint: !Sub "${Memcached.ConfigurationEndpoint.Address}:${Memcached.ConfigurationEndpoint.Port}"
+      redis_primary: !Sub "${GeocoderGroup.PrimaryEndPoint.Address}:${GeocoderGroup.PrimaryEndPoint.Port}"
+      redis_read_only: !GetAtt GeocoderGroup.ReadEndPoint.Addresses
+      redis_read_only_ports: !GetAtt GeocoderGroup.ReadEndPoint.Ports
+<% end -%>

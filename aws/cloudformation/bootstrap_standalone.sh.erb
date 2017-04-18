@@ -63,6 +63,15 @@ CERT=$(aws s3 cp ${CURRENT}/cert.pem -)
 CHAIN=$(aws s3 cp ${CURRENT}/chain.pem -)
 KEY=$(aws s3 cp ${CURRENT}/key.pem -)
 
+# Pass the `CDO` CloudFormation Stack Output as the `cdo-secrets` Chef attribute.
+CDO=$(aws cloudformation describe-stacks \
+    --region ${REGION} \
+    --stack-name ${STACK} \
+    --query 'Stacks[].Outputs[?OutputKey == `CDO`][].OutputValue'
+    --output text \
+)
+
+# Customize Chef configuration.
 FIRST_BOOT=/etc/chef/first-boot.json
 mkdir -p $(dirname ${FIRST_BOOT})
 jq "." <<JSON > ${FIRST_BOOT}
@@ -78,14 +87,7 @@ jq "." <<JSON > ${FIRST_BOOT}
       "content": "${KEY}"
     }
   },
-  "cdo-secrets": {
-<% if local_mode %>
-    "build_apps": true,
-    "use_my_apps": true,
-<% end %>
-    "override_dashboard": "dashboard-<%=subdomain%>",
-    "override_pegasus": "<%=subdomain%>"
-  },
+  "cdo-secrets": ${CDO},
   "omnibus_updater": {
     "version": "${CHEF_VERSION}"
   },
