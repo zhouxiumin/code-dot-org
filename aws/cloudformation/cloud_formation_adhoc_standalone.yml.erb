@@ -28,7 +28,6 @@ end
 AWSTemplateFormatVersion: 2010-09-09
 Description: Standalone Code.org application on a single EC2 instance<%=cdn_enabled ? ' over CloudFront CDN' : ''%>.
 Resources:
-  IAM: <%= lambda_fn.call 'LookupStackOutputs', StackName: 'IAM' %>
   AMI: <%= lambda_fn.call 'LookupStackOutputs', StackName: "AMI-#{environment}" %>
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -56,7 +55,7 @@ Resources:
     Properties:
       ImageId: {'Fn::GetAtt': [AMI, ImageId]}
       InstanceType: <%=instance_type%>
-      IamInstanceProfile: {'Fn::GetAtt': [IAM, StandaloneFrontendInstanceProfile]}
+      IamInstanceProfile: !ImportValue IAM-StandaloneFrontendInstanceProfile
       KeyName: <%=ssh_key_name%>
       Tags: [{Key: Name, Value: <%=stack_name%>}]
       BlockDeviceMappings:
