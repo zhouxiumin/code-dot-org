@@ -446,19 +446,3 @@ Outputs:
   PegasusURL:
     Value: "https://<%=subdomain%>"
     Description: Pegasus URL
-  CDO:
-    Description: CDO application configuration
-    Value: !Sub |
-      {
-<% if local_mode -%>
-        "build_apps": true,
-        "use_my_apps": true,
-<% end -%>
-<%  if environment == :production -%>
-        "memcached_endpoint": "${Memcached.ConfigurationEndpoint.Address}:${Memcached.ConfigurationEndpoint.Port}",
-        "redis_primary": "${GeocoderGroup.PrimaryEndPoint.Address}:${GeocoderGroup.PrimaryEndPoint.Port}",
-        "redis_read_only": "${GeocoderGroup.ReadEndPoint.Addresses}",
-        "redis_read_only_ports": "${GeocoderGroup.ReadEndPoint.Ports}",
-<% end -%>
-        "stack_name": "${AWS::StackName}",
-      }
