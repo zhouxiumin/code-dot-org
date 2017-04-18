@@ -48,7 +48,7 @@ Resources:
             VolumeSize: 64
             VolumeType: gp2
       UserData:
-        Fn::Base64: <%=file.call('bootstrap_chef_stack.sh.erb',
+        Fn::Base64: <%=file('bootstrap_chef_stack.sh.erb',
           resource_id: "AMICreate#{ami}",
           node_name: 'ami-${INSTANCE_ID}',
           run_list: [
@@ -149,11 +149,10 @@ Resources:
             VolumeSize: 64
             VolumeType: gp2
       UserData:
-        Fn::Base64: <%=file.call('bootstrap_frontend.sh.erb',
+        Fn::Base64: <%=file('bootstrap_frontend.sh.erb',
           resource_id: 'Frontends',
           hook: 'WebServerHookNew',
-          node_name: 'fe-${INSTANCE_ID}',
-          commit: commit)%>
+          node_name: 'fe-$INSTANCE_ID')%>
 # Create associated resources for old and new Auto Scaling Groups.
 # TODO remove old resources after migration complete.
   ScaleUpPolicyNew:
@@ -422,7 +421,7 @@ Resources:
             VolumeSize: 64
             VolumeType: gp2
       UserData:
-        Fn::Base64: <%=file.call('bootstrap_chef_stack.sh.erb',
+        Fn::Base64: <%=file('bootstrap_chef_stack.sh.erb',
           resource_id: 'Daemon',
           node_name: '${ENVIRONMENT}-daemon',
           run_list: [
