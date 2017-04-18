@@ -120,11 +120,13 @@ Outputs:
     Description: Pegasus URL
   CDO:
     Description: CDO application configuration
-    Value:
-      stack_name: !Ref AWS::StackName
+    Value: !Sub |
+      {
 <% if local_mode -%>
-      build_apps: true
-      use_my_apps: true
+        "build_apps": true,
+        "use_my_apps": true,
 <% end -%>
-      override_dashboard: dashboard-<%=subdomain%>
-      override_pegasus: <%=subdomain%>
+        "override_dashboard": "dashboard-<%=subdomain%>",
+        "override_pegasus": "<%=subdomain%>",
+        "stack_name": "${AWS::StackName}"
+      }
