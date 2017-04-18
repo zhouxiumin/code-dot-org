@@ -1,4 +1,5 @@
 <%
+require 'active_support/core_ext/numeric/bytes'
 require 'cdo/aws/cloudfront'
 unless system("git ls-remote --exit-code origin #{branch} > /dev/null")
   raise 'Current branch needs to be pushed to GitHub with the same name, otherwise deploy will fail.
@@ -47,7 +48,7 @@ Resources:
       UserData:
         Fn::Base64: <%=file('bootstrap_chef_stack.sh.erb',
           resource_id: "AMICreate#{ami}",
-          node_name: 'ami-${INSTANCE_ID}',
+          node_name: 'ami-$INSTANCE_ID',
           run_list: [
             local_mode ? 'recipe[cdo-apps]' : 'role[unmonitored-frontend]'
           ],
@@ -149,7 +150,8 @@ Resources:
         Fn::Base64: <%=file('bootstrap_frontend.sh.erb',
           resource_id: 'Frontends',
           hook: 'WebServerHookNew',
-          node_name: 'fe-$INSTANCE_ID')%>
+          node_name: 'fe-$INSTANCE_ID',
+          commit: commit)%>
 # Create associated resources for old and new Auto Scaling Groups.
 # TODO remove old resources after migration complete.
   ScaleUpPolicyNew:
@@ -421,7 +423,7 @@ Resources:
       UserData:
         Fn::Base64: <%=file('bootstrap_chef_stack.sh.erb',
           resource_id: 'Daemon',
-          node_name: '${ENVIRONMENT}-daemon',
+          node_name: '$ENVIRONMENT-daemon',
           run_list: [
             local_mode ? 'recipe[cdo-apps]' : 'role[daemon]'
           ],
