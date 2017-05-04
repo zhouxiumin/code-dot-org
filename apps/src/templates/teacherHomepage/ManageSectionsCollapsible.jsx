@@ -1,6 +1,6 @@
 import React from 'react';
 import CollapsibleSection from './CollapsibleSection';
-// import SectionsTable from './SectionsTable';
+import SectionsTable from './SectionsTable';
 import SetUpMessage from './SetUpMessage';
 import i18n from "@cdo/locale";
 
@@ -14,13 +14,15 @@ const ManageSectionsCollapsible = React.createClass({
 
     return (
       <CollapsibleSection
-        header={i18n.mySections()}
+        header={i18n.sectionTitle()}
         linkText={i18n.editSections()}
         link="https://code.org/teacher-dashboard#/sections"
       >
       {sections ? (
         <div>
-          This is where the sections table will go.
+          <SectionsTable
+            sections={sections}
+          />
         </div>
       ) : (
         <SetUpMessage type="sections"/>
