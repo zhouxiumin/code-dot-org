@@ -8,26 +8,24 @@ import _ from 'lodash';
 const styles = {
   card: {
     overflow: 'hidden',
-    borderRadius: 2,
-    border: '1px solid gray',
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: color.border_gray,
+    borderStyle: 'solid',
     position: 'relative',
     height: 245,
-    width: 448,
+    width: 458,
     marginLeft: 25,
     float: 'left'
   },
   overlay: {
-    background: 'linear-gradient(to right, rgba(2,130,132,.95), rgba(2,130,132,0))',
+    background: 'linear-gradient(to right, rgba(0,173,188,1), rgba(217,243,245,1))',
     bottom: 0,
     left: 0,
     position: 'absolute',
     right: 0,
     top: 0,
     zIndex: 1,
-  },
-  image: {
-    position: 'absolute',
-    width: 465
   },
   courseName: {
     paddingLeft: 25,
@@ -36,8 +34,8 @@ const styles = {
     paddingBottom: 5,
     marginTop: 15,
     fontSize: 18,
-    fontFamily: '"Gotham 3r", sans-serif',
-    color: 'rgba(255, 255, 255, .9)',
+    fontFamily: 'Gotham 3r',
+    color: color.white,
     zIndex: 2,
     position: 'absolute',
     display: 'inline'
@@ -50,11 +48,12 @@ const styles = {
     marginTop: 115,
     fontSize: 14,
     lineHeight: 1.5,
-    fontFamily: '"Gotham 3r", sans-serif',
-    color: color.gray,
+    fontFamily: 'Gotham 3r',
+    color: color.charcoal,
     background: color.white,
     height: 130,
-    width: 465,
+    width: '100%',
+    boxSizing: 'border-box',
     position: 'absolute',
     zIndex: 2,
   },
@@ -67,16 +66,17 @@ const styles = {
     background: color.teal,
     padding: 10,
     borderRadius: 100,
-    border: '1px solid white',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: color.white,
     display: 'inline',
     marginTop: 15
   },
   continueLink: {
     color: color.teal,
     fontSize: 12,
-    fontFamily: '"Gotham", sans-serif',
+    fontFamily: 'Gotham 3r',
     fontWeight: 'bold',
-    marginTop: -2,
     display: 'inline',
   },
   chevron: {
@@ -89,7 +89,6 @@ const styles = {
   linkBox: {
     display: 'block',
     paddingBottom: 10,
-    marginTop: 20,
     textDecoration: 'none'
   },
 };
@@ -135,7 +134,6 @@ const CourseCard = React.createClass({
 
     return (
       <div style={styles.card}>
-        <img src={require('../../../static/navcard-placeholder.png')} style={styles.image}/>
 
         {this.renderEnrollmentIcon()}
 
