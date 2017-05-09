@@ -63,10 +63,12 @@ class Script < ActiveRecord::Base
 
   def generate_plc_objects
     if professional_learning_course?
-      course = Plc::Course.find_or_create_by! name: professional_learning_course
+      course = Course.find_or_create_by!(name: professional_learning_course) do |new_course|
+        Plc::Course.create!(course: new_course)
+      end
       unit = Plc::CourseUnit.find_or_initialize_by(script_id: id)
       unit.update!(
-        plc_course_id: course.id,
+        plc_course_id: course.plc_course.id,
         unit_name: I18n.t("data.script.name.#{name}.title"),
         unit_description: I18n.t("data.script.name.#{name}.description")
       )
@@ -159,6 +161,12 @@ class Script < ActiveRecord::Base
     candidate_level = script_levels.first.or_next_progression_level
     raise "Script #{name} has no valid progression levels (non-unplugged) to start at" unless candidate_level
     candidate_level
+  end
+
+  # Find the lockable or non-locakble stage based on its relative position.
+  # Raises `ActiveRecord::RecordNotFound` if no matching stage is found.
+  def stage_by_relative_position(position, lockable = [false, nil])
+    stages.where(lockable: lockable).find_by!(relative_position: position)
   end
 
   # For all scripts, cache all related information (levels, etc),
@@ -499,6 +507,7 @@ class Script < ActiveRecord::Base
 
       assessment = nil
       named_level = nil
+      bonus = nil
       stage_flex_category = nil
       stage_lockable = nil
 
@@ -513,8 +522,9 @@ class Script < ActiveRecord::Base
         raw_level_data = raw_level.dup
         assessment = raw_level.delete(:assessment)
         named_level = raw_level.delete(:named_level)
+        bonus = raw_level.delete(:bonus)
         stage_flex_category = raw_level.delete(:stage_flex_category)
-        stage_lockable = raw_level.delete(:stage_lockable)
+        stage_lockable = !!raw_level.delete(:stage_lockable)
 
         key = raw_level.delete(:name)
 
@@ -558,6 +568,7 @@ class Script < ActiveRecord::Base
         script_id: script.id,
         chapter: (chapter += 1),
         named_level: named_level,
+        bonus: bonus,
         assessment: assessment
       }
       script_level_attributes[:properties] = properties.to_json if properties

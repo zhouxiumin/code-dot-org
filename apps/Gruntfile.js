@@ -46,9 +46,6 @@ testsContext.keys().forEach(testsContext);
    */
   var DEV_WATCH_INTERVAL = parseInt(grunt.option('delay')) || 700;
 
-  /** @const {number} */
-  var PLAYGROUND_PORT = grunt.option('playground-port') || 8000;
-
   /** @const {string} */
   var SINGLE_APP = grunt.option('app') || envConstants.APP;
 
@@ -422,7 +419,10 @@ testsContext.keys().forEach(testsContext);
     'levels/editors/_blockly':      './src/sites/studio/pages/levels/editors/_blockly.js',
     'levels/editors/_all':          './src/sites/studio/pages/levels/editors/_all.js',
     'levels/editors/_dsl':          './src/sites/studio/pages/levels/editors/_dsl.js',
+    'projects/index':               './src/sites/studio/pages/projects/index.js',
     'schoolInfo':                   './src/sites/studio/pages/schoolInfo.js',
+    'schoolInfoInterstitial':       './src/sites/studio/pages/schoolInfoInterstitial.js',
+    'scripts/stage_extras':         './src/sites/studio/pages/scripts/stage_extras.js',
     'signup':                       './src/sites/studio/pages/signup.js',
     'raceInterstitial':             './src/sites/studio/pages/raceInterstitial.js',
     'layouts/_terms_interstitial':  './src/sites/studio/pages/layouts/_terms_interstitial.js',
@@ -432,6 +432,7 @@ testsContext.keys().forEach(testsContext);
   };
 
   var otherEntries = {
+    essential: './src/sites/studio/pages/essential.js',
     plc: './src/sites/studio/pages/plc.js',
 
     // Build embedVideo.js in its own step (skipping factor-bundle) so that
@@ -449,8 +450,9 @@ testsContext.keys().forEach(testsContext);
     // tutorialExplorer for code.org/learn 2016 edition.
     tutorialExplorer: './src/tutorialExplorer/tutorialExplorer.js',
 
-    // Hamburger for header on dashboard & pegasus.
-    hamburger: './src/hamburger/hamburger.js',
+    // common entry points for pegasus js
+    'code.org/views/theme_common_head_after': './src/sites/code.org/pages/views/theme_common_head_after.js',
+    'hourofcode.com/views/theme_common_head_after': './src/sites/hourofcode.com/pages/views/theme_common_head_after.js',
 
     pd: './src/code-studio/pd/workshop_dashboard/workshop_dashboard.jsx',
 
@@ -460,8 +462,8 @@ testsContext.keys().forEach(testsContext);
 
     'pd/professional_learning_landing/index': './src/sites/studio/pages/pd/professional_learning_landing/index.js',
 
-    'teacher-dashboard/index': './src/sites/code.org/pages/teacher-dashboard/index.js',
-    'pd-workshop-survey/splat': './src/sites/code.org/pages/pd-workshop-survey/splat.js',
+    'code.org/public/teacher-dashboard/index': './src/sites/code.org/pages/public/teacher-dashboard/index.js',
+    'code.org/public/pd-workshop-survey/splat': './src/sites/code.org/pages/public/pd-workshop-survey/splat.js',
 
     publicKeyCryptography: './src/publicKeyCryptography/main.js',
 
@@ -573,16 +575,6 @@ testsContext.keys().forEach(testsContext);
         'lib/blockly/javascript_' + ext + '.js',
       ],
       dest: 'build/package/js/blockly.js'
-    }
-  };
-
-  config.express = {
-    playground: {
-      options: {
-        port: PLAYGROUND_PORT,
-        bases: path.resolve(__dirname, 'build/package'),
-        server: path.resolve(__dirname, './src/dev/server.js')
-      }
     }
   };
 

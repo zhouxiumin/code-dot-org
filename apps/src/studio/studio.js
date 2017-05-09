@@ -55,6 +55,8 @@ import {
 import {getStore} from '../redux';
 import Sounds from '../Sounds';
 import {captureThumbnailFromSvg} from '../util/thumbnail';
+import experiments from '../util/experiments';
+import project from '../code-studio/initApp/project';
 
 // tests don't have svgelement
 import '../util/svgelement-polyfill';
@@ -920,7 +922,7 @@ function displayCollidables(list) {
  * z-sorting.
  */
 function sortDrawOrder() {
-  if (!level.sortDrawOrder) {
+  if (!skin.sortDrawOrder) {
     return;
   }
 
@@ -2510,6 +2512,10 @@ var displayFeedback = function () {
   };
 
   if (!Studio.waitingForReport) {
+    const saveToProjectGallery = experiments.isEnabled('projectGallery') &&
+      project.isSupportedLevelType();
+    const {isSignedIn} = getStore().getState().pageConstants;
+
     studioApp().displayFeedback({
       app: 'studio', //XXX
       skin: skin.id,
@@ -2525,6 +2531,9 @@ var displayFeedback = function () {
       twitter: skin.twitterOptions || twitterOptions,
       // allow users to save freeplay levels to their gallery (impressive non-freeplay levels are autosaved)
       saveToGalleryUrl: level.freePlay && Studio.response && Studio.response.save_to_gallery_url,
+      // save to the project gallery instead of the legacy gallery
+      saveToProjectGallery: saveToProjectGallery,
+      disableSaveToGallery: level.disableSaveToGallery || !isSignedIn,
       message: Studio.message,
       appStrings: appStrings,
       disablePrinting: level.disablePrinting
@@ -4028,6 +4037,10 @@ Studio.callCmd = function (cmd) {
       studioApp().highlight(cmd.id);
       Studio.reduceScore(cmd.opts);
       break;
+    case 'displayScore':
+      studioApp().highlight(cmd.id);
+      Studio.displayScore(cmd.opts);
+      break;
     case 'setScoreText':
       studioApp().highlight(cmd.id);
       Studio.setScoreText(cmd.opts);
@@ -4551,7 +4564,6 @@ Studio.paramAsNumber = function (value) {
 Studio.adjustScore = function (value) {
 
   Studio.playerScore += value;
-  Studio.displayScore();
 
   Studio.displayFloatingScore(value);
 
