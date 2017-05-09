@@ -485,6 +485,9 @@ Resources:
         performance_schema: 1
         innodb_buffer_pool_dump_at_shutdown: 1
         innodb_buffer_pool_load_at_startup: 1
+        table_open_cache: 20000
+        table_definition_cache: 20000
+        innodb_thread_concurrency: 1000
 <% end -%>
 Outputs:
   DashboardURL:
