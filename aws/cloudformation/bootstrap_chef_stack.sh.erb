@@ -46,7 +46,11 @@ cat <<JSON > $FIRST_BOOT
     "redis_read_ports": "${GeocoderGroup.ReadEndPoint.Ports}",
 <% end -%>
 <% if environment == :adhoc -%>
+<%   if @aurora -%>
+    "db_writer": "mysql://${DatabaseUsername}:${DatabasePassword}@${AuroraDB.Endpoint.Address}:${AuroraDB.Endpoint.Port}/",
+<%   else -%>
     "db_writer": "mysql://${DatabaseUsername}:${DatabasePassword}@${Database.Endpoint.Address}:${Database.Endpoint.Port}/",
+<%   end -%>
 <% end -%>
 <% unless cdn_enabled -%>
     "cdn_enabled": false,

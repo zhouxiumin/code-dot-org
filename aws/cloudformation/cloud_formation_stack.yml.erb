@@ -17,6 +17,7 @@ end
 frontends = %i(production adhoc).include?(rack_env)
 @frontends = frontends
 require 'cdo/cron'
+@aurora = true
 
 # Branch off existing AMI for adhoc.
 image_id = rack_env?(:adhoc) ? "!ImportValue AMI-#{environment}-ImageId" : IMAGE_ID
@@ -457,27 +458,26 @@ Resources:
             - !ImportValue VPC-GatewaySecurityGroup
           SubnetId: !ImportValue VPC-PublicSubnet<%=azs.first%>
 <%
-     aurora = true
-     if aurora
+     if @aurora
 -%>
-  Database:
+  AuroraDB:
     Type: AWS::RDS::DBCluster
     Properties:
       MasterUsername: !Ref DatabaseUsername
       MasterUserPassword: !Ref DatabasePassword
       Engine: aurora
       DBSubnetGroupName: !ImportValue VPC-DBSubnetGroup
-      DBClusterParameterGroupName: !Ref DBClusterParameters
+      DBClusterParameterGroupName: !Ref DBClusterParams
   DBInstance:
     Type: AWS::RDS::DBInstance
     Properties:
       DBSubnetGroupName: !ImportValue VPC-DBSubnetGroup
-      DBParameterGroupName: !Ref DatabaseParameters
+      DBParameterGroupName: !Ref AuroraDBParams
       Engine: aurora
-      DBClusterIdentifier: !Ref Database
+      DBClusterIdentifier: !Ref AuroraDB
       AvailabilityZone: <%= availability_zones.first %>
       DBInstanceClass: db.r3.large
-  DBClusterParameters:
+  DBClusterParams:
     Type: AWS::RDS::DBClusterParameterGroup
     Properties:
       Description: CloudFormation Sample Aurora Cluster Parameter Group
@@ -485,7 +485,7 @@ Resources:
       Parameters:
         skip_name_resolve: 1
         innodb_flush_log_at_trx_commit: 0
-  DatabaseParameters:
+  AuroraDBParams:
     Type: AWS::RDS::DBParameterGroup
     Properties:
       Description: !Sub "Aurora parameters for ${AWS::StackName}."
@@ -501,7 +501,9 @@ Resources:
         table_open_cache: 20000
         table_definition_cache: 20000
         innodb_thread_concurrency: 1000
-<%   else -%>
+<%
+    else
+-%>
   Database:
     Type: AWS::RDS::DBInstance
     Properties:
