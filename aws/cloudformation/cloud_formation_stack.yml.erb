@@ -468,6 +468,7 @@ Resources:
       Engine: aurora
       DBSubnetGroupName: !ImportValue VPC-DBSubnetGroup
       DBClusterParameterGroupName: !Ref DBClusterParams
+      VpcSecurityGroupIds: [!ImportValue VPC-DBSecurityGroup]
   DBInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -483,7 +484,6 @@ Resources:
       Description: CloudFormation Sample Aurora Cluster Parameter Group
       Family: aurora5.6
       Parameters:
-        skip_name_resolve: 1
         innodb_flush_log_at_trx_commit: 0
   AuroraDBParams:
     Type: AWS::RDS::DBParameterGroup
@@ -491,16 +491,11 @@ Resources:
       Description: !Sub "Aurora parameters for ${AWS::StackName}."
       Family: aurora5.6
       Parameters:
-        innodb_autoinc_lock_mode: 2
         innodb_flush_method: O_DIRECT
-        sync_binlog: 0
         tx_isolation: READ-COMMITTED
         performance_schema: 1
-        innodb_buffer_pool_dump_at_shutdown: 1
-        innodb_buffer_pool_load_at_startup: 1
         table_open_cache: 20000
         table_definition_cache: 20000
-        innodb_thread_concurrency: 1000
 <%
     else
 -%>
