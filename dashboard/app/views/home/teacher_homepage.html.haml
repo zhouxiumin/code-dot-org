@@ -1,6 +1,6 @@
 :ruby
 
-  courses = current_user.in_progress_and_completed_scripts.slice(0,2).map do |script|
+  $courses = current_user.in_progress_and_completed_scripts.slice(0,2).map do |script|
     script_id = script[:script_id]
     script_name = Script.find_by_id(script_id)[:name]
     {
@@ -14,10 +14,9 @@
     }
   end
 
-
   base_url = CDO.code_org_url('/teacher-dashboard#/sections/')
 
-  sections = current_user.sections.map do |section|
+  $sections = current_user.sections.map do |section|
     if section.script_id
       courseName = Script.find_by_id(section.script_id)[:name]
     end
@@ -33,6 +32,15 @@
       sectionCode: section.code
     }
   end
+
+  courses.each do |course|
+    sections.each do |section|
+      if section[course] == course[courseName]
+        course.assignedSections << section.name
+      end
+    end
+  end
+
 
 
 #teacher-homepage-container
