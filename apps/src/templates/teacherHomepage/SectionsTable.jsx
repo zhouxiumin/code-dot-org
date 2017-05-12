@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import color from "@cdo/apps/util/color";
 import i18n from '@cdo/locale';
+// import wrappedSortable from '../tables/wrapped_sortable';
+// import orderBy from 'lodash/orderBy';
 
 const styles = {
   table: {
