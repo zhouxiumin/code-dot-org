@@ -14,17 +14,19 @@ const RecentCoursesCollapsible = React.createClass({
         link: React.PropTypes.string.isRequired,
         assignedSections: React.PropTypes.array.isRequired,
       })
-    )
+    ),
+    studioUrlPrefix: React.PropTypes.string.isRequired
   },
 
   render() {
-    const { courses } = this.props;
+    const { courses, studioUrlPrefix } = this.props;
+    const url = `${studioUrlPrefix}/courses`;
 
     return (
       <CollapsibleSection
         header={i18n.courses()}
         linkText={i18n.viewAllCourses()}
-        link="https://studio.code.org/"
+        link={url}
       >
         {courses.length > 0 ? (
           courses.map((course, index) =>
