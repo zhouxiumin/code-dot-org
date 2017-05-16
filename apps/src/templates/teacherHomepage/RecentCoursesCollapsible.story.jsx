@@ -11,6 +11,7 @@ export default storybook => {
         story: () => (
           <RecentCoursesCollapsible
             courses={[]}
+            studioUrlPrefix="http://localhost-studio.code.org:3000/"
           />
         )
       },
@@ -26,6 +27,7 @@ export default storybook => {
               image:"photo source",
               assignedSections: ["Section 1"]
             }]}
+            studioUrlPrefix="http://localhost-studio.code.org:3000/"
           />
         )
       },
@@ -50,6 +52,7 @@ export default storybook => {
                 assignedSections: ["Section 1"]
               },
             ]}
+            studioUrlPrefix="http://localhost-studio.code.org:3000/"
           />
         )
       },
@@ -81,6 +84,7 @@ export default storybook => {
                 assignedSections: ["Section 1"]
               },
             ]}
+            studioUrlPrefix="http://localhost-studio.code.org:3000/"
           />
         )
       },
@@ -119,6 +123,7 @@ export default storybook => {
                 assignedSections: ["Section 1"]
               },
             ]}
+            studioUrlPrefix="http://localhost-studio.code.org:3000/"
           />
         )
       },
