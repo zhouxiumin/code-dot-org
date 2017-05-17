@@ -27,6 +27,12 @@ class ProjectsController < ApplicationController
     gumball: {
       name: 'New Gumball Project'
     },
+    minecraft_adventurer: {
+      name: 'New Minecraft Adventurer Project'
+    },
+    minecraft_designer: {
+      name: 'New Minecraft Designer Project'
+    },
     applab: {
       name: 'New App Lab Project',
       login_required: true
@@ -98,11 +104,12 @@ class ProjectsController < ApplicationController
     redirect_to action: 'edit', channel_id: ChannelToken.create_channel(
       request.ip,
       StorageApps.new(storage_id('user')),
-      {
+      data: {
         name: 'Untitled Project',
         useFirebase: use_firebase,
         level: polymorphic_url([params[:key], 'project_projects'])
-      }
+      },
+      type: params[:key]
     )
   end
 
@@ -182,9 +189,9 @@ class ProjectsController < ApplicationController
     new_channel_id = ChannelToken.create_channel(
       request.ip,
       StorageApps.new(storage_id('user')),
-      nil,
-      src_channel_id,
-      use_firebase
+      src: src_channel_id,
+      use_firebase: use_firebase,
+      type: params[:key]
     )
     AssetBucket.new.copy_files src_channel_id, new_channel_id
     AnimationBucket.new.copy_files src_channel_id, new_channel_id
