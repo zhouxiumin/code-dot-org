@@ -13,11 +13,12 @@ const StudentRecentCourses = React.createClass({
         assignedSections: React.PropTypes.array.isRequired
       })
     ),
-    showAllCoursesLink: React.PropTypes.bool.isRequired
+    showAllCoursesLink: React.PropTypes.bool.isRequired,
+    showSampleCourses: React.PropTypes.bool.isRequired
   },
 
   render() {
-    const { courses, showAllCoursesLink } = this.props;
+    const { courses, showAllCoursesLink, showSampleCourses } = this.props;
 
     return (
       <CollapsibleSection
@@ -38,7 +39,9 @@ const StudentRecentCourses = React.createClass({
             />
           )
         ) : (
-          <div>This is where there should be the course options for not signed in.</div>
+          <div>
+            Check whether we should show the sample courses {showSampleCourses}
+          </div>
         )}
       </CollapsibleSection>
     );

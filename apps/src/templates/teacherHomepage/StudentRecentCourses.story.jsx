@@ -12,6 +12,7 @@ export default storybook => {
           <StudentRecentCourses
             courses={[]}
             showAllCoursesLink={true}
+            showSampleCourses={true}
           />
         )
       },
@@ -28,6 +29,7 @@ export default storybook => {
               assignedSections: ["Section 1"]
             }]}
             showAllCoursesLink={true}
+            showSampleCourses={false}
           />
         )
       },

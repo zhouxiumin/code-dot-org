@@ -40,6 +40,7 @@ const StudentHomepage = React.createClass({
       <StudentRecentCourses
         courses={courses}
         showAllCoursesLink={true}
+        showSampleCourses={true}
       />
 
         <StudentResources/>
