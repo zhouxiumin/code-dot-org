@@ -1,7 +1,7 @@
 import React from 'react';
 import HeadingBanner from '../HeadingBanner';
 import AnnouncementsCollapsible from './AnnouncementsCollapsible';
-import RecentCoursesCollapsible from './RecentCoursesCollapsible';
+import TeacherRecentCourses from './TeacherRecentCourses';
 import ManageSectionsCollapsible from './ManageSectionsCollapsible';
 import TeacherResources from './TeacherResources';
 import shapes from './shapes';
@@ -24,7 +24,7 @@ const TeacherHomepage = React.createClass({
           headingText={i18n.homepageHeading()}
         />
         <AnnouncementsCollapsible announcements={announcements}/>
-        <RecentCoursesCollapsible
+        <TeacherRecentCourses
           courses={courses}
           showAllCoursesLink={true}
         />

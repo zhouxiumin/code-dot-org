@@ -4,7 +4,7 @@ import CourseCard from './CourseCard';
 import SetUpMessage from './SetUpMessage';
 import i18n from "@cdo/locale";
 
-const RecentCoursesCollapsible = React.createClass({
+const TeacherRecentCourses = React.createClass({
   propTypes: {
     courses: PropTypes.arrayOf(
       PropTypes.shape({
@@ -48,4 +48,4 @@ const RecentCoursesCollapsible = React.createClass({
   }
 });
 
-export default RecentCoursesCollapsible;
+export default TeacherRecentCourses;
