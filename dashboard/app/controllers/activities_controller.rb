@@ -3,6 +3,8 @@ require 'cdo/share_filtering'
 
 class ActivitiesController < ApplicationController
   include LevelsHelper
+  include SeamlessDatabasePool::ControllerFilter
+  use_database_pool :all => :persistent
 
   # The action below disables the default request forgery protection from
   # application controller. We don't do request forgery protection on the
@@ -179,7 +181,7 @@ class ActivitiesController < ApplicationController
         (params[:save_to_gallery] == 'true' || @level.try(:free_play) == 'true' ||
             @level.try(:impressive) == 'true' || test_result == ActivityConstants::FREE_PLAY_RESULT)
     if synchronous_save
-      @activity = Activity.create!(attributes)
+      @activity = Activity.new(attributes).atomic_save!
     else
       @activity = Activity.create_async!(attributes)
     end
