@@ -23,13 +23,13 @@ const styles = {
     marginLeft: 10,
     marginBottom: 0,
     paddingBottom: 0,
-    paddingTop: 40,
+    paddingTop: 0,
     float: 'left'
   },
   viewMore: {
     color: color.light_teal,
     float: 'right',
-    marginTop: 75,
+    marginTop: 35,
     cursor: 'pointer',
     marginRight: 22,
     fontFamily: '"Gotham 5r", sans-serif'
@@ -40,6 +40,7 @@ const NUM_PROJECTS_TO_ADD = 12;
 
 const ProjectAppTypeArea = React.createClass({
   propTypes: {
+    labKey: PropTypes.string.isRequired,
     labName: PropTypes.string.isRequired,
     labViewMoreString: PropTypes.string.isRequired,
     projectList: PropTypes.arrayOf(projectPropType),
@@ -59,8 +60,7 @@ const ProjectAppTypeArea = React.createClass({
   },
 
   viewMore() {
-    const appName = this.props.labName.toLowerCase().replace(' ', '');
-    this.props.navigateFunction(appName);
+    this.props.navigateFunction(this.props.labKey);
   },
 
   renderProjectCardList(projectList, max) {

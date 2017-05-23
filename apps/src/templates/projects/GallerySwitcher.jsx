@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
-import ToggleGroup from '../ToggleGroup';
 import i18n from '@cdo/locale';
+import color from "../../util/color";
+import Radium from 'radium';
 
 export const Galleries = {
   PUBLIC: 'PUBLIC',
@@ -9,8 +10,32 @@ export const Galleries = {
 
 const styles = {
   container: {
-    textAlign: 'center',
     marginBottom: 20,
+    width: '100%',
+    backgroundColor: color.lightest_gray,
+    borderRadius: 5,
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderColor: color.lighter_gray,
+    padding: 10,
+    marginLeft: 25,
+    height: 36
+  },
+  pill: {
+    border: 'none',
+    borderRadius: 50,
+    fontFamily: '"Gotham 5r", sans-serif',
+    fontSize: 12,
+    backgroundColor: color.lightest_gray,
+    color: color.charcoal,
+    margin: '0 0 0 20px',
+    boxShadow: 'none',
+    outline: 'none',
+    padding: '8px 18px'
+  },
+  selectedPill: {
+    backgroundColor: color.teal,
+    color: color.white
   }
 };
 
@@ -23,7 +48,8 @@ class GallerySwitcher extends Component {
   constructor(props) {
     super(props);
 
-    this.toggleGallery = this.toggleGallery.bind(this);
+    this.toggleToGallery = this.toggleToGallery.bind(this);
+    this.toggleToMyProjects = this.toggleToMyProjects.bind(this);
 
     this.state = {
       // The source of truth for which gallery is displayed. This state should
@@ -32,30 +58,33 @@ class GallerySwitcher extends Component {
     };
   }
 
-  toggleGallery() {
-    const gallery = this.state.gallery === Galleries.PRIVATE ?
-      Galleries.PUBLIC : Galleries.PRIVATE;
+  toggleToGallery() {
+    this.props.showGallery(Galleries.PUBLIC);
+    this.setState({gallery: Galleries.PUBLIC});
+  }
 
-    this.props.showGallery(gallery);
-    this.setState({gallery});
+  toggleToMyProjects() {
+    this.props.showGallery(Galleries.PRIVATE);
+    this.setState({gallery: Galleries.PRIVATE});
   }
 
   render() {
     return (
       <div style={styles.container}>
-        <ToggleGroup
-          selected={this.state.gallery}
-          onChange={this.toggleGallery}
+        <button
+          style={[styles.pill, this.state.gallery === Galleries.PRIVATE && styles.selectedPill]}
+          onClick={this.toggleToMyProjects}
         >
-          <button value={Galleries.PRIVATE}>
-            {i18n.myProjects()}
-          </button>
-          <button value={Galleries.PUBLIC}>
-            {i18n.publicGallery()}
-          </button>
-        </ToggleGroup>
+          {i18n.myProjects()}
+        </button>
+        <button
+          style={[styles.pill, this.state.gallery === Galleries.PUBLIC && styles.selectedPill]}
+          onClick={this.toggleToGallery}
+        >
+          {i18n.publicGallery()}
+        </button>
       </div>
     );
   }
 }
-export default GallerySwitcher;
+export default Radium(GallerySwitcher);

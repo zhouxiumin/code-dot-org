@@ -1,9 +1,11 @@
 require 'test_helper'
 
 class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCase
+  published_applab_project = nil
   setup do
     published_applab_project = {
-      id: 33,
+      storage_id: 22,
+      channel_id: 33,
       published_at: '2017-03-03T00:00:00.000-08:00',
       project_type: 'applab',
       value: {
@@ -94,12 +96,23 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
     assert_equal 1, categories_list.length
     project_row = categories_list['applab'].first
     assert_equal 'Charlies App', project_row['name']
-    assert_equal 'STUB_CHANNEL_ID-1234', project_row['channel']
+    assert_equal 'STUB_CHANNEL_ID-22-33', project_row['channel']
     assert_equal '/v3/files-public/charlies_thumbnail.png', project_row['thumbnailUrl']
     assert_equal 'applab', project_row['type']
     assert_equal '2017-03-03T00:00:00.000-08:00', project_row['publishedAt']
     assert_equal '13+', project_row['studentAgeRange']
     assert_equal 'P', project_row['studentName']
+  end
+
+  test 'project details are correct without thumbnail' do
+    published_applab_project[:value] = {name: 'App with no thumbnail'}.to_json
+    get :index, params: {project_type: 'applab', limit: 1}
+    assert_response :success
+    categories_list = JSON.parse(@response.body)
+    assert_equal 1, categories_list.length
+    project_row = categories_list['applab'].first
+    assert_equal 'App with no thumbnail', project_row['name']
+    assert_nil project_row['thumbnailUrl']
   end
 
   test 'project details are correct listing all published projects' do
@@ -116,7 +129,7 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
 
     project_row = categories_list['applab'].first
     assert_equal 'Charlies App', project_row['name']
-    assert_equal 'STUB_CHANNEL_ID-1234', project_row['channel']
+    assert_equal 'STUB_CHANNEL_ID-22-33', project_row['channel']
     assert_equal '/v3/files-public/charlies_thumbnail.png', project_row['thumbnailUrl']
     assert_equal 'applab', project_row['type']
     assert_equal '2017-03-03T00:00:00.000-08:00', project_row['publishedAt']
@@ -127,6 +140,6 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
   private
 
   def db_result(result)
-    stub(join: stub(join: stub(where: stub(exclude: stub(order: stub(limit: stub(offset: result)))))))
+    stub(select_append: stub(join: stub(join: stub(where: stub(exclude: stub(order: stub(limit: stub(offset: result))))))))
   end
 end

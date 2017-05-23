@@ -1,3 +1,5 @@
+require 'cdo/user_helpers'
+
 module ProjectsList
   # Maximum number of projects of each type that can be requested.
   MAX_LIMIT = 100
@@ -90,6 +92,7 @@ module ProjectsList
       {}.tap do |projects|
         project_types.map do |type|
           projects[type] = PEGASUS_DB[:storage_apps].
+            select_append(Sequel[:storage_apps][:id].as(:channel_id)).
             join(:user_storage_ids, id: :storage_id).
             join(users, id: :user_id).
             where(state: 'active', project_type: type).
@@ -104,7 +107,7 @@ module ProjectsList
 
     def get_published_project_data(project)
       project_value = project[:value] ? JSON.parse(project[:value]) : {}
-      channel_id = storage_encrypt_channel_id(project[:storage_id], project[:id])
+      channel_id = storage_encrypt_channel_id(project[:storage_id], project[:channel_id])
       {
         channel: channel_id,
         name: project_value['name'],
@@ -120,7 +123,7 @@ module ProjectsList
     end
 
     def make_cacheable(url)
-      url.sub('/v3/files/', '/v3/files-public/')
+      url.sub('/v3/files/', '/v3/files-public/') if url
     end
 
     AGE_CUTOFFS = [18, 13, 8, 4].freeze
@@ -128,7 +131,7 @@ module ProjectsList
     # Return the highest age range applicable to the student, e.g.
     # 18+, 13+, 8+ or 4+
     def student_age_range(project)
-      age = ((Date.today - project[:birthday]) / 365).to_i
+      age = UserHelpers.age_from_birthday(project[:birthday])
       age_cutoff = AGE_CUTOFFS.find {|cutoff| cutoff <= age}
       age_cutoff ? "#{age_cutoff}+" : nil
     end
