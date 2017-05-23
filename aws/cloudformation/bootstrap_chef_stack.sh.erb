@@ -48,6 +48,7 @@ cat <<JSON > $FIRST_BOOT
 <% if environment == :adhoc && TEMPLATE == 'cloud_formation_stack.yml.erb' -%>
 <%   if @aurora -%>
     "db_writer": "mysql://${DatabaseUsername}:${DatabasePassword}@${AuroraDB.Endpoint.Address}:${AuroraDB.Endpoint.Port}/",
+    "reporting_db_writer": "$(echo "mysql://${DatabaseUsername}:${DatabasePassword}@${AuroraDB.Endpoint.Address}:${AuroraDB.Endpoint.Port}/" | sed 's/\.cluster\-/.cluster-ro-/')",
 <%   else -%>
     "db_writer": "mysql://${DatabaseUsername}:${DatabasePassword}@${Database.Endpoint.Address}:${Database.Endpoint.Port}/",
 <%   end -%>

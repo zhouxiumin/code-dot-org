@@ -1,5 +1,6 @@
 <%
 require 'active_support/core_ext/numeric/bytes'
+require 'active_support/core_ext/array/access'
 require 'cdo/aws/cloudfront'
 unless system("git ls-remote --exit-code origin #{branch} > /dev/null")
   raise 'Current branch needs to be pushed to GitHub with the same name, otherwise deploy will fail.
@@ -20,7 +21,7 @@ require 'cdo/cron'
 @aurora = true
 
 # Branch off existing AMI for adhoc.
-image_id = rack_env?(:adhoc) ? "!ImportValue AMI-#{environment}-ImageId2" : IMAGE_ID
+image_id = rack_env?(:adhoc) ? "!ImportValue AMI-#{environment}-ImageId" : IMAGE_ID
 -%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
@@ -459,6 +460,7 @@ Resources:
           SubnetId: !ImportValue VPC-PublicSubnet<%=azs.first%>
 <%
      if @aurora
+     aurora_zones = availability_zones[0,2]
 -%>
   AuroraDB:
     Type: AWS::RDS::DBCluster
@@ -476,7 +478,16 @@ Resources:
       DBParameterGroupName: !Ref AuroraDBParams
       Engine: aurora
       DBClusterIdentifier: !Ref AuroraDB
-      AvailabilityZone: <%= availability_zones.first %>
+      AvailabilityZone: <%= aurora_zones.first %>
+      DBInstanceClass: db.r3.large
+  DBInstance2:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBSubnetGroupName: !ImportValue VPC-DBSubnetGroup
+      DBParameterGroupName: !Ref AuroraDBParams
+      Engine: aurora
+      DBClusterIdentifier: !Ref AuroraDB
+      AvailabilityZone: <%= aurora_zones.second %>
       DBInstanceClass: db.r3.large
   DBClusterParams:
     Type: AWS::RDS::DBClusterParameterGroup
