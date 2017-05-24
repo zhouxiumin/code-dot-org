@@ -460,7 +460,7 @@ Resources:
           SubnetId: !ImportValue VPC-PublicSubnet<%=azs.first%>
 <%
      if @aurora
-     aurora_zones = availability_zones[0,2]
+     aurora_zones = availability_zones.values_at(0,2)
 -%>
   AuroraDB:
     Type: AWS::RDS::DBCluster
