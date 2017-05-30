@@ -13,11 +13,12 @@ TeacherCon Houston
 ## June 18-23, 2017
 <p align="left"><img src="/images/houstonskyline.jpg" width="100%"></p> 
 
-### **What is TeacherCon?**
+## **What is TeacherCon?**
 
 TeacherCon is an intensive, hands-on, in-person workshop providing foundational experiences with computer science and the Code.org suite of tools. The five-day workshop is the primary capacity building experience for teachers prior to their first year of instruction. Participants will explore the curriculum and tools, consider and experiment with specific classroom management and teaching strategies, and build a local community of teachers who are also using this curriculum.
 
-### **Travel & Hotel Information**
+<a id="travel"></a>
+## **Travel & Hotel Information**
 <details>
   <summary>**Hotel Information**</summary>
   <p>
@@ -65,14 +66,14 @@ Code.org will pay for relevant travel, accommodation and meal expenses for your 
 **These include:**
 
 * Flights to and from your assigned TeacherCon Location **OR** mileage gift card for attendees driving over 25 miles one-way.
-* A room for you at the hotel -- No need to make a resrvation, we have booked this for you!
+* A room for you at the hotel -- No need to make a reservation, we have booked this for you!
 * Catered breakfast, lunch, and snacks, Monday through Friday; dinner on Sunday and Wednesday
 
 All participants will receive a $300 gift card upon their arrival to cover any additional expenses such as meals we do not provide, and other incidentals such as baggage fees, parking, taxis, public transportation, etc. No additional reimbursements will be provided to attendees or districts.
 </p>
 </details>
 
-### **What to Bring**
+## **What to Bring**
 <details>
   <summary>**What should I pack?**</summary>
   <p>
@@ -91,7 +92,8 @@ Please bring your laptop/Chromebook and charger, as well as any adapters. If you
 </p>
 </details>
 
-### **Agenda**
+<a id="agenda"></a>
+## **Agenda**
 <details>
   <summary>**Schedule for the Week**</summary>
   <p>
@@ -116,7 +118,32 @@ We expect you to attend for the full conference. Make plans to be with us from R
 </p>
 </details>
 
-### **Previous Email Updates**
+<a id="who"></a>
+## **Who's Who at TeacherCon?**
+<details>
+<summary>**Code.org Staff**</summary>
+ <p>
+ <br>
+<%= view :about_headshots, people:DB[:cdo_team].where(kind_s:'teacherconstaff_houston') %></p>
+</details>
+
+<details>
+<summary>**Session Lead Facilitators**</summary>
+ <p>
+ <br>
+<%= view :about_headshots, people:DB[:cdo_team].where(kind_s:'teacherconfacilitators_houston') %></p>
+</details>
+
+<details>
+<summary>**Regional Partners**</summary>
+ <p>
+ <br>
+<%= view :about_headshots, people:DB[:cdo_team].where(kind_s:'teacherconrp_houston') %></p>
+</p>
+</details>
+
+<a id="previous"></a>
+## **Previous Email Updates**
 <details>
 <summary>**It's time to book your travel to TeacherCon. Complete by May 15!**</summary>
   <p>
@@ -133,7 +160,7 @@ We expect you to attend for the full conference. Make plans to be with us from R
 </p>
 </details> 
 
-### **Contact Us**
+## **Contact Us**
 Check out our [FAQ's!](https://goo.gl/udZKLR)
 
 Still can't find what you're looking for? Email us at: [teacher@code.org](mailto:teacher@code.org). 

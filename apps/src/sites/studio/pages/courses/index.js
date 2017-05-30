@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Courses from '@cdo/apps/templates/teacherHomepage/Courses';
+import Courses from '@cdo/apps/templates/studioHomepages/Courses';
 import {initCourseExplorer} from '@cdo/apps/courseExplorer/courseExplorer';
 
 $(document).ready(showCourses);
@@ -18,6 +18,7 @@ function showCourses() {
   const linesCount = coursesData.linescount;
   const studentsCount = coursesData.studentscount;
   const codeOrgUrlPrefix = coursesData.codeorgurlprefix;
+  const signedOut = coursesData.signedout;
 
   ReactDOM.render (
     <Courses
@@ -27,6 +28,7 @@ function showCourses() {
       linesCount={linesCount}
       studentsCount={studentsCount}
       codeOrgUrlPrefix={codeOrgUrlPrefix}
+      isSignedOut={signedOut}
     />,
     document.getElementById('courses-container')
   );

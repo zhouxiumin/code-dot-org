@@ -1,7 +1,7 @@
 require 'active_support/core_ext/hash/indifferent_access'
 
 class ProjectsController < ApplicationController
-  before_action :authenticate_user!, except: [:load, :create_new, :show, :edit, :readonly, :redirect_legacy, :public]
+  before_action :authenticate_user!, except: [:load, :create_new, :show, :edit, :readonly, :redirect_legacy, :public, :index]
   before_action :authorize_load_project!, only: [:load, :create_new, :edit, :remix]
   before_action :set_level, only: [:load, :create_new, :show, :edit, :readonly, :remix]
   include LevelsHelper
@@ -71,10 +71,18 @@ class ProjectsController < ApplicationController
       redirect_to '/', flash: {alert: 'Labs not allowed for admins.'}
       return
     end
+    unless current_user
+      redirect_to '/projects/public'
+    end
   end
 
   # GET /projects/public
   def public
+    if current_user
+      render template: 'projects/index', locals: {is_public: true}
+    else
+      render template: 'projects/public'
+    end
   end
 
   # Renders a <script> tag with JS to redirect /p/:key#:channel_id/:action to /projects/:key/:channel_id/:action.
@@ -82,7 +90,13 @@ class ProjectsController < ApplicationController
     render layout: nil
   end
 
+  GALLERY_PER_PAGE = 5
+
   def angular
+    if current_user
+      @gallery_activities =
+        current_user.gallery_activities.order(id: :desc).page(params[:page]).per(GALLERY_PER_PAGE)
+    end
     render template: "projects/projects", layout: nil
   end
 
