@@ -66,7 +66,7 @@ GIT
 
 GIT
   remote: https://github.com/wjordan/image_optim_rails.git
-  revision: fa264d81c952490708a1b95f66d4d253f9313aa8
+  revision: 4d4a346e4879886973a9d7e5709e343b1867e0a9
   ref: rails_root_config_path
   specs:
     image_optim_rails (0.3.0)
@@ -453,7 +453,7 @@ GEM
     multi_xml (0.5.5)
     multipart-post (2.0.0)
     mustermann (1.0.0.beta2)
-    mysql2 (0.3.21)
+    mysql2 (0.4.6)
     naturally (2.1.0)
     net-http-persistent (2.9.4)
     net-scp (1.2.1)
@@ -806,7 +806,7 @@ DEPENDENCIES
   minitest-around
   minitest-reporters
   mocha
-  mysql2 (~> 0.3.13)
+  mysql2 (~> 0.4.6)
   naturally
   net-http-persistent
   net-scp
@@ -878,4 +878,4 @@ DEPENDENCIES
   youtube-dl.rb
 
 BUNDLED WITH
-   1.14.6
+   1.15.0

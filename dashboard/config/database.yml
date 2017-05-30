@@ -10,7 +10,7 @@ reader = URI.parse(CDO.dashboard_reporting_db_reader) if CDO.dashboard_reporting
 
 mysql_defaults: &mysql_defaults
   adapter: seamless_database_pool
-  prepared_statements: false
+  prepared_statements: true
   pool_adapter: mysql2
   encoding: utf8
   collation: utf8_unicode_ci
@@ -20,6 +20,7 @@ mysql_defaults: &mysql_defaults
     username: <%= writer.user || 'root' %>
     password: <%= writer.password || '' %>
     host: <%= writer.host || 'localhost' %>
+    prepared_statements: true
     database: <%= writer.path.sub(%r{^/},"") || "dashboard_#{Rails.env}" %>
   <% if reader && reader.host != writer.host %>
     # When there is a separate read-only database configured, do NOT
