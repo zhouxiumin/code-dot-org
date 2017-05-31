@@ -1,6 +1,18 @@
 module ScriptLevelsHelper
-  def script_level_solved_response(response, script_level)
-    next_user_redirect = script_level.next_level_or_redirect_path_for_user current_user
+  def script_level_solved_response(script_level, user)
+    unless user
+      key = "#{script_level.cache_key}/solved_response/#{I18n.locale}"
+      Rails.cache.fetch(key, expires_in: 10.minutes) do
+        _solved_response(script_level)
+      end
+    else
+      _solved_response(script_level, user)
+    end
+  end
+
+  def _solved_response(script_level, user=nil)
+    response = {}
+    next_user_redirect = script_level.next_level_or_redirect_path_for_user user
 
     if script_level.has_another_level_to_go_to?
       if script_level.end_of_stage?
@@ -10,8 +22,7 @@ module ScriptLevelsHelper
         # stages except for the last stage of a script
         # users in sections with an enabled "stage extras" flag
         enabled_for_stage = !script_level.end_of_script?
-        enabled_for_user = current_user && current_user.section_for_script(script_level.script) &&
-            current_user.section_for_script(script_level.script).stage_extras
+        enabled_for_user = user.try(:section_for_script, script_level.script).try(:stage_extras)
         response[:end_of_stage_experience] = enabled_for_stage && enabled_for_user
       end
     else
@@ -27,6 +38,7 @@ module ScriptLevelsHelper
     end
 
     response[:redirect] = next_user_redirect
+    response
   end
 
   def wrapup_video_then_redirect_response(wrapup_video, redirect)
