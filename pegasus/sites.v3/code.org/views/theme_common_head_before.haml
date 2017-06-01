@@ -6,7 +6,22 @@
 %link{rel:'shortcut icon', href:'/images/favicon.ico'}
 %link{rel:'apple-touch-icon', href:'/images/apple-touch-icon-precomposed.png'}
 
-%script{src:'//cdn.optimizely.com/js/400912536.js'}
+:javascript
+  (function() {
+    var scriptTag = document.createElement('script');
+    scriptTag.type = 'text/javascript';
+    scriptTag.async = true;
+    scriptTag.src = '//cdn.optimizely.com/js/400912536.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(scriptTag, s);
+  })();
+  function optimizelyTimeout() {
+    window.optimizely = window.optimizely|| [];
+    if (!window.optimizely.data) {
+      window.optimizely.push("timeout");
+    }
+  }
+  setTimeout(optimizelyTimeout, 1000);
 - response.add_header 'Link', "<//cdn.optimizely.com/js/400912536.js>; rel=preload; as=script"
 
 :javascript
@@ -22,5 +37,3 @@
 %script{src:'/js/jquery.min.js'}
 %script{src:'/shared/js/details-polyfill/jquery.details.min.js'}
 %script{src:'/shared/js/details-polyfill/details-polyfill.js'}
-
-
