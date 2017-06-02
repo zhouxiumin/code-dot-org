@@ -46,7 +46,7 @@ backend dashboard_<%= id %> {
   proxies.each do |proxy|
     uri = URI.parse(proxy[:proxy])
 %>
-backend <%= uri.hostname %> {
+backend <%= uri.hostname.gsub(PROXY_REGEX, '-') %> {
   .host = "<%= uri.hostname %>";
 }
 <% end %>
