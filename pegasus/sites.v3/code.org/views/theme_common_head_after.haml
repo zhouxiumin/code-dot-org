@@ -5,7 +5,7 @@
     var scriptTag = document.createElement('script');
     scriptTag.type = 'text/javascript';
     scriptTag.async = true;
-    scriptTag.src = '//cdn.optimizely.com/js/400912536.js';
+    scriptTag.src = '/js/400912536.js';
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(scriptTag, s);
   })();
@@ -16,7 +16,7 @@
     }
   }
   setTimeout(optimizelyTimeout, 1000);
-- response.add_header 'Link', "<//cdn.optimizely.com/js/400912536.js>; rel=preload; as=script"
+- response.add_header 'Link', "</js/400912536.js>; rel=preload; as=script"
 
 :javascript
   var is_ie8 = false;
