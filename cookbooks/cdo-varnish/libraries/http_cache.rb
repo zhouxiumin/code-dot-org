@@ -68,6 +68,18 @@ class HttpCache
       pegasus: {
         behaviors: [
           {
+            path: '/js/400912536.js',
+            headers: [],
+            cookies: 'none',
+            proxy: 'http://cdn.optimizely.com'
+          },
+          {
+            path: '/analytics.js',
+            headers: [],
+            cookies: 'none',
+            proxy: 'http://google-analytics.com'
+          },
+          {
             path: '/api/hour/*',
             headers: LANGUAGE_HEADER,
             # Allow the company cookie to be read and set to track company users for tutorials.
