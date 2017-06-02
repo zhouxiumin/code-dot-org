@@ -186,11 +186,17 @@ end
 def process_proxy(behavior, app)
   proxy = (behavior[:proxy] || app).to_s
   proxy = 'dashboard' if proxy == 'cdo-assets'
-  unless %w(pegasus dashboard).include? proxy
+  out = ''
+  if %w(pegasus dashboard).include? proxy
+    hostname = proxy == 'pegasus' ? pegasus_hostname : dashboard_hostname
+    out << "set req.backend_hint = #{proxy}.backend();"
+  elsif proxy.start_with?('http')
+    uri = URI.parse(proxy)
+    hostname = uri.hostname
+    out << "set req.backend_hint = #{hostname};"
+  else
     raise ArgumentError.new("Invalid proxy: #{proxy}")
   end
-  hostname = proxy == 'pegasus' ? pegasus_hostname : dashboard_hostname
-  out = "set req.backend_hint = #{proxy}.backend();"
   if proxy != app.to_s
     out << "\nset req.http.host = \"#{hostname}\";"
   end

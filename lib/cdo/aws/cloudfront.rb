@@ -160,7 +160,21 @@ module AWS
               OriginAccessIdentity: ''
             },
           },
-        ],
+        ].concat(
+          config[:behaviors].select{|x| x[:proxy] && x[:proxy].start_with?('http')}.map do |behavior|
+            uri = URI.parse(behavior[:proxy])
+            {
+              Id: uri.hostname,
+              DomainName: uri.hostname,
+              OriginPath: uri.path,
+              CustomOriginConfig: {
+                OriginProtocolPolicy: uri.scheme == 'https' ? 'https-only' : 'http-only'
+              }.tap do |custom_origin_config|
+                custom_origin_config[:OriginSSLProtocols] = %w(TLSv1.2 TLSv1.1) if uri.scheme == 'https'
+              end
+            }
+          end
+        ),
         PriceClass: 'PriceClass_All',
         Restrictions: {
           GeoRestriction: {

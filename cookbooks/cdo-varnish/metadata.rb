@@ -6,4 +6,4 @@ description      'Installs/Configures cdo-varnish'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '0.3.162'
 
-depends 'apt'
+depends 'apt', '~> 5.1.0'

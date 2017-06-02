@@ -2,8 +2,10 @@
 # Behaviors are defined in http cache config.
 require_relative '../../../cookbooks/cdo-varnish/libraries/helpers'
 require 'active_support/core_ext/hash/slice'
+require 'active_support/core_ext/numeric/time'
 require 'cdo/rack/response'
 require 'cdo/aws/cloudfront'
+require 'cdo/../../dashboard/app/helpers/proxy_helper'
 
 module Rack
   module Whitelist
@@ -11,10 +13,24 @@ module Rack
     # and extracts cookies into HTTP headers before the request reaches the cache.
     class Downstream
       attr_reader :config
+      attr_accessor :response
 
       def initialize(app, config)
         @app = app
         @config = config
+      end
+
+      include ProxyHelper
+
+      # stub #expires_in called by ProxyHelper
+      def expires_in(max_age, public: true)
+        response.max_age = max_age
+        response.private = !public
+      end
+
+      # stub #send_data called by ProxyHelper
+      def send_data(data, *_)
+        data
       end
 
       def call(env)
@@ -22,6 +38,20 @@ module Rack
         request = Rack::Request.new(env)
         path = request.path
         behavior = behavior_for_path((config[:behaviors] + [config[:default]]), path)
+
+        # Use ProxyHelper to proxy third-party resources.
+        if behavior[:proxy] && !%w(pegasus dashboard).include?(behavior[:proxy])
+          self.response = Rack::Cache::Response.new(200, {}, [])
+          path.gsub!(/^\/(?=\*.)/, '')
+          response.body = render_proxied_url(
+            "http://#{behavior[:proxy]}/#{path}",
+            allowed_content_types: nil,
+            allowed_hostname_suffixes: nil,
+            expiry_time: 1.hour.to_i,
+            infer_content_type: true
+          )
+          return response.to_a
+        end
 
         # Filter whitelisted request headers.
         headers = behavior[:headers]

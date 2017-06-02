@@ -462,6 +462,13 @@ module HttpCacheTest
         response = proxy_request url, {}, {}
         assert_equal 'Hello World!', last_line(response)
       end
+
+      it 'proxies third-party requests' do
+        skip 'TODO ensure test works in all integration environments.'
+        url = 'analytics.js'
+        response = proxy_request url
+        assert_ok response
+      end
     end
   end
 end
