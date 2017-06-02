@@ -1,3 +1,32 @@
+%script{src:'/js/jquery.min.js'}
+
+:javascript
+  (function() {
+    var scriptTag = document.createElement('script');
+    scriptTag.type = 'text/javascript';
+    scriptTag.async = true;
+    scriptTag.src = '//cdn.optimizely.com/js/400912536.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(scriptTag, s);
+  })();
+  function optimizelyTimeout() {
+    window.optimizely = window.optimizely|| [];
+    if (!window.optimizely.data) {
+      window.optimizely.push("timeout");
+    }
+  }
+  setTimeout(optimizelyTimeout, 1000);
+- response.add_header 'Link', "<//cdn.optimizely.com/js/400912536.js>; rel=preload; as=script"
+
+:javascript
+  var is_ie8 = false;
+/[if IE 8]
+:javascript
+    is_ie8 = true;
+
+%script{src:'/shared/js/details-polyfill/jquery.details.min.js'}
+%script{src:'/shared/js/details-polyfill/details-polyfill.js'}
+
 = view :theme_google_analytics
 
 %script{src: minifiable_asset_path("js/code.org/views/theme_common_head_after.js")}
