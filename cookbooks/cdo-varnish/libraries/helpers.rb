@@ -181,7 +181,7 @@ def process_response(behavior, _)
     '# Allow set-cookie responses.'
 end
 
-PROXY_REGEX = /[^[:alnum:]-]/
+PROXY_REGEX = /[^[:alnum:]_]/
 
 # Returns the backend-redirect string for a given proxy.
 # 'pegasus', 'dashboard' or 'cdo-assets' are the only supported values.
@@ -195,7 +195,7 @@ def process_proxy(behavior, app)
   elsif proxy.start_with?('http')
     uri = URI.parse(proxy)
     hostname = uri.hostname
-    out << "set req.backend_hint = #{hostname.gsub(PROXY_REGEX, '-')};"
+    out << "set req.backend_hint = #{hostname.gsub(PROXY_REGEX, '_')};"
   else
     raise ArgumentError.new("Invalid proxy: #{proxy}")
   end
