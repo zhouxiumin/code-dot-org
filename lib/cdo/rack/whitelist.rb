@@ -29,7 +29,8 @@ module Rack
       end
 
       # stub #send_data called by ProxyHelper
-      def send_data(data, *_)
+      def send_data(data, type:, disposition: nil)
+        response.headers['Content-Type'] = type
         data
       end
 
@@ -40,11 +41,11 @@ module Rack
         behavior = behavior_for_path((config[:behaviors] + [config[:default]]), path)
 
         # Use ProxyHelper to proxy third-party resources.
-        if behavior[:proxy] && !%w(pegasus dashboard).include?(behavior[:proxy])
+        if behavior[:proxy] && behavior[:proxy].start_with?('http')
           self.response = Rack::Cache::Response.new(200, {}, [])
           path.gsub!(/^\/(?=\*.)/, '')
           response.body = render_proxied_url(
-            "http://#{behavior[:proxy]}/#{path}",
+            "#{behavior[:proxy]}/#{path}",
             allowed_content_types: nil,
             allowed_hostname_suffixes: nil,
             expiry_time: 1.hour.to_i,
