@@ -1,3 +1,8 @@
+// load jQuery with 'defer' so it doesn't block DOM building and page rendering.
+// Any script with 'defer: true' or inline after DOMContentLoaded event
+// will have access to the jQuery globals.
+%script{src:'/js/jquery.min.js', defer: true}
+
 :javascript
   (function() {
     var scriptTag = document.createElement('script');
@@ -19,8 +24,8 @@
 :javascript
   var is_ie8 = false;
 /[if IE 8]
-:javascript
-    is_ie8 = true;
+  :javascript
+    var is_ie8 = true;
 
 = view :theme_google_analytics
 
