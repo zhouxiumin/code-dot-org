@@ -29,7 +29,7 @@
 
 - js_asset = minifiable_asset_path("js/code.org/views/theme_common_head_after.js")
 %script{src: js_asset, defer: true}
-- response.add_header 'Link', "<#{js_asset}>; rel=preload; as=script"
+- response.add_header 'Link', "<#{CDO.default_scheme}#{js_asset}>; rel=preload; as=script"
 
 /[if lt IE 9]
   %script{:src=>'/js/html5shiv.js'}
