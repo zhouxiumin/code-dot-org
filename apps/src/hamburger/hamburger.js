@@ -31,14 +31,12 @@ export const initHamburger = function () {
       $('#educate-up').toggle();
       e.preventDefault();
     });
-
-    $.ajax({
-      type: "GET",
-      url: '/dashboardapi/user_menu',
-      success: function (data) {
-        $('#sign_in_or_user').html(data);
-      }
-    });
-
+  });
+  $.ajax({
+    type: "GET",
+    url: '/dashboardapi/user_menu',
+    success: function (data) {
+      $('#sign_in_or_user').html(data);
+    }
   });
 };

@@ -42,6 +42,7 @@
     - display = entry[:active_s] == "hide" ? "none" : "block"
     - if index == 0
       .widehero{id: "fullwidth#{index}", style: "background-position: #{entry[:param1_s]}; background-image: url(#{entry[:image_t]}); display: block;"}
+      %link{rel: 'preload', href: entry[:image_t], as: 'image'}
     - else
       .widehero.lazyload{id: "fullwidth#{index}", :"data-bg"=> "#{entry[:image_t]}", style: "background-position: #{entry[:param1_s]}"}
 
