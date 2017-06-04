@@ -117,8 +117,7 @@
 :javascript
   var petition;
 
-  $(document).ready()
-  {
+  document.addEventListener('DOMContentLoaded', function() {
     // For IE8, can't start with opacity in the HTML, so we made things display: none.  Now we show them but
     // set opacity to 0, ready for code to start showing them by fading them in.
     $(".caption").css({display: "block", opacity: 0});
@@ -189,7 +188,7 @@
     showQuote(lastImage, currentImage);
   }
 
-  $(document).ready(function() {
+  document.addEventListener('DOMContentLoaded', function() {
     var numWideHeroes = $(".widehero").length;
 
     if (numWideHeroes > 1) {

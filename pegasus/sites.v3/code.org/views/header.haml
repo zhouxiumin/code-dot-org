@@ -23,9 +23,7 @@
 
 :javascript
   var headerSetup = false;
-
-  $ = jQuery;
-  $(document).ready(function() {
+  document.addEventListener('DOMContentLoaded', function() {
     if (headerSetup) {
       return;
     }
