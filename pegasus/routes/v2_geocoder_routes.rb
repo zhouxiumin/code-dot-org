@@ -14,7 +14,10 @@ get '/v2/client-location' do
       postal_code: location.postal_code,
     }
   else
-    location = {ip_address: request.ip}
+    location = {
+      ip_address: request.ip,
+      country_code: 'US' # default to US if unknown
+    }
   end
 
   content_type :json
