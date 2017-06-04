@@ -7,4 +7,6 @@
 %link{rel:'apple-touch-icon', href:'/images/apple-touch-icon-precomposed.png'}
 
 %link{rel:'stylesheet', type:'text/css', href:'/style.css'}
+- response.add_header 'Link', "</style.css>; rel=preload; as=style"
+
 %link{rel:'stylesheet', type:'text/css', href:'/shared/css/user-menu.css'}
