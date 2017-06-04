@@ -178,7 +178,8 @@ class Documents < Sinatra::Base
     end.join("\n\n")
     last_modified(css_last_modified) if css_last_modified > Time.at(0)
     cache :static
-    css
+    engine = Sass::Engine.new(css, :syntax => :scss, :style => :compressed)
+    engine.render
   end
 
   # rubocop:disable Lint/Eval
