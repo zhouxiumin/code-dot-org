@@ -1,23 +1,24 @@
 %script{src:'/js/jquery.min.js'}
 - response.add_header 'Link', "</js/jquery.min.js>; rel=preload; as=script"
 
-:javascript
-  (function() {
-    var scriptTag = document.createElement('script');
-    scriptTag.type = 'text/javascript';
-    scriptTag.async = true;
-    scriptTag.src = '/js/400912536.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(scriptTag, s);
-  })();
-  function optimizelyTimeout() {
-    window.optimizely = window.optimizely|| [];
-    if (!window.optimizely.data) {
-      window.optimizely.push("timeout");
+- if false # leave disabled when no A/B experiments are running.
+  :javascript
+    (function() {
+      var scriptTag = document.createElement('script');
+      scriptTag.type = 'text/javascript';
+      scriptTag.async = true;
+      scriptTag.src = '/js/400912536.js';
+      var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(scriptTag, s);
+    })();
+    function optimizelyTimeout() {
+      window.optimizely = window.optimizely|| [];
+      if (!window.optimizely.data) {
+        window.optimizely.push("timeout");
+      }
     }
-  }
-  setTimeout(optimizelyTimeout, 1000);
-- response.add_header 'Link', "</js/400912536.js>; rel=preload; as=script"
+    setTimeout(optimizelyTimeout, 1000);
+  - response.add_header 'Link', "</js/400912536.js>; rel=preload; as=script"
 
 :javascript
   var is_ie8 = false;
