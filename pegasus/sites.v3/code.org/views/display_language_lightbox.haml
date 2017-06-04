@@ -1,4 +1,4 @@
-%script{type: "text/javascript", src: "/js/bootstrap.min.js"}
+%script{type: "text/javascript", src: "/js/bootstrap.min.js", defer: true}
 
 %div{:class=>"modal fade", :id=>"selectLanguage"}
   %div{:class=>"modal-dialog", :width=>"500px"}
@@ -31,7 +31,7 @@
     return keyValue ? keyValue[2] : null;
   }
 
-  $( document ).ready(function() {
+  document.addEventListener('DOMContentLoaded', function() {
     already_shown = !!getCookie('_loc_notice');
     if(!already_shown) {
       $.getJSON( "/v2/client-location", function( data ) {

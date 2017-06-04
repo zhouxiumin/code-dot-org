@@ -2,9 +2,8 @@
 // so it doesn't block DOM building and page rendering.
 // Any script with 'defer: true' or inline after DOMContentLoaded event
 // will have access to the jQuery globals.
-import {$,jQuery} from 'jquery';
-window.$ = $;
-window.jQuery = jQuery;
+import jQuery from 'jquery';
+window.$ = window.jQuery = jQuery;
 
 import 'details-element-polyfill';
 

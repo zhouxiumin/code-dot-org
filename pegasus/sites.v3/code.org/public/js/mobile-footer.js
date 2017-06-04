@@ -1,4 +1,4 @@
-$(function () {
+document.addEventListener('DOMContentLoaded', function () {
 
   $('#footer-toggle').click(function (e){
     $('#footer-links ul').slideToggle();
