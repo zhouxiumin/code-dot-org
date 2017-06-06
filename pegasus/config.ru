@@ -36,6 +36,11 @@ if CDO.throttle_data_apis
   use Rack::Attack
 end
 
+unless CDO.cdn_enabled
+  require 'cdo/rack/cdo_deflater'
+  use Rack::CdoDeflater
+end
+
 if CDO.image_optim
   require 'cdo/rack/optimize'
   use Rack::Optimize

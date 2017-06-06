@@ -16,7 +16,9 @@
       celeb.  Non-celeb is student or teacher. We open with a celeb, i.e.,
       celeb, stat, non-celeb, stat, celeb, stat, non-celeb, stat, celeb, stat,
       etc.
-    - heroes.shuffle!
+
+      Server-side shuffle doesn't work on cached page.
+    -#- heroes.shuffle!
     - heroes_nonceleb = heroes.select {|hero| ["student", "teacher"].include? hero[:param2_s]}
     - heroes_celeb = heroes.select {|hero| hero[:param2_s] == "celeb"}
     - heroes_stat = heroes.select {|hero| hero[:param2_s] == "stat"}
@@ -26,7 +28,8 @@
       - heroes_arranged = heroes_nonceleb.zip(heroes_celeb).flatten.compact.first(6)
     - heroes_celeba = heroes.select {|hero| hero[:param2_s] == "celeba"}
     - if heroes_celeba.length > 0
-      - heroes_celeba.shuffle!
+      -# Server-side Shuffle doesn't work on cached page.
+      -#- heroes_celeba.shuffle!
       - heroes_arranged.unshift(heroes_celeba.first)
 
   - newsbanner = DB[:cdo_homepage].where(type_s: "banner", active_s: ["show","hide"], site_s: [request.site,"both"], language_supported_s: ["all", languageFilter]).first

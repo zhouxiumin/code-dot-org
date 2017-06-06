@@ -14,7 +14,7 @@ def main
   end
 
   Dir.chdir(dashboard_dir) do
-    system "RAILS_ENV=#{CDO.rack_env} bundle exec #{rerun} rackup -o #{CDO.dashboard_host} -p #{CDO.dashboard_port}"
+    system "RAILS_ENV=#{CDO.rack_env} bundle exec #{rerun} thin -R #{dashboard_dir}/config.ru --threaded -a #{CDO.dashboard_host} -p #{CDO.dashboard_port} start"
   end
 
   pids.each do |pid|

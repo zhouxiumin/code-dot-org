@@ -4,9 +4,11 @@ require 'rack/cache'
 # Rack middleware that applies an optimizing filter pass on response content.
 module Rack
   class Optimize
+    CDO_OPTIMIZE = 'X-CDO-Optimize'.freeze
+
     def initialize(app, options = {})
       @app = app
-      @content_types = options.delete(:content_types) || Cdo::Optimizer::MIME_TYPES
+      @content_types = options.delete(:content_types) || Cdo::Optimizer::MIME_TYPES.values.flatten
     end
 
     def call(env)
@@ -15,6 +17,8 @@ module Rack
       unless should_process?(env, status, headers, body)
         return [status, headers, body]
       end
+
+      request = Rack::Request.new(env)
 
       # Read the response body into a string.
       if body.respond_to?(:read)
@@ -26,7 +30,7 @@ module Rack
       body.close if body.respond_to? :close
 
       content_type = headers['Content-Type'] || 'application/octet-stream'
-      optimized_content = Cdo::Optimizer.optimize(content, content_type)
+      optimized_content = Cdo::Optimizer.optimize(content, content_type, request.url)
 
       # If the optimizer returns nil, the optimization is still pending.
       if optimized_content.nil?
@@ -38,7 +42,10 @@ module Rack
         response.shared_max_age = 10
         # Remove Last-Modified header so proxy caches get the updated resource when revalidating.
         response.headers.delete('Last-Modified')
+        response.headers[CDO_OPTIMIZE] = 'miss'
         headers = response.headers
+      else
+        headers[CDO_OPTIMIZE] = 'hit'
       end
 
       # Update content-length after transform.
@@ -63,6 +70,8 @@ module Rack
       # Skip no-transform or uncacheable responses.
       return false if headers['Cache-Control'].to_s =~ /\b(no-transform|private|no-store|max-age=0)\b/
 
+      # Don't optimize twice.
+      return false if headers[CDO_OPTIMIZE]
       true
     end
   end
