@@ -56,8 +56,8 @@ module Rack
     end
 
     def should_process?(env, status, headers, body)
-      # Skip empty entity body responses.
-      return false if Utils::STATUS_WITH_NO_ENTITY_BODY.include?(status)
+      # Only optimize 200 OK responses.
+      return false unless status == 200
 
       # Skip if content-type header doesn't include one of allowed types.
       if @content_types
