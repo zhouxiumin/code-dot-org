@@ -78,14 +78,14 @@ class HttpCache
             headers: [],
             cookies: 'none',
             proxy: 'http://google-analytics.com',
-            cache_control: "public, max-age=#{3600 * 24}"
+            cache_control: "public, max-age=#{3600 * 24 * 7}"
           },
           {
             path: '/plugins/ua/*',
             headers: [],
             cookies: 'none',
             proxy: 'http://google-analytics.com',
-            cache_control: "public, max-age=#{3600 * 24}"
+            cache_control: "public, max-age=#{3600 * 24 * 7}"
           },
           {
             path: '/api/hour/*',
