@@ -7,6 +7,7 @@ require 'active_support/core_ext/numeric/time'
 require 'cdo/shared_cache'
 require 'image_size'
 require 'image_optim'
+require 'open3'
 
 # Optimizes content on-the-fly based on provided content-type.
 # If the process takes longer than specified timeout, the original data will be returned
