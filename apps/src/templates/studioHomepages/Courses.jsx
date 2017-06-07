@@ -1,13 +1,14 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import HeadingBanner from '../HeadingBanner';
+import HeaderBanner from '../HeaderBanner';
 import TeacherCourses from './TeacherCourses';
 import RecentCoursesCollapsible from './RecentCoursesCollapsible';
 import UiTips from '@cdo/apps/templates/studioHomepages/UiTips';
 import color from "../../util/color";
 import shapes from './shapes';
 import ProtectedStatefulDiv from '../ProtectedStatefulDiv';
+import ProgressButton from '@cdo/apps/templates/progress/ProgressButton';
 import i18n from "@cdo/locale";
 
 const styles = {
@@ -62,11 +63,12 @@ const Courses = React.createClass({
 
   render() {
     const { courses, isEnglish, isTeacher, codeOrgUrlPrefix, isSignedOut, userId, showInitialTips } = this.props;
+    const headingText = isSignedOut ? i18n.coursesCodeStudio() : i18n.courses();
 
     return (
       <div>
-        <HeadingBanner
-          headingText={i18n.courses()}
+        <HeaderBanner
+          headingText={headingText}
           subHeadingText={i18n.coursesHeadingSubText(
             {linesCount: this.props.linesCount, studentsCount: this.props.studentsCount}
           )}
@@ -81,7 +83,7 @@ const Courses = React.createClass({
           />
         )}
 
-        {courses && (
+        {courses && courses.length > 0 && (
           <RecentCoursesCollapsible
             courses={courses}
             showAllCoursesLink={false}
@@ -141,6 +143,10 @@ const Courses = React.createClass({
           <div>
             <ProtectedStatefulDiv ref="allCourses"/>
           </div>
+        )}
+
+        {!isTeacher && !isSignedOut && (
+          <ProgressButton text={i18n.viewMyProjects()} href="/projects" color={ProgressButton.ButtonColor.orange}/>
         )}
       </div>
     );

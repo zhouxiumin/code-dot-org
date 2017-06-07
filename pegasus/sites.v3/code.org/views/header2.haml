@@ -4,6 +4,7 @@
 
   hamburger_options = {}
   hamburger_options[:level] = nil
+  hamburger_options[:script_level] = nil
   hamburger_options[:user_type] = user_type
   hamburger_options[:language] = request.language
   hamburger_options[:code_org_url_base] = CDO.code_org_url
@@ -38,6 +39,9 @@
             %a.headerlink{:href=>"/help"}= I18n.t('header_help_us')
             %a.headerlink{:href=>"/about"}= I18n.t('header_about')
             %a.headerlink{:href=>CDO.studio_url("/projects/public")}= I18n.t('header_project_gallery')
+          - else
+            %a.headerlink{:href=>"/courses"}=I18n.t('header_courses')
+            %a.headerlink{:href=>"/projects/public"}=I18n.t('header_project_gallery')
 
       #right
         #sign_in_or_user{:style=>'display:block; float: left; margin: .6875em 0 0 30px;'}

@@ -67,6 +67,8 @@ var CardinalDirections = constants.CardinalDirections;
 var NextTurn = constants.NextTurn;
 var SquareType = constants.SquareType;
 var Emotions = constants.Emotions;
+const turnRight90 = constants.turnRight90;
+const turnLeft90 = constants.turnLeft90;
 
 import {TestResults, ResultType, KeyCodes, SVG_NS} from '../constants';
 
@@ -331,14 +333,18 @@ const REMIX_PROPS = [
 
 Studio.loadLevel = function () {
   // Load maps.
-  Studio.map = level.map.map(row => row.map(cell => (
+  Studio.map = level.map.map(row => row.map(cell => {
     // Each cell should be either an integer (in which case we are
     // dealing with the legacy format and should treat that value as
     // the tileType for the cell) or an object (in which case we are
     // dealing with the new format and should treat that value as a
     // serialization of the cell).
-    isNaN(parseInt(cell)) ? studioCell.deserialize(cell) : new studioCell(cell)
-  )));
+    const value = isNaN(parseInt(cell)) ? studioCell.deserialize(cell) : new studioCell(cell);
+    if (value.tileType_ & constants.WallCoordsMask) {
+      Studio.wallMapCollisions = true;
+    }
+    return value;
+  }));
   Studio.wallMap = null;  // The map name actually being used.
   Studio.wallMapRequested = null; // The map name requested by the caller.
   Studio.allowSpritesOutsidePlayspace = level.allowSpritesOutsidePlayspace;
@@ -352,7 +358,6 @@ Studio.loadLevel = function () {
   Studio.softButtons_ = level.softButtons || {};
   // protagonistSpriteIndex was originally mispelled. accept either spelling.
   Studio.protagonistSpriteIndex = utils.valueOr(level.protagonistSpriteIndex,level.protaganistSpriteIndex);
-  Studio.wallMapCollisions = level.wallMapCollisions || level.blockMovingIntoWalls;
 
   switch (level.customGameType) {
     case 'Big Game':
@@ -2495,7 +2500,7 @@ Studio.reset = function (first) {
   };
 
   // Reset the record of the last direction that the user moved the sprite.
-  Studio.lastMoveSingleDir = null;
+  Studio.lastMoveSingleDir = Direction.EAST;
 
   // Reset goal successState:
   if (level.goal) {
@@ -4268,6 +4273,29 @@ Studio.callCmd = function (cmd) {
           spriteIndex: Studio.protagonistSpriteIndex || 0,
           dir: Direction.SOUTH,
       });
+      break;
+    case 'moveForward':
+      studioApp().highlight(cmd.id);
+      Studio.moveSingle({
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: Studio.lastMoveSingleDir,
+      });
+      break;
+    case 'moveBackward':
+      studioApp().highlight(cmd.id);
+      Studio.moveSingle({
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: turnRight90(turnRight90(Studio.lastMoveSingleDir)),
+      });
+      Studio.lastMoveSingleDir = turnRight90(turnRight90(Studio.lastMoveSingleDir));
+      break;
+    case 'turnRight':
+      studioApp().highlight(cmd.id);
+      Studio.lastMoveSingleDir = turnRight90(Studio.lastMoveSingleDir);
+      break;
+    case 'turnLeft':
+      studioApp().highlight(cmd.id);
+      Studio.lastMoveSingleDir = turnLeft90(Studio.lastMoveSingleDir);
       break;
     case 'moveDistance':
       if (!cmd.opts.started) {

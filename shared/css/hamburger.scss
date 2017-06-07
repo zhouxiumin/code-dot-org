@@ -110,13 +110,12 @@
     padding-bottom: 10px;
     li {
       color: $white;
-      line-height: 30px;
+      line-height: 20px;
       padding: 0.25em;
       text-indent: 0;
       list-style-type: none;
       max-width: 250px;
       text-overflow: ellipsis;
-      border-bottom: solid 2px $dark_teal;
       border-radius: 2px;
       padding-bottom: 10px;
       margin-bottom: 5px;
@@ -137,19 +136,19 @@
         margin-right: 0;
       }
       a {
-        font-family: $gotham-bold;
+        font-family: $gotham-regular;
         color: $white;
         text-decoration: none;
       }
 
       #about-more {
-        font-family: $gotham-bold;
+        font-family: $gotham-regular;
         color: $white;
         text-decoration: none;
         cursor: pointer;
       }
       #educate-more {
-        font-family: $gotham-bold;
+        font-family: $gotham-regular;
         color: $white;
         text-decoration: none;
         cursor: pointer;
@@ -188,6 +187,10 @@
   }
   .educate-nav ul li:last-of-type {
     border-bottom: solid 2px $dark_teal;
+  }
+  .divider {
+    height: 10px;
+    background: $dark_teal;
   }
 
   @media(max-width: 970px) {

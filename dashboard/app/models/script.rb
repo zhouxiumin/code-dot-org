@@ -21,6 +21,8 @@
 require 'cdo/script_constants'
 require 'cdo/shared_constants'
 
+TEXT_RESPONSE_TYPES = [TextMatch, FreeResponse]
+
 # A sequence of Levels
 class Script < ActiveRecord::Base
   include ScriptConstants
@@ -170,7 +172,7 @@ class Script < ActiveRecord::Base
   # variable (ie. in memory in the worker process) and in a
   # distributed cache (Rails.cache)
   @@script_cache = nil
-  SCRIPT_CACHE_KEY = 'script-cache'
+  SCRIPT_CACHE_KEY = 'script-cache'.freeze
 
   # Caching is disabled when editing scripts and levels or running unit tests.
   def self.should_cache?
@@ -317,7 +319,8 @@ class Script < ActiveRecord::Base
     text_response_levels = []
     script_levels.map do |script_level|
       script_level.levels.map do |level|
-        next if level.contained_levels.empty?
+        next if level.contained_levels.empty? ||
+          !TEXT_RESPONSE_TYPES.include?(level.contained_levels.first.class)
         text_response_levels << {
           script_level: script_level,
           levels: [level.contained_levels.first]
@@ -327,7 +330,7 @@ class Script < ActiveRecord::Base
 
     text_response_levels.concat(
       script_levels.includes(:levels).
-        where('levels.type' => [TextMatch, FreeResponse]).
+        where('levels.type' => TEXT_RESPONSE_TYPES).
         map do |script_level|
           {
             script_level: script_level,
@@ -371,7 +374,10 @@ class Script < ActiveRecord::Base
   def get_script_level_by_relative_position_and_puzzle_position(relative_position, puzzle_position, lockable)
     relative_position ||= 1
     script_levels.to_a.find do |sl|
-      sl.stage.lockable? == lockable && sl.stage.relative_position == relative_position.to_i && sl.position == puzzle_position.to_i
+      sl.stage.lockable? == lockable &&
+        sl.stage.relative_position == relative_position.to_i &&
+        sl.position == puzzle_position.to_i &&
+        !sl.bonus
     end
   end
 
