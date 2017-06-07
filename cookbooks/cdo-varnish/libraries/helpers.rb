@@ -176,9 +176,13 @@ end
 
 # Returns the cookie-filter string for a given 'cookies' behavior.
 def process_response(behavior, _)
-  behavior[:cookies] == 'none' ?
+  response = behavior[:cookies] == 'none' ?
     'unset beresp.http.set-cookie;' :
     '# Allow set-cookie responses.'
+  if behavior[:cache_control]
+    response << "\n" << "set beresp.http.Cache-Control = \"#{behavior[:cache_control]}\";"
+  end
+  response
 end
 
 PROXY_REGEX = /[^[:alnum:]_]/
