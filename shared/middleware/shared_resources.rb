@@ -15,6 +15,8 @@ class SharedResources < Sinatra::Base
   end
 
   ONE_HOUR = 3600
+  ONE_DAY = ONE_HOUR * 24
+  ONE_WEEK = ONE_DAY * 7
 
   configure do
     Sass::Plugin.options[:cache_location] = pegasus_dir('cache', '.sass-cache')
@@ -23,9 +25,9 @@ class SharedResources < Sinatra::Base
 
     set :image_extnames, ['.png', '.jpeg', '.jpg', '.gif']
     set :javascript_extnames, ['.js']
-    set_max_age :image, ONE_HOUR * 10
+    set_max_age :image, ONE_WEEK
     set_max_age :image_proxy, ONE_HOUR * 5
-    set_max_age :static, ONE_HOUR * 10
+    set_max_age :static, ONE_WEEK
     set_max_age :static_proxy, ONE_HOUR * 5
   end
 

@@ -74,6 +74,7 @@ class Documents < Sinatra::Base
 
   ONE_HOUR = 3600
   ONE_DAY = ONE_HOUR * 24
+  ONE_WEEK = ONE_DAY * 7
 
   configure do
     dir = pegasus_dir('sites.v3')
@@ -84,9 +85,9 @@ class Documents < Sinatra::Base
     set :exclude_extnames, ['.collate']
     set_max_age :document, ONE_HOUR * 4
     set_max_age :document_proxy, ONE_HOUR * 2
-    set_max_age :image, ONE_DAY
+    set_max_age :image, ONE_WEEK
     set_max_age :image_proxy, ONE_HOUR * 5
-    set_max_age :static, ONE_DAY
+    set_max_age :static, ONE_WEEK
     set_max_age :static_proxy, ONE_HOUR * 5
     set :read_only, CDO.read_only
     set :not_found_extnames, ['.not_found', '.404']
