@@ -41,6 +41,9 @@ unless CDO.cdn_enabled
   use Rack::CdoDeflater
 end
 
+require 'rack/etag'
+use Rack::ETag
+
 if CDO.image_optim
   require 'cdo/rack/optimize'
   use Rack::Optimize
