@@ -1,2 +1,17 @@
+%script{src:'/js/jquery.min.js', defer: true}
+
+- js_asset = minifiable_asset_path("js/code.org/views/theme_common_head_after.js")
+%script{src: js_asset, defer: true}
+
 =view :theme_fastclick
 =view :display_language_lightbox
+=view :theme_google_analytics
+
+- if header['chart']
+  %script{src:'https://www.google.com/jsapi'}
+
+- if @header['video_player']
+  :javascript
+    document.addEventListener('DOMContentLoaded', function() {
+      loadVideos(window.location.search.indexOf("force_youtube_fallback") !== -1)
+    });
