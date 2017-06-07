@@ -43,6 +43,7 @@ backend dashboard_<%= id %> {
 <%
   proxies = (config[:pegasus][:behaviors] + config[:dashboard][:behaviors])
     .select{|behavior| behavior[:proxy] && behavior[:proxy].start_with?('http')}
+    .uniq{|behavior| behavior[:proxy]}
   proxies.each do |proxy|
     uri = URI.parse(proxy[:proxy])
 %>
