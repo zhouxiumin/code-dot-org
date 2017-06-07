@@ -121,7 +121,7 @@ module Cdo
     end
 
     def optimize_html(data, path)
-      cmd = "critical #{path} -m -i"
+      cmd = "critical #{path} -m -i -d"
       out, err, status = Open3.capture3(cmd)
       raise err unless status != 0 || err.nil? || err.empty?
       cmd = "html-minifier --config-file #{HTML_MINIFIER_CONFIG}"
