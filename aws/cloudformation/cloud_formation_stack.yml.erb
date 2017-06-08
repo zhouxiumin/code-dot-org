@@ -10,6 +10,7 @@ commit = ENV['COMMIT'] || `git ls-remote origin #{branch}`.split.first
 
 ami = commit[0..4]
 unless dry_run
+  update_certs.call if rack_env?(:adhoc)
   update_cookbooks.call
   update_bootstrap_script.call
 end
