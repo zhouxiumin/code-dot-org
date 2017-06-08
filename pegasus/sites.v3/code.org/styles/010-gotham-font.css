@@ -1,4 +1,3 @@
-
 /*
 	Copyright (C) 2011-2014 Hoefler & Co.
 	This software is the property of Hoefler & Co. (H&Co).
@@ -16,45 +15,44 @@
 	193662-83330-20141205
 */
 
-
 @font-face {
-  font-family: 'Gotham 4r';
+  font-family: 'Gotham';
   src: url('/fonts/gotham4r.woff2');
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Gotham 4i';
+  font-family: 'Gotham';
   src: url(/fonts/gotham4i.woff2);
-  font-weight: normal;
-  font-style: normal;
+  font-weight: 400;
+  font-style: italic;
 }
 
 @font-face {
-  font-family: 'Gotham 5r';
+  font-family: 'Gotham';
   src: url(/fonts/gotham5r.woff2);
-  font-weight: normal;
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Gotham 5i';
+  font-family: 'Gotham';
   src: url(/fonts/gotham5i.woff2);
-  font-weight: normal;
-  font-style: normal;
+  font-weight: 500;
+  font-style: italic;
 }
 
 @font-face {
-  font-family: 'Gotham 7r';
+  font-family: 'Gotham';
   src: url(/fonts/gotham7r.woff2);
-  font-weight: normal;
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Gotham 7i';
+  font-family: 'Gotham';
   src: url(/fonts/gotham7i.woff2);
-  font-weight: normal;
-  font-style: normal;
+  font-weight: 700;
+  font-style: italic;
 }
