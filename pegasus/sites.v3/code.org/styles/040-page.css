@@ -53,6 +53,7 @@ h2 {
   color: #00adbc;
   font-size: 22px;
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   margin-top:45px;
   margin-bottom:25px;
   line-height: 1.2em;
@@ -72,6 +73,7 @@ h4 {
   color: #5b6770;
   font-size: 14px;
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   line-height: 1.2em;
 }
 
@@ -116,7 +118,6 @@ blockquote p {
 strong {
   font-family: 'Gotham', sans-serif;
   font-weight: 700;
-  font-weight: normal;
 }
 
 em {
@@ -265,22 +266,22 @@ th a:link, th a:visited, th a:hover, th a:active {
 
 #index .count h1 {
   font-family: 'Gotham', sans-serif;
-  color: white; font-size: 40px; line-height: 40px; font-weight: normal; margin: 0px;
+  color: white; font-size: 40px; line-height: 40px; font-weight: 500; margin: 0px;
   margin-top:0px; margin-bottom:0px;
 }
 #index .count h2 {
   font-family: 'Gotham', sans-serif;
-  color: white; font-size: 48px; line-height: 48px; font-weight: normal; margin-top:5px; margin-bottom: 0px;
+  color: white; font-size: 48px; line-height: 48px; font-weight: 500; margin-top:5px; margin-bottom: 0px;
   margin-top:0px; margin-bottom:0px;
 }
 #index .count h3 {
   font-family: 'Gotham', sans-serif;
-  color: white; font-size: 32px; line-height: 56px; font-weight: normal; margin-top:5px; margin-bottom:0px;
+  color: white; font-size: 32px; line-height: 56px; font-weight: 500; margin-top:5px; margin-bottom:0px;
   margin-top:0px; margin-bottom:0px;
 }
 #index .count h4 {
   font-family: 'Gotham', sans-serif;
-  color: white; font-size: 26px; line-height: 26px; font-weight: normal;
+  color: white; font-size: 26px; line-height: 26px; font-weight: 500;
   margin-top:15px;
 }
 
@@ -305,7 +306,7 @@ th a:link, th a:visited, th a:hover, th a:active {
 
 #index #twentyhour #heading {
   font-family: 'Gotham', sans-serif;
-  font-size: 21px; font-weight:normal; padding-bottom: 14px
+  font-size: 21px; font-weight: 500; padding-bottom: 14px
 }
 
 #index #twentyhour #text {
@@ -339,16 +340,19 @@ th a:link, th a:visited, th a:hover, th a:active {
 
 #oldindex .count h1 {
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   color: white; font-size: 56px; line-height: 56px; font-weight: normal; margin: 0px;
 }
 
 #oldindex .count h2 {
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   color: white; font-size: 36px; line-height: 36px; font-weight: normal; margin-top:5px; margin-bottom: 0px;
 }
 
 #oldindex .count h3 {
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   color: white; font-size: 32px; line-height: 32px; font-weight: normal; margin-top:5px; margin-bottom:0px;
 }
 
@@ -488,6 +492,7 @@ th a:link, th a:visited, th a:hover, th a:active {
 a.about_list_item {
   color: #999c9f;
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
 }
 
 /* for homepage hoc2014 area at top.. */
@@ -497,6 +502,7 @@ a.about_list_item {
   font-size: 18px;
   color: white;
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   line-height: 32px;
 }
 
@@ -536,6 +542,7 @@ a.about_list_item {
 {
   font-size: 18px;
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   height: 40px;
   /*width: 120px;*/
 }
@@ -544,6 +551,7 @@ a.about_list_item {
 {
   font-size: 14px;
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
 }
 
 /* ..end homepage hoc2014 area at top */
@@ -576,6 +584,7 @@ a.about_list_item {
 .studiobar .title {
   font-size: 20px;
   font-family: 'Gotham', sans-serif;
+  font-weight: 500;
   padding-left: 10px;
   padding-right: 10px;
   border-width: 0px 1px 0px 1px;
@@ -837,7 +846,7 @@ a.btn-default:active {
 
 label {
   font-family: 'Gotham', sans-serif;
-  font-weight: normal;
+  font-weight: 500;
 }
 @media screen and (max-width: 450px) {
   #index .count h1 {
