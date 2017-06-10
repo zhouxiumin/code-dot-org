@@ -1,3 +1,38 @@
+:javascript
+  // Lazy-load full FontFace set.
+  // Add to document only when fully-loaded (no flash of invisible text).
+  var fonts = [
+    new FontFace('Gotham', 'url(/fonts/gotham4r.woff2)', {
+      style: 'normal',
+      weight: '400'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham4i.woff2)', {
+      style: 'italic',
+      weight: '400'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham5r.woff2)', {
+      style: 'normal',
+      weight: '500'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham5i.woff2)', {
+      style: 'italic',
+      weight: '500'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham7r.woff2)', {
+      style: 'normal',
+      weight: '700'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham7i.woff2)', {
+      style: 'italic',
+      weight: '700'
+    }),
+  ];
+  fonts.forEach(function(font) {
+    font.load();
+    font.loaded.then(function(font) {
+      document.fonts.add(font);
+    });
+  });
 %script{src:'/js/jquery.min.js', defer: true}
 
 - js_asset = minifiable_asset_path("js/code.org/views/theme_common_head_after.js")
