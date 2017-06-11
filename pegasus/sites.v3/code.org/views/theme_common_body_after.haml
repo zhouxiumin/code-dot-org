@@ -27,10 +27,12 @@
       weight: '700'
     }),
   ];
-  fonts.forEach(function(font) {
-    font.load();
-    font.loaded.then(function(font) {
-      document.fonts.add(font);
+  document.addEventListener('DOMContentLoaded', function() {
+    fonts.forEach(function(font) {
+      font.load();
+      font.loaded.then(function(font) {
+        document.fonts.add(font);
+      });
     });
   });
 %script{src:'/js/jquery.min.js', defer: true}
