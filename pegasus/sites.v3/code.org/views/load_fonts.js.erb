@@ -1,0 +1,66 @@
+// Optimized font-loading code using CSS Font Loading API.
+// Inline critical-font (~5k gzipped) into HTML, load immediately.
+// Lazy-load all other font-faces.
+<%
+require 'json'
+font_url = '/fonts/gotham4r-critical.woff2'
+font_data = File.read(content_dir('code.org', 'public' + font_url))
+%>
+var supportsFontLoading = !!document.fonts && ("FontFace" in window);
+
+// Early-load critical font-face.
+if (supportsFontLoading) {
+  var criticalFont = new FontFace(
+    'Gotham',
+    new Uint8Array(<%=font_data.bytes.to_json%>),
+    {
+      style: 'normal',
+      weight: '400',
+      unicodeRange: 'U+0030-0039,U+0041-005A,U+0061-007A'
+    }
+  );
+  criticalFont.load();
+  document.fonts.add(criticalFont);
+} else {
+  // Unsupported browsers lazy-load full font normally.
+}
+
+// Lazy-load font-faces for all weights and styles.
+var fontPath = '/fonts/gotham';
+var fonts = ['4r', '5r', '7r', '4i', '5i', '7i'].map(function(path) {
+  var fontSrc = fontPath + path;
+  return {
+    // woff2 src with woff fallback.
+    src: 'url(' + fontSrc + ".woff2) format('woff2'), url(" + fontSrc + ".woff) format('woff')",
+    weight: path[0] * 100,
+    style: path[1] === 'r' ? 'normal' : 'italic'
+  };
+});
+
+if (supportsFontLoading) {
+  fonts.forEach(function(font) {
+    document.fonts.add(new FontFace("Gotham", font.src, {
+      style: font.style,
+      weight: font.weight
+    }));
+  });
+} else {
+  var css = document.createElement("style");
+  cssStyle = '';
+  fonts.forEach(function(font) {
+    cssStyle += "@font-face{font-family: 'Gotham'; font-weight: " + font.weight + "; font-style: " + font.style + "; src: " + font.src + ";}";
+  });
+  css.appendChild(document.createTextNode(cssStyle));
+  document.head.appendChild(css);
+}
+// Implement 'optional' font-display:
+// if font-faces haven't loaded early, remove them from document.fonts.
+if (supportsFontLoading) {
+  window.setTimeout(function () {
+    for (var fontFace of document.fonts.values()) {
+      if (fontFace.status !== 'loaded') {
+        document.fonts.delete(fontFace);
+      }
+    }
+  }, 100);
+}
