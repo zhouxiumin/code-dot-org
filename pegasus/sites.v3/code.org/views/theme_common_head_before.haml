@@ -18,59 +18,57 @@
     unicode-range: U+0030-0039,U+0041-005A,U+0061-007A; /* 0-9,A-Z,a-z */
   }
 :javascript
+  var supportsFontLoading = !!document.fonts;
+
   // Early-load critical font-face.
-  var criticalFont = new FontFace(
-    'Gotham',
-    new Uint8Array(#{font_data.bytes.to_json}),
-    {
-      style: 'normal',
-      weight: '400',
-      unicodeRange: 'U+0030-0039,U+0041-005A,U+0061-007A'
-    }
-  );
-  criticalFont.load();
-  document.fonts.add(criticalFont);
+  if (supportsFontLoading) {
+    var criticalFont = new FontFace(
+      'Gotham',
+      new Uint8Array(#{font_data.bytes.to_json}),
+      {
+        style: 'normal',
+        weight: '400',
+        unicodeRange: 'U+0030-0039,U+0041-005A,U+0061-007A'
+      }
+    );
+    criticalFont.load();
+    document.fonts.add(criticalFont);
+  } else {
+    // TODO fallback inject CSS @font-face with base64 URI
+  }
 
   // Lazy-load font-faces for all weights and styles.
-  var fonts = [
-    new FontFace('Gotham', 'url(/fonts/gotham4r.woff2)', {
-      style: 'normal',
-      weight: '400'
-    }),
-    new FontFace('Gotham', 'url(/fonts/gotham4i.woff2)', {
-      style: 'italic',
-      weight: '400'
-    }),
-    new FontFace('Gotham', 'url(/fonts/gotham5r.woff2)', {
-      style: 'normal',
-      weight: '500'
-    }),
-    new FontFace('Gotham', 'url(/fonts/gotham5i.woff2)', {
-      style: 'italic',
-      weight: '500'
-    }),
-    new FontFace('Gotham', 'url(/fonts/gotham7r.woff2)', {
-      style: 'normal',
-      weight: '700'
-    }),
-    new FontFace('Gotham', 'url(/fonts/gotham7i.woff2)', {
-      style: 'italic',
-      weight: '700'
-    }),
-  ];
-  fonts.forEach(function(font) {
-    document.fonts.add(font);
+  var fontPath = '/fonts/gotham';
+  var fonts = ['4r', '5r', '7r', '4i', '5i', '7i'].map(function(path) {
+    var fontSrc = fontPath + path;
+    return {
+      src: 'url(' + fontSrc + ".woff2) format('woff2'), url(" + fontSrc + ".woff) format('woff')",
+      weight: path[0] * 100,
+      style: path[1] === 'r' ? 'normal' : 'italic'
+    };
   });
+  fonts.forEach(function(font) {
+    if (supportsFontLoading) {
+      document.fonts.add(new FontFace("Gotham", font.src, {
+        style: font.style,
+        weight: font.weight
+      }));
+    } else {
+      // TODO fallback inject CSS @font-face
+    }
+  });
+
   // Implement 'optional' font-display:
   // if font-faces haven't loaded early, remove them from document.fonts.
-  function pruneFonts() {
-    for (var fontFace of document.fonts.values()) {
-      if (fontFace.status !== 'loaded') {
-        document.fonts.delete(fontFace);
+  if (supportsFontLoading) {
+    window.setTimeout(function () {
+      for (var fontFace of document.fonts.values()) {
+        if (fontFace.status !== 'loaded') {
+          document.fonts.delete(fontFace);
+        }
       }
-    }
+    }, 100);
   }
-  window.setTimeout(pruneFonts, 100);
 
 %link{rel:'shortcut icon', href:'/images/favicon.ico'}
 %link{rel:'apple-touch-icon', href:'/images/apple-touch-icon-precomposed.png'}
