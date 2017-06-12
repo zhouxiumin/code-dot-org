@@ -49,6 +49,16 @@
   fonts.forEach(function(font) {
     document.fonts.add(font);
   });
+  // Implement 'optional' font-display:
+  // if font-faces haven't loaded early, remove them from document.fonts.
+  function pruneFonts() {
+    for (var fontFace of document.fonts.values()) {
+      if (fontFace.status !== 'loaded') {
+        document.fonts.delete(fontFace);
+      }
+    }
+  }
+  window.setTimeout(pruneFonts, 100);
 
 %link{rel:'shortcut icon', href:'/images/favicon.ico'}
 %link{rel:'apple-touch-icon', href:'/images/apple-touch-icon-precomposed.png'}

@@ -52,16 +52,3 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadVideos(window.location.search.indexOf("force_youtube_fallback") !== -1)
     });
-
-:javascript
-  // If font-faces haven't loaded early, remove them from document.fonts.
-  function pruneFonts() {
-    for (var fontFace of document.fonts.values()) {
-      if (fontFace.status !== 'loaded') {
-        document.fonts.delete(fontFace);
-      }
-    }
-  }
-  window.requestAnimationFrame(function() {
-    window.requestIdleCallback(pruneFonts, {timeout: 100});
-  })
