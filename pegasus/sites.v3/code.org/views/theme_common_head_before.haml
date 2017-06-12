@@ -5,9 +5,11 @@
 
 -# Inline critical font into page (~5k).
 - require 'base64'
+- require 'json'
 - font_url = '/fonts/gotham4r-critical.woff2'
-- font_src = Base64.strict_encode64(File.read(content_dir('code.org', 'public' + font_url)))
-:css
+- font_data = File.read(content_dir('code.org', 'public' + font_url))
+- font_src = Base64.strict_encode64(font_data)
+-#:css
   @font-face {
     font-family: 'Gotham';
     src: url(data:font/woff2;base64,#{font_src}) format('woff2');
@@ -17,7 +19,17 @@
   }
 :javascript
   // Early-load critical font-face.
-  document.fonts.load('400 1em Gotham Critical', 'A');
+  var criticalFont = new FontFace(
+    'Gotham',
+    new Uint8Array(#{font_data.bytes.to_json}),
+    {
+      style: 'normal',
+      weight: '400',
+      unicodeRange: 'U+0030-0039,U+0041-005A,U+0061-007A'
+    }
+  );
+  criticalFont.load();
+  document.fonts.add(criticalFont);
 
   // Lazy-load font-faces for all weights and styles.
   var fonts = [
