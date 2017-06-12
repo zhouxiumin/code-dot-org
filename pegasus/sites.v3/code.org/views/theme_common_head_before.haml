@@ -5,20 +5,48 @@
 
 -# Inline critical font into page (~5k).
 - require 'base64'
-- font_src = Base64.strict_encode64(File.read(content_dir('code.org', 'public', 'fonts/gotham4r-critical.woff2')))
+- font_url = '/fonts/gotham4r-critical.woff2'
+- font_src = Base64.strict_encode64(File.read(content_dir('code.org', 'public' + font_url)))
+:css
+  @font-face {
+    font-family: 'Gotham';
+    src: url(data:font/woff2;base64,#{font_src}) format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    unicode-range: U+0030-0039,U+0041-005A,U+0061-007A; /* 0-9,A-Z,a-z */
+  }
 :javascript
-  // Load critical FontFace.
-  var font = new FontFace(
-    'Gotham Critical',
-    'url(data:font/woff2;base64,#{font_src})',
-    {
+  // Early-load critical font-face.
+  document.fonts.load('400 1em Gotham Critical', 'A');
+
+  // Lazy-load font-faces for all weights and styles.
+  var fonts = [
+    new FontFace('Gotham', 'url(/fonts/gotham4r.woff2)', {
       style: 'normal',
-      weight: '400',
-      unicodeRange: 'U+0030-0039,U+0041-005A,U+0061-007A' /* 0-9,A-Z,a-z */
-    }
-  );
-  font.load();
-  font.loaded.then(function(font) {
+      weight: '400'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham4i.woff2)', {
+      style: 'italic',
+      weight: '400'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham5r.woff2)', {
+      style: 'normal',
+      weight: '500'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham5i.woff2)', {
+      style: 'italic',
+      weight: '500'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham7r.woff2)', {
+      style: 'normal',
+      weight: '700'
+    }),
+    new FontFace('Gotham', 'url(/fonts/gotham7i.woff2)', {
+      style: 'italic',
+      weight: '700'
+    }),
+  ];
+  fonts.forEach(function(font) {
     document.fonts.add(font);
   });
 
