@@ -269,9 +269,9 @@ class Pd::WorkshopTest < ActiveSupport::TestCase
     workshop.send_exit_surveys
   end
 
-  test 'send_exit_surveys teachers in the section get emails' do
+  test 'send_exit_surveys teachers who attended get emails' do
     workshop = create :pd_ended_workshop
-    create(:pd_workshop_participant, workshop: workshop, enrolled: true, in_section: true)
+    create(:pd_workshop_participant, workshop: workshop, enrolled: true, in_section: true, attended: false)
     create(:pd_workshop_participant, workshop: workshop, enrolled: true, in_section: true, attended: true)
 
     assert workshop.account_required_for_attendance?
