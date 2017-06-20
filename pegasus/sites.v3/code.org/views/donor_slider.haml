@@ -1,5 +1,6 @@
 - supporters = DB[:cdo_donors].where(level_s:'platinum').or(level_s:'gold').order(:url_s).all
-- supporters.shuffle!
+-# Server-side Shuffle doesn't work on cached page.
+-#- supporters.shuffle!
 
 #donorslider{style: "background-color:rgb(200, 193, 217); margin-top:20px; padding-top:10px; margin-bottom:0px; clear:both"}
   .container_responsive{style: "margin-top:0px; margin-bottom:0px; padding-bottom:15px; padding-top:5px"}

@@ -16,7 +16,9 @@
       celeb.  Non-celeb is student or teacher. We open with a celeb, i.e.,
       celeb, stat, non-celeb, stat, celeb, stat, non-celeb, stat, celeb, stat,
       etc.
-    - heroes.shuffle!
+
+      Server-side shuffle doesn't work on cached page.
+    -#- heroes.shuffle!
     - heroes_nonceleb = heroes.select {|hero| ["student", "teacher"].include? hero[:param2_s]}
     - heroes_celeb = heroes.select {|hero| hero[:param2_s] == "celeb"}
     - heroes_stat = heroes.select {|hero| hero[:param2_s] == "stat"}
@@ -26,7 +28,8 @@
       - heroes_arranged = heroes_nonceleb.zip(heroes_celeb).flatten.compact.first(6)
     - heroes_celeba = heroes.select {|hero| hero[:param2_s] == "celeba"}
     - if heroes_celeba.length > 0
-      - heroes_celeba.shuffle!
+      -# Server-side Shuffle doesn't work on cached page.
+      -#- heroes_celeba.shuffle!
       - heroes_arranged.unshift(heroes_celeba.first)
 
   - newsbanner = DB[:cdo_homepage].where(type_s: "banner", active_s: ["show","hide"], site_s: [request.site,"both"], language_supported_s: ["all", languageFilter]).first
@@ -40,7 +43,11 @@
   - heroes_arranged.each_with_index do |entry, index|
     -# note: this gsheet display parameter unused due to IE8 fix.
     - display = entry[:active_s] == "hide" ? "none" : "block"
-    .widehero.lazyload{id: "fullwidth#{index}", "data-bg"=> "#{entry[:image_t]}", style: "background-position: #{entry[:param1_s]}"}
+    - if index == 0
+      .widehero{id: "fullwidth#{index}", style: "background-position: #{entry[:param1_s]}; background-image: url(#{entry[:image_t]}); display: block;"}
+      %link{rel: 'preload', href: entry[:image_t], as: 'image'}
+    - else
+      .widehero.lazyload{id: "fullwidth#{index}", :"data-bgset"=> "#{entry[:image_t]} 1x, #{entry[:image_t].gsub('.jpg', '_2x.jpg')} 2x", style: "background-position: #{entry[:param1_s]}"}
 
   #fullwidth
     - if request.site == 'code.org'
@@ -104,7 +111,7 @@
                 %button.herohocbutton= I18n.t(entry[:text1_s])
             %div{style: "clear: both;"}
           - elsif entry[:param1_s] == "video"
-            %img#playimage{src: "/shared/images/play-button.png", width:"25", onclick: "return showVideo_mainvideo();"}
+            %img#playimage{src: "/shared/images/fit-25/play-button.png", width:"25", height: "25", onclick: "return showVideo_mainvideo();"}
             %span#playtext{onclick: "return showVideo_mainvideo();"}= I18n.t(entry[:text1_s])
 
     #blankspaceleftmobile.mobile-feature
@@ -116,26 +123,7 @@
 
   $(document).ready()
   {
-    // For IE8, can't start with opacity in the HTML, so we made things display: none.  Now we show them but
-    // set opacity to 0, ready for code to start showing them by fading them in.
-    $(".caption").css({display: "block", opacity: 0});
-    // Keep image hidden until fading in so it can lazy-load.
-    // $(".widehero").css({display: "block", opacity: 0});
-
-    $("#fullwidth0").fadeTo(4000, 1);
-
     showQuote(null, 0);
-
-    // Use retina versions of the hero background images if on a retina display.
-    $(".widehero").each(function()
-    {
-      var imageUrl = $(this).data('bg');
-      if (window.devicePixelRatio >= 2)
-      {
-        imageUrl = imageUrl.replace(".jpg", "_2x.jpg");
-      }
-      $(this).attr('data-bg', imageUrl);
-    });
   }
 
   function showQuote(lastImage, nextImage)
