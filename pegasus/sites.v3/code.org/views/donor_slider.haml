@@ -1,5 +1,4 @@
 - supporters = DB[:cdo_donors].where(level_s:'platinum').or(level_s:'gold').order(:url_s).all
-- supporters.shuffle!
 
 #donorslider{style: "background-color:rgb(200, 193, 217); margin-top:20px; padding-top:10px; margin-bottom:0px; clear:both"}
   .container_responsive{style: "margin-top:0px; margin-bottom:0px; padding-bottom:15px; padding-top:5px"}
@@ -21,3 +20,10 @@
             = "#{supporter[:name_s]}"
           - else
             != "#{supporter[:name_s]}, "
+        :javascript
+          // Shuffle donor-slider link elements.
+          var donorSlider = document.querySelector('.donor-slider');
+          for (var i = donorSlider.children.length; i >= 0; i--) {
+            var newIndex = Math.floor(Math.random() * i);
+            donorSlider.appendChild(donorSlider.children[newIndex]);
+          }
