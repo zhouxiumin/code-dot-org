@@ -1,4 +1,6 @@
 require pegasus_dir('router')
+require cookbooks_dir('cdo-varnish/libraries/http_cache')
+require cookbooks_dir('cdo-varnish/libraries/helpers')
 
 # Simple Rack middleware that forwards requests to Pegasus or Dashboard where appropriate.
 # Matches `Host` HTTP request headers against standard Pegasus hosts.
