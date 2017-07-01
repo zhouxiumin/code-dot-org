@@ -55,9 +55,8 @@ module AWS
       end
 
       # CNAME to use for this stack.
-      # Suffix env-named stacks with "_cfn" during migration.
       def cname
-        stack_name == rack_env.to_s ? "#{stack_name}-cfn" : stack_name
+        stack_name
       end
 
       # Fully qualified domain name
