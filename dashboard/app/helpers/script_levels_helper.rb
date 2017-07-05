@@ -1,12 +1,13 @@
 module ScriptLevelsHelper
   def script_level_solved_response(script_level, user)
-    unless user
+    if user
+      _solved_response(script_level, user)
+    else
+      # Cache solved responses for anonymous users.
       key = "#{script_level.cache_key}/solved_response/#{I18n.locale}"
       Rails.cache.fetch(key, expires_in: 10.minutes) do
         _solved_response(script_level)
       end
-    else
-      _solved_response(script_level, user)
     end
   end
 

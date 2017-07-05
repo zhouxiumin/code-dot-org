@@ -177,7 +177,7 @@ class ActivitiesController < ApplicationController
     # to the gallery (for which the activity.id and user_level.id is required).
     # This is true for levels auto-saved to the gallery, free play levels, and
     # "impressive" levels.
-    synchronous_save = true || solved &&
+    synchronous_save = solved &&
         (params[:save_to_gallery] == 'true' || @level.try(:free_play) == 'true' ||
             @level.try(:impressive) == 'true' || test_result == ActivityConstants::FREE_PLAY_RESULT)
     if synchronous_save
