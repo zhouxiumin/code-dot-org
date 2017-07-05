@@ -71,11 +71,13 @@ class Activity < ActiveRecord::Base
 
     case op['action']
       when 'create'
-        attributes = op['attributes']
-        attributes[:updated_at] = Time.now
-        Activity.new(attributes).atomic_save!
+        if Gatekeeper.allows('activity_writes', default: true)
+          attributes = op['attributes']
+          attributes[:updated_at] = Time.now
+          Activity.new(attributes).atomic_save!
+        end
       else
-        raise "Unknown action #{op['action']} in #{async_json}"
+        raise "Unknown action #{op['action']} in #{op}"
     end
   end
 
