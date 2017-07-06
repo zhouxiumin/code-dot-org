@@ -71,7 +71,7 @@ class Activity < ActiveRecord::Base
 
     case op['action']
       when 'create'
-        if Gatekeeper.allows('activity_writes', default: true)
+        if Gatekeeper.allows('activity_writes', default: !rack_env?(:adhoc))
           attributes = op['attributes']
           attributes[:updated_at] = Time.now
           Activity.new(attributes).atomic_save!
