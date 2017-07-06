@@ -123,7 +123,7 @@ module AWS
         if template.length < 51200
           {template_body: template}
         elsif template.length < 460800
-          CDO.log.warn 'Uploading template to S3...'
+          CDO.log.debug 'Uploading template to S3...'
           key = AWS::S3.upload_to_bucket(TEMP_BUCKET, "#{stack_name}-#{Digest::MD5.hexdigest(template)}-cfn.json", template, no_random: true)
           {template_url: "https://s3.amazonaws.com/#{TEMP_BUCKET}/#{key}"}
         else
@@ -165,6 +165,7 @@ module AWS
       end
 
       def create_or_update
+        $stdout.sync = true
         template = render_template
         action = stack_exists? ? :update : :create
         CDO.log.info "#{action} stack: #{stack_name}..."
@@ -270,7 +271,10 @@ module AWS
       def tail_events(stack_id)
         stack_events = cfn.describe_stack_events(stack_name: stack_id).stack_events
         stack_events.reject {|event| event.timestamp <= @@event_timestamp}.sort_by(&:timestamp).each do |event|
-          CDO.log.info "#{event.timestamp}- #{event.logical_resource_id} [#{event.resource_status}]: #{event.resource_status_reason}"
+          str = "#{event.logical_resource_id} [#{event.resource_status}]"
+          str = "#{str}: #{event.resource_status_reason}" if event.resource_status_reason
+          str = "#{event.timestamp}- #{str}" unless ENV['QUIET']
+          CDO.log.info str
         end
         @@event_timestamp = stack_events.map(&:timestamp).max
       end
@@ -289,7 +293,7 @@ module AWS
             w.before_wait do
               tail_events(stack_id)
               tail_log
-              print '.'
+              print '.' unless ENV['QUIET']
             end
           end
           tail_events(stack_id)

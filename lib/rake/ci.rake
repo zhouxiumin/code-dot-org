@@ -48,7 +48,7 @@ namespace :ci do
 
   task :deploy_stack do
     ChatClient.wrap('CloudFormation stack update') do
-      RakeUtils.rake_stream_output 'stack:start' do |io|
+      RakeUtils.rake_stream_output 'stack:start QUIET=1' do |io|
         io.each do |line|
           line = "[stack update] #{line.chomp}"
           ChatClient.log line

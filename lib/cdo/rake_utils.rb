@@ -8,7 +8,7 @@ require 'parallel'
 
 module RakeUtils
   def self.system__(command)
-    CDO.log.info command
+    CDO.log.info command unless ENV['QUIET']
     system_status_output__ "#{command} 2>&1"
   end
 
