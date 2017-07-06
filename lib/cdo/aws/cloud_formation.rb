@@ -188,9 +188,11 @@ module AWS
           end
         end
         wait_for_stack(action, start_time)
-        CDO.log.info 'Outputs:'
-        cfn.describe_stacks(stack_name: updated_stack_id).stacks.first.outputs.each do |output|
-          CDO.log.info "#{output.output_key}: #{output.output_value}"
+        unless ENV['QUIET']
+          CDO.log.info 'Outputs:'
+          cfn.describe_stacks(stack_name: updated_stack_id).stacks.first.outputs.each do |output|
+            CDO.log.info "#{output.output_key}: #{output.output_value}"
+          end
         end
       end
 
@@ -306,7 +308,7 @@ module AWS
           end
           raise "\nError on #{action}."
         end
-        CDO.log.info "\nStack #{action} complete."
+        CDO.log.info "\nStack #{action} complete." unless ENV['QUIET']
         CDO.log.info "Don't forget to clean up AWS resources by running `rake adhoc:stop` after you're done testing your instance!" if action == :create
       end
 
