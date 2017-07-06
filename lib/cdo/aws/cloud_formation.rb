@@ -270,20 +270,29 @@ module AWS
       end
 
       # Prints the latest CloudFormation stack events.
-      def tail_events(stack_id)
+      def tail_events(stack_id, filter_resources = [])
         stack_events = cfn.describe_stack_events(stack_name: stack_id).stack_events
-        stack_events.reject {|event| event.timestamp <= @@event_timestamp}.sort_by(&:timestamp).each do |event|
+        stack_events.reject! do |event|
+          event.timestamp <= @@event_timestamp ||
+            filter_resources.include?(event.logical_resource_id)
+        end
+        stack_events.sort_by(&:timestamp).each do |event|
           str = "#{event.logical_resource_id} [#{event.resource_status}]"
           str = "#{str}: #{event.resource_status_reason}" if event.resource_status_reason
           str = "#{event.timestamp}- #{str}" unless ENV['QUIET']
           CDO.log.info str
+          if event.resource_status == 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS'
+            @@event_timestamp += 600
+            throw :success
+          end
         end
-        @@event_timestamp = stack_events.map(&:timestamp).max
+        @@event_timestamp = ([@@event_timestamp] + stack_events.map(&:timestamp)).max
       end
 
       def wait_for_stack(action, start_time)
         CDO.log.info "Stack #{action} requested, waiting for provisioning to complete..."
         stack_id = stack_name
+        filter = %w(FrontendLaunchConfig ASGCount)
         begin
           @@event_timestamp = start_time
           @@log_token = nil
@@ -293,12 +302,12 @@ module AWS
             w.delay = 10 # seconds
             w.max_attempts = 540 # = 1.5 hours
             w.before_wait do
-              tail_events(stack_id)
+              tail_events(stack_id, filter)
               tail_log
               print '.' unless ENV['QUIET']
             end
           end
-          tail_events(stack_id)
+          tail_events(stack_id, filter)
           tail_log
         rescue Aws::Waiters::Errors::FailureStateError
           tail_events(stack_id)
