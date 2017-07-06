@@ -98,16 +98,20 @@ module RakeUtils
 
   # Alternate version of RakeUtils.rake which always streams STDOUT to the shell
   # during execution.
-  def self.rake_stream_output(*args)
-    system_stream_output "RAILS_ENV=#{rack_env}", "RACK_ENV=#{rack_env}", 'bundle', 'exec', 'rake', *args
+  def self.rake_stream_output(*args, &block)
+    system_stream_output "RAILS_ENV=#{rack_env}", "RACK_ENV=#{rack_env}", 'bundle', 'exec', 'rake', *args, &block
   end
 
   # Alternate version of RakeUtils.system which always streams STDOUT to the
   # shell during execution.
-  def self.system_stream_output(*args)
+  def self.system_stream_output(*args, &block)
     command = command_(*args)
     CDO.log.info command
-    Kernel.system(command)
+    if block_given?
+      IO.popen(command, &block)
+    else
+      Kernel.system(command)
+    end
     unless $?.success?
       error = RuntimeError.new("'#{command}' returned #{$?.exitstatus}")
       raise error, error.message
