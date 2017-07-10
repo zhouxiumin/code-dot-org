@@ -131,7 +131,11 @@ Resources:
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: 20
+<% if environment == :adhoc -%>
+        MinInstancesInService: 0
+<% else -%>
         MinInstancesInService: !GetAtt [ASGCount, DesiredCapacity]
+<% end -%>
         MinSuccessfulInstancesPercent: 80
         PauseTime: PT50M
         SuspendProcesses: [ScheduledActions]
