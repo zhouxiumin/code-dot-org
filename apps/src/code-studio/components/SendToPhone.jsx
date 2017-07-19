@@ -75,6 +75,10 @@ var SendToPhone = React.createClass({
     phone.focus();
   },
 
+  getLevelSourceId: function () {
+    return +location.pathname.split('/')[2];
+  },
+
   handleSubmit: function () {
     // Do nothing if we aren't in a state where we can send.
     if (this.state.sendState !== SendState.canSubmit) {
@@ -89,7 +93,7 @@ var SendToPhone = React.createClass({
       phone: $(phone).val(),
     };
     if (this.props.isLegacyShare) {
-      params.level_source = +location.pathname.split('/')[2];
+      params.level_source = this.getLevelSourceId();
     } else {
       params.channel_id = this.props.channelId;
     }
