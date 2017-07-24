@@ -3,6 +3,8 @@ class AssignSectionsToCourses < ActiveRecord::Migration[5.0]
     csp = Course.find_by_name('csp')
     csd = Course.find_by_name('csd')
 
+    return unless csp && csd
+
     csp_script_ids = csp.course_scripts.map(&:script_id)
     csd_script_ids = csd.course_scripts.map(&:script_id)
 
