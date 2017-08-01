@@ -7,45 +7,53 @@ import Button from "../Button";
 const styles = {
   section: {
     width: styleConstants['content-width'],
+    height: 100,
     backgroundColor: color.white,
     borderStyle: 'dashed',
     borderWidth: 5,
     borderColor: color.border_gray,
     boxSizing: "border-box"
   },
+  wordBox: {
+    width: styleConstants['content-width']-200,
+    float: 'left',
+  },
   heading: {
-    paddingLeft: 50,
-    paddingTop: 80,
-    paddingBottom: 20,
-    fontSize: 38,
+    fontSize: 20,
     fontFamily: 'Gotham 5r',
     color: color.teal,
+    float: 'left',
+    paddingTop: 25,
+    paddingLeft: 25,
   },
   rtlHeading: {
     paddingRight: 50,
     paddingTop: 80,
     paddingBottom: 20,
-    fontSize: 38,
+    fontSize: 20,
     fontFamily: 'Gotham 5r',
     color: color.teal,
   },
   description: {
-    paddingLeft: 50,
-    paddingTop: 25,
-    paddingBottom: 40,
-    fontSize: 18,
-    color: color.charcoal
+    width: styleConstants['content-width']-250,
+    paddingTop: 5,
+    paddingBottom: 25,
+    paddingLeft: 25,
+    fontSize: 14,
+    color: color.charcoal,
+    float: 'left'
   },
   rtlDescription: {
     paddingRight: 50,
     paddingTop: 25,
     paddingBottom: 40,
-    fontSize: 18,
+    fontSize: 14,
     color: color.charcoal
   },
   button: {
-    marginLeft: 50,
-    marginBottom: 80
+    float: 'right',
+    marginRight: 25,
+    marginTop: 28,
   },
   rtlButton: {
     marginRight: 50,
@@ -67,20 +75,22 @@ const SetUpMessage = React.createClass({
 
     if (type === 'courses') {
       return (
-        <div style={styles.section} >
-          <div style={isRtl ? styles.rtlHeading : styles.heading}>
-            {i18n.startLearning()}
+        <div style={styles.section}>
+          <div style={styles.wordBox}>
+            <div style={isRtl ? styles.rtlHeading : styles.heading}>
+              {i18n.startLearning()}
+            </div>
+            {isTeacher && (
+              <div style={isRtl ? styles.rtlDescription : styles.description}>
+                {i18n.setupCoursesTeacher()}
+              </div>
+            )}
+            {!isTeacher && (
+              <div style={isRtl ? styles.rtlDescription : styles.description}>
+                {i18n.setupCoursesStudent()}
+              </div>
+            )}
           </div>
-          {isTeacher && (
-            <div style={isRtl ? styles.rtlDescription : styles.description}>
-              {i18n.setupCoursesTeacher()}
-            </div>
-          )}
-          {!isTeacher && (
-            <div style={isRtl ? styles.rtlDescription : styles.description}>
-              {i18n.setupCoursesStudent()}
-            </div>
-          )}
           <Button
             href="/courses"
             color={Button.ButtonColor.gray}
@@ -92,12 +102,14 @@ const SetUpMessage = React.createClass({
     }
     if (type === 'sections') {
       return (
-        <div style={styles.section} >
-          <div style={isRtl ? styles.rtlHeading : styles.heading}>
-            {i18n.setUpClassroom()}
-          </div>
-          <div style={isRtl ? styles.rtlDescription : styles.description}>
-            {i18n.createNewClassroom()}
+        <div style={styles.section}>
+          <div style={styles.wordBox}>
+            <div style={isRtl ? styles.rtlHeading : styles.heading}>
+              {i18n.setUpClassroom()}
+            </div>
+            <div style={isRtl ? styles.rtlDescription : styles.description}>
+              {i18n.createNewClassroom()}
+            </div>
           </div>
           <Button
             href={sectionsUrl}
