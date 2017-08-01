@@ -7,7 +7,7 @@ import Button from "../Button";
 const styles = {
   section: {
     width: styleConstants['content-width'],
-    height: 100,
+    // height: 95,
     backgroundColor: color.white,
     borderStyle: 'dashed',
     borderWidth: 5,
@@ -58,6 +58,9 @@ const styles = {
   rtlButton: {
     marginRight: 50,
     marginBottom: 80
+  },
+  clear: {
+    clear: 'both'
   }
 };
 
@@ -97,6 +100,7 @@ const SetUpMessage = React.createClass({
             text={i18n.findCourse()}
             style={isRtl ? styles.rtlButton : styles.button}
           />
+          <div style={styles.clear}/>
         </div>
       );
     }
@@ -117,6 +121,7 @@ const SetUpMessage = React.createClass({
             text={i18n.createSection()}
             style={isRtl ? styles.rtlButton : styles.button}
           />
+          <div style={styles.clear}/>
         </div>
       );
     }
