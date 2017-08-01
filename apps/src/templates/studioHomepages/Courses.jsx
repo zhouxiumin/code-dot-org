@@ -152,7 +152,6 @@ const Courses = React.createClass({
               isRtl={isRtl}
               linkText={i18n.teacherCourseHocLinkText()}
               link={`${codeOrgUrlPrefix}/learn`}
-              showLink={true}
             >
               <ProtectedStatefulDiv ref="hocCoursesFirstRow"/>
             </ContentContainer>
