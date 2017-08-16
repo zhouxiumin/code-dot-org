@@ -43,10 +43,6 @@
   "published": true,
   "notes": "",
   "level_concept_difficulty": {
-    "sequencing": 5,
-    "repeat_loops": 2,
-    "functions": 5,
-    "conditionals": 5
   }
 }]]></config>
   <blocks>

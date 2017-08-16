@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import Radium from 'radium';
 import Button from '../Button';
 import color from "../../util/color";
 
@@ -91,7 +92,13 @@ const styles = {
     bottom: 20,
     position: 'absolute',
     zIndex: 2,
-  }
+  },
+  ltr: {
+    float: 'left',
+  },
+  rtl: {
+    float: 'right',
+  },
 };
 
 class ResourceCard extends Component {
@@ -108,6 +115,8 @@ class ResourceCard extends Component {
   render() {
 
     const { isJumbo, title, description, buttonText, link, image, isRtl } = this.props;
+    const localeStyle = isRtl ? styles.rtl : styles.ltr;
+
     const filenameToImgUrl = {
       "teacher-community": require('@cdo/static/resource_cards/teachercommunity.png'),
       "guest-speaker": require('@cdo/static/resource_cards/findguestspeaker.png'),
@@ -122,7 +131,7 @@ class ResourceCard extends Component {
     const imgSrc = filenameToImgUrl[image];
 
     return (
-      <div style={isJumbo ? styles.cardJumbo : styles.card}>
+      <div style={[isJumbo ? styles.cardJumbo : styles.card, localeStyle]}>
         {image && (
           <img src={imgSrc} style={styles.image}/>
         )}
@@ -144,4 +153,4 @@ class ResourceCard extends Component {
   }
 }
 
-export default ResourceCard;
+export default Radium(ResourceCard);

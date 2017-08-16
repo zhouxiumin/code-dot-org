@@ -220,10 +220,7 @@
     "debugger_disabled": "false",
     "makerlab_enabled": "false",
     "markdown_instructions": "# 5-Bit Number\r\n\r\nWhen you only had four bits, the highest number that you could make was fifteen.  Now you'll have a chance to work with more bits to make higher numbers.\r\n\r\nIn this activity, the dots are replaced with numbers, but you still add up everything that's showing to see what number the binary code stands for.  The left-most bit doesn't have a number yet, so you'll have to give it one.\r\n\r\n## Do this\r\n\r\n* Click on the bits to turn them on and off, and see the different numbers you can make.\r\n* Decide what number you want the left most bit to stand for, then click \"Edit\" to change its value.\r\n* Once you've decided on its value, try to make the following numbers: 16, 27, 31",
-    "contained_level_names": null,
-    "encrypted_examples": [
-
-    ]
+    "contained_level_names": null
   },
   "published": true,
   "notes": "",

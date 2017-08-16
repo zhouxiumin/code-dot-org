@@ -40,7 +40,7 @@
     "first_sprite_index": "0",
     "protaganist_sprite_index": "1",
     "project_template_level_name": "courseB_playlab_eventsTemplate",
-    "authored_hints": "[{\"hint_class\":\"content\",\"hint_markdown\":\"This is the block to have Daisy say something:\\n\\n<xml>\\n  <block type=\\\"studio_saySpriteChoices\\\">\\n    <title name=\\\"SPRITE\\\">0</title>\\n    <title name=\\\"VALUE\\\">Hi there.</title>\\n  </block>\\n  </xml>\",\"hint_id\":\"courseB_playlab_events2_a\",\"hint_type\":\"general\",\"tts_url\":\"https://tts.code.org/sharon22k/180/100/05e22e598eb06cc072ddeadb181b6d7c/courseB_playlab_events2.mp3\"}]",
+    "authored_hints": "[{\"hint_class\":\"content\",\"hint_markdown\":\"This is the block to have Daisy say something:\\n\\n<xml>\\n  <block type=\\\"studio_saySpriteChoices\\\">\\n    <title name=\\\"SPRITE\\\">0</title>\\n    <title name=\\\"VALUE\\\">Hi there.</title>\\n  </block>\\n  </xml>\",\"hint_id\":\"courseB_playlab_events2_a\",\"hint_type\":\"general\",\"tts_url\":\"https://tts.code.org/sharon22k/180/100/a1ee2622838b20f4b599857d746b4308/courseB_playlab_events2.mp3\"}]",
     "instructions_important": "false",
     "hide_share_and_remix": "false",
     "disable_if_else_editing": "false",
