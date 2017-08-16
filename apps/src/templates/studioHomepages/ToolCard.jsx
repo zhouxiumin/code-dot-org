@@ -7,49 +7,34 @@ import color from "../../util/color";
 
 const styles = {
   card: {
-    overflow: 'hidden',
-    position: 'relative',
     height: 250,
     width: 310,
-    float: 'left',
-    marginBottom: 20,
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: color.border_gray,
     background: color.teal
   },
-  title: {
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingTop: 10,
-    paddingBottom: 5,
-    marginTop: 15,
-    fontSize: 18,
+  text: {
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingBottom: 10,
     fontFamily:'"Gotham 4r", sans-serif',
-    zIndex: 2,
-    position: 'absolute',
     color: color.white,
-    fontWeight: 'bold'
+  },
+  title: {
+    paddingTop: 25,
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '100%'
   },
   description: {
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingTop: 10,
-    paddingBottom: 5,
-    marginTop: 50,
     fontSize: 14,
     lineHeight: "21px",
-    fontFamily: '"Gotham 4r", sans-serif',
-    position: 'absolute',
-    zIndex: 2,
-    width: 270,
-    color: color.white
+    height: 130
   },
   button: {
     marginLeft: 20,
-    bottom: 20,
-    position: 'absolute',
-    zIndex: 2,
+    marginRight: 20,
   },
   ltr: {
     float: 'left',
@@ -75,10 +60,10 @@ class ToolCard extends Component {
 
     return (
       <div style={[styles.card, localeStyle]}>
-        <div style={[styles.title, localeStyle]}>
+        <div style={[styles.text, styles.title, localeStyle]}>
           {title}
         </div>
-        <div style={[styles.description, localeStyle]}>
+        <div style={[styles.text, styles.description, localeStyle]}>
           {description}
         </div>
         <br/>
