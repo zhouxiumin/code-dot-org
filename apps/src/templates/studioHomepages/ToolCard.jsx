@@ -3,6 +3,8 @@ import Radium from 'radium';
 import Button from '../Button';
 import color from "../../util/color";
 
+// If you want to include an image, you're probably looking for a ResourceCard.
+
 const styles = {
   card: {
     overflow: 'hidden',
@@ -73,10 +75,10 @@ class ToolCard extends Component {
 
     return (
       <div style={[styles.card, localeStyle]}>
-        <div style={isRtl ? styles.rtlTitle : styles.title}>
+        <div style={[styles.title, localeStyle]}>
           {title}
         </div>
-        <div style={isRtl ? styles.rtlDescription : styles.description}>
+        <div style={[styles.description, localeStyle]}>
           {description}
         </div>
         <br/>
@@ -84,7 +86,7 @@ class ToolCard extends Component {
           href={link}
           color={Button.ButtonColor.gray}
           text={buttonText}
-          style={isRtl ? styles.rtlButton : styles.button}
+          style={[styles.button]}
         />
       </div>
     );

@@ -16,82 +16,29 @@ const styles = {
     borderColor: color.border_gray,
     background: color.teal
   },
-  cardJumbo: {
-    overflow: 'hidden',
-    position: 'relative',
-    height: 250,
-    width: 310,
-    float: 'left',
-    background: color.teal
-  },
   image: {
     position: 'absolute',
   },
-  title: {
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingTop: 10,
-    paddingBottom: 5,
-    marginTop: 15,
-    fontSize: 18,
-    fontFamily:'"Gotham 4r", sans-serif',
-    zIndex: 2,
+  textbox: {
     position: 'absolute',
-    color: color.white,
-    fontWeight: 'bold'
+    width: 275,
+    padding: 20
   },
-  rtlTitle: {
-    paddingLeft: 20,
-    paddingRight: 175,
-    paddingTop: 10,
-    paddingBottom: 5,
-    marginTop: 15,
+  title: {
     fontSize: 18,
+    paddingBottom: 10,
     fontFamily:'"Gotham 4r", sans-serif',
-    zIndex: 2,
-    position: 'absolute',
     color: color.white,
     fontWeight: 'bold'
   },
   description: {
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingTop: 10,
-    paddingBottom: 5,
-    marginTop: 50,
     fontSize: 14,
     lineHeight: "21px",
     fontFamily: '"Gotham 4r", sans-serif',
-    position: 'absolute',
-    zIndex: 2,
-    width: 270,
-    color: color.white
-  },
-  rtlDescription: {
-    paddingLeft: 20,
-    paddingRight: 175,
-    paddingTop: 10,
-    paddingBottom: 5,
-    marginTop: 50,
-    fontSize: 14,
-    lineHeight: "21px",
-    fontFamily: '"Gotham 4r", sans-serif',
-    position: 'absolute',
-    zIndex: 2,
-    width: 270,
-    color: color.white
+    color: color.white,
+    height: 95
   },
   button: {
-    marginLeft: 20,
-    bottom: 20,
-    position: 'absolute',
-    zIndex: 2,
-  },
-  rtlButton: {
-    marginRight: 175,
-    bottom: 20,
-    position: 'absolute',
-    zIndex: 2,
   },
   ltr: {
     float: 'left',
@@ -103,18 +50,17 @@ const styles = {
 
 class ResourceCard extends Component {
   static propTypes = {
-    isJumbo: PropTypes.bool,
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     buttonText: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
-    image: PropTypes.string,
+    image: PropTypes.string.isRequired,
     isRtl: PropTypes.bool.isRequired
   };
 
   render() {
 
-    const { isJumbo, title, description, buttonText, link, image, isRtl } = this.props;
+    const { title, description, buttonText, link, image, isRtl } = this.props;
     const localeStyle = isRtl ? styles.rtl : styles.ltr;
 
     const filenameToImgUrl = {
@@ -131,23 +77,25 @@ class ResourceCard extends Component {
     const imgSrc = filenameToImgUrl[image];
 
     return (
-      <div style={[isJumbo ? styles.cardJumbo : styles.card, localeStyle]}>
-        {image && (
-          <img src={imgSrc} style={styles.image}/>
-        )}
-        <div style={isRtl ? styles.rtlTitle : styles.title}>
-          {title}
+      <div style={[styles.card, localeStyle]}>
+        <div style={styles.image}>
+          <img src={imgSrc}/>
         </div>
-        <div style={isRtl ? styles.rtlDescription : styles.description}>
-          {description}
+        <div style={styles.textbox}>
+          <div style={[styles.title, localeStyle]}>
+            {title}
+          </div>
+          <div style={[styles.description, localeStyle]}>
+            {description}
+          </div>
+          <br/>
+          <Button
+            href={link}
+            color={Button.ButtonColor.gray}
+            text={buttonText}
+            style={[styles.button, localeStyle]}
+          />
         </div>
-        <br/>
-        <Button
-          href={link}
-          color={Button.ButtonColor.gray}
-          text={buttonText}
-          style={isRtl ? styles.rtlButton : styles.button}
-        />
       </div>
     );
   }
