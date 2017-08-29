@@ -1,6 +1,13 @@
+%script{type: "text/javascript", src: "https://maps.googleapis.com/maps/api/js?client=#{CDO.google_maps_client_id}&sensor=false&libraries=places,geometry&v=3.7"}
+%script{type: "text/javascript", src: "/js/jquery.geocomplete.min.js"}
+
 %h1
   Bring Computer Science to your school
 
 Our vision is that every student in every school should have the opportunity to learn computer science. Help us by letting us know how computer science is taught at your school and by pledging to do more.
 
-= view :pledge_form
+%h2
+  1,456 schools teach computer science
+
+-# = view :pledge_map, max_height_percentage: 1
+= view :school_info_form
