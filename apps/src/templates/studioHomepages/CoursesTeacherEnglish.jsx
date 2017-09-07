@@ -14,7 +14,7 @@ import {pegasus} from '@cdo/apps/lib/util/urlHelpers';
  * This is the main content for the Courses page for a teacher using English,
  * though it may also be shown for a signed-out user using English.
  */
-class CoursesTeacherEnglish extends Component {
+export default class CoursesTeacherEnglish extends Component {
   static propTypes = {
     isSignedOut: PropTypes.bool.isRequired,
     showInitialTips: PropTypes.bool.isRequired,
@@ -83,5 +83,3 @@ class CoursesTeacherEnglish extends Component {
     );
   }
 }
-
-export default CoursesTeacherEnglish;

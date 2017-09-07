@@ -10,7 +10,7 @@ import {pegasus} from '@cdo/apps/lib/util/urlHelpers';
  * This is the main content for the Courses page for a student using English,
  * as well as the default for a signed-out user using English.
  */
-class CoursesStudentEnglish extends Component {
+export default class CoursesStudentEnglish extends Component {
   static propTypes = {
     isRtl: PropTypes.bool.isRequired
   };
@@ -40,5 +40,3 @@ class CoursesStudentEnglish extends Component {
     );
   }
 }
-
-export default CoursesStudentEnglish;

@@ -9,7 +9,7 @@ import ProtectedStatefulDiv from '../ProtectedStatefulDiv';
 import Button from '@cdo/apps/templates/Button';
 import i18n from "@cdo/locale";
 
-class Courses extends Component {
+export default class Courses extends Component {
   static propTypes = {
     isEnglish: PropTypes.bool.isRequired,
     isTeacher: PropTypes.bool.isRequired,
@@ -83,5 +83,3 @@ class Courses extends Component {
     );
   }
 }
-
-export default Courses;

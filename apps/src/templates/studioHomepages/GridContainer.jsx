@@ -1,4 +1,4 @@
-import React, {PropTypes} from 'react';
+import React, {Component, PropTypes} from 'react';
 import styleConstants from '../../styleConstants';
 
 const styles = {
@@ -13,12 +13,12 @@ const styles = {
   }
 };
 
-const GridContainer = React.createClass({
-  propTypes: {
+export default class GridContainer extends Component {
+ static propTypes = {
     numColumns: PropTypes.number.isRequired,
     children: PropTypes.arrayOf(PropTypes.node),
     isRtl: PropTypes.bool.isRequired
-  },
+  };
 
   render() {
     const { numColumns, isRtl } = this.props;
@@ -40,6 +40,4 @@ const GridContainer = React.createClass({
       </div>
     );
   }
-});
-
-export default GridContainer;
+}

@@ -45,7 +45,7 @@ const styles = {
   }
 };
 
-class FindLocalClassBanner extends Component {
+export default class FindLocalClassBanner extends Component {
   static propTypes = {
     isRtl: PropTypes.bool.isRequired
   };
@@ -84,5 +84,3 @@ class FindLocalClassBanner extends Component {
     );
   }
 }
-
-export default FindLocalClassBanner;
