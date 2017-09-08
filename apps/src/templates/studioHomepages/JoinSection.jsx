@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import React, {PropTypes} from 'react';
+import React, {PropTypes, Component} from 'react';
 import color from '@cdo/apps/util/color';
 import i18n from "@cdo/locale";
 import styleConstants from '../../styleConstants';
@@ -64,22 +64,20 @@ const styles = {
   }
 };
 
-const JoinSection = React.createClass({
-  propTypes: {
+export default class JoinSection extends Component {
+  static propTypes = {
     enrolledInASection: PropTypes.bool.isRequired,
     updateSections: PropTypes.func.isRequired,
     updateSectionsResult: PropTypes.func.isRequired
-  },
+  };
 
-  getInitialState() {
-    return {
-      sectionCode: ''
-    };
-  },
+  state = {
+    sectionCode: ''
+  };
 
   handleChange(event) {
     this.setState({sectionCode: event.target.value});
-  },
+  }
 
   handleKeyUp(event) {
     if (event.key === 'Enter') {
@@ -87,12 +85,12 @@ const JoinSection = React.createClass({
     } else if (event.key === 'Escape') {
       this.setState(this.getInitialState());
     }
-  },
+  }
 
   joinSection() {
     const sectionCode = this.state.sectionCode;
 
-    this.setState(this.getInitialState());
+    this.setState(this.state);
 
     $.post({
       url: `/api/v1/sections/${sectionCode}/join`,
@@ -106,7 +104,7 @@ const JoinSection = React.createClass({
       const result = (data.responseJSON && data.responseJSON.result) ? data.responseJSON.result : "fail";
       this.props.updateSectionsResult("join", result, sectionCode.toUpperCase());
     });
-  },
+  }
 
   render() {
     const { enrolledInASection } = this.props;
@@ -142,6 +140,4 @@ const JoinSection = React.createClass({
       </div>
     );
   }
-});
-
-export default JoinSection;
+}
