@@ -19,6 +19,12 @@ const styles = {
     fontFamily: '"Gotham 4r", sans-serif',
     lineHeight: '1.5em'
   },
+  mapFooter: {
+    fontFamily: '"Gotham 7r", sans-serif',
+    fontSize: 20,
+    marginLeft: 25,
+    marginRight: 25
+  }
 };
 
 export default class YourSchool extends React.Component {
@@ -33,6 +39,10 @@ export default class YourSchool extends React.Component {
   }
 
   render() {
+    const filenameToImgUrl = {
+      "csta-logo": require('/images/fit-300/avatars/computer_science_teachers_association.png')
+    }
+
     return (
       <div>
         {this.props.alertHeading && this.props.alertText && this.props.alertUrl && (
@@ -61,6 +71,10 @@ export default class YourSchool extends React.Component {
            If you are located in the US, please fill out the form below. If you are outside the US, add your school <a href="/learn/local">here</a>.
         </h3>
         <ProtectedStatefulDiv ref="gmap"/>
+          <span style={style.mapFooter}>
+            in partnership with
+           <img src={filenameToImgUrl["csta-logo"]}/>
+          </span>
         <CensusForm/>
       </div>
     );
