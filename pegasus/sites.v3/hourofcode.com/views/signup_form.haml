@@ -119,6 +119,8 @@
                 text: data[i].name + ' - ' + data[i].city + ', ' + data[i].state + ' ' + data[i].zip
               });
             }
+            console.log("SCHOOLS:", schools)
+            var $select = $(document.getElementById('#hoc-signup-form select')).selectize(schools);
             callback(schools);
           }
         });
@@ -143,17 +145,6 @@
       }
     });
    });
-
-     $("#school-country").change(function() {
-       if(($(this).val() != 'US') {
-         $('#event-location-usa').hide();
-         $('#event-location-any').show()
-       } else {
-         $('#event-location-usa').hide();
-         $('#event-location-any').show()
-       }
-     });
-    });
 
   function signupFormComplete(data)
   {
