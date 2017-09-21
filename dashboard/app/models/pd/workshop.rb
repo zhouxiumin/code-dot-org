@@ -19,8 +19,8 @@
 #  processed_at        :datetime
 #  deleted_at          :datetime
 #  regional_partner_id :integer
-#  on_map              :boolean
-#  funded              :boolean
+#  on_map              :boolean          comment[Should this workshop appear on the 'Find a Workshop' map?]
+#  funded              :boolean          comment[Should this workshop's attendees be reimbursed?]
 #
 # Indexes
 #

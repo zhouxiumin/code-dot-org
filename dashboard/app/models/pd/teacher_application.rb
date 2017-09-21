@@ -10,7 +10,7 @@
 #  secondary_email           :string(255)      not null
 #  application               :text(65535)      not null
 #  regional_partner_override :string(255)
-#  program_registration_id   :integer
+#  program_registration_id   :integer          comment[Id in the Pegasus forms table for the associated registration (kind: PdProgramRegistration), populated when that form is processed.]
 #
 # Indexes
 #

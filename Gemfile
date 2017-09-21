@@ -47,7 +47,8 @@ gem 'launchy' # Peer dependency of Google::APIClient::InstalledAppFlow
 gem 'rack_csrf'
 
 group :development do
-  gem 'annotate'
+  # Ref: https://github.com/ctran/annotate_models/pull/507
+  gem 'annotate', github: 'wjordan/annotate_models', ref: '076d7e'
   gem 'rack-mini-profiler'
   gem 'ruby-progressbar', require: false
   gem 'thin'

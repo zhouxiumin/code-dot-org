@@ -42,6 +42,15 @@ GIT
       activemodel (>= 4.0)
 
 GIT
+  remote: https://github.com/wjordan/annotate_models.git
+  revision: 076d7ed3bc71e61d5d6c1e7aae7bdc7b26eba3f1
+  ref: 076d7e
+  specs:
+    annotate (2.7.2)
+      activerecord (>= 3.2, < 6.0)
+      rake (>= 10.4, < 13.0)
+
+GIT
   remote: https://github.com/wjordan/geocoder.git
   revision: 2da20897188b57f777df89f90e45cf331c5b014f
   ref: rack-request-fix
@@ -189,9 +198,6 @@ GEM
       activerecord (>= 3.0)
     addressable (2.4.0)
     afm (0.2.2)
-    annotate (2.7.1)
-      activerecord (>= 3.2, < 6.0)
-      rake (>= 10.4, < 12.0)
     ansi (1.5.0)
     archive-zip (0.7.0)
       io-like (~> 0.3.0)
@@ -375,7 +381,7 @@ GEM
       multi_xml (>= 0.5.2)
     httpclient (2.8.2.2)
     hurley (0.2)
-    i18n (0.8.1)
+    i18n (0.8.6)
     image_size (1.5.0)
     in_threads (1.4.0)
     io-like (0.3.0)
@@ -433,7 +439,7 @@ GEM
     mime-types-data (3.2016.0521)
     mini_magick (4.5.1)
     mini_portile2 (2.1.0)
-    minitest (5.10.1)
+    minitest (5.10.3)
     minitest-around (0.3.2)
       minitest (~> 5.0)
     minitest-reporters (1.1.10)
@@ -752,7 +758,7 @@ DEPENDENCIES
   active_record_query_trace
   acts_as_list
   addressable
-  annotate
+  annotate!
   auto_strip_attributes (~> 2.1)
   aws-sdk (~> 2)
   bcrypt

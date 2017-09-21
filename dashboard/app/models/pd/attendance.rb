@@ -9,7 +9,7 @@
 #  updated_at        :datetime
 #  deleted_at        :datetime
 #  pd_enrollment_id  :integer
-#  marked_by_user_id :integer
+#  marked_by_user_id :integer          comment[User id for the partner or admin who marked this teacher in attendance, or nil if the teacher self-attended.]
 #
 # Indexes
 #

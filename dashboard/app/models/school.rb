@@ -2,7 +2,7 @@
 #
 # Table name: schools
 #
-#  id                 :integer          not null, primary key
+#  id                 :integer          not null, primary key, comment[NCES public school ID]
 #  school_district_id :integer          not null
 #  name               :string(255)      not null
 #  city               :string(255)      not null

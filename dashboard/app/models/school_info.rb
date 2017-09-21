@@ -12,8 +12,8 @@
 #  school_district_name  :string(255)
 #  school_id             :integer
 #  school_other          :boolean          default(FALSE)
-#  school_name           :string(255)
-#  full_address          :string(255)
+#  school_name           :string(255)      comment[This column appears to be redundant with pd_enrollments.school and users.school, therefore validation rules must be used to ensure that any user or enrollment with a school_info has its school name stored in the correct place.]
+#  full_address          :string(255)      comment[This column appears to be redundant with users.full_address, therefore validation rules must be used to ensure that any user with a school_info has its school address stored in the correct place.]
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #  validation_type       :string(255)      default("full"), not null

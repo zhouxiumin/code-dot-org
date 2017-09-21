@@ -4,8 +4,8 @@
 #
 #  regional_partner_id :integer          not null, primary key
 #  school_district_id  :integer          not null, primary key
-#  course              :string(255)
-#  workshop_days       :string(255)
+#  course              :string(255)      comment[Course for a given workshop]
+#  workshop_days       :string(255)      comment[Days that the workshop will take place]
 #
 # Indexes
 #

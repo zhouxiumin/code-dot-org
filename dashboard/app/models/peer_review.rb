@@ -13,7 +13,7 @@
 #  status          :integer
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  audit_trail     :text(65535)
+#  audit_trail     :text(65535)      comment[Human-readable (never machine-parsed) audit trail of assignments and status changes with timestamps for the life of the peer review.]
 #
 # Indexes
 #

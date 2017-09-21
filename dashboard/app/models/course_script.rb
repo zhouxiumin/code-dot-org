@@ -6,7 +6,7 @@
 #  course_id       :integer          not null
 #  script_id       :integer          not null
 #  position        :integer          not null
-#  experiment_name :string(255)
+#  experiment_name :string(255)      comment[If present, the SingleTeacherExperiment with this name must be enabled in order for a teacher or their students to see this script.]
 #
 # Indexes
 #
