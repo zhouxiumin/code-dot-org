@@ -32,15 +32,16 @@ module UserHelpers
     end
 
     # The darts missed, so revert to using a slow query.
-    similar_users = queryable.where(["username like ?", prefix + '%']).select(:username).to_a
-    similar_usernames = similar_users.map do |user|
-      # ActiveRecord returns a User instance, whereas Sequel returns a hash.
-      user.respond_to?(:username) ? user.username : user[:username]
-    end
+    # Use a regex to filter integer suffixes from other usernames.
+    last_id = queryable.where(['username LIKE ? and username RLIKE ?', "#{prefix}%", "^#{prefix}[0-9]+$"]).
+      # Select max integer using MySQL functions, to avoid returning all matches to the application.
+      select("MAX(CAST(SUBSTRING(`username`, #{prefix.length + 1}) as unsigned)) as `id`").first
+    # ActiveRecord returns a User instance, whereas Sequel returns a hash.
+    last_id = last_id.respond_to?(:id) ? last_id.id : last_id[:id]
 
     # Increment the current maximum integer suffix. Though it may leave holes,
     # it is guaranteed to be (currently) unique.
-    suffix = similar_usernames.map {|n| n[prefix.length..-1]}.map(&:to_i).max + 1
+    suffix = last_id.to_i + 1
     return "#{prefix}#{suffix}"
   end
 
