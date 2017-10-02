@@ -78,7 +78,7 @@ namespace :circle do
     RakeUtils.system_stream_output 'mkdir -p $CIRCLE_TEST_REPORTS/cucumber'
 
     Dir.chdir('dashboard') do
-      RakeUtils.exec_in_background "RAILS_ENV=test bundle exec unicorn -c config/unicorn.rb -E test -l #{CDO.dashboard_port}"
+      RakeUtils.exec_in_background 'RAILS_ENV=test bundle exec puma -e test'
     end
     ui_test_browsers = browsers_to_run
     use_saucelabs = !ui_test_browsers.empty?
@@ -97,7 +97,7 @@ namespace :circle do
           " --dashboard localhost-studio.code.org:3000" \
           " --circle" \
           " --#{use_saucelabs ? "config #{ui_test_browsers.join(',')}" : 'local'}" \
-          " --parallel #{use_saucelabs ? 16 : 8}" \
+          " --parallel #{use_saucelabs ? 20 : 8}" \
           " --abort_when_failures_exceed 10" \
           " --retry_count 2" \
           " --output-synopsis" \

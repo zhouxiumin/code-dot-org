@@ -113,6 +113,7 @@ gem 'open_uri_redirections', require: false, group: [:development, :staging, :te
 
 gem 'gctools'
 gem 'unicorn', '~> 5.1.0'
+gem 'puma'
 
 gem 'chronic', '~> 0.10.2'
 
