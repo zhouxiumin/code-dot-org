@@ -2,6 +2,7 @@
 # Cookbook Name:: cdo-apps
 # Recipe:: default
 #
+ChefConfig::Config[:stream_execute_output] = true
 
 # Update Chef Client to version specified by node['omnibus_updater']['version'].
 include_recipe 'omnibus_updater'
