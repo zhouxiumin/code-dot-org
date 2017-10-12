@@ -20,6 +20,7 @@ module CdoApps
       user user
       group user
       action :nothing
+      live_stream true
     end
 
     # Bootstrap `setup_db` on a new system.

@@ -11,6 +11,7 @@ env = {
   'RAILS_ENV' => node.chef_environment
 }
 execute 'build-cdo' do
+  live_stream true
   command 'bundle exec rake build'
   cwd root
   environment env.merge(node['cdo-apps']['bundle_env'])
