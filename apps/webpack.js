@@ -21,7 +21,8 @@ var toTranspileWithinNodeModules = [
 // Our base config, on which other configs are derived
 var baseConfig = {
   resolve: {
-    extensions: ["", ".js", ".jsx"],
+    extensions: [".js", ".jsx"],
+    enforceExtension: true,
     alias: {
       '@cdo/locale': path.resolve(__dirname, 'src', 'util', 'locale-do-not-import.js'),
       '@cdo/netsim/locale': path.resolve(__dirname, 'src', 'netsim', 'locale-do-not-import.js'),
@@ -35,18 +36,28 @@ var baseConfig = {
       // of the `http` module. Webpack 1 and 2 provide different implementations
       // of `http` via `node-libs-browser`. While we're still on Webpack 1,
       // override resolving of `http` to point to the newer implementation.
-      http: 'stream-http',
-    }
-  },
-  sassLoader: {
-    includePaths: [path.resolve(__dirname, '..', 'shared', 'css')]
+      //http: 'stream-http',
+    },
+    modules: [path.resolve(__dirname)],
   },
   module: {
-    loaders: [
-      {test: /\.json$/, loader: 'json'},
+    // Might need more reworking
+    rules: [
       {test: /\.ejs$/, loader: 'ejs-compiled'},
-      {test: /\.css$/, loader: 'style-loader!css-loader'},
-      {test: /\.scss$/, loader: 'style-loader!css-loader!sass-loader'},
+      {test: /\.css$/, use: ['style-loader', 'css-loader']},
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              includePaths: [path.resolve(__dirname, '..', 'shared', 'css')]
+            }
+          }
+        ]
+      },
       {
         test:/\.(png|jpg|jpeg|gif|svg)$/,
         include: [
@@ -60,12 +71,15 @@ var baseConfig = {
         // this file when asset digests are turned off, it will return a
         // 404 because it thinks the hash is a digest and it won't
         // be able to find the file without the hash. :( :(
-        loader: "url-loader?limit=1024&name=[name]wp[hash].[ext]",
+        loader: "url-loader",
+        options: {
+          limit: 1024,
+          name: "[name]wp[hash].[ext]",
+        },
       },
-    ],
-    preLoaders: [
       {
         test: /\.jsx?$/,
+        enforce: 'pre',
         include: [
           path.resolve(__dirname, 'src'),
           path.resolve(__dirname, 'test'),
@@ -73,11 +87,11 @@ var baseConfig = {
         exclude: [
           path.resolve(__dirname, 'src', 'lodash.js'),
         ],
-        loader: "babel",
-        query: {
-          cacheDirectory: path.resolve(__dirname, '.babel-cache'),
-          compact: false,
-        }
+        loader: "babel-loader",
+//        options: {
+//          cacheDirectory: path.resolve(__dirname, '.babel-cache'),
+//          compact: false,
+//        }
       },
     ],
     noParse: [
@@ -87,7 +101,7 @@ var baseConfig = {
 };
 
 if (envConstants.HOT) {
-  baseConfig.module.loaders.push({
+  baseConfig.module.rules.push({
     test: /\.jsx?$/,
     loader: 'react-hot',
     include: [path.resolve(__dirname, 'src')]
@@ -106,8 +120,8 @@ if (envConstants.COVERAGE) {
       include: [
         path.resolve(__dirname, 'test'),
       ].concat(toTranspileWithinNodeModules),
-      loader: "babel",
-      query: {
+      loader: "babel-loader",
+      options: {
         cacheDirectory: true,
         compact: false,
       }
@@ -123,7 +137,7 @@ if (envConstants.COVERAGE) {
         // about the contents of the compiled version of this file :(
         path.resolve(__dirname, 'src', 'flappy', 'levels.js'),
       ],
-      query: {
+      options: {
         cacheDirectory: true,
         compact: false,
       }
@@ -229,7 +243,7 @@ function create(options) {
     output: {
       path: outputDir,
       publicPath: '/assets/js/',
-      filename: "[name]." + (minify ? "min." : "") + "js",
+      filename: `[name].${minify ? "min." : ""}js`,
     },
     devtool: !process.env.CI && options.minify ?  'source-map' : devtool,
     entry: entries,
@@ -242,7 +256,6 @@ function create(options) {
         PISKEL_DEVELOPMENT_MODE: JSON.stringify(piskelDevMode),
       }),
       new webpack.IgnorePlugin(/^serialport$/),
-      new webpack.optimize.OccurrenceOrderPlugin(true),
     ].concat(plugins),
     watch: watch,
     keepalive: watch,
@@ -252,14 +265,7 @@ function create(options) {
   if (minify) {
     config.plugins = config.plugins.concat(
       [
-        new webpack.optimize.UglifyJsPlugin({
-          compressor: {
-            warnings: false
-          },
-          // Don't generate source maps for our minified code, as these are expensive
-          // and we haven't been using them.
-          sourceMap: false
-        }),
+        new webpack.optimize.UglifyJsPlugin(),
         new UnminifiedWebpackPlugin(),
       ]
     );

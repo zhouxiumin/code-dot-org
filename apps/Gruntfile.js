@@ -566,7 +566,10 @@ describe('entry tests', () => {
       minify: minify,
       watch: watch,
       watchNotify: grunt.option('watch-notify'),
-      piskelDevMode: PISKEL_DEVELOPMENT_MODE
+      piskelDevMode: PISKEL_DEVELOPMENT_MODE,
+      stats: {
+        errorDetails: true,
+      },
     });
   }
 
