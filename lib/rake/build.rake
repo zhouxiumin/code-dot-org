@@ -57,7 +57,7 @@ namespace :build do
       ChatClient.log 'Installing <b>dashboard</b> bundle...'
       RakeUtils.bundle_install
 
-      if CDO.daemon
+      if CDO.daemon && !ENV['CI']
         ChatClient.log 'Migrating <b>dashboard</b> database...'
         RakeUtils.rake 'db:setup_or_migrate'
 
@@ -81,7 +81,7 @@ namespace :build do
 
         # Allow developers to skip the time-consuming step of seeding the dashboard DB.
         # Additionally allow skipping when running in CircleCI, as it will be seeded during `rake install`
-        if (rack_env?(:development) || ENV['CI']) && CDO.skip_seed_all
+        if rack_env?(:development) && CDO.skip_seed_all
           ChatClient.log "Not seeding <b>dashboard</b> due to CDO.skip_seed_all...\n"\
               "Until you manually run 'rake seed:all' or disable this flag, you won't\n"\
               "see changes to: videos, concepts, levels, scripts, prize providers, \n "\
@@ -130,7 +130,7 @@ namespace :build do
     Dir.chdir(pegasus_dir) do
       ChatClient.log 'Installing <b>pegasus</b> bundle...'
       RakeUtils.bundle_install
-      if CDO.daemon
+      if CDO.daemon && !ENV['CI']
         ChatClient.log 'Updating <b>pegasus</b> database...'
         begin
           RakeUtils.rake 'pegasus:setup_db'
