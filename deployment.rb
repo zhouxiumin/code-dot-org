@@ -231,6 +231,10 @@ class CDOImpl < OpenStruct
     site_url('code.org', path, scheme)
   end
 
+  def hourofcode_url(path = '', scheme = '')
+    site_url('hourofcode.com', path, scheme)
+  end
+
   def default_scheme
     rack_env?(:development) ? 'http:' : 'https:'
   end
