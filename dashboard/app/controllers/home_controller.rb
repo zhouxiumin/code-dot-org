@@ -99,6 +99,12 @@ class HomeController < ApplicationController
       @recent_courses = current_user.recent_courses_and_scripts(exclude_primary_script)
 
       script = current_user.primary_script
+
+      puts
+      puts
+      print current_user.most_recently_assigned_course_or_script
+      puts
+      puts
       if script
         script_level = current_user.next_unpassed_progression_level(script)
       end

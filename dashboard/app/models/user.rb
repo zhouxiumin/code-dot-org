@@ -1204,6 +1204,52 @@ class User < ActiveRecord::Base
     all_sections.map(&:course).compact.uniq
   end
 
+  # Figures out the unique set of scripts assigned
+  # to sections that this user is a part of.
+  # @return [Array<Script>]
+  def section_scripts
+    all_sections = sections.to_a.concat(sections_as_student).uniq
+
+    all_sections.map(&:script).compact.uniq
+  end
+
+  def most_recently_assigned_course_or_script
+    #Find the most recently assigned course
+    most_recent_course = section_courses.last
+    puts
+    puts
+    print most_recent_course
+    puts
+    puts
+    #Find the most recently assigned script
+    most_recent_script = section_scripts.last
+    puts
+    puts
+    print most_recent_script
+    puts
+    puts
+    #Find the UserScript that matches the most recently assigned script
+    script_user_script = UserScript.where(user: self, script: most_recent_script)
+    puts
+    puts
+    print script_user_script
+    puts
+    puts
+    #Find the UserScript that matches the most recently assigned course
+
+    #Compare the created_at for the script UserScript and course UserScript
+    puts
+    puts
+    print script_user_script.inspect
+    puts
+    puts
+    print script_user_script[0][:assigned_at]
+    puts
+    puts
+
+    #Return whichever one occured more recently
+  end
+
   # The section which the user most recently joined as a student, or nil if none exists.
   # @returns [Section|nil]
   def last_joined_section
