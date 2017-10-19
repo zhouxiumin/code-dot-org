@@ -44,9 +44,15 @@ module CaptureQueries
       cleaner.add_silencer {|line| line.include?(__dir__.sub("#{Rails.root}/", ''))}
       cleaner.add_silencer {|line| line =~ /application_controller.*with_locale/}
       backtrace = cleaner.clean(caller)
+
+      # Script/course-cache related queries don't count.
+      next if backtrace.any? {|line| line =~ /(script|course)\.rb.*get_from_cache/}
+
       queries << "#{QueryLogger.log(duration, payload)}\n#{backtrace.join("\n")}"
     end
-    ActiveSupport::Notifications.subscribed(query, "sql.active_record", &block)
+    ActiveRecord::Base.cache do
+      ActiveSupport::Notifications.subscribed(query, "sql.active_record", &block)
+    end
     queries
   end
 end
