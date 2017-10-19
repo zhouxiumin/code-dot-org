@@ -1,6 +1,10 @@
 class CoursesController < ApplicationController
   before_action only: [:show] do
-    @current_user = current_user && User.includes(current_user.teacher? ? :students : :teachers).where(id: current_user.id).first
+    @current_user = User.includes(current_user.teacher? ? :students : :teachers).where(id: current_user.id).first if current_user
+  end
+
+  before_action only: [:index] do
+    @current_user = User.includes(:teachers).where(id: current_user.id).first if current_user && current_user.student?
   end
 
   before_action :require_levelbuilder_mode, except: [:index, :show]

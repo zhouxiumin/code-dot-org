@@ -1223,7 +1223,7 @@ class User < ActiveRecord::Base
   end
 
   def completed?(script)
-    user_script = user_scripts.where(script_id: script.id).first
+    user_script = user_scripts.detect {|us| us.script_id == script.id}
     return false unless user_script
     !!user_script.completed_at || completed_progression_levels?(script)
   end
@@ -1450,7 +1450,7 @@ class User < ActiveRecord::Base
   end
 
   def can_pair?
-    sections_as_student.any?(&:pairing_allowed)
+    student? && sections_as_student.any?(&:pairing_allowed)
   end
 
   def can_pair_with?(other_user)
