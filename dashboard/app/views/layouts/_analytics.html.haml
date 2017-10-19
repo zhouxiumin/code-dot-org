@@ -8,7 +8,7 @@
   - dimensions[age_dim] = current_user.age.to_s
   - dimensions[gender_dim] = current_user.gender
   - dimensions[user_type_dim] = current_user.user_type
-  - dimensions[has_teacher] = current_user.teachers.any? ? '1' : '0'
+  - dimensions[has_teacher] = current_user.student? && current_user.teachers.any? ? '1' : '0'
   - create_params[:userId] = "#{current_user.id}#{'-dev' unless Rails.env.production?}"
 :javascript
   // Google Analytics snippet (https://developers.google.com/analytics/devguides/collection/analyticsjs/)

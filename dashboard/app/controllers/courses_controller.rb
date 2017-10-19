@@ -1,4 +1,8 @@
 class CoursesController < ApplicationController
+  before_action only: [:show] do
+    @current_user = current_user && User.includes(current_user.teacher? ? :students : :teachers).where(id: current_user.id).first
+  end
+
   before_action :require_levelbuilder_mode, except: [:index, :show]
   before_action :authenticate_user!, except: [:index, :show]
   authorize_resource except: [:index]

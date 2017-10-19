@@ -20,9 +20,11 @@ class CoursesControllerTest < ActionController::TestCase
 
   # Tests for index
 
-  test_user_gets_response_for :index, response: :success, user: :teacher, queries: 46
+  test_user_gets_response_for :index, response: :success, user: :teacher, queries: 25
 
-  test_user_gets_response_for :index, response: :success, user: :admin, queries: 46
+  test_user_gets_response_for :index, response: :success, user: :admin, queries: 25
+
+  test_user_gets_response_for :index, response: :success, user: :user, queries: 25
 
   # Tests for show
 
@@ -53,7 +55,7 @@ class CoursesControllerTest < ActionController::TestCase
     end
   end
 
-  test_user_gets_response_for :show, response: :success, user: :teacher, params: -> {{course_name: @course_regular.name}}, queries: 9
+  test_user_gets_response_for :show, response: :success, user: :teacher, params: -> {{course_name: @course_regular.name}}, queries: 7
 
   test_user_gets_response_for :show, response: :forbidden, user: :admin, params: -> {{course_name: @course_regular.name}}, queries: 4
 
