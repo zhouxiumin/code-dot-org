@@ -35,7 +35,7 @@ module Pd::Application
     include ApplicationConstants
     include Pd::Form
 
-    after_initialize -> {self.status = :unreviewed}
+    before_create -> {self.status = :unreviewed}
     after_initialize :set_type_and_year
     before_validation :set_type_and_year
     def set_type_and_year

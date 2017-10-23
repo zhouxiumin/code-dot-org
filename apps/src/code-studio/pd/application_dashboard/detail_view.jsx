@@ -59,6 +59,7 @@ class DetailView extends React.Component {
       return (
         (
           <DetailViewContents
+            applicationId={this.props.params.applicationId}
             applicationData={this.state.data}
           />
         )
@@ -69,6 +70,7 @@ class DetailView extends React.Component {
 
 class DetailViewContents extends React.Component {
   static propTypes = {
+    applicationId: PropTypes.string.isRequired,
     applicationData: PropTypes.shape({
       regional_partner_name: PropTypes.string,
       notes: PropTypes.string,
@@ -114,6 +116,20 @@ class DetailViewContents extends React.Component {
     });
   }
 
+  handleSaveClick = () => {
+    $.ajax({
+      method: "PATCH",
+      url: `/api/v1/pd/applications/${this.props.applicationId}`,
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({status: this.state.status})
+    }).done(() => {
+      this.setState({
+        editing: false
+      });
+    });
+  }
+
   renderEditButtons = () => {
     if (this.state.editing) {
       return [(
@@ -149,16 +165,19 @@ class DetailViewContents extends React.Component {
             value={this.state.status}
             onChange={this.handleStatusChange}
           >
+            <option value="unreviewed">
+              Unreviewed
+            </option>
             <option value="accepted">
               Accepted
             </option>
-            <option value="rejected">
-              Rejected
+            <option value="declined">
+              Declined
             </option>
           </FormControl>
           {
             this.state.editing ? [(
-                <Button bsStyle="primary" key="save">
+                <Button onClick={this.handleSaveClick} bsStyle="primary" key="save">
                   Save
                 </Button>
               ), (
