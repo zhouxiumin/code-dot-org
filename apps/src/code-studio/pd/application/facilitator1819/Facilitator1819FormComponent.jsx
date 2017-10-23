@@ -80,6 +80,13 @@ export default class Facilitator1819FormComponent extends FormComponent {
     });
   }
 
+  searchableSelectFor(name, props = {}) {
+    return this.buildSearchableSelectFromOptions({
+      ...this.defaultOptions(name),
+      ...props
+    });
+  }
+
   inputFor(name, props = {}) {
     return this.buildFieldGroup({
       ...this.defaultOptions(name),
@@ -94,6 +101,13 @@ export default class Facilitator1819FormComponent extends FormComponent {
       controlWidth: {md: 12},
       rows: 4,
       maxLength: 500,
+      ...props
+    });
+  }
+
+  usPhoneNumberInputFor(name, props={}) {
+    return this.buildUsPhoneNumberInput({
+      ...this.defaultOptions(name),
       ...props
     });
   }
