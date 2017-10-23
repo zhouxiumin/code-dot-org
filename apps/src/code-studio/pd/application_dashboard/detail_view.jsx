@@ -94,7 +94,8 @@ class DetailViewContents extends React.Component {
   }
 
   state = {
-    status: this.props.applicationData.status
+    status: this.props.applicationData.status,
+    notes: this.props.applicationData.notes
   }
 
   handleCancelEditClick = () => {
@@ -116,13 +117,19 @@ class DetailViewContents extends React.Component {
     });
   }
 
+  handleNotesChange = (event) => {
+    this.setState({
+      notes: event.target.value
+    });
+  }
+
   handleSaveClick = () => {
     $.ajax({
       method: "PATCH",
       url: `/api/v1/pd/applications/${this.props.applicationId}`,
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify({status: this.state.status})
+      data: JSON.stringify(this.state)
     }).done(() => {
       this.setState({
         editing: false
@@ -237,7 +244,13 @@ class DetailViewContents extends React.Component {
         <h4>
           Notes
         </h4>
-        <FormControl disabled={true} componentClass="textarea" value={this.props.applicationData.notes || ''}/>
+        <FormControl
+          id="Notes"
+          disabled={!this.state.editing}
+          componentClass="textarea"
+          value={this.state.notes || ''}
+          onChange={this.handleNotesChange}
+        />
       </div>
     );
   }

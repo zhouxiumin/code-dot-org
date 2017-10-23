@@ -8,6 +8,7 @@ describe("DetailView", () => {
     it("is disabled until the Edit button is clicked", () => {
       let detailView = mount(
         <DetailViewContents
+          applicationId="1"
           applicationData={{
             regionalPartner: 'partner',
             notes: 'notes',
@@ -33,15 +34,18 @@ describe("DetailView", () => {
 
       expect(detailView.find('#DetailViewHeader Button')).to.have.length(1);
       expect(detailView.find('#DetailViewHeader FormControl').prop('disabled')).to.be.true;
+      expect(detailView.find('#Notes').prop('disabled')).to.be.true;
 
       detailView.find('#DetailViewHeader Button').simulate('click');
       expect(detailView.find('#DetailViewHeader Button').map((button) => {
         return button.text();
       })).to.deep.equal(['Save', 'Cancel']);
       expect(detailView.find('#DetailViewHeader FormControl').prop('disabled')).to.be.false;
+      expect(detailView.find('#Notes').prop('disabled')).to.be.false;
 
       detailView.find('#DetailViewHeader Button').last().simulate('click');
       expect(detailView.find('#DetailViewHeader FormControl').prop('disabled')).to.be.true;
+      expect(detailView.find('#Notes').prop('disabled')).to.be.true;
     });
   });
 });
