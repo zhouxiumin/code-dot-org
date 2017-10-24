@@ -13,6 +13,10 @@ social:
   "twitter:player:height": 1080
 max_age: 60
 ---
+- js_locale = request.locale.to_s.downcase.tr('-', '_')
+%script{src: asset_path("js/#{js_locale}/common_locale.js")}
+%script{src: asset_path('js/code.org/public/congrats.js')}
+
 :ruby
 
   cert_id = params[:i]
@@ -96,6 +100,8 @@ max_age: 60
 
   = view :congrats_continue, script:cert_script
 
+#congrats-resources
+
 = view 'popup_window.js'
 
 :javascript
@@ -153,9 +159,4 @@ max_age: 60
     } else {
       certificate_disable();
     }
-  });
-
-  var petition;
-  $(document).ready(function() {
-    petition = new Petition();
   });

@@ -519,6 +519,7 @@ describe('entry tests', () => {
     'code.org/views/workshop_search' : './src/sites/code.org/pages/views/workshop_search.js',
 
     'code.org/public/yourschool': './src/sites/code.org/pages/public/yourschool.js',
+    'code.org/public/congrats': './src/sites/code.org/pages/public/congrats.js',
     'hourofcode.com/public/index': './src/sites/hourofcode.com/pages/public/index.js'
   };
 
