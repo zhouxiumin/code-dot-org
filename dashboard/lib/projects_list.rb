@@ -58,6 +58,7 @@ module ProjectsList
     #   when requesting all project types. Optional.
     # @return [Hash<Array<Hash>>] A hash of lists of published projects.
     def fetch_published_projects(project_group, limit:, published_before:)
+      fetch_featured_project_urls
       unless limit && limit.to_i >= 1 && limit.to_i <= MAX_LIMIT
         raise ArgumentError, "limit must be between 1 and #{MAX_LIMIT}"
       end
@@ -67,6 +68,25 @@ module ProjectsList
       end
       raise ArgumentError, "invalid project type: #{project_group}" unless PUBLISHED_PROJECT_TYPE_GROUPS.keys.include?(project_group.to_sym)
       fetch_published_project_types([project_group.to_s], limit: limit, published_before: published_before)
+    end
+
+    # Retrieve the urls for featured projects.
+    # @return [<String>]
+    def fetch_featured_project_urls
+      puts
+      puts
+      print "Featured projects"
+      puts
+      puts
+      print PEGASUS_DB[:featured_projects].inspect
+      puts
+      puts
+      print "Featured project urls"
+      puts
+      puts
+      print PEGASUS_DB[:featured_projects].select(*project_url_s)
+      puts
+      puts
     end
 
     private
