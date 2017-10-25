@@ -17,6 +17,7 @@ export default class CongratsResources extends Component {
   render() {
     return (
       <div>
+        <h1>Students: Continue Learning Beyond an Hour</h1>
         <CourseBlocksStudentGradeBands
           isRtl={false}
           responsive={this.responsive}
@@ -29,6 +30,7 @@ export default class CongratsResources extends Component {
           responsive={this.responsive}
           showHeading={false}
         />
+      <h1>Teachers: Bring Computer Science to Your Classroom</h1>
       </div>
     );
   }
