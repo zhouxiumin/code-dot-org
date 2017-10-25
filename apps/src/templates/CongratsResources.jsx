@@ -35,22 +35,32 @@ export default class CongratsResources extends Component {
     return (
       <div>
         <h1>Students: Continue Learning Beyond an Hour</h1>
-        <HalfImageCard
-          title="CS Fundamentals Express"
-          description={i18n.professionalLearningDescription()}
-          image="professional-learning"
-          buttonText={i18n.learnMore()}
-          link="/my-professional-learning"
-          isRtl={false}
-        />
-        <HalfImageCard
-          title="AppLab Tutorial"
-          description={i18n.professionalLearningDescription()}
-          image="professional-learning"
-          buttonText={i18n.learnMore()}
-          link="/my-professional-learning"
-          isRtl={false}
-        />
+        <div style={styles.container}>
+          <HalfImageCard
+            title="CS Fundamentals Express"
+            description={i18n.professionalLearningDescription()}
+            image="hourofcode2"
+            linkText={i18n.learnMore()}
+            link="/my-professional-learning"
+            isRtl={false}
+          />
+          <HalfImageCard
+            title="AppLab Tutorial"
+            description={i18n.professionalLearningDescription()}
+            image="hourofcode"
+            linkText={i18n.learnMore()}
+            link="/my-professional-learning"
+            isRtl={false}
+          />
+          <HalfImageCard
+            title="Minecraft"
+            description={i18n.professionalLearningDescription()}
+            image="hourofcode"
+            linkText={i18n.learnMore()}
+            link="/my-professional-learning"
+            isRtl={false}
+          />
+        </div>
         <CourseBlocksStudentGradeBands
           isRtl={false}
           responsive={this.responsive}
@@ -64,6 +74,32 @@ export default class CongratsResources extends Component {
           showHeading={false}
         />
         <h1>Teachers: Bring Computer Science to Your Classroom</h1>
+        <div style={styles.container}>
+          <HalfImageCard
+            title="CS Fundamentals Express"
+            description={i18n.professionalLearningDescription()}
+            image="hourofcode2"
+            linkText={i18n.learnMore()}
+            link="/my-professional-learning"
+            isRtl={false}
+          />
+          <HalfImageCard
+            title="AppLab Tutorial"
+            description={i18n.professionalLearningDescription()}
+            image="hourofcode"
+            linkText={i18n.learnMore()}
+            link="/my-professional-learning"
+            isRtl={false}
+          />
+          <HalfImageCard
+            title="Minecraft"
+            description={i18n.professionalLearningDescription()}
+            image="hourofcode"
+            linkText={i18n.learnMore()}
+            link="/my-professional-learning"
+            isRtl={false}
+          />
+        </div>
       </div>
     );
   }

@@ -6,34 +6,38 @@ const styles = {
   card: {
     overflow: 'hidden',
     position: 'relative',
-    height: 250,
-    width: '48%',
+    width: 310,
     float: 'left',
-    marginBottom: 20,
+    marginBottom: 10,
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: color.border_gray,
     background: color.white,
-    marginBottom: 20,
     display: 'flex',
     flexFlow: 'wrap',
+    ':hover': {
+      background: color('#0074d9').lighten(0.2).hexString()
+    }
   },
   image: {
-    position: 'absolute',
+    // position: 'absolute',
+    width: 308,
+    height: 200,
+    backgroundColor: color.teal,
   },
   textbox: {
     // position: 'absolute',
-    width: '50%',
-    padding: 20
+    width: 310,
+    height: 150,
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingBottom: 20
   },
   title: {
     fontSize: 24,
     paddingBottom: 10,
     fontFamily:'"Gotham 4r", sans-serif',
     color: color.charcoal,
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden'
   },
   description: {
     fontSize: 14,
@@ -80,9 +84,6 @@ class HalfImageCard extends Component {
 
     return (
       <div style={[styles.card, localeStyle]}>
-        <div style={styles.image}>
-          <img src={imgSrc}/>
-        </div>
         <div style={[styles.textbox, localeStyle, uncoverImage]}>
           <div style={styles.title}>
             {title}
@@ -91,6 +92,10 @@ class HalfImageCard extends Component {
             {description}
           </div>
           <br/>
+        </div>
+        <div style={styles.image}>
+          .
+          <img src={imgSrc}/>
         </div>
       </div>
     );
