@@ -50,6 +50,7 @@ class TwoColumnActionBlock extends Component {
     responsive: PropTypes.instanceOf(Responsive).isRequired,
     imageUrl: PropTypes.string.isRequired,
     heading: PropTypes.string.isRequired,
+    showHeading: PropTypes.bool.isRequired,
     subHeading: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     buttonUrl: PropTypes.string.isRequired,
@@ -57,13 +58,15 @@ class TwoColumnActionBlock extends Component {
   };
 
   render() {
-    const { isRtl, responsive, imageUrl, heading, subHeading, description, buttonUrl, buttonText } = this.props;
+    const { isRtl, responsive, imageUrl, heading, subHeading, description, buttonUrl, buttonText, showHeading } = this.props;
 
     return (
       <div>
-        <div style={styles.heading}>
-          {heading}
-        </div>
+        {showHeading && (
+          <div style={styles.heading}>
+            {heading}
+          </div>
+        )}
         <GridContainer
           numColumns={2}
           isRtl={isRtl}
@@ -95,17 +98,19 @@ class TwoColumnActionBlock extends Component {
 export class LocalClassActionBlock extends Component {
   static propTypes = {
     isRtl: PropTypes.bool.isRequired,
-    responsive: PropTypes.instanceOf(Responsive).isRequired
+    responsive: PropTypes.instanceOf(Responsive).isRequired,
+    showHeading: PropTypes.bool.isRequired
   };
 
   render() {
-    const { isRtl, responsive } = this.props;
+    const { isRtl, responsive, showHeading } = this.props;
 
     return (
       <TwoColumnActionBlock
         isRtl={isRtl}
         responsive={responsive}
         imageUrl={pegasus('/shared/images/fill-540x289/misc/beyond-local-map.png')}
+        showHeading={showHeading}
         heading={i18n.findLocalClassHeading()}
         subHeading={i18n.findLocalClassSubheading()}
         description={i18n.findLocalClassDescription()}

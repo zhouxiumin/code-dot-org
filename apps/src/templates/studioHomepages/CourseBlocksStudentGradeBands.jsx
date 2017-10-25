@@ -7,7 +7,10 @@ import i18n from "@cdo/locale";
 class CourseBlocksStudentGradeBands extends Component {
   static propTypes = {
     isRtl: PropTypes.bool.isRequired,
-    responsive: PropTypes.instanceOf(Responsive).isRequired
+    responsive: PropTypes.instanceOf(Responsive).isRequired,
+    showLink: PropTypes.bool.isRequired,
+    showHeading: PropTypes.bool.isRequired,
+    showDescription: PropTypes.bool.isRequired
   };
 
   cards = [
@@ -29,12 +32,16 @@ class CourseBlocksStudentGradeBands extends Component {
   ];
 
   render() {
+    const {showLink, showHeading, showDescription} = this.props;
+    const link = showLink ? '/home/#recent-courses' : '';
+    const heading = showHeading ? i18n.courseBlocksGradeBandsContainerHeading() : '';
+    const description = showDescription ? i18n.courseBlocksGradeBandsContainerDescription() : '';
     return (
       <ContentContainer
-        link={'/home/#recent-courses'}
+        link={link}
         linkText={i18n.viewMyRecentCourses()}
-        heading={i18n.courseBlocksGradeBandsContainerHeading()}
-        description={i18n.courseBlocksGradeBandsContainerDescription()}
+        heading={heading}
+        description={description}
         isRtl={this.props.isRtl}
         responsive={this.props.responsive}
       >

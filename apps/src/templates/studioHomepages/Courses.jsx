@@ -79,7 +79,6 @@ class Courses extends Component {
       {linesCount: this.props.linesCount, studentsCount: this.props.studentsCount}
     );
     const headingDescription = isSignedOut ? i18n.coursesHeadingDescription() : null;
-
     return (
       <div style={contentStyle}>
         <HeaderBanner
