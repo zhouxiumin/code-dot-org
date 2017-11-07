@@ -6,6 +6,9 @@ import Certificate from './Certificate';
 import StudentsBeyondHoc from './StudentsBeyondHoc';
 import TeachersBeyondHoc from './TeachersBeyondHoc';
 import { tutorialTypes } from './tutorialTypes.js';
+import { Provider } from 'react-redux';
+import { combineReducers, createStore } from 'redux';
+import responsiveRedux from '../code-studio/responsiveRedux';
 
 export default class Congrats extends Component {
   static propTypes = {
@@ -53,20 +56,26 @@ export default class Congrats extends Component {
     const contentStyle = {
       width: this.responsive.getResponsiveContainerWidth()
     };
+    const store = createStore(combineReducers({responsive: responsiveRedux}));
 
     return (
-      <div style={contentStyle}>
-        <Certificate
-          completedTutorialType={completedTutorialType}
-        />
-        <StudentsBeyondHoc
-          completedTutorialType={completedTutorialType}
-          MCShareLink={MCShareLink}
-          responsive={this.responsive}
-          isRtl={isRtl}
-        />
-        <TeachersBeyondHoc/>
-      </div>
+      <Provider store={store}>
+        <div style={contentStyle}>
+          <Certificate
+            completedTutorialType={completedTutorialType}
+          />
+          <StudentsBeyondHoc
+            completedTutorialType={completedTutorialType}
+            MCShareLink={MCShareLink}
+            responsive={this.responsive}
+            isRtl={isRtl}
+          />
+          <TeachersBeyondHoc
+            responsive={this.responsive}
+            isRtl={isRtl}
+          />
+        </div>
+      </Provider>
     );
   }
 }
