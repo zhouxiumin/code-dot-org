@@ -1,6 +1,6 @@
 import React from 'react';
 import { UnconnectedProgressLesson as ProgressLesson } from './ProgressLesson';
-import { ViewType } from '@cdo/apps/code-studio/stageLockRedux';
+import { ViewType } from '@cdo/apps/code-studio/viewAsRedux';
 import { fakeLesson, fakeLevels } from './progressTestHelpers';
 import { LevelStatus } from '@cdo/apps/util/sharedConstants';
 
@@ -19,7 +19,7 @@ const defaultProps = {
   ],
   showTeacherInfo: false,
   viewAs: ViewType.Teacher,
-  hasSelectedSection: true,
+  showLockIcon: true,
   lessonIsVisible: () => true,
   lessonLockedForSection: () => false
 };
@@ -53,6 +53,8 @@ export default storybook => {
         story: () => (
           <ProgressLesson
             {...defaultProps}
+            viewAs={ViewType.Student}
+            currentStageId={-1}
             lesson={{
               id: -1,
               isFocusArea: false,
@@ -117,10 +119,25 @@ export default storybook => {
         )
       },
       {
-        name:'locked lesson',
+        name:'locked lesson as teacher',
         story: () => (
           <ProgressLesson
             {...defaultProps}
+            lesson={fakeLesson('Asessment Number One', 1, true)}
+            levels={fakeLevels(5, {named: false}).map(level => ({
+              ...level,
+              status: LevelStatus.locked
+            }))}
+            lessonLockedForSection={() => true}
+          />
+        )
+      },
+      {
+        name:'locked lesson as student',
+        story: () => (
+          <ProgressLesson
+            {...defaultProps}
+            viewAs={ViewType.Student}
             lesson={fakeLesson('Asessment Number One', 1, true)}
             levels={fakeLevels(5, {named: false}).map(level => ({
               ...level,

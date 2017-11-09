@@ -2,18 +2,28 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { getStore } from '@cdo/apps/redux';
-import Dialog from '@cdo/apps/templates/Dialog';
-import PublicGallery, {MAX_PROJECTS_PER_CATEGORY} from '@cdo/apps/templates/projects/PublicGallery';
+import { getStore, registerReducers } from '@cdo/apps/redux';
+import PublishDialog from '@cdo/apps/templates/publishDialog/PublishDialog';
+import PublicGallery from '@cdo/apps/templates/projects/PublicGallery';
 import ProjectHeader from '@cdo/apps/templates/projects/ProjectHeader';
-import i18n from '@cdo/locale';
-import { Galleries } from '@cdo/apps/templates/projects/projectConstants';
-import { selectGallery } from '@cdo/apps/templates/projects/projectsModule';
+import { MAX_PROJECTS_PER_CATEGORY, Galleries } from '@cdo/apps/templates/projects/projectConstants';
+import projects, {
+  selectGallery,
+  setProjectLists,
+  prependProjects,
+} from '@cdo/apps/templates/projects/projectsRedux';
+import publishDialogReducer, {
+  showPublishDialog,
+} from '@cdo/apps/templates/publishDialog/publishDialogRedux';
+import { PublishableProjectTypesUnder13, PublishableProjectTypesOver13 } from '@cdo/apps/util/sharedConstants';
 
 $(document).ready(() => {
+  registerReducers({projects, publishDialog: publishDialogReducer});
+  const store = getStore();
+  setupReduxSubscribers(store);
   const projectsHeader = document.getElementById('projects-header');
   ReactDOM.render(
-    <Provider store={getStore()}>
+    <Provider store={store}>
       <ProjectHeader showGallery={showGallery} />
     </Provider>,
     projectsHeader
@@ -21,20 +31,30 @@ $(document).ready(() => {
 
   const isPublic = window.location.pathname.startsWith('/projects/public');
   const initialState = isPublic ? Galleries.PUBLIC : Galleries.PRIVATE;
-  getStore().dispatch(selectGallery(initialState));
+  store.dispatch(selectGallery(initialState));
 
   $.ajax({
     method: 'GET',
     url: `/api/v1/projects/gallery/public/all/${MAX_PROJECTS_PER_CATEGORY}`,
     dataType: 'json'
   }).done(projectLists => {
+    store.dispatch(setProjectLists(projectLists));
     const publicGallery = document.getElementById('public-gallery');
     ReactDOM.render(
-      <Provider store={getStore()}>
-        <PublicGallery initialProjectLists={projectLists}/>
+      <Provider store={store}>
+        <PublicGallery />
       </Provider>,
       publicGallery);
   });
+
+  const publishConfirm = document.getElementById('publish-confirm');
+
+  ReactDOM.render(
+    <Provider store={store}>
+      <PublishDialog/>
+    </Provider>,
+    publishConfirm
+  );
 });
 
 function showGallery(gallery) {
@@ -42,32 +62,37 @@ function showGallery(gallery) {
   $('#public-gallery-wrapper').toggle(gallery === Galleries.PUBLIC);
 }
 
-function onShowConfirmPublishDialog(callback) {
-  const publishConfirm = document.getElementById('publish-confirm');
-  ReactDOM.render(
-    <Dialog
-      title={i18n.publishToPublicGallery()}
-      body={i18n.publishToPublicGalleryWarning()}
-      confirmText={i18n.publish()}
-      isOpen={true}
-      handleClose={hideDialog}
-      onCancel={hideDialog}
-      onConfirm={onConfirmPublish.bind(this, callback)}
-    />,
-    publishConfirm
-  );
-}
-
-// Make this method available to angularProjects.js. This can go away
+// Make these available to angularProjects.js. These can go away
 // once My Projects is moved to React.
-window.onShowConfirmPublishDialog = onShowConfirmPublishDialog;
 
-function onConfirmPublish(callback) {
-  hideDialog();
-  callback();
-}
+window.onShowConfirmPublishDialog = function (projectId, projectType) {
+  getStore().dispatch(showPublishDialog(projectId, projectType));
+};
 
-function hideDialog() {
-  const publishConfirm = document.getElementById('publish-confirm');
-  ReactDOM.render(<Dialog isOpen={false}/>, publishConfirm);
+window.PublishableProjectTypesUnder13 = PublishableProjectTypesUnder13;
+
+window.PublishableProjectTypesOver13 = PublishableProjectTypesOver13;
+
+function setupReduxSubscribers(store) {
+  let state = {};
+  store.subscribe(() => {
+    let lastState = state;
+    state = store.getState();
+
+    // Update the project state and immediately add it to the public gallery
+    // when a PublishDialog state transition indicates that a project has just
+    // been published.
+    if (
+      lastState.publishDialog &&
+      lastState.publishDialog.lastPublishedAt !==
+        state.publishDialog.lastPublishedAt
+    ) {
+      window.setProjectPublishedAt(
+        state.publishDialog.projectId,
+        state.publishDialog.lastPublishedAt);
+      const projectData = state.publishDialog.lastPublishedProjectData;
+      const projectType = state.publishDialog.projectType;
+      store.dispatch(prependProjects([projectData], projectType));
+    }
+  });
 }

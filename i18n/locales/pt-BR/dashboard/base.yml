@@ -9,11 +9,15 @@ pt-BR:
     errors:
       messages:
         blank: "é obrigatório"
+        blank_plural: "obrigatório"
+        invalid_plural: "inválido"
     attributes:
       user:
         name: 'Nome para exibição'
-        name_example: 'Nome a apresentar<br/>(exemplo: João S.)'
+        name_example: 'Nome de exibição<br/>(ex: João da Silva ou Maria Alves)'
         email: 'E-mail'
+        parent_email: 'E-mail dos responsáveis'
+        personal_email: "E-mail pessoal <a href=\"%{url}\">(clique aqui caso não tenha um e-mail)</a>"
         username: 'Nome de usuário'
         password: 'Senha'
         password_confirmation: 'Confirmação de senha'
@@ -42,6 +46,7 @@ pt-BR:
       label: 'Adicionar professor:'
       placeholder: "Código da seção (ABCDEF)"
       instructions: "Insira o código que seu professor compartilhou com você. É um código de 6 letras, como \"ABCDEF\"."
+      instructions_short: "Digite seu código de seção de 6 letras"
     submit: 'Adicionar professor'
   add_hint_form:
     placeholder: 'Digite sua dica aqui'
@@ -52,6 +57,9 @@ pt-BR:
   puzzle: "Quebra-cabeça"
   trophies: "troféus"
   courses: 'percursos'
+  courses_page:
+    title_student: "Aprenda no Code Studio"
+    title_teacher: "Ensine com Code Studio"
   unplugged_activity: 'Atividade off-line'
   of: "de"
   more: "MAIS"
@@ -76,10 +84,12 @@ pt-BR:
     twitter: 'Twitter'
     facebook: 'Facebook'
     windowslive: 'Conta da Microsoft'
+    clever: 'Conta inteligente'
     forgot_password: 'Esqueceu sua senha?'
     need_confirmation: "Não recebeu as instruções de confirmação?"
     need_unlock: "Não recebeu as instruções de desbloqueio?"
     not_linked: "Desculpe, sua conta de Code.org não está ligada ao seu %{provider}. Você terá que entrar digitando sua senha abaixo."
+    use_clever: "Desculpe, sua conta do Code.org não está ligada à sua %{provider}. Por favor entre através do seu Portal inteligente."
   signup_form:
     student_count: '%{count} alunos já se registraram.'
     teacher_count: '%{count} professores já se registraram.'
@@ -112,15 +122,16 @@ pt-BR:
     user_type_student: "Estudante"
     field_is_required: "é obrigatório"
     accept_terms: "Você precisa aceitar criar uma conta"
+    error: "Ocorreu um erro."
   school_info:
     title: 'Informações da escola (opcional)'
-    school_country: 'School Country'
+    school_country: 'País da Escola'
     select_school_type: 'Tipo de escola'
-    charter: 'Charter'
+    charter: 'Estatuto'
     private: 'Privada'
     public: 'Pública'
-    homeschool: 'Homeschool'
-    after_school: 'After School'
+    homeschool: 'Educar em Casa'
+    after_school: 'Depois da Escola'
     other: 'Outros'
     state: 'Estado'
     district: 'Distrito'
@@ -132,7 +143,7 @@ pt-BR:
     school_zip: 'CEP da escola'
     school_address: 'Endereço da escola'
     school_organization_name: 'Nome da escola ou organização'
-    school_organization_zip: 'School/Organization Zip Code'
+    school_organization_zip: 'CEP da Escola'
   signin_form:
     title: 'Já tem uma conta? Entre'
     login: 'E-mail'
@@ -176,14 +187,24 @@ pt-BR:
       Os tutoriais são divertidos, visualmente envolventes, e ensinam os conceitos básicos de ciência da computação de forma simples, como em um jogo. Aprenda a programar com a ajuda de Bill Gates, Mark Zuckerberg, Angry Birds e Plants vs Zombies! :-)
       
       %{name}
+  parent_mailer:
+    student_associated_subject: 'Informações de login para Code.org'
+  teacher_mailer:
+    new_teacher_subject: 'Bem-vindo à Code.org!'
   section:
     your_section:
-      one: 'Your section:'
-      other: 'Your sections:'
-    code_with_teacher: '%{section_code} with %{teacher_name}'
+      one: 'Sua turma:'
+      other: 'Suas turmas:'
+    code_with_teacher: '%{section_code} com %{teacher_name}'
     confirm:
-      remove: 'Are you sure you want to leave this section?'
-    remove: '(remove section)'
+      remove: 'Tem certeza que quer sair desta turma?'
+    remove: '(remove a turma)'
+    type:
+      picture: 'Senha com Foto'
+      word: 'Palavras Secretas'
+      email: 'E-mail'
+      google_classroom: 'Google Classroom'
+      clever: 'Clever'
   follower:
     invite_sent: 'Convite enviado'
     added_teacher: '%{name} foi adicionado como seu professor'
@@ -196,6 +217,7 @@ pt-BR:
       section_not_found: "Não foi possível encontrar uma seção com o código '%{section_code}'."
       blank_code: "Insira um código de seção"
       cant_join_own_section: "Desculpe, você não pode entrar em sua própria seção."
+      provider_managed_section: "Esta turma é dirigida por outro provedor e não pode ser entrada. Por favor pergunte a seu professor via %{provider} e re-sincronize a turma."
     mail:
       student_disassociated:
         subject: 'Notificação Code.org: %{student_name} não é mais seu aluno.'
@@ -208,6 +230,7 @@ pt-BR:
     edit: 'Editar'
     edit_model: 'Editar %{model}'
     update: 'Atualizar'
+    submit: 'Enviar'
     destroy: 'Destruir'
     back: 'Voltar'
     confirm: 'Tem certeza?'
@@ -215,6 +238,12 @@ pt-BR:
     updated: '%{model} foi atualizado com sucesso.'
     destroyed: '%{model} foi excluído com êxito.'
     access_denied: 'Você não tem acesso a esse %{model}.'
+  devise:
+    registrations:
+      user:
+        user_type_change_email_mismatch: "O endereço de e-mail que você forneceu não é o mesmo desta conta"
+        personal_login_created_email: 'Você criou um login pessoal com sucesso. Você agora pode entrar em sua conta com seu e-mail e senha'
+        personal_login_created_username: 'Você criou uma conta pessoal com sucesso. Você agora pode entrar em sua conta com seu nome de usuário (%{username}) e senha'
   nav:
     header:
       finished_hoc: "Terminei minha Hora do Código"
@@ -224,42 +253,45 @@ pt-BR:
         artist: 'Desenhar algo'
         calculate: 'Calculate something'
         applab: 'Criar um aplicativo do Play Lab'
-        gamelab: 'Make a Game Lab project'
-      home: "Home"
+        gamelab: 'Crie um projeto de Jogo de Laboratório'
+        weblab: 'Faça um projeto Laboratório Web (beta)'
+      home: "Início"
+      my_dashboard: "Meu painel de Controle"
       courses: "percursos"
-      project_gallery: "Project Gallery"
-      sections: "Sections"
-      help_support: "Suporte"
-      report_bug: "Report bug"
-      teacher_community: "Teacher community"
+      course_catalog: "Catálogo do Curso"
+      project_gallery: "Projetos"
+      sections: "Seções"
+      help_support: "Ajuda e suporte"
+      report_bug: "Reportar um erro"
+      teacher_community: "Comunidade de professores"
       professional_learning: "Professional Learning"
-      documentation: "Documentation"
-      tutorials: "Tutorials"
-      educate_overview: "Educator Overview"
-      educate_elementary: "Elementary School"
-      educate_middle: "Middle School"
-      educate_high: "High School"
+      documentation: "Documentação"
+      tutorials: "Tutoriais"
+      educate_overview: "Visão Geral do Educador"
+      educate_elementary: "Ensino Fundamental"
+      educate_middle: "Ensino Fundamental II"
+      educate_high: "Ensino Médio"
       educate_hoc: "Hora do Código"
-      educate_partner: "Partner with Us"
-      educate_beyond: "Beyond Code.org"
-      educate_inspire: "Inspire a Student"
-      educate_community: "Online Community"
+      educate_partner: "Envolva-se Conosco"
+      educate_beyond: "Além do Code.org"
+      educate_inspire: "Inspire um Estudante"
+      educate_community: "Comunidade On-Line"
       educate_tools: "Vídeos e ferramentas"
       about_us: "Quem Somos"
-      about_leadership: "Leadership"
-      about_donors: "Donors"
-      about_partners: "Partners"
-      about_team: "Full Team"
-      about_news: "Newsroom"
-      about_evaluation: "Evaluation"
-      about_jobs: "Jobs"
-      about_contact: "Contact Us"
+      about_leadership: "Liderança"
+      about_donors: "Doadores"
+      about_partners: "Parceiros"
+      about_team: "Equipe Completa"
+      about_news: "Sala de Imprensa"
+      about_evaluation: "Avaliação"
+      about_jobs: "Postos de Trabalho"
+      about_contact: "Fale Conosco"
       about_faqs: "Perguntas Frequentes (FAQ)"
       learn: "Aprenda"
       stats: "Estatísticas"
-      help_us: "Help Us"
-      teach: "Teach"
-      about: "About"
+      help_us: "Ajude-nos"
+      teach: "Ensinar"
+      about: "Sobre"
     user:
       classroom: 'Página inicial do professor'
       district_dashboard: 'Painel do distrito'
@@ -323,8 +355,18 @@ pt-BR:
     delete_text_teacher_note: 'Lembre-se: a exclusão da sua conta não vai excluir as contas dos seus alunos.'
     delete_confirm: 'Tem certeza de que deseja excluir sua conta?'
     deleted_user: 'usuário removido'
-    no_password_because_oauth: 'No password because you sign in with a third-party provider.'
-    no_password_because_sponsored: 'See your teacher to manage your password.'
+    no_password_because_oauth: 'Nenhuma senha porque você entrou com um provedor de terceiros.'
+    no_password_because_sponsored: 'Consulte seu professor para gerenciar sua senha.'
+    create_personal_login: 'Criar um login pessoal'
+    create_personal_login_under_13_info: 'Se você quiser continuar usando sua conta do Code.org mesmo após o fim do ano letivo, pergunte aos seus pais ou responsáveis para ajudá-lo a criar seu próprio login pessoal abaixo.'
+    create_personal_login_under_13_username: "Nome de usuário (não use seu nome verdadeiro!)"
+    create_personal_login_under_13_parent_email: 'E-mail dos pais ou responsáveis'
+    create_personal_login_info: 'Se você quiser continuar usando sua conta do Code.org mesmo após o fim do ano letivo, você pode criar seu próprio login abaixo.'
+    create_personal_login_terms: "Ao criar uma conta individual, eu concordo com os <a href='%{terms_of_service_url}', target='_blank'>termos de serviço</a> do Code.org. Se tenho menos de 13 anos de idade, eu confirmo que tenho permissão dos meus pais ou responsável legal para usar os serviços do Code.org mesmo sem o acompanhamento de um professor."
+    create_personal_login_email_note: 'Nota: Os endereços de E-mail não são armazenados de forma que nos permita permita entrar em contato com os alunos. Os alunos nunca irão receber e-mails do Code.org exceto para recuperação de senha. Consulte nossa <a href=''%{privacy_policy_url}'', target=''_blank''>política de privacidade</a> para obter mais informações.'
+    enter_new_login_info: 'Digite sua nova conta individual'
+    confirm_secret_words: 'Confirme que é você ao digitar suas palavras secretas atuais'
+    enter_parent_email: "Insira o E-Mail dos pais ou responsável legal (para recuperação de senha)"
   user_level:
     completed: 'Concluído'
     tried: 'Provado'
@@ -373,7 +415,7 @@ pt-BR:
     print_certificate: "Imprimir certificado"
     announcement_title: "Anúncios"
     announcement_message_fall2016_features: "Passamos as férias transformando seu feedback em novos recursos. Agora, você pode <a href=\"%{pp_url}\" target=\"_blank\">acompanhar o progresso de vários alunos</a>, mesmo se eles estiverem programando em pares em um dispositivo. Você pode usar <a href=\"%{csp_widgets_url}\" target=\"_blank\">as melhores ferramentas interativas</a> do nosso curso \"Princípios da CC\" em <i>qualquer</i> sala de aula. E seus alunos podem <a href=\"%{unused_code_url}\" target=\"_blank\">manter códigos não utilizados</a> em sua área de trabalho para incentivar ainda mais descobertas! Confira todos os nossos novos recursos e conte-nos o que você achou."
-    announcement_csp_widgets_message: "Looking for some fun ways to teach your class how the Internet works, how cryptography keeps data secure, and other concepts? We’ve taken the best interactive tools from our Computer Science Principles curriculum and released standalone widgets you can use at any time!"
+    announcement_csp_widgets_message: "Procurando por maneiras divertidas para ensinar sua turma como a Internet funciona, como a criptografia mantém os dados seguros, e outros conceitos? Nós obtivemos as melhores ferramentas interativas do nosso currículo de Princípios da Ciência da Computação e liberamos widgets avulsos que você pode usar a qualquer momento!"
     announcement_learn_more_button: "Saiba mais"
     announcement_try_now_button: "Experimente agora"
     announcement_host_an_hour_button: "Organize um evento"
@@ -381,17 +423,17 @@ pt-BR:
     announcement_petition: "Como professor, você está abrindo as portas de um movimento que dará a cada aluno de todas as escolas a oportunidade de aprender ciência da computação. Agora chegou a hora de seus representantes ouvirem o que você tem a dizer. Esta semana, líderes de educação, 28 governadores, e presidentes das maiores empresas dos Estados Unidos se uniram em uma carta aberta pedindo que o Congresso dos EUA financie o ensino da ciência da computação da pré-escola ao Ensino médio."
     announcement_petition_button: "Adicione seu nome"
     announcement_go_beyond_button: "Ir além"
-    announcement_apply_now: "Apply now"
+    announcement_apply_now: "Inscreva-se já"
     announcement_all: "Fique por dentro dos novos recursos e atualizações em nosso blog para professores.<a href='%{teacher_blog_url}' target='_blank'> Veja as últimas novidades.</a>"
     announcement_hoc_launch: "Milhares de professores em mais de 180 países começarão a ensinar ciência da computação durante a Hora do Código, de 5 a 11 de dezembro. Estamos contando com você para nos ajudar a atingir mais alunos do que nunca. <a href='%{signup_url}' target='_blank'>Registre seu evento da Hora do Código</a> e avise outro professor que ele também pode começar a ensinar ciência da computação."
     announcement_mc_launch: "Um de nossos tutoriais mais populares ganhou uma sequência! O novo Designer para a Hora do Código Minecraft permite que os alunos façam as regras do mundo Minecraft. Eles podem criar uma experiência completamente única de Minecraft e compartilhar com seus amigos ou jogar em seus aparelhos. Faça isso com sua turma na Hora do Código."
     announcement_how_code_studio: "Você não precisa ter experiência para começar a ensinar ciência da computação em sua sala de aula. Code.org oferece currículo, planos de aula, programas de aprendizagem profissionais de alta qualidade e uma enorme quantidade de ferramentas excelentes para todos os níveis escolares&mdash;tudo de que você precisa sem custo algum. Querendo saber por onde começar? Baixe <a href='%{video_download_url}'>este vídeo</a>!"
     announcement_go_beyond: "Ir além de uma hora de código e explorar conceitos de ciência do computador com seus alunos a cada semana. Code.org oferece currículo, planos de aula. programas de aprendizagem profissional de alta qualidade e toneladas de ótimas ferramentas para todos os níveis da classe&mdash;e isso é totalmente de graça. :) Você não precisa de nenhuma experiencia para começar a ensinar ciência da computação em sua sala de aula. <b>Encontre o próximo passo que é certo para sua sala de aula.</b>"
-    announcement_teacher_recruitment: "Teachers like you are leading the computer science education movement. You can participate in high-quality K-12th grade professional learning programs <strong>at absolutely no cost to you or your school</strong>. Take the lead on computer science in your school, and apply for professional learning."
-    announcement_teacher_recruitment2: "Teachers like you are leading the computer science education movement. You can participate in high-quality K-12th grade professional learning programs <strong>at absolutely no cost to you or your school</strong>. Take the lead on computer science in your school, and apply for professional learning. Middle and high school teachers, apply by March 17th."
-    announcement_csf_pilot: "<strong>Elementary school teachers:</strong> Be part of updating our CS Fundamentals courses! We're looking for teachers to pilot an updated CS Fundamentals curriculum during the winter and spring of 2017. We're eager to hear your feedback before these updates go live in August 2017."
-    announcement_student_privacy: "At Code.org, we take student privacy very seriously. To protect your students’ privacy, we have made a change to your section’s login page to avoid displaying full names. Even though this update should reduce privacy concerns for the login page, we still encourage users to <i>not use full names for students</i>."
-    announcement_apcsp_recruitment: "<strong>Computer Science Principles teachers:</strong> Your students could be featured in Code.org's next viral video encouraging students to take the AP CS Principles exam this year. We're inviting all CS Principles students to submit a 10-20 second video clip on Twitter, Instagram, or Facebook saying \"I'm taking the #APCSP exam because...\" The best submissions will be featured in our video and the winning students will receive Code.org swag!"
+    announcement_teacher_recruitment: "Professores como você estão liderando o movimento de educação na ciência da computação. Você pode participar de programas de aprendizado profissional K-12 de alta qualidade <strong>sem qualquer custo para você ou sua instituição de ensino</strong>. Obtenha a liderança em ciência da computação na sua escola, e inscreva-se para o aprendizado profissional."
+    announcement_teacher_recruitment2: "Professores como você estão liderando o movimento de educação na ciência da computação. Você pode participar de programas de aprendizado profissional K-12 de alta qualidade <strong>sem qualquer custo para você ou sua instituição de ensino</strong>. Obtenha a liderança em ciência da computação na sua escola, e inscreva-se para o aprendizado profissional. Professores do ensino fundamental II ou médio, inscrevam-se em 17 de março."
+    announcement_csf_pilot: "<strong>Professores do Ensino Fundamental I:</strong> Faça parte da atualização dos nossos cursos de Fundamentos da Ciência da Computação! Nós estamos buscando por professores para liderar um currículo atualizado de Fundamentos da Ciência da Computação durante o inverno e primaveira de 2017. Estamos ansiosos para ouvir sua opinião antes destas atualizações irem ao ar em agosto de 2017."
+    announcement_student_privacy: "No Code.org, nós levamos muito a sério a privacidade do aluno. Para proteger a privacidade dos mesmos, nós fizemos alterações em nossa área de login para não exibir nomes completos. Ainda que esta atualização reduza as preocupações sobre privacidade, nós encorajamos os usuários a <i>não utilizarem o nome completo dos estudantes</i>."
+    announcement_apcsp_recruitment: "<strong>Professores de Princípios da Ciência da Computação:</strong> Seus estudantes podem ser destaque no próximo vídeo viral do Code.org que encoraja estudantes a fazerem o exame AP CS este ano. Estamos convidando todos os estudantes de Princípios da Ciência da Computação a enviarem um vídeo de 10 a 20 segundos para o Twitter, Instagram ou Facebook dizendo \"Eu farei o exame #APCSP porque...\" Os melhores terão destaque em nosso vídeo e os estudantes ganhadores receberão um brinde do Code.org!"
     announcement_apcsp_recruitment2: "This year's AP CS Principles exam is poised to break records. Student participation in the exam could dramatically shift diversity in AP Computer Science, but we need your help. Encourage every CS Principles student to take the AP CSP exam and we'll <a href='%{gift_url}' target='_blank'>send you a gift</a>. Students can also encourage peers across the country in our <a href='%{challenge_url}' target='_blank'>#APCSP video challenge</a>."
     announcement_apcsp_recruitment3: "This year's AP CS Principles exam is poised to break records. Student participation in the exam could dramatically shift diversity in AP Computer Science, but we need your help. Encourage every CS Principles student to take the AP CSP exam and you could win <a href='%{gift_url}' target='_blank'>a gift card, laptop, or other cool prize</a>!  Share <a href='%{video_url}' target='_blank'>this video</a> so your students can hear from their peers around the country who are taking the exam."
     announcement_csp_deadline: "Final call for high school teachers! Take the lead on computer science in your school and apply for our high-quality professional learning programs <strong>at absolutely no cost to you or your school</strong>. Applications close on April 14th."
@@ -445,6 +487,7 @@ pt-BR:
     title: 'Precisa de ajuda?'
     subtitle: 'Veja os vídeos e as dicas'
     teacher: 'Ver a solução'
+    teacher_no_solution: 'Stop seeing solution'
     auth_error: 'Você não está autorizado a ver a solução.'
     submit: 'Atualize a Localização do Artista'
     direction: 'Direção de início (em graus)'
@@ -454,6 +497,8 @@ pt-BR:
     notes_coming_soon: 'As notas deste vídeo estarão disponíveis em breve.'
     autoplay_option: 'Vídeos com reprodução automática'
     download: 'Baixar Vídeo'
+    show_notes: 'Show Notes'
+    show_video: 'Show Video'
   compatibility:
     upgrade:
       unsupported_message: "Seu navegador não é compatível. Atualize seu navegador para <a href='%{supported_browsers_url}', target='_blank'> um dos nossos navegadores compatíveis</a>. Você pode tentar visualizar a página, mas é possível que algumas funcionalidades não funcionem."
@@ -518,8 +563,13 @@ pt-BR:
       title: "Galeria"
       body: "Veja uma galeria de aplicativos e imagens artísticas criadas por nossos usuários"
     gamelab:
-      title: "Game Lab (beta)"
+      title: "Game Lab"
       body: "Game Lab is a programming environment where you can make simple animations and games with objects and characters that interact with each other."
+      audience: "A partir de 13 anos"
+      cta: "Saiba como"
+    weblab:
+      title: "Web Lab (beta)"
+      body: "Web Lab is a programming environment where you can make simple web pages using HTML and CSS. Design your web pages and share your site in seconds."
       audience: "A partir de 13 anos"
       cta: "Saiba como"
     frozen:
@@ -535,6 +585,12 @@ pt-BR:
     minecraft2016:
       title: "Minecraft"
       body: "Crie animais e outras criaturas de Minecraft em sua própria versão do Minecraft."
+    sports:
+      title: "Esportes"
+      body: "Make a basketball game or mix and match across sports."
+    text-compression:
+      title: "Compressão de texto"
+      body: "In this lesson, students will use the Text Compression Widget to compress text by substituting patterns with symbols."
     unplugged:
       title: "Aulas off-line"
       audience: "A partir de 4 anos"
@@ -546,7 +602,7 @@ pt-BR:
     widgets:
       title: "Widgets"
       body: "Students can explore concepts from our Computer Science Principles course hands-on using these digital tools. Use the widgets on their own, or create a single-concept lesson for your class."
-      audience: "Ages 14+"
+      audience: "Maiores de 14 anos"
       cta: "Saiba como"
   gallery:
     students_drew_these_with_code: "Alunos criaram isso com programação!"
@@ -569,9 +625,9 @@ pt-BR:
     support: "Obter ajuda"
     support_url: "//support.code.org"
     help_resources: "Ajuda e recursos"
-    help_support: "Suporte"
-    documentation: "Documentation"
-    tutorials: "Tutorials"
+    help_support: "Ajuda e suporte"
+    documentation: "Documentação"
+    tutorials: "Tutoriais"
   multi:
     wrong_title: "Resposta incorreta"
     wrong_body: "A resposta que você digitou não está correta. Tente novamente!"
@@ -697,11 +753,16 @@ pt-BR:
     rename: "Renomear"
     save: "Salvar"
     delete: "Excluir"
+    import: "Importar"
+    share_link_import_bad_link_header: "Share link not recognized"
+    share_link_import_bad_link_body: 'We couldn''t import that share link. Make sure you are using a link from a Minecraft: Agent puzzle, and that you have copied the full link.'
+    share_link_import_error_header: "Something went wrong."
+    share_link_import_error_body: "There was a problem importing that share link. Please try again."
     exit: "Voltar ao curso"
     my_projects: "Meus projetos"
-    project_gallery: "Project Gallery"
-    publish: "Publish"
-    unpublish: "Unpublish"
+    project_gallery: "Projetos"
+    publish: "Publicar"
+    unpublish: "Despublicar"
     share: "Compartilhar"
     share_title: Compartilhar seu projeto
     share_copy_link: "Copie o link:"
@@ -730,6 +791,7 @@ pt-BR:
     remix: 'Remix'
     click_to_remix: "Clique em \"Remix\" para fazer sua própria versão!"
     edit_project: 'Editar projeto'
+    sharing_disabled: "Sorry, this project is not available for sharing. If this is your project or the project of one of your students, please <a href='https://studio.code.org/users/sign_in'>sign in</a> to your account to view the project."
     abuse:
       tos: "Esse projeto foi denunciado por violar os <a href='http://code.org/tos'>Termos de Serviço</a> da Code.org e não pode ser compartilhado com outras pessoas."
       policy_violation: "Este projeto tem informações que não podem ser compartilhadas. Entre em contato com o proprietário do aplicativo para corrigir o conteúdo dele."
@@ -772,10 +834,6 @@ pt-BR:
     no_reviews_at_this_moment_notice: 'There are no peer reviews available at this moment, please check back soon'
     review_submitted: 'Your peer review was submitted'
     review_new_submission: 'Review a new submission'
-  components:
-    icon_library:
-      search_placeholder_text: 'Procurar um ícone...'
-      no_icons_found: 'Nenhum ícone encontrado'
   flex_category:
     required: 'Visão geral'
     content: 'Conteúdo'
@@ -784,8 +842,12 @@ pt-BR:
     ramp_up: 'Ramp-Up'
     end_of_course_project: 'End of Course Project'
     optional_stages: 'Optional Stages'
-    main_course: 'Main Course'
+    main_course: 'Curso Principal'
     extra_course_content: 'Extra Course Content'
+    csf_e_1: 'Ramp Up to Course E (Optional)'
+    csf_e_2: 'Course E Content'
+    csf_f_1: 'Ramp Up to Course F (Optional)'
+    csf_f_2: 'Course F Content'
     csd1_1: 'Chapter 1: The Problem Solving Process'
     csd1_2: 'Chapter 2: Computers and Problem Solving'
     csd2_1: 'Chapter 1: Web Content and HTML'
@@ -806,11 +868,12 @@ pt-BR:
     csp4_1: 'Chapter 1: The World of Big Data and Encryption'
     csp5_1: 'Chapter 1: Event-Driven Programming'
     csp5_2: 'Chapter 2: Programming with Data Structures'
-    cspSurvey: 'Survey'
+    cspSurvey: 'Questionário'
     cspAssessment: 'Chapter Assessment'
     csp_ap_1: 'Chapter 1: AP Tech Setup'
     csp_ap_2: 'Chapter 2: AP Explore Performance Task'
     csp_ap_3: 'Chapter 3: AP Create Performance Task'
+    dlp: 'Reflection Prompts'
   external_links:
     disclaimer: Aviso
     leaving_domain: Você está deixando este domínio para acessar um site que não é operado pela Code.org.
@@ -880,8 +943,10 @@ pt-BR:
       confirm_focus_areas: 'Confirm Focus Areas'
   locked_stage: 'O conteúdo desta fase não pode ser visto, pois ela está bloqueada no momento. Seu professor pode desbloquear esta fase quando chegar a hora de trabalhar com ela ou quando for revisar suas respostas.'
   hidden_stage: "Seu professor não esperava você por aqui. Pergunte a ele em que aula você deveria estar."
+  hidden_script: "Your teacher didn't expect you to be here. Please ask your teacher which unit you should be on."
+  return_unit_overview: 'Go to unit overview'
   return_course_overview: 'Ir para visão geral da unidade'
-  view_all_units: 'View all units'
+  view_all_units: 'Visualizar todas unidades'
   pd:
     survey:
       number_teachers: 'Number of attending teachers'
@@ -911,3 +976,4 @@ pt-BR:
       things_you_liked_s: 'What were the two things you liked most about the activities you did in this workshop and why?'
       things_you_would_change_s: 'What are the two things you would change about the activities you did in this workshop?'
       anything_else_s: 'Is there anything else you’d like to tell us about your experience at this workshop?'
+  courses_category: 'Full Courses'

@@ -1,3 +1,7 @@
+/* Despite being in /shared/, this styling is currently only used for the Pegasus
+ * header.
+ */
+
 @import 'color';
 
 #pageheader2-wrapper {
@@ -23,6 +27,13 @@
     #left {
       float: left;
       margin: 0;
+
+      .rtl & {
+        position: absolute;
+        left: 0;
+        right: 0;
+        padding-right: 300px;
+      }
     }
 
     #logo-wrapper {
@@ -43,14 +54,18 @@
     }
 
     #right {
-      float: right;
-      padding-right: 15px;
+      right: 16px;
+      position: absolute;
     }
 
     #headerlinks {
       float: left;
       position: relative;
       padding-left: 6px;
+
+      .rtl & {
+        float: right;
+      }
 
       .headerlink {
         display: inline-block;
@@ -68,6 +83,10 @@
         &:hover, &:active {
           color: $white;
           border-bottom: solid 2px $orange;
+        }
+
+        .rtl & {
+          float: right;
         }
       }
     }
@@ -93,6 +112,8 @@
     background-color: transparent;
     border: 2px solid $white;
     margin-top: -4px;
+    height: 38px;
+    user-select: none;
 
     .user_name {
       font-family: 'Gotham 4r', sans-serif;
@@ -104,14 +125,23 @@
       float: left;
     }
 
-    .user_menu_glyph {
-      display: inline-block;
-      float: left;
-      padding-left: 5px;
+    .user_options {
+      position: absolute;
+      top: 55px;
+      right: 55px;
     }
 
-    .user_options {
-      top: 37px;
+    .user_menu_arrow_down,
+    .user_menu_arrow_up {
+      font-size: 25px;
+    }
+
+    .user_menu_arrow_up {
+      margin-top: -3px;
+    }
+
+    .user_menu_arrow_down {
+      margin-top: -2px;
     }
   }
 

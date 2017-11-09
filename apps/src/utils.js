@@ -322,19 +322,18 @@ export function escapeText(text) {
   }).join('');
 }
 
-export function showUnusedBlockQtip(targetElement) {
-  var msg = require('@cdo/locale');
+export function showGenericQtip(targetElement, title, message, position) {
   $(targetElement).qtip({
     content: {
-      text: '<h4>' + msg.unattachedBlockTipTitle() +'</h4><p>' + msg.unattachedBlockTipBody() + '</p>',
+      text: `
+        <h4>${title}</h4>
+        <p>${message}</p>
+      `,
       title: {
         button: $('<div class="tooltip-x-close"/>')
       }
     },
-    position: {
-      my: "bottom left",
-      at: "top right"
-    },
+    position,
     style: {
       classes: "cdo-qtips",
       tip: {
@@ -349,16 +348,33 @@ export function showUnusedBlockQtip(targetElement) {
   }).qtip('show');
 }
 
+export function showUnusedBlockQtip(targetElement) {
+  const msg = require('@cdo/locale');
+  const title = msg.unattachedBlockTipTitle();
+  const message = msg.unattachedBlockTipBody();
+  const position = {
+    my: 'bottom left',
+    at: 'top right',
+  };
+
+  showGenericQtip(targetElement, title, message, position);
+}
+
 /**
  * Converts degrees into radians.
  *
- * @param degrees - The degrees to convert to radians
- * @return `degrees` converted to radians
+ * @param {number} degrees - The degrees to convert to radians
+ * @return {number} `degrees` converted to radians
  */
 export function degreesToRadians(degrees) {
     return degrees * (Math.PI / 180);
 }
 
+/**
+ * @param {string} key
+ * @param {string} defaultValue
+ * @return {string}
+ */
 export function tryGetLocalStorage(key, defaultValue) {
   if (defaultValue === undefined) {
     throw "tryGetLocalStorage requires defaultValue";
@@ -375,6 +391,8 @@ export function tryGetLocalStorage(key, defaultValue) {
 /**
  * Simple wrapper around localStorage.setItem that catches any exceptions (for
  * example when we call setItem in Safari's private mode)
+ * @param {string} item
+ * @param {string} value
  * @return {boolean} True if we set successfully
  */
 export function trySetLocalStorage(item, value) {
@@ -387,9 +405,24 @@ export function trySetLocalStorage(item, value) {
 
 }
 
+export function tryGetSessionStorage(key, defaultValue) {
+  if (defaultValue === undefined) {
+    throw "tryGetSessionStorage requires defaultValue";
+  }
+  let returnValue = defaultValue;
+  try {
+    returnValue = sessionStorage.getItem(key);
+  } catch (e) {
+    // Ignore, return default
+  }
+  return returnValue;
+}
+
 /**
  * Simple wrapper around sessionStorage.setItem that catches the quota exceeded
  * exceptions we get when we call setItem in Safari's private mode.
+ * @param {string} item
+ * @param {string} value
  * @return {boolean} True if we set successfully
  */
 export function trySetSessionStorage(item, value) {
@@ -406,6 +439,7 @@ export function trySetSessionStorage(item, value) {
 
 /**
  * Generates a simple enum object
+ * @return {Object<String, String>}
  * @example
  *   var Seasons = enum('SPRING', 'SUMMER', 'FALL', 'WINTER');
  *   Seasons.SPRING === 'SPRING';
@@ -642,4 +676,35 @@ export function bisect(array, conditional) {
   const positive = array.filter(x => conditional(x));
   const negative = array.filter(x => !conditional(x));
   return [positive, negative];
+}
+
+/**
+ * Helper function that wraps window.location.reload, which we cannot stub
+ * in unit tests if we're running them in Chrome.
+ */
+export function reload() {
+  window.location.reload();
+}
+
+/**
+ * Wrapper for window.location.href which we can stub in unit tests.
+ * @param {string} href Location to navigate to.
+ */
+export function navigateToHref(href) {
+  if (!IN_UNIT_TEST) {
+    window.location.href = href;
+  }
+}
+
+/**
+ * Resets the animation of an aniGif by unsetting and setting the src
+ * @param {Element} element the <img> element that needs to be reset
+ */
+export function resetAniGif(element) {
+  if (!element) {
+    return;
+  }
+  const src = element.src;
+  element.src = '#';
+  setTimeout(() => element.src = src, 0);
 }

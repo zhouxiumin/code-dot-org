@@ -2,7 +2,7 @@
 /* global dashboard */
 import classNames from 'classnames';
 import {connect} from 'react-redux';
-import React from 'react';
+import React, {PropTypes} from 'react';
 import AnimationTab from './AnimationTab/AnimationTab';
 import StudioAppWrapper from '../templates/StudioAppWrapper';
 import ErrorDialogStack from './ErrorDialogStack';
@@ -21,32 +21,32 @@ import IFrameEmbedOverlay from '../templates/IFrameEmbedOverlay';
 /**
  * Top-level React wrapper for GameLab
  */
-const GameLabView = React.createClass({
-  propTypes: {
+class GameLabView extends React.Component {
+  static propTypes = {
     // Provided manually
-    showFinishButton: React.PropTypes.bool.isRequired,
-    onMount: React.PropTypes.func.isRequired,
+    showFinishButton: PropTypes.bool.isRequired,
+    onMount: PropTypes.func.isRequired,
     // Provided by Redux
-    interfaceMode: React.PropTypes.oneOf([GameLabInterfaceMode.CODE, GameLabInterfaceMode.ANIMATION]).isRequired,
-    isResponsive: React.PropTypes.bool.isRequired,
-    hideSource: React.PropTypes.bool.isRequired,
-    pinWorkspaceToBottom: React.PropTypes.bool.isRequired,
-    allowAnimationMode: React.PropTypes.bool.isRequired,
-    showVisualizationHeader: React.PropTypes.bool.isRequired,
-    isIframeEmbed: React.PropTypes.bool.isRequired,
-    isRunning: React.PropTypes.bool.isRequired,
-  },
+    interfaceMode: PropTypes.oneOf([GameLabInterfaceMode.CODE, GameLabInterfaceMode.ANIMATION]).isRequired,
+    isResponsive: PropTypes.bool.isRequired,
+    hideSource: PropTypes.bool.isRequired,
+    pinWorkspaceToBottom: PropTypes.bool.isRequired,
+    allowAnimationMode: PropTypes.bool.isRequired,
+    showVisualizationHeader: PropTypes.bool.isRequired,
+    isIframeEmbed: PropTypes.bool.isRequired,
+    isRunning: PropTypes.bool.isRequired,
+  };
 
   getChannelId() {
     if (dashboard && dashboard.project) {
       return dashboard.project.getCurrentId();
     }
     return undefined;
-  },
+  }
 
   componentDidMount() {
     this.props.onMount();
-  },
+  }
 
   renderCodeMode() {
     const {interfaceMode, isResponsive, hideSource, pinWorkspaceToBottom,
@@ -94,14 +94,14 @@ const GameLabView = React.createClass({
         </InstructionsWithWorkspace>
       </div>
     );
-  },
+  }
 
   renderAnimationMode() {
     const {allowAnimationMode, interfaceMode} = this.props;
     return allowAnimationMode && interfaceMode === GameLabInterfaceMode.ANIMATION ?
         <AnimationTab channelId={this.getChannelId()} /> :
         undefined;
-  },
+  }
 
   render() {
     return (
@@ -113,8 +113,8 @@ const GameLabView = React.createClass({
       </StudioAppWrapper>
     );
   }
-});
-module.exports = connect(state => ({
+}
+export default connect(state => ({
   hideSource: state.pageConstants.hideSource,
   interfaceMode: state.interfaceMode,
   isResponsive: isResponsiveFromState(state),

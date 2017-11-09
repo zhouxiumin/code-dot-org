@@ -69,6 +69,12 @@
   congratulations_on_completing_course2: "Вітаємо із завершенням курсу 2"
   congratulations_on_completing_course3: "Вітаємо із завершенням курсу 3"
   congratulations_on_completing_course4: "Вітаємо із завершенням курсу 4"
+  congratulations_on_completing_coursea: "Congratulations on completing Course A"
+  congratulations_on_completing_courseb: "Congratulations on completing Course B"
+  congratulations_on_completing_coursec: "Congratulations on completing Course C"
+  congratulations_on_completing_coursed: "Congratulations on completing Course D"
+  congratulations_on_completing_coursee: "Congratulations on completing Course E"
+  congratulations_on_completing_coursef: "Congratulations on completing Course F"
   congratulations_on_completing_accelerated: "Вітаємо із завершенням прискореного курсу"
   congrats_next_tutorials_title: "Перейти до наступного рівня"
   congrats_next_tutorials_desc: "Спробуйте цей короткий, 1-годинний підручник, або <a href=\"%{current_path}/next\">підручники наших партнерів</a>."
@@ -194,7 +200,25 @@
   just_did_course2: "Щойно завершено Курс 2 - подивіться! @codeorg"
   just_did_course3: "Щойно завершено Курс 3 - подивіться! @codeorg"
   just_did_course4: "Щойно завершено Курс 4 - подивіться! @codeorg"
+  just_did_coursea: "I just finished Course A - check it out! @codeorg"
+  just_did_courseb: "I just finished Course B - check it out! @codeorg"
+  just_did_coursec: "I just finished Course C - check it out! @codeorg"
+  just_did_coursed: "I just finished Course D - check it out! @codeorg"
+  just_did_coursee: "I just finished Course E - check it out! @codeorg"
+  just_did_coursef: "I just finished Course F - check it out! @codeorg"
   just_did_accelerated: "Щойно завершено Прискорений курс - подивіться! @codeorg"
+  just_did_hoc_donor: 'I just did the #HourOfCode - check it out! (Thanks %{donor_twitter} for supporting @codeorg)'
+  just_did_course1_donor: "I just finished Course 1 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course2_donor: "I just finished Course 2 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course3_donor: "I just finished Course 3 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course4_donor: "I just finished Course 4 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursea_donor: "I just finished Course A - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_courseb_donor: "I just finished Course B - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursec_donor: "I just finished Course C - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursed_donor: "I just finished Course D - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursee_donor: "I just finished Course E - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursef_donor: "I just finished Course F - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_accelerated_donor: "I just finished the Accelerated Course - check it out! Thanks %{donor_twitter} for supporting @codeorg"
   twitter_teach_cs: "9 з 10 людей погоджуються із тим, інформатику потрібно викладати у школах. http://youtu.be/nKIu9yen5nc. Відвідайте https://code.org/."
   twitter_cs_foundational: "Інформатика є основою, яку має вивчати кожен учень.\nhttps://youtu.be/QvyTEx1wyOY."
   learn_hoc: "Вивчати Годину Коду"
@@ -207,6 +231,7 @@
   lines_of_code: "ДОСІ НАПИСАНО <b># РЯДКІВ КОДУ</b>."
   lines_of_code_alt: "УЧНЯМИ НАПИСАНО <b>#</b> РЯДКІВ КОДУ"
   who_has_done_hoc: 'Хто пройшов Годину коду #HourOfCode? @codeorg'
+  who_has_done_hoc_donor: 'Who has done the #HourOfCode? (Thanks %{donor_twitter} for supporting @codeorg)'
   hoc_leaderboards: "Лідери Години коду"
   students_and_lines: "%{students} учнів пройшли Годину коду і написали  %{lines} рядків коду."
   start_hoc: "Почати Годину коду"
@@ -247,6 +272,10 @@
     &ldquo;Інформатика допоможе розкрити
     кращі можливості в світі.&rdquo;
     Сатья, Генеральный директор Microsoft
+  homepage_hero_text_satya_new: |-
+    &ldquo;Computer science empowers
+    students to create the world of tomorrow.&rdquo;
+    Satya, CEO of Microsoft
   homepage_hero_text_bosh: |-
     &ldquo;Якщо вмієте програмувати, ви можете
     вибирати стежину в житті.&rdquo;
@@ -335,6 +364,7 @@
   homepage_slot_text_link_buy: "Взяти участь"
   homepage_slot_text_link_donate: "Зробити пожертвування"
   homepage_slot_text_link_shop: "Футболки, капелюхи та інше"
+  homepage_slot_text_link_administrators: "Bring to your school or district"
   homepage_header_codestudio: "Творчість учнів Студії Коду"
   homepage_header_donors: "Code.org дякує своїм помічникам"
   homepage_donors_seall: "Подивитися усіх"
@@ -523,6 +553,8 @@
   volunteer_engineer_submission_type_task_remote: "Я хочу запросити Вас на Skype-зв'язок у свій клас для заохочення учнів"
   volunteer_engineer_submission_type_task_mentor: "Я шукаю наставника, який допоможе мені підготуватись до програмування з учнями"
   petition_age: "Вік"
+  dashboard_announce_hoc_scaling_progress: "Yikes! We are experiencing high Hour of Code traffic. We are unable to save any progress this week, but progress from before this week is still safe."
+  dashboard_announce_learn_more_button: "Дізнайтеся більше"
   dashboard_landing_title: "Домашня сторінка вчителя"
   dashboard_landing_welcome: "Вітаємо в оновленій та покращеній вчительській панелі керування."
   dashboard_landing_video: "Перегляньте це відео"
@@ -659,6 +691,7 @@
   dashboard_students_add_student: "Додати учня"
   dashboard_students_add_students: "Додати учнів"
   dashboard_students_add_multiple: 'Надрукуйте або вставте імена Ваших учнів, по одному на рядок:'
+  dashboard_students_new_google_classroom_section: "To add students, use <a href='http://classroom.google.com' target='_blank'>Google Classroom</a> and then click the <b>Sync students from Google Classroom</b> button above."
   dashboard_students_new_section: "Ви створили нову групу! Тепер додавайте учнів, використовуючи кнопки <b>Додати учня</b> та <b>Додати учнів</b>."
   dashboard_students_placeholder_name: "Ім'я учня"
   dashboard_students_name: "Ім’я"
@@ -701,6 +734,12 @@
   dashboard_course2: 'Курс 2:'
   dashboard_course3: 'Курс 3:'
   dashboard_course4: 'Курс 4 (beta): '
+  dashboard_coursea: 'Course A: '
+  dashboard_courseb: 'Course B: '
+  dashboard_coursec: 'Course C: '
+  dashboard_coursed: 'Course D: '
+  dashboard_coursee: 'Course E: '
+  dashboard_coursef: 'Course F: '
   dashboard_unplugged: "Якщо немає комп'ютерів, <a href='%{unplugged_url}'>спробуйте ці безмашинні вправи</a> у своєму класі."
   dashboard_curriculum: "Навчальний план"
   dashboard_curriculum_overview: "Огляд навчальної програми"
@@ -787,7 +826,7 @@
   carousel_heading_international: "Підручники вашою мовою"
   carousel_heading_domestic: "Підручники англійською мовою"
   carousel_heading_beginners: "Посібники для середніх класів від партнерів"
-  carousel_heading_beyond_beginners: "Посібники для початківців"
+  carousel_heading_beyond_beginners: Посібники для початківців
   carousel_heading_javascript: "Посібники з вивчення Javascript"
   carousel_heading_beyond_javascript: "Посібники з вивчення JavaScript"
   carousel_heading_unplugged: "Немає пристроїв або Інтернету? Спробуйте безмашинні вправи"
@@ -800,12 +839,18 @@
   carousel_heading_webpages: "Навчіться створювати веб-сторінки"
   carousel_heading_robots: "Навчіться програмувати роботів"
   carousel_heading_ide: "Платформи, популярні серед вчителів"
+  carousel_heading_desktop: "Learn to code on a computer"
+  carousel_heading_mobtabelem: "For phones and tablets"
+  carousel_heading_prereader: "For pre-readers"
+  carousel_heading_beyondblocks: "Go beyond blocks - learn a programming language"
+  carousel_heading_nointernet: "Poor internet? Install these apps on your computer"
   educator_notes: "Інформація для вчителя"
   teach_led_lesson_plans: "Плани уроків для вчителів"
   learn_footer_all_tutorials: "Перегляньте<a href=\"https://code.org/educate/allhourofcode\">вичерпний перелік підручників Години коду</a>. Щоб ознайомитись з нашими критеріями та інструкціями з подання підручників Години коду, <a href=\"https://hourofcode.com/tutorial-guidelines\">клацніть тут.</a>"
   how_to_teach_hoc: "Як викладати \"Годину коду\""
   more_resources_educators: "Більше ресурсів для вчителів та освітян"
   beyond_submission: "Бажаєте надіслати підручник для занять поза Годиною коду? Перегляньте критерії та форму подання."
+  third_party_submission: "Want to submit a tutorial to be listed here? <a href=\"%{submission_url}\">See the criteria and submission form.</a>"
   participants: "учасники"
   teachers_notes: "Інформація для вчителя"
   teachers_notes_hoc: 'Вчителі: ознайомтесь із вказівками для вчителів'
@@ -869,12 +914,20 @@
   course3_name: "Курс 3"
   course4_name: "Курс 4"
   coursea-draft_name: Курс А
+  coursea_name: "Курс А"
   courseb-draft_name: Курс Б
+  courseb_name: "Курс Б"
   coursec-draft_name: Курс В
+  coursec_name: "Курс В"
   coursed-draft_name: Курс Г
+  coursed_name: "Курс Г"
   coursee-draft_name: Курс Ґ
+  coursee_name: "Курс Ґ"
   coursef-draft_name: Курс Д
+  coursef_name: "Курс Д"
   accelerated_name: "Прискорений курс"
+  express_name: "Express Course"
+  pre-express_name: Pre-reader Express Course
   cspunit1_name: 'Розділ 1: Цифрова інформація'
   cspunit2_name: 'Розділ 2: Інтернет'
   cspunit3_name: 'Розділ 3: Програмування'
@@ -890,9 +943,12 @@
   csp1_name: 'Розділ 1: Інтернет'
   csp2_name: 'Розділ 2: Цифрова інформація'
   csp3_name: 'Unit 3: Algorithms and Programming'
+  csp3-a_name: 'Unit 3: Intro Programming (version A)'
+  csp3-research-mxghyt_name: 'Unit 3: Intro Programming (Subgoals)'
   csp4_name: 'Unit 4: Big Data and Privacy'
   csp5_name: 'Unit 5: Building Apps'
   csp6_name: 'Unit 6: AP Performance Tasks'
+  csp-ap_name: AP Performance Tasks
   csppostap_name: 'Після довишівської підготовки: Бази даних у програмах'
   cspassessment_name: "Повний тест - 50 запитань"
   cspexam1-mWU7ilDYM9_name: Тест, частина 1 - 25 запитань
@@ -915,6 +971,7 @@
   math_category_name: "Математика"
   hoc_category_name: "Година коду"
   csf_category_name: "Основи інформатики"
+  csf_international_category_name: "CS Fundamentals International"
   csf2_draft_category_name: 'В розробці: курси А—Д'
   csd_category_name: "CS Discoveries"
   csp_category_name: "'15-'16 принципи інформатики"
@@ -980,6 +1037,12 @@
   course2_gradelevel: "Вік 6-18"
   course3_gradelevel: "Вік 8-18"
   course4_gradelevel: "Вік 10-18"
+  coursea_gradelevel: "Grade 5+"
+  courseb_gradelevel: "Grade 6+"
+  coursec_gradelevel: "Grade 7+"
+  coursed_gradelevel: "8+ класи"
+  coursee_gradelevel: "Grade 9+"
+  coursef_gradelevel: "Grade 10+"
   accelerated_gradelevel: "Вік 10-18"
   codeorg_platformtext: "Сучасні браузери, смартфони, планшети"
   codeintl_platformtext: "Сучасні браузери, смартфони, планшети"
@@ -1082,6 +1145,12 @@
   course2_shortdescription_congrats: "Цей курс для учнів з базовими навичками читаннябазується на Курсі 1. Учні створюватимуть програми для розв'язування задач та розробки інтерактивних ігор чи історій, якими можна поділитись. Рекомандовано для 2-5 класів."
   course3_shortdescription_congrats: "Готові до наступного рівня? Учні глибше розглянуть теми з програмування, з якими ознайомились у попередньому курсі, і шукатимуть гнучкіших рішень складніших завдань. До кінця цього курсу учні навчаться створювати інтерактивні історії та ігри, якими зможуть поділитись. Рекомендовано для 4-5 класів."
   course4_shortdescription_congrats: "Готові йти далі? Учні глибше розглянуть теми з програмування, з якими ознайомились у попередньому курсі, і шукатимуть гнучкіших рішень складніших завдань. До кінця цього курсу учні навчаться створювати інтерактивні історії та ігри, якими зможуть поділитись. Рекомендовано для 4-8 класів."
+  coursea_shortdescription_congrats: ""
+  courseb_shortdescription_congrats: ""
+  coursec_shortdescription_congrats: ""
+  coursed_shortdescription_congrats: ""
+  coursee_shortdescription_congrats: ""
+  coursef_shortdescription_congrats: ""
   codeorg_longdescription: "Вивчайте основи програмування шляхом перетягування блоків. Це середовище, схоже на гру, яку кожен проходить у власному темпі, за участю Біла Гейтса, Марка Цукенберга,  Angry Birds та Plants vs. Zombies. Вивчайте такі базові алгоритми як цикли та умови. Перекладено 34 мовами."
   codeintl_longdescription: "Вивчайте основи програмування шляхом перетягування блоків. Це середовище, схоже на гру, яку кожен проходить у власному темпі, за участю Біла Гейтса, Марка Цукенберга,  Angry Birds та Plants vs. Zombies. Вивчайте такі базові алгоритми як цикли та умови. Перекладено 34 мовами."
   thinkersmithspanish_longdescription: "За допомогою визначеного словника робота, учні навчаться скеровувати один одного для досягнення певної мети, без попередніх домовленостей. Ця вправа навчає встановлювати відповідність між символами та діями, а також розвиває навик відлагодження. \"Мої друзі-роботи\" працює найкраще як групова діяльність, і містить робочі аркуші вчителя для використання у класі."
@@ -1326,8 +1395,10 @@
   playlab_shortcode: "lab"
   artist_shortcode: "art"
   header_home: "Головна"
+  header_my_dashboard: "My Dashboard"
   header_courses: "курси"
-  header_project_gallery: "Project Gallery"
+  header_course_catalog: "Course Catalog"
+  header_project_gallery: "Проекти"
   header_sections: "Sections"
   header_professional_learning: "Professional Learning"
   header_educate_overview: "Огляд для педагога"
@@ -1360,6 +1431,37 @@
   header_report_bug: "Report bug"
   header_tutorials: "Tutorials"
   header_documentation: "Documentation"
-  csp_name: "CS Principles"
+  csp_name: "'16-'17 принципи інформатики"
   csd_name: "CS Discoveries"
   full_course_category_name: "Full Courses"
+  user_header_label: "Привіт %{username}"
+  user_header_settings: "Мій профіль"
+  user_header_logout: "Вийти"
+  user_header_signin: "Вхід"
+  view_all_sections: "View All Sections"
+  view_section: "View Section"
+  view_named_section: "View %{section_name}"
+  privacy_doc_explanation: "Click here for our privacy document that can be shared or printed for your students."
+  signing_in: "Signing In"
+  sign_in_overview: 'Your students can sign in to their Code.org accounts by following these steps:'
+  sign_in_instruct_website: "Go to %{code_org_url}."
+  sign_in_instruct_code: 'Type in their section code: %{section_code}.'
+  sign_in_instruct_name: "Choose their display name."
+  sign_in_instruct_secret: "Choose their secret %{secret}."
+  sign_in_instruct_button: "Click the “Sign in” button."
+  sign_in_overview_cards: "Students can find all of this information, including their secret %{secret}, in the login cards below."
+  reset_student_password: "Resetting student passwords"
+  reset_student_password_instructions: "You can reset the secret <word/picture> for any of your students by going to the “Manage Students” tab for the section, clicking the “Show secret” button under the “Password” column, and clicking the “Reset secret” button."
+  login_cards: "Login Cards"
+  print_login_cards: "Print login cards"
+  joining_section: "Joining your section (one-time only)"
+  joining_section_overview: "If a student has not already joined your section, please ask them to do the following steps. Note that they only need to do this once. By joining your section, students will be able see the course assigned to them and you will be able to track the progress of the work they complete while they are signed in."
+  joining_section_instruct_website: 'Create a Code.org account if they haven’t already done so. They can do this at https://studio.code.org/users/sign_up. Note that they can either sign up with an email address and password, or sign up through Google, Facebook, or Microsoft by clicking on one of these buttons:'
+  joining_section_instruct_account: "Sign in to their Code.org account."
+  joining_section_instruct_code: 'Navigate to %{code_org_url} and type in their section code: %{section_code}.'
+  joining_section_instruct_button: "Once they press the “Go” button, they should be added to your section."
+  signing_in_single_instruct: "Your students can sign in to their Code.org accounts by going to https://code.org/ and clicking on the “Sign in” button on the top right corner."
+  reset_student_password_email: "If your student created a Code.org account by using their email address and password (instead of signing in through their Google, Facebook, Microsoft, or Clever account), you can reset their password by going to the “Manage Students” tab for the section, and clicking the “Reset password” button under the “Password” column."
+  syncing_students: "Syncing your students"
+  syncing_students_instructions: 'If your Code.org section is ever out of date with your list of students in Google Classroom, click on the “Sync students from Google Classroom” button on the “Manage students” tab:'
+  google_sign_in_instruct: 'From there, they should choose the “Sign in with Google Account” option:'

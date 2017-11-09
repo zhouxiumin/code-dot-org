@@ -1,13 +1,18 @@
 // This gets replaced by karma webpack with the updated files on rebuild
 import 'babel-polyfill';
+import {
+  throwOnConsoleErrorsEverywhere,
+  throwOnConsoleWarningsEverywhere,
+  clearTimeoutsBetweenTests,
+} from './util/testUtils';
+
 var __karmaWebpackManifest__ = [];
 
 function inManifest(path) {
   return __karmaWebpackManifest__.indexOf(path) >= 0;
 }
 
-
-var testsContext = require.context("./unit", true, /\.js$/);
+var testsContext = require.context("./unit", true, /\.jsx?$/);
 
 var runnable = testsContext.keys().filter(inManifest);
 
@@ -16,4 +21,9 @@ if (!runnable.length) {
   runnable = testsContext.keys();
 }
 
-runnable.forEach(testsContext);
+describe('unit tests', () => {
+  throwOnConsoleErrorsEverywhere();
+  throwOnConsoleWarningsEverywhere();
+  clearTimeoutsBetweenTests();
+  runnable.forEach(testsContext);
+});

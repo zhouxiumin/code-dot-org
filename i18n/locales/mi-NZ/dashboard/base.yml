@@ -9,11 +9,15 @@ mi:
     errors:
       messages:
         blank: "me mātua"
+        blank_plural: "are required"
+        invalid_plural: "are invalid"
     attributes:
       user:
         name: 'Ingoa Whakaatu'
         name_example: 'Display Name<br/>(e.g. Cool Coder or Jane S.)'
         email: 'Īmēra'
+        parent_email: 'Parent/guardian email'
+        personal_email: "Personal email address <a href=\"%{url}\">(click here if you don't have an email address)</a>"
         username: 'Ingoa Kaiwhakamahi'
         password: 'Kupuhipa'
         password_confirmation: 'Whakaū kupuhipa'
@@ -42,6 +46,7 @@ mi:
       label: 'Tāpiritia he pouako:'
       placeholder: "Wāhanga Waehere (ABCDEF)"
       instructions: "Tēnā tāurutia te waehere nā tō pouako i tiri ki a koe. He waehere e 6 ōna pū pēnei i \"AEIOUU\"."
+      instructions_short: "Enter your 6 letter section code"
     submit: 'Tāpiri pouako'
   add_hint_form:
     placeholder: 'Tēnā tāurutia tō tīwhiri i konei'
@@ -52,6 +57,9 @@ mi:
   puzzle: "Panga"
   trophies: "Ngā Tohu Mau"
   courses: 'Akoranga'
+  courses_page:
+    title_student: "Ako mā Code Studio"
+    title_teacher: "Teach with Code Studio"
   unplugged_activity: 'Ngohe Momotu'
   of: "o"
   more: "NUI AKE"
@@ -76,10 +84,12 @@ mi:
     twitter: 'Tīhau'
     facebook: 'Pukamata'
     windowslive: 'Pūkete Microsoft'
+    clever: 'Clever Account'
     forgot_password: 'Kua wareware i a koe tō kupuhipa?'
     need_confirmation: "Kāore koe i whiwhi ki ngā tohutohu whakaū?"
     need_unlock: "Kāore koe i whiwhi ki ngā tohutohu wetemaukati?"
     not_linked: "Sorry, your Code.org account is not linked to your %{provider}. You'll have to sign in by typing your password below."
+    use_clever: "Sorry, your Code.org account is not linked to your %{provider}. Please sign in through your Clever Portal instead."
   signup_form:
     student_count: '%{count} ngā ākonga kua waitohu kē.'
     teacher_count: '%{count} ngā pouako kua waitohu kē.'
@@ -112,6 +122,7 @@ mi:
     user_type_student: "Student"
     field_is_required: "me mātua"
     accept_terms: "Me mātua whakaae koe ki te waihanga pūkete"
+    error: "An error occurred."
   school_info:
     title: 'School Information (optional)'
     school_country: 'School Country'
@@ -176,6 +187,10 @@ mi:
       He ngahau, he pai ā-tirohanga hoki ngā whakaakoranga, ā, ka whakaakona ngā ariā waiwai o te pūtaiao rorohiko mā ētahi wheako māmā, ārahi, rite ki te kēmu te hanga. Ka ako i ngā mahi waehere i a Bill Gates, a Mark Zuckerberg, i te kēmu Manu Takariri me Ngā Tipu ki Ngā Kairoro. :-)
       
       %{name}
+  parent_mailer:
+    student_associated_subject: 'Login information for Code.org'
+  teacher_mailer:
+    new_teacher_subject: 'Welcome to Code.org!'
   section:
     your_section:
       one: 'Your section:'
@@ -184,6 +199,12 @@ mi:
     confirm:
       remove: 'Are you sure you want to leave this section?'
     remove: '(remove section)'
+    type:
+      picture: 'Picture Password'
+      word: 'Secret Words'
+      email: 'Īmēra'
+      google_classroom: 'Google Classroom'
+      clever: 'Clever'
   follower:
     invite_sent: 'I tukuna te tono'
     added_teacher: 'i tāpiritia a %{name} hei pouako mōu'
@@ -196,6 +217,7 @@ mi:
       section_not_found: "Kāore i kitea te wāhanga me te waehere '%{section_code}'."
       blank_code: "Tēnā tāurutia tētahi waehere wāhanga"
       cant_join_own_section: "Kia manawanui mai, tē taea e koe te hono atu ki tō wāhanga ake."
+      provider_managed_section: "This section is managed by another provider and cannot be joined. Please ask your teacher to add you via %{provider} and re-sync their section."
     mail:
       student_disassociated:
         subject: 'Whakamōhiotanga Code.org: Kāore a %{student_name} e whai hononga hei ākonga mōu ināianei.'
@@ -208,6 +230,7 @@ mi:
     edit: 'Whakatika'
     edit_model: 'Whakatika %{model}'
     update: 'Whakahou'
+    submit: 'Tāpaetia'
     destroy: 'Whakangaro'
     back: 'Ki Muri'
     confirm: 'Koinā tō hiahia?'
@@ -215,6 +238,12 @@ mi:
     updated: 'I angitu te whakahou i te %{model}.'
     destroyed: 'I angitu te muku i te %{model}.'
     access_denied: 'Kāore i a koe te mana uru ki tēnei %{model}.'
+  devise:
+    registrations:
+      user:
+        user_type_change_email_mismatch: "The email address you provided doesn't match the email address for this account"
+        personal_login_created_email: 'You created a personal login successfully. You can now sign into your account with your email and password'
+        personal_login_created_username: 'You created a personal login successfully. You can now sign into your account with your username (%{username}) and password'
   nav:
     header:
       finished_hoc: "Kua oti i au taku Hour of Code"
@@ -225,9 +254,12 @@ mi:
         calculate: 'Calculate something'
         applab: 'Hangaia tētahi taupānga Taiwhanga Taupānga'
         gamelab: 'Make a Game Lab project'
+        weblab: 'Make a Web Lab (beta) project'
       home: "Home"
+      my_dashboard: "My Dashboard"
       courses: "Akoranga"
-      project_gallery: "Project Gallery"
+      course_catalog: "Course Catalog"
+      project_gallery: "Ngā Tūmahi"
       sections: "Sections"
       help_support: "Help and support"
       report_bug: "Report bug"
@@ -325,6 +357,16 @@ mi:
     deleted_user: 'deleted user'
     no_password_because_oauth: 'No password because you sign in with a third-party provider.'
     no_password_because_sponsored: 'See your teacher to manage your password.'
+    create_personal_login: 'Create a personal login'
+    create_personal_login_under_13_info: 'If you want to keep using your Code.org account even after the end of the school year, ask your parent/guardian to help you create your own personal login below.'
+    create_personal_login_under_13_username: "Username (don't use your real name!)"
+    create_personal_login_under_13_parent_email: 'Parent/guardian email address'
+    create_personal_login_info: 'If you want to keep using your Code.org account even after the end of the school year, you can create your own login below.'
+    create_personal_login_terms: "By creating a personal login, I agree to be bound by the Code.org <a href='%{terms_of_service_url}', target='_blank'>terms of service</a>. If I am under 13 years of age, I confirm that I have my parent or legal guardian's permission to use the Code.org services even without a teacher."
+    create_personal_login_email_note: 'Note: Email addresses are not stored in a form that allows us to contact students. Students will never receive emails from Code.org except for password recovery. See our <a href=''%{privacy_policy_url}'', target=''_blank''>privacy policy</a> for more information.'
+    enter_new_login_info: 'Enter your new login information'
+    confirm_secret_words: 'Confirm that it is you by entering your current secret words'
+    enter_parent_email: "Enter your parent or guardian's email address (for password recovery)"
   user_level:
     completed: 'Kua oti'
     tried: 'Kua ngana'
@@ -445,6 +487,7 @@ mi:
     title: 'Me whai āwhina?'
     subtitle: 'Tirohia ēnei ataata me ēnei tīwhiri'
     teacher: 'Tirohia te urupare'
+    teacher_no_solution: 'Stop seeing solution'
     auth_error: 'Kāore ō mana titiro ki te urupare.'
     submit: 'Whakahou Tauwāhi Rehetoi'
     direction: 'Tīmata Ahunga (mā ngā tapeke)'
@@ -454,6 +497,8 @@ mi:
     notes_coming_soon: 'Kāore e roa ka whakairihia ngā tuhipoka mō tēnei ataata.'
     autoplay_option: 'Tīmata aunoa ngā ataata'
     download: 'Tikiake i te Ataata'
+    show_notes: 'Show Notes'
+    show_video: 'Show Video'
   compatibility:
     upgrade:
       unsupported_message: "Kāore tō pūtirotiro i te tautokona. Tēnā whakahoungia tō pūtirotiro kia rite ki<a href='%{supported_browsers_url}', target='_blank'> tētahi o ā mātou pūtirotiro </a>. E āhei ana te whakamātau te titiro ki te whārangi, heoi anō, kia takatū i te whatinga o te taumahinga."
@@ -518,8 +563,13 @@ mi:
       title: "Taiwhainga"
       body: "Tirohia tētahi taiwhanga e whakaatu ana i ētahi taupānga, ētahi atahanga rehetoi kua waihangahia e ā mātou kaiwhakamahi"
     gamelab:
-      title: "Game Lab (beta)"
+      title: "Game Lab"
       body: "Game Lab is a programming environment where you can make simple animations and games with objects and characters that interact with each other."
+      audience: "Pakeke 13+"
+      cta: "Ako me pēhea"
+    weblab:
+      title: "Web Lab (beta)"
+      body: "Web Lab is a programming environment where you can make simple web pages using HTML and CSS. Design your web pages and share your site in seconds."
       audience: "Pakeke 13+"
       cta: "Ako me pēhea"
     frozen:
@@ -535,6 +585,12 @@ mi:
     minecraft2016:
       title: "Mahimaina"
       body: "Papatonotia ngā kararehe me ētahi atu koiora o Mahimaina i tāu ake whakaputanga Mahimaina."
+    sports:
+      title: "Ngā Hākinakina"
+      body: "Make a basketball game or mix and match across sports."
+    text-compression:
+      title: "Text Compression"
+      body: "In this lesson, students will use the Text Compression Widget to compress text by substituting patterns with symbols."
     unplugged:
       title: "Akoranga Momotu"
       audience: "Pakeke 4+"
@@ -697,9 +753,14 @@ mi:
     rename: "Whakaingoa anō"
     save: "Save"
     delete: "Delete"
+    import: "Import"
+    share_link_import_bad_link_header: "Share link not recognized"
+    share_link_import_bad_link_body: 'We couldn''t import that share link. Make sure you are using a link from a Minecraft: Agent puzzle, and that you have copied the full link.'
+    share_link_import_error_header: "Something went wrong."
+    share_link_import_error_body: "There was a problem importing that share link. Please try again."
     exit: "Hoki atu ki te Akoranga"
     my_projects: "Aku Tūmahi"
-    project_gallery: "Project Gallery"
+    project_gallery: "Ngā Tūmahi"
     publish: "Publish"
     unpublish: "Unpublish"
     share: "Tiri"
@@ -730,6 +791,7 @@ mi:
     remix: 'Ranu Anō'
     click_to_remix: "Pāwhiritia te \"Ranu Anō\" ki te waihanga i tāu ake putanga!"
     edit_project: 'Whakatika Tūmahi'
+    sharing_disabled: "Sorry, this project is not available for sharing. If this is your project or the project of one of your students, please <a href='https://studio.code.org/users/sign_in'>sign in</a> to your account to view the project."
     abuse:
       tos: "Kua pūrongotia tēnei tūmahi, nā te mea, kua takahia <a href='http://code.org/tos'>Ngā Ture Ratonga</a> o Code.org, ā, kāore e whakaae ana kia tiria ki tangata kē atu."
       policy_violation: "He mōhiohio kei tēnei tūmahi kāore e whakaae ana kia tiria ki tangata kē atu. Tēnā whakapā atu ki te tangata nāna te taupanga kia whakatikaina e ia ngā ihirangi kei tana taupānga."
@@ -772,10 +834,6 @@ mi:
     no_reviews_at_this_moment_notice: 'There are no peer reviews available at this moment, please check back soon'
     review_submitted: 'Your peer review was submitted'
     review_new_submission: 'Review a new submission'
-  components:
-    icon_library:
-      search_placeholder_text: 'Rapuhia tētahi ata...'
-      no_icons_found: 'Kāore he ata i kitea'
   flex_category:
     required: 'Overview'
     content: 'Ihirangi'
@@ -786,6 +844,10 @@ mi:
     optional_stages: 'Optional Stages'
     main_course: 'Main Course'
     extra_course_content: 'Extra Course Content'
+    csf_e_1: 'Ramp Up to Course E (Optional)'
+    csf_e_2: 'Course E Content'
+    csf_f_1: 'Ramp Up to Course F (Optional)'
+    csf_f_2: 'Course F Content'
     csd1_1: 'Chapter 1: The Problem Solving Process'
     csd1_2: 'Chapter 2: Computers and Problem Solving'
     csd2_1: 'Chapter 1: Web Content and HTML'
@@ -811,6 +873,7 @@ mi:
     csp_ap_1: 'Chapter 1: AP Tech Setup'
     csp_ap_2: 'Chapter 2: AP Explore Performance Task'
     csp_ap_3: 'Chapter 3: AP Create Performance Task'
+    dlp: 'Reflection Prompts'
   external_links:
     disclaimer: Karo
     leaving_domain: E puta ana koe i tēnei rohe ināianei ki tētahi pae kāore i te whakahaerehia e Code.org.
@@ -880,6 +943,8 @@ mi:
       confirm_focus_areas: 'Confirm Focus Areas'
   locked_stage: 'I te mea kua maukati tēnei wāhanga i tēnei wā kāore ōna ihirangi e kitea ana. E āhei ana tō pouako tēnei wāhanga te whakawātea i te wā ka arohia, ki te tirohia anō rānei o whakautu.'
   hidden_stage: "Kāore tō pouako i whakaaro ka eke koe ki konei. Tēnā uia tō pouako kia mōhio ai koe ko tēhea te akoranga e tika ana mōu i tēnei wā."
+  hidden_script: "Your teacher didn't expect you to be here. Please ask your teacher which unit you should be on."
+  return_unit_overview: 'Go to unit overview'
   return_course_overview: 'Haere ki te tirohanga whānui o te kōwae ako'
   view_all_units: 'View all units'
   pd:
@@ -911,3 +976,4 @@ mi:
       things_you_liked_s: 'What were the two things you liked most about the activities you did in this workshop and why?'
       things_you_would_change_s: 'What are the two things you would change about the activities you did in this workshop?'
       anything_else_s: 'Is there anything else you’d like to tell us about your experience at this workshop?'
+  courses_category: 'Full Courses'

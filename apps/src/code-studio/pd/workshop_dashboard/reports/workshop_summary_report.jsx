@@ -1,7 +1,7 @@
 /**
  * Workshop Summary Report
  */
-import React from "react";
+import React, {PropTypes} from "react";
 import ReportTable from "./report_table";
 import Permission from '../../permission';
 import {
@@ -9,7 +9,7 @@ import {
   Button
 } from 'react-bootstrap';
 import {QUERY_BY_VALUES, COURSE_VALUES} from './report_constants';
-import Spinner from '../components/spinner';
+import Spinner from '../../components/spinner';
 
 const FACILITATOR_DETAILS_COUNT = 6;
 const ATTENDANCE_DAYS_COUNT = 5;
@@ -19,39 +19,37 @@ const styles = {
   link: {cursor: 'pointer'}
 };
 
-const WorkshopSummaryReport = React.createClass({
-  propTypes: {
-    startDate: React.PropTypes.string.isRequired,
-    endDate: React.PropTypes.string.isRequired,
-    queryBy: React.PropTypes.oneOf(QUERY_BY_VALUES).isRequired,
-    course: React.PropTypes.oneOf(COURSE_VALUES)
-  },
+export default class WorkshopSummaryReport extends React.Component {
+  static propTypes = {
+    startDate: PropTypes.string.isRequired,
+    endDate: PropTypes.string.isRequired,
+    queryBy: PropTypes.oneOf(QUERY_BY_VALUES).isRequired,
+    course: PropTypes.oneOf(COURSE_VALUES)
+  };
 
-  contextTypes: {
-    router: React.PropTypes.object.isRequired
-  },
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  };
 
-  getInitialState() {
-    return {
-      loading: true,
-      rows: null,
-      showFacilitatorDetails: false
-    };
-  },
+  state = {
+    loading: true,
+    rows: null,
+    showFacilitatorDetails: false
+  };
 
   componentWillMount() {
     this.permission = new Permission();
-  },
+  }
 
   componentDidMount() {
     this.load();
-  },
+  }
 
   componentWillUnmount() {
     if (this.loadRequest) {
       this.loadRequest.abort();
     }
-  },
+  }
 
   componentWillReceiveProps(nextProps) {
     if (
@@ -62,13 +60,13 @@ const WorkshopSummaryReport = React.createClass({
     ) {
       this.load(nextProps);
     }
-  },
+  }
 
   formatQueryParams(props = this.props) {
     const {startDate, endDate, queryBy, course} = props;
     const course_param = course ? `&course=${course}` : "";
     return `start=${startDate}&end=${endDate}&query_by=${queryBy}${course_param}`;
-  },
+  }
 
   load(props = this.props) {
     const url = `${QUERY_URL}?${this.formatQueryParams(props)}`;
@@ -89,24 +87,24 @@ const WorkshopSummaryReport = React.createClass({
         rows: data
       });
     });
-  },
+  }
 
-  formatWorkshopId(workshop_id) {
+  formatWorkshopId = (workshop_id) => {
     const href = this.context.router.createHref(`/workshops/${workshop_id}`);
     return <a href={href} target="_blank" style={styles.link}>{workshop_id}</a>;
-  },
+  };
 
-  formatUrl(url) {
+  formatUrl = (url) => {
     return <a href={url} target="_blank" style={styles.link}>{url}</a>;
-  },
+  };
 
-  formatYesNo(value) {
+  formatYesNo = (value) => {
     return value ? "YES" : "NO";
-  },
+  };
 
-  formatCurrency(amount) {
+  formatCurrency = (amount) => {
     return amount ? `$${Number(amount).toFixed(2)}` : null;
-  },
+  };
 
   getColumns() {
     let columns = [{
@@ -135,8 +133,8 @@ const WorkshopSummaryReport = React.createClass({
       property: 'subject',
       header: {label: 'Subject'}
     }, {
-      property: 'section_url',
-      header: {label: 'Section URL'},
+      property: 'attendance_url',
+      header: {label: 'Attendance URL'},
       cell: {format: this.formatUrl}
     }, {
       property: 'facilitators',
@@ -211,16 +209,16 @@ const WorkshopSummaryReport = React.createClass({
     }
 
     return columns;
-  },
+  }
 
-  handleDownloadCSVClick() {
+  handleDownloadCSVClick = () => {
     const downloadUrl = `${QUERY_URL}.csv?${this.formatQueryParams()}`;
     window.open(downloadUrl);
-  },
+  };
 
-  handleFacilitatorDetailsChange(e) {
+  handleFacilitatorDetailsChange = (e) => {
     this.setState({showFacilitatorDetails: e.target.checked});
-  },
+  };
 
   render() {
     if (this.state.loading) {
@@ -246,6 +244,5 @@ const WorkshopSummaryReport = React.createClass({
         />
       </div>
     );
-  },
-});
-export default WorkshopSummaryReport;
+  }
+}

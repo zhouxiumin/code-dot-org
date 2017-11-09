@@ -6,6 +6,7 @@ class LevelSourceTest < ActiveSupport::TestCase
   self.use_transactional_test_case = true
 
   setup_all do
+    @user = create :user
     @level = create :level
     @level_source = create(:level_source, level_id: @level.id, data: 'data')
   end
@@ -24,10 +25,35 @@ class LevelSourceTest < ActiveSupport::TestCase
     assert_equal ['Data is invalid'], level_source.errors.full_messages
   end
 
-  test 'clear_data should overwrite data' do
-    LevelSourceImage.any_instance.stubs(:delete_image_or_framed_image).returns(true)
-    level_source = create :level_source
-    level_source.clear_data_and_image
-    assert_equal LevelSource::DELETED_BY_THE_SYSTEM, level_source.data
+  test 'decrypt reverses encrypt for valid user' do
+    ensure_key_present
+    encrypted = @level_source.encrypt_level_source_id(@user.id)
+    decrypted = LevelSource.decrypt_level_source_id(encrypted)
+    assert_equal @level_source.id, decrypted
+  end
+
+  test 'decrypt returns nil for non-valid user' do
+    ensure_key_present
+    encrypted = @level_source.encrypt_level_source_id(User.last.id + 1)
+    decrypted = LevelSource.decrypt_level_source_id(encrypted)
+    assert_nil decrypted
+  end
+
+  test 'decrypt reverses encrypt for nil user' do
+    ensure_key_present
+    encrypted = @level_source.encrypt_level_source_id(nil)
+    decrypted = LevelSource.decrypt_level_source_id(encrypted)
+    assert_equal @level_source.id, decrypted
+  end
+
+  test 'decrypt reverses encrypt always if ignore_missing_user is set' do
+    ensure_key_present
+    encrypted = @level_source.encrypt_level_source_id(User.last.id + 1)
+    decrypted = LevelSource.decrypt_level_source_id(encrypted, ignore_missing_user: true)
+    assert_equal @level_source.id, decrypted
+  end
+
+  def ensure_key_present
+    skip "CDO.properties_encryption_key is not defined" unless CDO.properties_encryption_key
   end
 end

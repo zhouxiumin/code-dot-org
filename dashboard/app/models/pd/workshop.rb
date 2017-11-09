@@ -75,7 +75,7 @@ class Pd::Workshop < ActiveRecord::Base
       SUBJECT_ECS_UNIT_4 = 'Unit 4 - Scratch'.freeze,
       SUBJECT_ECS_UNIT_5 = 'Unit 5 - Data'.freeze,
       SUBJECT_ECS_UNIT_6 = 'Unit 6 - Robotics'.freeze,
-      SUBJECT_ECS_PHASE_4 = 'Phase 4: Summer wrap-up.freeze'
+      SUBJECT_ECS_PHASE_4 = 'Phase 4: Summer wrap-up'.freeze
     ],
     COURSE_CS_IN_A => [
       SUBJECT_CS_IN_A_PHASE_2 = 'Phase 2 in-person'.freeze,
@@ -96,9 +96,10 @@ class Pd::Workshop < ActiveRecord::Base
       SUBJECT_CSP_FIT = 'Code.org Facilitator Weekend'.freeze
     ],
     COURSE_CSD => [
-      SUBJECT_CSD_UNITS_1_2 = 'Units 1 and 2: Problem Solving and Web Development'.freeze,
-      SUBJECT_CSD_UNIT_3 = 'Unit 3: Animations and Games'.freeze,
-      SUBJECT_CSD_UNITS_4_5 = 'Units 4 and 5: The Design Process and Data and Society'.freeze,
+      SUBJECT_CSD_SUMMER_WORKSHOP = '5-day Summer'.freeze,
+      SUBJECT_CSD_UNITS_2_3 = 'Units 2 and 3: Web Development and Animations'.freeze,
+      SUBJECT_CSD_UNIT_3_4 = 'Units 3 and 4: Building Games and User Centered Design'.freeze,
+      SUBJECT_CSD_UNITS_4_5 = 'Units 4 and 5: App Prototyping and Data & Society'.freeze,
       SUBJECT_CSD_UNIT_6 = 'Unit 6: Physical Computing'.freeze,
       SUBJECT_CSD_TEACHER_CON = 'Code.org TeacherCon'.freeze,
       SUBJECT_CSD_FIT = 'Code.org Facilitator Weekend'.freeze
@@ -123,23 +124,35 @@ class Pd::Workshop < ActiveRecord::Base
   # min_days: the minimum # of days a teacher must attend in order to be counted at all.
   # max_days: the maximum # of days the workshop can be recognized for.
   # max_hours: the maximum # of hours the workshop can be recognized for.
-  TIME_CONSTRAINTS_BY_SUBJECT = {
-    SUBJECT_ECS_PHASE_2 => {min_days: 3, max_days: 5, max_hours: 30},
-    SUBJECT_ECS_UNIT_3 => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_ECS_UNIT_4 => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_ECS_UNIT_5 => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_ECS_UNIT_6 => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_ECS_PHASE_4 => {min_days: 2, max_days: 3, max_hours: 18},
-    SUBJECT_CS_IN_A_PHASE_2 => {min_days: 2, max_days: 3, max_hours: 18},
-    SUBJECT_CS_IN_S_PHASE_2 => {min_days: 2, max_days: 3, max_hours: 18},
-    SUBJECT_CS_IN_S_PHASE_3_SEMESTER_1 => {min_days: 1, max_days: 1, max_hours: 7},
-    SUBJECT_CS_IN_S_PHASE_3_SEMESTER_2 => {min_days: 1, max_days: 1, max_hours: 7},
-    SUBJECT_CS_IN_A_PHASE_3 => {min_days: 1, max_days: 1, max_hours: 7},
-    SUBJECT_CSP_SUMMER_WORKSHOP => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_CSP_WORKSHOP_1 => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_CSP_WORKSHOP_2 => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_CSP_WORKSHOP_3 => {min_days: 1, max_days: 1, max_hours: 6},
-    SUBJECT_CSP_WORKSHOP_4 => {min_days: 1, max_days: 1, max_hours: 6}
+  TIME_CONSTRAINTS = {
+    COURSE_ECS => {
+      SUBJECT_ECS_PHASE_2 => {min_days: 3, max_days: 5, max_hours: 30},
+      SUBJECT_ECS_UNIT_3 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_ECS_UNIT_4 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_ECS_UNIT_5 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_ECS_UNIT_6 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_ECS_PHASE_4 => {min_days: 2, max_days: 3, max_hours: 18}
+    },
+    COURSE_CS_IN_A => {
+      SUBJECT_CS_IN_A_PHASE_2 => {min_days: 2, max_days: 3, max_hours: 18},
+      SUBJECT_CS_IN_A_PHASE_3 => {min_days: 1, max_days: 1, max_hours: 7}
+    },
+    COURSE_CS_IN_S => {
+      SUBJECT_CS_IN_S_PHASE_2 => {min_days: 2, max_days: 3, max_hours: 18},
+      SUBJECT_CS_IN_S_PHASE_3_SEMESTER_1 => {min_days: 1, max_days: 1, max_hours: 7},
+      SUBJECT_CS_IN_S_PHASE_3_SEMESTER_2 => {min_days: 1, max_days: 1, max_hours: 7}
+    },
+    COURSE_CSP => {
+      SUBJECT_CSP_SUMMER_WORKSHOP => {max_hours: 33.5},
+      SUBJECT_CSP_WORKSHOP_1 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_CSP_WORKSHOP_2 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_CSP_WORKSHOP_3 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_CSP_WORKSHOP_4 => {min_days: 1, max_days: 1, max_hours: 6},
+      SUBJECT_CSP_TEACHER_CON => {max_hours: 33.5}
+    },
+    COURSE_CSD => {
+      SUBJECT_CSD_TEACHER_CON => {max_hours: 33.5}
+    }
   }.freeze
 
   WORKSHOP_COURSE_ONLINE_LEARNING_MAPPING = {
@@ -147,6 +160,14 @@ class Pd::Workshop < ActiveRecord::Base
     COURSE_ECS => 'ECS Support',
     COURSE_CS_IN_A => 'CS in Algebra Support',
     COURSE_CS_IN_S => 'CS in Science Support'
+  }.freeze
+
+  # Pre-survey data, arranged by course, consisting of:
+  #  - course_name : the name of the Course object associated with that workshop.
+  # Only courses with a pre-survey will have an entry here
+  PRE_SURVEY_BY_COURSE = {
+    COURSE_CSD => {course_name: 'csd'},
+    COURSE_CSP => {course_name: 'csp'}
   }.freeze
 
   validates_inclusion_of :course, in: COURSES
@@ -163,8 +184,6 @@ class Pd::Workshop < ActiveRecord::Base
   accepts_nested_attributes_for :sessions, allow_destroy: true
 
   has_many :enrollments, class_name: 'Pd::Enrollment', dependent: :destroy, foreign_key: 'pd_workshop_id'
-  belongs_to :section
-
   belongs_to :regional_partner
 
   before_save :process_location, if: -> {location_address_changed?}
@@ -186,28 +205,26 @@ class Pd::Workshop < ActiveRecord::Base
     end
   end
 
-  def section_type
-    SECTION_TYPE_MAP[course]
-  end
-
   def self.organized_by(organizer)
     where(organizer_id: organizer.id)
   end
 
   def self.facilitated_by(facilitator)
-    joins(:facilitators).where(users: {id: facilitator.id}).distinct
+    left_outer_joins(:facilitators).where(users: {id: facilitator.id}).distinct
   end
 
   def self.enrolled_in_by(teacher)
     joins(:enrollments).where(pd_enrollments: {email: teacher.email}).distinct
   end
 
-  def self.attended_by(teacher)
-    joins(sessions: :attendances).where(pd_attendances: {teacher_id: teacher.id}).distinct
+  def self.facilitated_or_organized_by(user)
+    left_outer_joins(:facilitators).
+      where('pd_workshops_facilitators.user_id = ? OR organizer_id = ?', user.id, user.id).
+      distinct
   end
 
-  def self.find_by_section_code(section_code)
-    joins(:section).find_by(sections: {code: section_code})
+  def self.attended_by(teacher)
+    joins(sessions: :attendances).where(pd_attendances: {teacher_id: teacher.id}).distinct
   end
 
   def self.in_state(state, error_on_bad_state: true)
@@ -310,25 +327,19 @@ class Pd::Workshop < ActiveRecord::Base
     start_time = sessions.empty? ? '' : sessions.first.start.strftime('%m/%d/%y')
     course_subject = subject ? "#{course} #{subject}" : course
 
-    # Limit the friendly name to 255 chars so it can be used as Section.name (which is itself limited) in #start!
+    # Limit the friendly name to 255 chars
     "#{course_subject} workshop on #{start_time} at #{location_name}"[0...255]
   end
 
-  # Puts workshop in 'In Progress' state, creates a section and returns the section.
-  # If the workshop has already been started, it will return the existing section.
+  # Puts workshop in 'In Progress' state
   def start!
-    return section unless started_at.nil?
     raise 'Workshop must have at least one session to start.' if sessions.empty?
 
-    self.started_at = Time.zone.now
     sessions.each(&:assign_code)
-    self.section = Section.create!(
-      name: friendly_name,
-      user_id: organizer_id,
-      section_type: section_type
-    )
-    save!
-    section
+    update!(started_at: Time.zone.now)
+
+    # return nil in case any callers are still expecting a section
+    nil
   end
 
   # Ends the workshop, or no-op if it's already ended.
@@ -367,13 +378,14 @@ class Pd::Workshop < ActiveRecord::Base
     scheduled_start_in_days(days).each do |workshop|
       workshop.enrollments.each do |enrollment|
         begin
-          email = Pd::WorkshopMailer.teacher_enrollment_reminder(enrollment)
+          email = Pd::WorkshopMailer.teacher_enrollment_reminder(enrollment, days_before: days)
           email.deliver_now
         rescue => e
           errors << "teacher enrollment #{enrollment.id} - #{e.message}"
         end
       end
       workshop.facilitators.each do |facilitator|
+        next if facilitator == workshop.organizer
         begin
           Pd::WorkshopMailer.facilitator_enrollment_reminder(facilitator, workshop).deliver_now
         rescue => e
@@ -479,30 +491,23 @@ class Pd::Workshop < ActiveRecord::Base
   # Min number of days a teacher must attend for it to count.
   # @return [Integer]
   def min_attendance_days
-    constraints = TIME_CONSTRAINTS_BY_SUBJECT[subject]
-    if constraints
-      constraints[:min_days]
-    else
-      1
-    end
+    [1, time_constraint(:min_days)].compact.max
   end
 
   # Apply max # days for payment, if applicable, to the number of scheduled days (sessions).
   # @return [Integer] number of payment days, after applying constraints
   def effective_num_days
-    max_days = TIME_CONSTRAINTS_BY_SUBJECT[subject].try {|constraints| constraints[:max_days]}
-    [sessions.count, max_days].compact.min
+    [sessions.count, time_constraint(:max_days)].compact.min
   end
 
   # Apply max # of hours for payment, if applicable, to the number of scheduled session-hours.
   # @return [Integer] number of payment hours, after applying constraints
   def effective_num_hours
     actual_hours = sessions.map(&:hours).reduce(&:+)
-    max_hours = TIME_CONSTRAINTS_BY_SUBJECT[subject].try {|constraints| constraints[:max_hours]}
-    [actual_hours, max_hours].compact.min
+    [actual_hours, time_constraint(:max_hours)].compact.min
   end
 
-  # @return [Boolean] true if a Code Studio account and section membership is required for attendance, otherwise false.
+  # @return [Boolean] true if a Code Studio account is required for attendance, otherwise false.
   def account_required_for_attendance?
     ![Pd::Workshop::COURSE_COUNSELOR, Pd::Workshop::COURSE_ADMIN].include?(course)
   end
@@ -563,5 +568,53 @@ class Pd::Workshop < ActiveRecord::Base
 
   def organizer_or_facilitator?(user)
     organizer == user || facilitators.include?(user)
+  end
+
+  # TODO: Extend this for non teachercon surveys when we get to it
+  def survey_responses
+    if teachercon?
+      Pd::TeacherconSurvey.where(pd_enrollment: enrollments)
+    elsif local_summer?
+      Pd::LocalSummerWorkshopSurvey.where(pd_enrollment: enrollments)
+    else
+      raise 'Not supported for this workshop type'
+    end
+  end
+
+  # Lookup a time constraint by type
+  # @param constraint_type [Symbol] e.g. :min_days, :max_days, or :max_hours
+  # @returns [Number, nil] constraint for the specified subject and type, or nil if none exists
+  def time_constraint(constraint_type)
+    TIME_CONSTRAINTS[course].try(:[], subject).try(:[], constraint_type)
+  end
+
+  # The workshop is ready to close if the last session has attendance
+  def ready_to_close?
+    sessions.last.try {|session| session.attendances.any?}
+  end
+
+  def pre_survey?
+    PRE_SURVEY_BY_COURSE.key? course
+  end
+
+  def pre_survey_course_name
+    PRE_SURVEY_BY_COURSE[course].try(:[], :course_name)
+  end
+
+  # @return an array of tuples, each in the format:
+  #   [unit_name, [lesson names]]
+  # Units represent the localized titles for scripts in the Course
+  # Lessons are the stage names for that script (unit) preceded by "Lesson n: "
+  def pre_survey_units_and_lessons
+    return nil unless pre_survey?
+    pre_survey_course = Course.find_by_name! pre_survey_course_name
+    pre_survey_course.default_scripts.map do |script|
+      unit_name = script.localized_title
+      stage_names = script.stages.where(lockable: false).pluck(:name)
+      lesson_names = stage_names.each_with_index.map do |stage_name, i|
+        "Lesson #{i + 1}: #{stage_name}"
+      end
+      [unit_name, lesson_names]
+    end
   end
 end

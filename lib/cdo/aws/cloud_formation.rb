@@ -1,5 +1,6 @@
 require_relative '../../../deployment'
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/object/blank'
 require 'cdo/rake_utils'
 require 'aws-sdk'
 require 'json'
@@ -45,6 +46,8 @@ module AWS
 
     class << self
       attr_accessor :daemon
+      attr_accessor :log_resource_filter
+      CloudFormation.log_resource_filter = []
 
       def branch
         ENV['branch'] || (rack_env?(:adhoc) ? RakeUtils.git_branch : rack_env)
@@ -54,19 +57,21 @@ module AWS
         (ENV['STACK_NAME'] || CDO.stack_name || "#{rack_env}#{rack_env != branch && "-#{branch}"}").gsub(STACK_NAME_INVALID_REGEX, '-')
       end
 
-      # CNAME to use for this stack.
-      # Suffix env-named stacks with "_cfn" during migration.
+      # CNAME prefix to use for this stack.
       def cname
-        stack_name == rack_env.to_s ? "#{stack_name}-cfn" : stack_name
+        stack_name
       end
 
-      # Fully qualified domain name
-      def fqdn
-        "#{cname}.#{DOMAIN}".downcase
+      # Fully qualified domain name, with optional pre/postfix.
+      # prod_stack_name is used to control partially-migrated resources in production.
+      def subdomain(prefix = nil, postfix = nil, prod_stack_name: true)
+        name = (rack_env?(:production) && !prod_stack_name) ? nil : cname
+        subdomain = [prefix, name, postfix].compact.join('-')
+        [subdomain.presence, DOMAIN].compact.join('.').downcase
       end
 
-      def studio_fqdn
-        "#{cname}-studio.#{DOMAIN}".downcase
+      def studio_subdomain(prod_stack_name: true)
+        subdomain nil, 'studio', prod_stack_name: prod_stack_name
       end
 
       def adhoc_image_id
@@ -130,7 +135,7 @@ module AWS
         if template.length < 51200
           {template_body: template}
         elsif template.length < 460800
-          CDO.log.warn 'Uploading template to S3...'
+          CDO.log.debug 'Uploading template to S3...'
           key = AWS::S3.upload_to_bucket(TEMP_BUCKET, "#{stack_name}-#{Digest::MD5.hexdigest(template)}-cfn.json", template, no_random: true)
           {template_url: "https://s3.amazonaws.com/#{TEMP_BUCKET}/#{key}"}
         else
@@ -172,6 +177,7 @@ module AWS
       end
 
       def create_or_update
+        $stdout.sync = true
         template = render_template
         action = stack_exists? ? :update : :create
         CDO.log.info "#{action} stack: #{stack_name}..."
@@ -194,9 +200,11 @@ module AWS
           end
         end
         wait_for_stack(action, start_time)
-        CDO.log.info 'Outputs:'
-        cfn.describe_stacks(stack_name: updated_stack_id).stacks.first.outputs.each do |output|
-          CDO.log.info "#{output.output_key}: #{output.output_value}"
+        unless ENV['QUIET']
+          CDO.log.info 'Outputs:'
+          cfn.describe_stacks(stack_name: updated_stack_id).stacks.first.outputs.each do |output|
+            CDO.log.info "#{output.output_key}: #{output.output_value}"
+          end
         end
       end
 
@@ -231,7 +239,7 @@ module AWS
 
       def update_certs
         Dir.chdir(aws_dir('cloudformation')) do
-          RakeUtils.bundle_exec './update_certs', fqdn
+          RakeUtils.bundle_exec './update_certs', subdomain
         end
       end
 
@@ -274,12 +282,22 @@ module AWS
       end
 
       # Prints the latest CloudFormation stack events.
-      def tail_events(stack_id)
+      def tail_events(stack_id, resource_filter = [])
         stack_events = cfn.describe_stack_events(stack_name: stack_id).stack_events
-        stack_events.reject {|event| event.timestamp <= @@event_timestamp}.sort_by(&:timestamp).each do |event|
-          CDO.log.info "#{event.timestamp}- #{event.logical_resource_id} [#{event.resource_status}]: #{event.resource_status_reason}"
+        stack_events.reject! do |event|
+          event.timestamp <= @@event_timestamp ||
+            resource_filter.include?(event.logical_resource_id)
         end
-        @@event_timestamp = stack_events.map(&:timestamp).max
+        stack_events.sort_by(&:timestamp).each do |event|
+          str = "#{event.logical_resource_id} [#{event.resource_status}]"
+          str = "#{str}: #{event.resource_status_reason}" if event.resource_status_reason
+          str = "#{event.timestamp}- #{str}" unless ENV['QUIET']
+          CDO.log.info str
+          if event.resource_status == 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS'
+            throw :success
+          end
+        end
+        @@event_timestamp = ([@@event_timestamp] + stack_events.map(&:timestamp)).max
       end
 
       def wait_for_stack(action, start_time)
@@ -294,12 +312,12 @@ module AWS
             w.delay = 10 # seconds
             w.max_attempts = 540 # = 1.5 hours
             w.before_wait do
-              tail_events(stack_id)
+              tail_events(stack_id, log_resource_filter)
               tail_log
-              print '.'
+              print '.' unless ENV['QUIET']
             end
           end
-          tail_events(stack_id)
+          tail_events(stack_id, log_resource_filter) rescue nil
           tail_log
         rescue Aws::Waiters::Errors::FailureStateError
           tail_events(stack_id)
@@ -309,7 +327,7 @@ module AWS
           end
           raise "\nError on #{action}."
         end
-        CDO.log.info "\nStack #{action} complete."
+        CDO.log.info "\nStack #{action} complete." unless ENV['QUIET']
         CDO.log.info "Don't forget to clean up AWS resources by running `rake adhoc:stop` after you're done testing your instance!" if action == :create
       end
 
@@ -328,8 +346,6 @@ module AWS
           certificate_arn: CERTIFICATE_ARN,
           cdn_enabled: !!ENV['CDN_ENABLED'],
           domain: DOMAIN,
-          subdomain: fqdn,
-          studio_subdomain: studio_fqdn,
           cname: cname,
           availability_zone: AVAILABILITY_ZONES.first,
           availability_zones: AVAILABILITY_ZONES,

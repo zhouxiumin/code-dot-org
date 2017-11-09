@@ -1,9 +1,11 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
 import Courses from '@cdo/apps/templates/studioHomepages/Courses';
 import {initCourseExplorer} from '@cdo/apps/courseExplorer/courseExplorer';
 import {isRtlFromDOM} from '@cdo/apps/code-studio/isRtlRedux';
+import {getStore} from '@cdo/apps/code-studio/redux';
 
 $(document).ready(showCourses);
 
@@ -13,7 +15,6 @@ function showCourses() {
 
   const script = document.querySelector('script[data-courses]');
   const coursesData = JSON.parse(script.dataset.courses);
-  const courses = coursesData.courses;
   const isEnglish = coursesData.english;
   const isTeacher = coursesData.teacher;
   const linesCount = coursesData.linescount;
@@ -25,18 +26,19 @@ function showCourses() {
   const isRtl = isRtlFromDOM();
 
   ReactDOM.render (
-    <Courses
-      courses={courses}
-      isEnglish={isEnglish}
-      isTeacher={isTeacher}
-      linesCount={linesCount}
-      studentsCount={studentsCount}
-      codeOrgUrlPrefix={codeOrgUrlPrefix}
-      isSignedOut={signedOut}
-      showInitialTips={showInitialTips}
-      userId={userId}
-      isRtl={isRtl}
-    />,
+    <Provider store={getStore()}>
+      <Courses
+        isEnglish={isEnglish}
+        isTeacher={isTeacher}
+        linesCount={linesCount}
+        studentsCount={studentsCount}
+        codeOrgUrlPrefix={codeOrgUrlPrefix}
+        isSignedOut={signedOut}
+        showInitialTips={showInitialTips}
+        userId={userId}
+        isRtl={isRtl}
+      />
+    </Provider>,
     document.getElementById('courses-container')
   );
 }

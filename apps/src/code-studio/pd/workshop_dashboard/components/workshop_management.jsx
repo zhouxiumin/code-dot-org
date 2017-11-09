@@ -1,75 +1,77 @@
 /**
  * Workshop management buttons (view, edit, delete).
  */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {Button} from 'react-bootstrap';
 import ConfirmationDialog from './confirmation_dialog';
 import Permission from '../../permission';
 
-const WorkshopManagement = React.createClass({
-  contextTypes: {
-    router: React.PropTypes.object.isRequired
-  },
+export default class WorkshopManagement extends React.Component {
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  };
 
-  propTypes: {
-    workshopId: React.PropTypes.number.isRequired,
-    viewUrl: React.PropTypes.string.isRequired,
-    editUrl: React.PropTypes.string,
-    onDelete: React.PropTypes.func,
-    showSurveyUrl: React.PropTypes.bool
-  },
+  static propTypes = {
+    workshopId: PropTypes.number.isRequired,
+    subject: PropTypes.string,
+    viewUrl: PropTypes.string.isRequired,
+    editUrl: PropTypes.string,
+    onDelete: PropTypes.func,
+    showSurveyUrl: PropTypes.bool
+  };
 
-  getDefaultProps() {
-    return {
-      editUrl: null,
-      onDelete: null
-    };
-  },
+  static defaultProps = {
+    editUrl: null,
+    onDelete: null
+  };
 
   componentWillMount() {
     if (this.props.showSurveyUrl) {
       this.permission = new Permission();
 
-      const surveyBaseUrl = this.permission.isOrganizer ? "/organizer_survey_results" : "/survey_results";
-      const surveyUrl = this.props.showSurveyUrl && `${surveyBaseUrl}/${this.props.workshopId}`;
+      let surveyBaseUrl;
 
-      this.surveyUrl = surveyUrl;
+      if (this.props.subject === '5-day Summer') {
+        surveyBaseUrl = "local_summer_workshop_survey_results";
+      } else {
+        surveyBaseUrl = this.permission.isOrganizer ? "organizer_survey_results" : "survey_results";
+      }
+
+      this.surveyUrl = `/${surveyBaseUrl}/${this.props.workshopId}`;
     }
-  },
+  }
 
-  getInitialState() {
-    return {
-      showDeleteConfirmation: false
-    };
-  },
+  state = {
+    showDeleteConfirmation: false
+  };
 
-  handleViewClick(event) {
+  handleViewClick = (event) => {
     event.preventDefault();
     this.context.router.push(this.props.viewUrl);
-  },
+  };
 
-  handleEditClick(event) {
+  handleEditClick = (event) => {
     event.preventDefault();
     this.context.router.push(this.props.editUrl);
-  },
+  };
 
-  handleDeleteClick() {
+  handleDeleteClick = () => {
     this.setState({showDeleteConfirmation: true});
-  },
+  };
 
-  handleDeleteCanceled() {
+  handleDeleteCanceled = () => {
     this.setState({showDeleteConfirmation: false});
-  },
+  };
 
-  handleDeleteConfirmed() {
+  handleDeleteConfirmed = () => {
     this.setState({showDeleteConfirmation: false});
     this.props.onDelete(this.props.workshopId);
-  },
+  };
 
-  handleSurveyClick(event) {
+  handleSurveyClick = (event) => {
     event.preventDefault();
-    this.context.router.push(this.state.surveyUrl);
-  },
+    this.context.router.push(this.surveyUrl);
+  };
 
   renderViewButton() {
     return (
@@ -81,7 +83,7 @@ const WorkshopManagement = React.createClass({
         View Workshop
       </Button>
     );
-  },
+  }
 
   renderEditButton() {
     if (!this.props.editUrl) {
@@ -97,7 +99,7 @@ const WorkshopManagement = React.createClass({
         Edit
       </Button>
     );
-  },
+  }
 
   renderSurveyButton() {
     if (!this.props.showSurveyUrl) {
@@ -113,7 +115,7 @@ const WorkshopManagement = React.createClass({
         View Survey Results
       </Button>
     );
-  },
+  }
 
   renderDeleteButton() {
     if (!this.props.onDelete) {
@@ -125,7 +127,7 @@ const WorkshopManagement = React.createClass({
         Delete
       </Button>
     );
-  },
+  }
 
   render() {
     return (
@@ -144,5 +146,4 @@ const WorkshopManagement = React.createClass({
       </div>
     );
   }
-});
-export default WorkshopManagement;
+}

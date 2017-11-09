@@ -1,5 +1,6 @@
 require 'net/http'
 require 'open-uri'
+require 'retryable'
 
 class Slack
   COLOR_MAP = {
@@ -43,11 +44,13 @@ class Slack
     channel_id = get_channel_id(channel_name)
     return nil unless channel_id
 
-    response = open(
-      'https://slack.com/api/channels.info'\
-      "?token=#{SLACK_TOKEN}"\
-      "&channel=#{channel_id}"\
-    )
+    response = Retryable.retryable(on: [Errno::ETIMEDOUT, OpenURI::HTTPError], tries: 2) do
+      open(
+        'https://slack.com/api/channels.info'\
+        "?token=#{SLACK_TOKEN}"\
+        "&channel=#{channel_id}"\
+      )
+    end
 
     begin
       parsed_response = JSON.parse(response.read)
@@ -59,7 +62,7 @@ class Slack
       return nil
     end
 
-    parsed_response['channel']['topic']['value']
+    replace_user_links(parsed_response['channel']['topic']['value'])
   end
 
   # @param channel_name [String] The channel to update the topic.
@@ -80,8 +83,25 @@ class Slack
       "&channel=#{channel_id}"\
       "&topic=#{new_topic}"
     )
+    result = JSON.parse(response.read)
+    raise "Failed to update_topic, with error: #{result['error']}" if result['error']
+    result['ok']
+  end
 
-    JSON.parse(response.read)['ok']
+  def self.replace_user_links(message)
+    message.gsub(/<@(.*?)>/) {'@' + get_display_name($1)}
+  end
+
+  def self.get_display_name(user_id)
+    response = open(
+      'https://slack.com/api/users.info'\
+      "?token=#{SLACK_TOKEN}"\
+      "&user=#{user_id}"\
+    ).read
+    return user_id unless response
+    parsed_response = JSON.parse(response)
+    return user_id unless parsed_response['ok']
+    parsed_response['user']['profile']['display_name']
   end
 
   # For more information about the Slack API, see
@@ -126,6 +146,18 @@ class Slack
     rescue
       return false
     end
+  end
+
+  def self.join_room(name)
+    response = open(
+      'https://slack.com/api/channels.join'\
+      "?token=#{SLACK_TOKEN}"\
+      "&name=#{name}"\
+    )
+
+    result = JSON.parse(response.read)
+    raise "Failed to join_room, with error: #{result['error']}" if result['error']
+    result['ok']
   end
 
   # Returns the channel ID for the channel with the requested channel_name.

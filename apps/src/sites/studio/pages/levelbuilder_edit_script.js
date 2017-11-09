@@ -10,6 +10,7 @@ import ScriptEditor from '@cdo/apps/lib/script-editor/ScriptEditor';
 
 export default function initPage(scriptEditorData) {
   const scriptData = scriptEditorData.script;
+  const stageLevelData = scriptEditorData.stageLevelData;
   const stages = (scriptData.stages || []).filter(stage => stage.id).map(stage => ({
     position: stage.position,
     flex_category: stage.flex_category,
@@ -33,6 +34,11 @@ export default function initPage(scriptEditorData) {
   const store = getStore();
   store.dispatch(init(stages, scriptEditorData.levelKeyList));
 
+  const teacherResources = (scriptData.teacher_resources || []).map(
+    ([type, link]) => ({type, link}));
+
+  let announcements = scriptData.script_announcements || [];
+
   ReactDOM.render(
     <Provider store={store}>
       <ScriptEditor
@@ -46,6 +52,14 @@ export default function initPage(scriptEditorData) {
         professionalLearningCourse={scriptData.professionalLearningCourse}
         peerReviewsRequired={scriptData.peerReviewsRequired}
         wrapupVideo={scriptData.wrapupVideo}
+        excludeCsfColumnInLegend={scriptData.excludeCsfColumnInLegend}
+        projectWidgetVisible={scriptData.project_widget_visible}
+        projectWidgetTypes={scriptData.project_widget_types}
+        teacherResources={teacherResources}
+        stageExtrasAvailable={!!scriptData.stage_extras_available}
+        stageLevelData={stageLevelData}
+        hasVerifiedResources={scriptData.has_verified_resources}
+        announcements={announcements}
       />
     </Provider>,
     document.querySelector('.edit_container')

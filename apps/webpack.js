@@ -14,6 +14,8 @@ var toTranspileWithinNodeModules = [
   path.resolve(__dirname, 'node_modules', '@cdo'),
   // playground-io ships in ES6 as of 0.3.0
   path.resolve(__dirname, 'node_modules', 'playground-io'),
+  path.resolve(__dirname, 'node_modules', 'chai-as-promised'),
+  path.resolve(__dirname, 'node_modules', '@code-dot-org', 'craft'),
 ];
 
 // Our base config, on which other configs are derived
@@ -26,9 +28,15 @@ var baseConfig = {
       '@cdo/applab/locale': path.resolve(__dirname, 'src', 'applab', 'locale-do-not-import.js'),
       '@cdo/gamelab/locale': path.resolve(__dirname, 'src', 'gamelab', 'locale-do-not-import.js'),
       '@cdo/weblab/locale': path.resolve(__dirname, 'src', 'weblab', 'locale-do-not-import.js'),
+      '@cdo/tutorialExplorer/locale': path.resolve(__dirname, 'src', 'tutorialExplorer', 'locale-do-not-import.js'),
       '@cdo/apps': path.resolve(__dirname, 'src'),
       '@cdo/static': path.resolve(__dirname, 'static'),
       repl: path.resolve(__dirname, 'src/noop'),
+      // `scratch-storage` depends on `got`, which depends on a specific feature
+      // of the `http` module. Webpack 1 and 2 provide different implementations
+      // of `http` via `node-libs-browser`. While we're still on Webpack 1,
+      // override resolving of `http` to point to the newer implementation.
+      http: 'stream-http',
     }
   },
   sassLoader: {
@@ -87,6 +95,10 @@ if (envConstants.HOT) {
   });
 }
 
+if (process.env.CI) {
+  baseConfig.progress = false;
+}
+
 // modify baseConfig's preLoaders if looking for code coverage info
 if (envConstants.COVERAGE) {
   baseConfig.module.preLoaders = [
@@ -141,7 +153,6 @@ var storybookConfig = _.extend({}, baseConfig, {
       IN_STORYBOOK: JSON.stringify(true),
       'process.env.mocha_entry': JSON.stringify(process.env.mocha_entry),
       'process.env.NODE_ENV': JSON.stringify(envConstants.NODE_ENV || 'development'),
-      BUILD_STYLEGUIDE: JSON.stringify(true),
       PISKEL_DEVELOPMENT_MODE: JSON.stringify(false),
     }),
     new webpack.IgnorePlugin(/^serialport$/),
@@ -158,6 +169,7 @@ var karmaConfig = _.extend({}, baseConfig, {
       '@cdo/applab/locale': path.resolve(__dirname, 'test', 'util', 'applab', 'locale-do-not-import.js'),
       '@cdo/gamelab/locale': path.resolve(__dirname, 'test', 'util', 'gamelab', 'locale-do-not-import.js'),
       '@cdo/weblab/locale': path.resolve(__dirname, 'test', 'util', 'weblab', 'locale-do-not-import.js'),
+      '@cdo/tutorialExplorer/locale': path.resolve(__dirname, 'test', 'util', 'tutorialExplorer', 'locale-do-not-import.js'),
       'firebase': path.resolve(__dirname, 'test', 'util', 'MockFirebase.js'),
       // Use mock-firmata to unit test playground-io maker components
       'firmata': 'mock-firmata/mock-firmata',
@@ -186,7 +198,7 @@ var karmaConfig = _.extend({}, baseConfig, {
       IN_STORYBOOK: JSON.stringify(false),
       'process.env.mocha_entry': JSON.stringify(process.env.mocha_entry),
       'process.env.NODE_ENV': JSON.stringify(envConstants.NODE_ENV || 'development'),
-      BUILD_STYLEGUIDE: JSON.stringify(false),
+      LEVEL_TYPE: JSON.stringify(envConstants.LEVEL_TYPE),
       PISKEL_DEVELOPMENT_MODE: JSON.stringify(false),
     }),
   ]
@@ -229,7 +241,6 @@ function create(options) {
         IN_UNIT_TEST: JSON.stringify(false),
         IN_STORYBOOK: JSON.stringify(false),
         'process.env.NODE_ENV': JSON.stringify(envConstants.NODE_ENV || 'development'),
-        BUILD_STYLEGUIDE: JSON.stringify(false),
         PISKEL_DEVELOPMENT_MODE: JSON.stringify(piskelDevMode),
       }),
       new webpack.IgnorePlugin(/^serialport$/),

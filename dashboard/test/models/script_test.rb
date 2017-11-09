@@ -7,19 +7,31 @@ class ScriptTest < ActiveSupport::TestCase
   self.use_transactional_test_case = true
 
   setup_all do
+    Rails.application.config.stubs(:levelbuilder_mode).returns false
     @game = create(:game)
     @script_file = File.join(self.class.fixture_path, "test-fixture.script")
     # Level names match those in 'test.script'
     @levels = (1..5).map {|n| create(:level, name: "Level #{n}", game: @game)}
 
-    Rails.application.config.stubs(:levelbuilder_mode).returns false
+    @course = create(:course)
+    @script_in_course = create(:script, hidden: true)
+    create(:course_script, position: 1, course: @course, script: @script_in_course)
+
+    # ensure that we have freshly generated caches with this course/script
+    Course.clear_cache
+    Script.clear_cache
   end
 
   def populate_cache_and_disconnect_db
     Script.stubs(:should_cache?).returns true
     # Only need to populate cache once per test-suite run
     @@script_cached ||= Script.script_cache_to_cache
-    Script.script_cache_from_cache
+    Script.script_cache
+
+    # Also populate course_cache, as it's used by course_link
+    Course.stubs(:should_cache?).returns true
+    @@course_cached ||= Course.course_cache_to_cache
+    Course.course_cache
 
     # NOTE: ActiveRecord collection association still references an active DB connection,
     # even when the data is already eager loaded.
@@ -67,10 +79,10 @@ class ScriptTest < ActiveSupport::TestCase
     script_id = scripts[0].script_levels[4].script_id
     script_level_id = scripts[0].script_levels[4].id
 
-    parsed_script = ScriptDSL.parse_file(@script_file)[0][:stages].map {|stage| stage[:scriptlevels]}.flatten
+    parsed_script = ScriptDSL.parse_file(@script_file)[0][:stages]
 
     # Set different level name in tested script
-    parsed_script[4][:levels][0]['name'] = "Level 1"
+    parsed_script.map {|stage| stage[:scriptlevels]}.flatten[4][:levels][0]['name'] = "Level 1"
 
     # Set different 'hidden' option from defaults in Script.setup
     options = {name: File.basename(@script_file, ".script"), hidden: false}
@@ -196,69 +208,32 @@ class ScriptTest < ActiveSupport::TestCase
       "stage 'Stage1'; level 'Level 1'; level 'blockly:Studio:100'", 'a filename'
    )
 
-    script = Script.add_script(
-      {name: 'test script'},
-      script_data[:stages].map {|stage| stage[:scriptlevels]}.flatten
-    )
+    script = Script.add_script({name: 'test script'}, script_data[:stages])
 
     assert_equal 'Studio', script.script_levels[1].level.game.name
     assert_equal '100', script.script_levels[1].level.level_num
   end
 
-  test 'forbid applab and gamelab levels in public scripts' do
-    assert_raises_matching /Applab and Gamelab levels can only be added to scripts that are hidden or require login/ do
-      Script.add_script(
-        {name: 'test script', hidden: false},
-        [{levels: [{name: 'New App Lab Project'}]}] # From level.yml fixture
-      )
-    end
-
-    assert_raises_matching /Applab and Gamelab levels can only be added to scripts that are hidden or require login/ do
-      Script.add_script(
-        {name: 'test script', hidden: false},
-        [{levels: [{name: 'New Game Lab Project'}]}] # From level.yml fixture
-      )
-    end
-  end
-
   test 'allow applab and gamelab levels in hidden scripts' do
     Script.add_script(
       {name: 'test script', hidden: true},
-      [{levels: [{name: 'New App Lab Project'}]}] # From level.yml fixture
+      [{scriptlevels: [{levels: [{name: 'New App Lab Project'}]}]}] # From level.yml fixture
     )
     Script.add_script(
       {name: 'test script', hidden: true},
-      [{levels: [{name: 'New Game Lab Project'}]}] # From level.yml fixture
+      [{scriptlevels: [{levels: [{name: 'New Game Lab Project'}]}]}] # From level.yml fixture
     )
   end
 
   test 'allow applab and gamelab levels in login_required scripts' do
     Script.add_script(
       {name: 'test script', hidden: false, login_required: true},
-      [{levels: [{name: 'New App Lab Project'}]}] # From level.yml fixture
+      [{scriptlevels: [{levels: [{name: 'New App Lab Project'}]}]}] # From level.yml fixture
     )
     Script.add_script(
       {name: 'test script', hidden: false, login_required: true},
-      [{levels: [{name: 'New Game Lab Project'}]}] # From level.yml fixture
+      [{scriptlevels: [{levels: [{name: 'New Game Lab Project'}]}]}] # From level.yml fixture
     )
-  end
-
-  test 'scripts are hidden or not' do
-    visible_scripts = %w{
-      20-hour flappy playlab infinity artist course1 course2 course3 course4
-      frozen hourofcode algebra cspunit1 cspunit2 cspunit3 cspunit4 cspunit5
-      cspunit6 starwarsblocks
-    }.map {|s| Script.find_by_name(s)}
-
-    visible_scripts.each do |s|
-      refute s.hidden?, "#{s.name} is hidden when it should not be"
-    end
-
-    # all other scripts are hidden
-    hidden_scripts = Script.all - visible_scripts
-    hidden_scripts.each do |s|
-      assert s.hidden?, "#{s.name} is not hidden when it should be"
-    end
   end
 
   test 'get_script_level_by_relative_position_and_puzzle_position returns nil when not found' do
@@ -366,13 +341,6 @@ class ScriptTest < ActiveSupport::TestCase
     assert_equal 'banner_course2.jpg', Script.find_by_name('course2').banner_image
   end
 
-  test 'logo image' do
-    # this is configured in scripts.en.yml
-    assert_nil Script.find_by_name('flappy').logo_image
-    assert_nil Script.find_by_name('ECSPD').logo_image
-    assert_equal 'nextech_logo.png', Script.find_by_name('ECSPD-NexTech').logo_image
-  end
-
   test 'professional_learning_course?' do
     refute Script.find_by_name('flappy').professional_learning_course?
     assert Script.find_by_name('ECSPD').professional_learning_course?
@@ -406,12 +374,14 @@ class ScriptTest < ActiveSupport::TestCase
     script = create(:script, name: 'single-stage-script')
     stage = create(:stage, script: script, name: 'Stage 1')
     create(:script_level, script: script, stage: stage)
+    script.teacher_resources = [['curriculum', '/link/to/curriculum']]
 
     summary = script.summarize
 
     assert_equal 1, summary[:stages].count
     assert_nil summary[:peerReviewStage]
     assert_equal 0, summary[:peerReviewsRequired]
+    assert_equal [['curriculum', '/link/to/curriculum']], summary[:teacher_resources]
   end
 
   test 'should summarize script with peer reviews' do
@@ -452,7 +422,8 @@ class ScriptTest < ActiveSupport::TestCase
       name: 'single-stage-script',
       disablePostMilestone: false,
       isHocScript: false,
-      student_detail_progress_view: false
+      student_detail_progress_view: false,
+      age_13_required: false,
     }
     assert_equal expected, script.summarize_header
   end
@@ -462,7 +433,7 @@ class ScriptTest < ActiveSupport::TestCase
     stage = create(:stage, script: script, name: 'Stage 1')
     create(:script_level, script: script, stage: stage)
 
-    assert_equal nil, script.summarize(false)[:stages]
+    assert_nil script.summarize(false)[:stages]
   end
 
   test 'should generate PLC objects' do
@@ -562,10 +533,7 @@ class ScriptTest < ActiveSupport::TestCase
       assessment 'NonLockableAssessment3';
     DSL
     script_data, _ = ScriptDSL.parse(input_dsl, 'a filename')
-    script = Script.add_script(
-      {name: 'test_script'},
-      script_data[:stages].map {|stage| stage[:scriptlevels]}.flatten
-    )
+    script = Script.add_script({name: 'test_script'}, script_data[:stages])
 
     # Everything has Stage <number> when nothing is lockable
     assert /^Lesson 1:/.match(script.stages[0].localized_title)
@@ -581,10 +549,7 @@ class ScriptTest < ActiveSupport::TestCase
       assessment 'NonLockableAssessment2';
     DSL
     script_data, _ = ScriptDSL.parse(input_dsl, 'a filename')
-    script = Script.add_script(
-      {name: 'test_script'},
-      script_data[:stages].map {|stage| stage[:scriptlevels]}.flatten
-    )
+    script = Script.add_script({name: 'test_script'}, script_data[:stages])
 
     # When first stage is lockable, it has no stage number, and the next stage starts at 1
     assert /^Lesson/.match(script.stages[0].localized_title).nil?
@@ -600,10 +565,7 @@ class ScriptTest < ActiveSupport::TestCase
       assessment 'NonLockableAssessment2';
     DSL
     script_data, _ = ScriptDSL.parse(input_dsl, 'a filename')
-    script = Script.add_script(
-      {name: 'test_script'},
-      script_data[:stages].map {|stage| stage[:scriptlevels]}.flatten
-    )
+    script = Script.add_script({name: 'test_script'}, script_data[:stages])
 
     # When only second stage is lockable, we count non-lockable stages appropriately
     assert /^Lesson 1:/.match(script.stages[0].localized_title)
@@ -616,13 +578,13 @@ class ScriptTest < ActiveSupport::TestCase
     create :level, name: 'LockableAssessment1'
     input_dsl = <<-DSL.gsub(/^\s+/, '')
       stage 'Lockable1', lockable: true
-      level 'Level1';
       assessment 'LockableAssessment1';
+      level 'Level1';
     DSL
     script_data, _ = ScriptDSL.parse(input_dsl, 'a filename')
 
     assert_raises do
-      Script.add_script({name: 'test_script'}, script_data[:stages].map {|stage| stage[:scriptlevels]}.flatten)
+      Script.add_script({name: 'test_script'}, script_data[:stages])
     end
   end
 
@@ -728,7 +690,7 @@ class ScriptTest < ActiveSupport::TestCase
     script = create :script
     create :course, name: 'csp'
 
-    assert_equal nil, script.course_link
+    assert_nil script.course_link
   end
 
   test "course_link returns nil if script is in two courses" do
@@ -738,7 +700,7 @@ class ScriptTest < ActiveSupport::TestCase
     create :course_script, position: 1, course: course, script: script
     create :course_script, position: 1, course: other_course, script: script
 
-    assert_equal nil, script.course_link
+    assert_nil script.course_link
   end
 
   test "course_link returns course_path if script is in one course" do
@@ -750,22 +712,31 @@ class ScriptTest < ActiveSupport::TestCase
   end
 
   test 'course_link uses cache' do
-    # populate with a fake course
-    course = create(:course, name: 'foo')
-    script = create(:script, name: 'foo1', hidden: true)
-    create(:course_script, position: 1, course: course, script: script)
-
-    # make sure this new script/course ends up in our cache
-    Course.stubs(:should_cache?).returns true
-    Script.stubs(:should_cache?).returns true
-
-    Script.get_from_cache('foo1')
-    course = Course.get_from_cache('foo')
-    Course.get_from_cache(course.id)
-
     populate_cache_and_disconnect_db
+    Script.stubs(:should_cache?).returns true
+    Course.stubs(:should_cache?).returns true
+    script = Script.get_from_cache(@script_in_course.name)
+    assert_equal "/courses/#{@course.name}", script.course_link
+  end
 
-    script = Script.get_from_cache('foo1')
-    assert_equal '/courses/foo', script.course_link
+  test "logged_out_age_13_required?" do
+    script = create :script, login_required: false
+    level = create :applab
+    stage = create :stage, script: script
+    create :script_level, script: script, stage: stage, levels: [level]
+
+    # return true when we have an applab level
+    assert_equal true, script.logged_out_age_13_required?
+
+    # returns false is login_required is true
+    script.login_required = true
+    assert_equal false, script.logged_out_age_13_required?
+
+    # returns false if we don't have any applab/gamelab/weblab levels
+    script = create :script, login_required: false
+    level = create :maze
+    stage = create :stage, script: script
+    create :script_level, script: script, stage: stage, levels: [level]
+    assert_equal false, script.logged_out_age_13_required?
   end
 end

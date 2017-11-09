@@ -3,18 +3,21 @@ require 'cdo/activity_constants'
 
 module Pd::Payment
   class PaymentCalculatorCSFTest < ActiveSupport::TestCase
-    setup do
-      @workshop = create :pd_ended_workshop, course: Pd::Workshop::COURSE_CSF, on_map: true, funded: true
+    self.use_transactional_test_case = true
+    setup_all do
+      @workshop = create :pd_ended_workshop, course: Pd::Workshop::COURSE_CSF,
+        on_map: true, funded: true, num_sessions: 1
+      session = @workshop.sessions.first
 
       # >= 10 passing levels: qualified
       @qualified_teacher = create :teacher, :with_puzzles, num_puzzles: 10
-      @workshop.section.add_student @qualified_teacher
-      create :pd_enrollment, workshop: @workshop, user: @qualified_teacher
+      qualified_enrollment = create :pd_enrollment, workshop: @workshop, user: @qualified_teacher
+      create :pd_attendance, session: session, teacher: @qualified_teacher, enrollment: qualified_enrollment
 
       # < 10 passing levels: unqualified
       @unqualified_teacher = create :teacher, :with_puzzles, num_puzzles: 9
-      @workshop.section.add_student @unqualified_teacher
-      create :pd_enrollment, workshop: @workshop, user: @unqualified_teacher
+      unqualified_enrollment = create :pd_enrollment, workshop: @workshop, user: @unqualified_teacher
+      create :pd_attendance, session: session, teacher: @unqualified_teacher, enrollment: unqualified_enrollment
     end
 
     test 'payment_type' do
@@ -60,30 +63,6 @@ module Pd::Payment
       )
 
       assert_equal 50, payment.total
-    end
-
-    # Any CSF teacher in the workshop section with a valid enrollment counts as attended.
-    # We had an issue where teachers with enrollments from another workshop were in this workshop's
-    # section for some reason, and it caused errors. Verify now they are excluded and cause no errors.
-    test 'teachers in section with enrollments in another workshop are not counted' do
-      external_teacher = create :teacher, :with_puzzles, num_puzzles: 10
-      create :pd_enrollment, user: external_teacher
-      @workshop.section.add_student external_teacher
-
-      summary = PaymentCalculatorCSF.instance.calculate(@workshop)
-      assert_equal 2, summary.num_teachers
-      assert_equal 1, summary.num_qualified_teachers
-      assert_equal @qualified_teacher, summary.teacher_summaries.find(&:qualified?).teacher
-    end
-
-    test 'handle workshops with deleted sections' do
-      @workshop.section.destroy
-      @workshop.reload
-
-      summary = PaymentCalculatorCSF.instance.calculate(@workshop)
-      assert_equal 2, summary.num_teachers
-      assert_equal 1, summary.num_qualified_teachers
-      assert_equal 50, summary.payment.total
     end
   end
 end

@@ -1,6 +1,7 @@
 @import "color";
 @import "font";
 @import "style-constants";
+@import "responsive-visualization";
 
 $common_root: '/blockly/media/common_images/';
 
@@ -454,42 +455,6 @@ html[dir='rtl'] div#visualizationResizeBar {
   position: relative;
 }
 
-@mixin visualization-width-height-original($width, $height, $visualizationOriginalWidth) {
-  $scale: $width / $visualizationOriginalWidth;
-
-  #visualization.responsive {
-    max-height: $height;
-    max-width: $width;
-  }
-  #visualizationColumn.responsive {
-    max-width: $width;
-  }
-  .small-footer-base.responsive {
-    max-width: $width;
-  }
-  .editor-column {
-    left: $width;
-  }
-  html[dir='rtl'] .editor-column {
-    right: $width;
-  }
-  html[dir='rtl'] body.readonly .editor-column {
-    right: 0px;
-  }
-  div#visualizationResizeBar {
-    left: $width;
-    line-height: $height;
-  }
-  html[dir='rtl'] div#visualizationResizeBar {
-    right: $width;
-  }
-  #visualization.responsive > * {
-    -webkit-transform: scale($scale);
-    -ms-transform: scale($scale);
-    transform: scale($scale);
-  }
-}
-
 @mixin visualization-width($width) {
   @include visualization-width-height-original($width, $width, 400px);
 }
@@ -553,6 +518,9 @@ button.launch {
   margin-right: 10px;
   /* Can't use "text-align: start" due to IE. */
   text-align: left;
+}
+button.launch[disabled] {
+  pointer-events: none;
 }
 html[dir="RTL"] button.launch {
   text-align: right;
@@ -1295,19 +1263,6 @@ $workspace-header-button-margin: ($workspace-headers-height - $workspace-header-
   margin-left: 0px;
   margin-right: 10px;
   text-align: center;
-}
-
-#save-to-gallery-button {
-  background-color: $purple;
-  border: 1px solid $purple;
-  margin: 0px;
-  color: white;
-  font-size: 13px;
-  text-align: center;
-  &:disabled {
-    color: $purple;
-    background-color: lightgrey;
-  }
 }
 
 .hide {

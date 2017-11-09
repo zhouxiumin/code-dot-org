@@ -1,4 +1,6 @@
-require "csv"
+require 'csv'
+require '../lib/cdo/git_utils'
+require '../lib/cdo/rake_utils'
 
 namespace :seed do
   verbose false
@@ -22,11 +24,21 @@ namespace :seed do
     'allthehiddenthings',
     'alltheplcthings',
     'allthethings',
+    'allthettsthings',
     'artist',
     'course1',
     'course2',
     'course3',
     'course4',
+    'csp1',
+    'csp2',
+    'csp3',
+    'csp3-a',
+    'csp3-research-mxghyt',
+    'csp4',
+    'csp5',
+    'csp-ap',
+    'csppostap',
     'events',
     'flappy',
     'frozen',
@@ -81,6 +93,16 @@ namespace :seed do
     end
   end
 
+  task courses_ui_tests: :environment do
+    # seed those courses that are needed for UI tests
+    UI_TEST_COURSES = [
+      'allthethingscourse',
+      'csp',
+    ].each do |course_name|
+      Course.load_from_path("config/courses/#{course_name}.course")
+    end
+  end
+
   # detect changes to dsldefined level files
   # LevelGroup must be last here so that LevelGroups are seeded after all levels that they can contain
   DSL_TYPES = %w(TextMatch ContractMatch External Match Multi EvaluationMulti LevelGroup)
@@ -121,6 +143,7 @@ namespace :seed do
     LevelLoader.load_custom_levels
   end
 
+  # Seeds the data in callouts
   task callouts: :environment do
     Callout.transaction do
       Callout.reset_db
@@ -130,44 +153,17 @@ namespace :seed do
     end
   end
 
+  # Seeds the data in school_districts
   task school_districts: :environment do
-    # use a much smaller dataset in environments that reseed data frequently.
-    school_districts_tsv = CDO.stub_school_data ? 'test/fixtures/school_districts.tsv' : 'config/school_districts.tsv'
-    expected_count = `wc -l #{school_districts_tsv}`.to_i - 1
-    raise "#{school_districts_tsv} contains no data" unless expected_count > 0
-
-    SchoolDistrict.transaction do
-      # It takes approximately 30 seconds to seed config/school_districts.tsv.
-      # Skip seeding if the data is already present. Note that this logic may need
-      # to be updated once we incorporate data from future survey years.
-      if SchoolDistrict.count < expected_count
-        # Since other models (e.g. Pd::Enrollment) have a foreign key dependency
-        # on SchoolDistrict, don't reset_db first.  (Callout, above, does that.)
-        puts "seeding school districts (#{expected_count} rows)"
-        SchoolDistrict.find_or_create_all_from_tsv(school_districts_tsv)
-      end
-    end
+    SchoolDistrict.seed_all
   end
 
+  # Seeds the data in schools
   task schools: :environment do
-    # use a much smaller dataset in environments that reseed data frequently.
-    schools_tsv = CDO.stub_school_data ? 'test/fixtures/schools.tsv' : 'config/schools.tsv'
-    expected_count = `wc -l #{schools_tsv}`.to_i - 1
-    raise "#{schools_tsv} contains no data" unless expected_count > 0
-
-    School.transaction do
-      # It takes approximately 4 minutes to seed config/schools.tsv.
-      # Skip seeding if the data is already present. Note that this logic may need
-      # to be updated once we incorporate data from future survey years.
-      if School.count < expected_count
-        # Since other models will have a foreign key dependency
-        # on School, don't reset_db first.  (Callout, above, does that.)
-        puts "seeding schools (#{expected_count} rows)"
-        School.find_or_create_all_from_tsv(schools_tsv)
-      end
-    end
+    School.seed_all
   end
 
+  # Seeds the data in regional_partners
   task regional_partners: :environment do
     RegionalPartner.transaction do
       RegionalPartner.find_or_create_all_from_tsv('config/regional_partners.tsv')
@@ -236,9 +232,45 @@ namespace :seed do
     SecretPicture.setup
   end
 
+  task :cached_ui_test do
+    if File.exist?('db/ui_test_data.commit')
+      dump_commit = File.read('db/ui_test_data.commit')
+      if GitUtils.valid_commit?(dump_commit)
+        files_changed = GitUtils.files_changed_in_branch_or_local(
+          dump_commit,
+          [
+            'dashboard/app/dsl/**/*',
+            'dashboard/config/**/*',
+            'dashboard/db/**/*',
+            'dashboard/lib/tasks/**/*',
+          ],
+          ignore_patterns: [
+            'dashboard/db/ui_test_data.*',
+          ],
+        )
+        if files_changed.empty?
+          puts 'Cache hit! Loading from db dump'
+          sh('mysql -u root < db/ui_test_data.sql')
+          next
+        end
+        puts files_changed
+      else
+        puts 'SQL dump created on unreachable commit'
+      end
+    end
+
+    puts 'Cache mismatch, running full ui test seed'
+    Rake::Task['seed:ui_test'].invoke
+    File.write('db/ui_test_data.commit', GitUtils.git_revision_branch('origin/' + GitUtils.current_branch))
+    sh('mysqldump -u root -B dashboard_test > db/ui_test_data.sql')
+  end
+
+  task :cache_ui_test_data do
+  end
+
   desc "seed all dashboard data"
   task all: [:videos, :concepts, :scripts, :callouts, :school_districts, :schools, :regional_partners, :regional_partners_school_districts, :secret_words, :secret_pictures, :courses]
-  task ui_test: [:videos, :concepts, :scripts_ui_tests, :callouts, :school_districts, :schools, :regional_partners, :regional_partners_school_districts, :secret_words, :secret_pictures]
+  task ui_test: [:videos, :concepts, :scripts_ui_tests, :courses_ui_tests, :callouts, :school_districts, :schools, :regional_partners, :regional_partners_school_districts, :secret_words, :secret_pictures]
   desc "seed all dashboard data that has changed since last seed"
   task incremental: [:videos, :concepts, :scripts_incremental, :callouts, :school_districts, :schools, :regional_partners, :regional_partners_school_districts, :secret_words, :secret_pictures, :courses]
 

@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 import ProgressBubbleSet from './ProgressBubbleSet';
 import FontAwesome from '@cdo/apps/templates/FontAwesome';
 import { levelType, lessonType } from './progressTypes';
-import { ViewType } from '@cdo/apps/code-studio/stageLockRedux';
+import { ViewType } from '@cdo/apps/code-studio/viewAsRedux';
 import { LevelStatus } from '@cdo/apps/util/sharedConstants';
 import FocusAreaIndicator from './FocusAreaIndicator';
 import _ from 'lodash';
@@ -78,15 +78,15 @@ export const styles = {
   }
 };
 
-const SummaryProgressRow = React.createClass({
-  propTypes: {
+export default class SummaryProgressRow extends React.Component {
+  static propTypes = {
     dark: PropTypes.bool.isRequired,
     lesson: lessonType.isRequired,
     levels: PropTypes.arrayOf(levelType).isRequired,
     lockedForSection: PropTypes.bool.isRequired,
     viewAs: PropTypes.oneOf(Object.keys(ViewType)),
     lessonIsVisible: PropTypes.func.isRequired
-  },
+  };
 
   render() {
     const { dark, lesson, levels, lockedForSection, lessonIsVisible, viewAs } = this.props;
@@ -181,6 +181,4 @@ const SummaryProgressRow = React.createClass({
       </tr>
     );
   }
-});
-
-export default SummaryProgressRow;
+}

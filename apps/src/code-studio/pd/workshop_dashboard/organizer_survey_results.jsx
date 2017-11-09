@@ -1,14 +1,14 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 import WorkshopTableLoader from './components/workshop_table_loader';
 import SurveyResultsHeader from './components/survey_results_header';
 
-const OrganizerSurveyResults = React.createClass({
-  propTypes: {
-    params: React.PropTypes.shape({
-      workshopId: React.PropTypes.string
+export default class OrganizerSurveyResults extends React.Component {
+  static propTypes = {
+    params: PropTypes.shape({
+      workshopId: PropTypes.string
     })
-  },
+  };
 
   render() {
     return (
@@ -22,6 +22,4 @@ const OrganizerSurveyResults = React.createClass({
       </div>
     );
   }
-});
-
-export default OrganizerSurveyResults;
+}

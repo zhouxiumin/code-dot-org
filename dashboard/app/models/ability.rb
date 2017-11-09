@@ -17,7 +17,6 @@ class Ability
       Follower,
       PeerReview,
       Section,
-      SectionHiddenStage,
       # Ops models
       District,
       Workshop,
@@ -39,7 +38,14 @@ class Ability
       Pd::CourseFacilitator,
       Pd::TeacherApplication,
       :workshop_organizer_survey_report,
-      Pd::WorkshopMaterialOrder
+      Pd::WorkshopMaterialOrder,
+      :pd_workshop_user_management,
+      :pd_workshop_admins,
+      :peer_review_submissions,
+      RegionalPartner,
+      Pd::RegionalPartnerMapping,
+      Pd::Application::ApplicationBase,
+      Pd::Application::Facilitator1819Application
     ]
 
     if user.persisted?
@@ -55,17 +61,19 @@ class Ability
       can :destroy, Follower, student_user_id: user.id
       can :read, UserPermission, user_id: user.id
       can [:show, :pull_review, :update], PeerReview, reviewer_id: user.id
-      can :read, SectionHiddenStage
       can :create, Pd::TeacherApplication, user_id: user.id
       can :create, Pd::RegionalPartnerProgramRegistration, user_id: user.id
       can :read, Pd::Session
       can :manage, Pd::Enrollment, user_id: user.id
       can :workshops_user_enrolled_in, Pd::Workshop
+      can :index, Section, user_id: user.id
 
       if user.teacher?
-        can :read, Section, user_id: user.id
+        can :manage, Section, user_id: user.id
         can :manage, :teacher
-        can :manage, user.students
+        can :manage, User do |u|
+          user.students.include?(u)
+        end
         can :manage, Follower
         can :read, Workshop
         can :manage, UserLevel do |user_level|
@@ -75,13 +83,8 @@ class Ability
         can :view_level_solutions, Script do |script|
           !script.professional_learning_course?
         end
-        can :manage, Section do |section|
-          user.id == section.user_id
-        end
-        can :manage, SectionHiddenStage do |hidden_stage|
-          user.id == hidden_stage.section.user_id
-        end
         can [:new, :create, :read], Pd::WorkshopMaterialOrder, user_id: user.id
+        can [:new, :create, :read], Pd::Application::Facilitator1819Application, user_id: user.id
       end
 
       if user.facilitator?
@@ -122,6 +125,9 @@ class Ability
         can :index, :workshop_organizer_survey_report
         can :read, :pd_workshop_summary_report
         can :read, :pd_teacher_attendance_report
+        if user.regional_partners.any?
+          can [:read, :quick_view, :update], Pd::Application::ApplicationBase, regional_partner_id: user.regional_partners.pluck(:id)
+        end
       end
 
       if user.permission?(UserPermission::WORKSHOP_ADMIN)
@@ -132,6 +138,20 @@ class Ability
         can :manage, :pd_workshop_summary_report
         can :manage, :pd_teacher_attendance_report
         can :manage, Pd::TeacherApplication
+        can :manage, :pd_workshop_user_management
+        can :manage, :pd_workshop_admins
+        can :manage, RegionalPartner
+        can :report_csv, :peer_review_submissions
+        can :manage, Pd::RegionalPartnerMapping
+        can :manage, Pd::Application::ApplicationBase
+        can :manage, Pd::Application::Facilitator1819Application
+      end
+
+      if user.permission?(UserPermission::PLC_REVIEWER)
+        can :manage, PeerReview
+        can :index, :peer_review_submissions
+        can :dashboard, :peer_reviews
+        can :report_csv, :peer_review_submissions
       end
     end
 
@@ -153,7 +173,9 @@ class Ability
     # through ProjectsController and their view/edit requirements are defined
     # there.
     ProjectsController::STANDALONE_PROJECTS.each_pair do |project_type_key, project_type_props|
-      if project_type_props[:login_required]
+      if project_type_props[:levelbuilder_required]
+        can :load_project, project_type_key if user.persisted? && user.permission?(UserPermission::LEVELBUILDER)
+      elsif project_type_props[:login_required]
         can :load_project, project_type_key if user.persisted?
       else
         can :load_project, project_type_key
@@ -178,7 +200,7 @@ class Ability
       end
     end
 
-    if user.persisted? && user.permission?(UserPermission::BLOCK_SHARE)
+    if user.persisted? && user.permission?(UserPermission::RESET_ABUSE)
       # let them change the hidden state
       can :manage, LevelSource
     end

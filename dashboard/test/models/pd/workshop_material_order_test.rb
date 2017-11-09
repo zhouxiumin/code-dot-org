@@ -72,6 +72,13 @@ class Pd::WorkshopMaterialOrderTest < ActiveSupport::TestCase
     assert order.valid?
   end
 
+  test 'clear_data leaves valid order' do
+    order = create :pd_workshop_material_order
+    order.user.destroy!
+    order.clear_data
+    assert order.reload.valid?
+  end
+
   test 'user must be unique' do
     create :pd_workshop_material_order, user: @teacher
 
@@ -175,6 +182,15 @@ class Pd::WorkshopMaterialOrderTest < ActiveSupport::TestCase
     order = build :pd_workshop_material_order, street: 'PO Box 123', apartment_or_suite: nil, zip_code: '98155'
     refute order.valid?
     assert_equal ['Street must be a valid street address (no PO boxes)'], order.errors.full_messages
+  end
+
+  test 'address verification override allows order with previously invalid address' do
+    Geocoder.expects(:search).with("i don't exist, Suite 900, Seattle, WA, 98101").returns([])
+    order = build :pd_workshop_material_order, street: "i don't exist"
+    refute order.valid?
+
+    order.address_override = "1"
+    assert order.valid?
   end
 
   test 'place_order' do
@@ -297,9 +313,10 @@ class Pd::WorkshopMaterialOrderTest < ActiveSupport::TestCase
   end
 
   test 'existing orders are still valid if the user is deleted' do
-    order = create :pd_workshop_material_order, user: @teacher
+    teacher = create :teacher
+    order = create :pd_workshop_material_order, user: teacher
 
-    @teacher.destroy
+    teacher.destroy
     order.reload
     assert order.valid?
     assert_nil order.user
@@ -310,5 +327,19 @@ class Pd::WorkshopMaterialOrderTest < ActiveSupport::TestCase
 
     order.user = nil
     refute order.valid?
+  end
+
+  test 'search_emails' do
+    included = [
+      create(:pd_workshop_material_order, enrollment: create(:pd_enrollment, email: 'included1@example.net')),
+      create(:pd_workshop_material_order, enrollment: create(:pd_enrollment, email: 'included2@example.net')),
+      create(:pd_workshop_material_order, enrollment: create(:pd_enrollment, email: 'IncludedWithMismatchedCase@example.net'))
+    ]
+
+    # excluded
+    create(:pd_workshop_material_order, enrollment: create(:pd_enrollment, email: 'excluded@example.net'))
+
+    found = Pd::WorkshopMaterialOrder.search_emails('include')
+    assert_equal included.map(&:id).sort, found.pluck(:id).sort
   end
 end

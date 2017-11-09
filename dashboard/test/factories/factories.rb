@@ -7,34 +7,36 @@ FactoryGirl.define do
   end
 
   factory :course do
-    name "my-course-name"
-    properties nil
+    sequence(:name) {|n| "bogus-course-#{n}"}
   end
 
   factory :experiment do
-    name "fancyFeature"
+    sequence(:name) {|n| "fancyFeature#{n}"}
 
     factory :user_based_experiment, class: 'UserBasedExperiment' do
-      type "UserBasedExperiment"
       percentage 50
     end
     factory :teacher_based_experiment, class: 'TeacherBasedExperiment' do
-      type "TeacherBasedExperiment"
-      percentage 50
+      min_user_id 0
+      max_user_id 0
+      overflow_max_user_id 0
       script nil
     end
     factory :single_section_experiment, class: 'SingleSectionExperiment' do
-      type "SingleSectionExperiment"
       section
     end
     factory :single_user_experiment, class: 'SingleUserExperiment' do
-      type "SingleUserExperiment"
     end
   end
 
   factory :section_hidden_stage do
     section
     stage
+  end
+
+  factory :section_hidden_script do
+    section
+    script
   end
 
   factory :paired_user_level do
@@ -72,7 +74,8 @@ FactoryGirl.define do
         end
       end
       factory :facilitator do
-        name 'Facilitator Person'
+        sequence(:name) {|n| "Facilitator Person #{n}"}
+        sequence(:email) {|n| "testfacilitator#{n}@example.com.xx"}
         after(:create) do |facilitator|
           facilitator.permission = UserPermission::FACILITATOR
         end
@@ -84,9 +87,23 @@ FactoryGirl.define do
         end
       end
       factory :workshop_organizer do
-        name 'Workshop Organizer Person'
+        sequence(:name) {|n| "Workshop Organizer Person #{n}"}
+        sequence(:email) {|n| "testworkshoporganizer#{n}@example.com.xx"}
         after(:create) do |workshop_organizer|
           workshop_organizer.permission = UserPermission::WORKSHOP_ORGANIZER
+        end
+
+        trait :as_regional_partner_program_manager do
+          after(:create) do |workshop_organizer|
+            create :regional_partner_program_manager, program_manager: workshop_organizer
+          end
+        end
+      end
+      factory :plc_reviewer do
+        sequence(:name) {|n| "Plc Reviewer #{n}"}
+        sequence(:email) {|n| "test_plc_reviewer_#{n}@example.com.xx"}
+        after(:create) do |plc_reviewer|
+          plc_reviewer.permission = UserPermission::PLC_REVIEWER
         end
       end
       factory :district_contact do
@@ -98,19 +115,16 @@ FactoryGirl.define do
         end
       end
       # Creates a teacher optionally enrolled in a workshop,
-      # joined the workshop section,
       # or marked attended on either all (true) or a specified list of workshop sessions.
       factory :pd_workshop_participant do
         transient do
           workshop nil
           enrolled true
-          in_section false
           attended false
         end
         after(:create) do |teacher, evaluator|
           raise 'workshop required' unless evaluator.workshop
           create :pd_enrollment, :from_user, user: teacher, workshop: evaluator.workshop if evaluator.enrolled
-          evaluator.workshop.section.add_student teacher if evaluator.in_section
           if evaluator.attended
             attended_sessions = evaluator.attended == true ? evaluator.workshop.sessions : evaluator.attended
             attended_sessions.each do |session|
@@ -133,6 +147,47 @@ FactoryGirl.define do
             create(:follower, section: section, student_user: user)
           end
         end
+
+        factory :young_student_with_teacher do
+          after(:create) do |user|
+            section = create(:section, user: create(:teacher))
+            create(:follower, section: section, student_user: user)
+          end
+        end
+
+        factory :parent_managed_student do
+          sequence(:parent_email) {|n| "testparent#{n}@example.com.xx"}
+          email nil
+          hashed_email nil
+        end
+      end
+
+      factory :student_in_word_section do
+        encrypted_password nil
+        provider 'sponsored'
+
+        after(:create) do |user|
+          word_section = create(:section, login_type: Section::LOGIN_TYPE_WORD)
+          create(:follower, student_user: user, section: word_section)
+          user.reload
+        end
+      end
+
+      factory :student_in_picture_section do
+        encrypted_password nil
+        provider 'sponsored'
+
+        after(:create) do |user|
+          picture_section = create(:section, login_type: Section::LOGIN_TYPE_PICTURE)
+          create(:follower, student_user: user, section: picture_section)
+          user.reload
+        end
+      end
+
+      factory :google_oauth2_student do
+        encrypted_password nil
+        provider 'google_oauth2'
+        sequence(:uid) {|n| n}
       end
 
       factory :old_student do
@@ -151,6 +206,13 @@ FactoryGirl.define do
         end
       end
     end
+
+    trait :deleted do
+      after(:create) do |user|
+        user.destroy!
+        user.reload
+      end
+    end
   end
 
   factory :districts_users do
@@ -162,6 +224,8 @@ FactoryGirl.define do
     sequence(:name) {|n| "Section #{n}"}
     user {create :teacher}
     login_type 'email'
+
+    initialize_with {Section.new(attributes)}
   end
 
   factory :game do
@@ -236,6 +300,9 @@ FactoryGirl.define do
     properties {{title: 'title', questions: [{text: 'test'}], options: {hide_submit: false}}}
   end
 
+  factory :bounce, parent: :level, class: Bounce do
+  end
+
   factory :artist, parent: :level, class: Artist do
   end
 
@@ -245,6 +312,10 @@ FactoryGirl.define do
 
   factory :applab, parent: :level, class: Applab do
     game {Game.applab}
+
+    trait :with_autoplay_video do
+      video_key {create(:video).key}
+    end
   end
 
   factory :free_response, parent: :level, class: FreeResponse do
@@ -257,6 +328,10 @@ FactoryGirl.define do
 
   factory :gamelab, parent: :level, class: Gamelab do
     game {Game.gamelab}
+  end
+
+  factory :weblab, parent: :level, class: Weblab do
+    game {Game.weblab}
   end
 
   factory :multi, parent: :level, class: Multi do
@@ -478,13 +553,12 @@ FactoryGirl.define do
   end
 
   factory :peer_review do
-    submitter {create :user}
+    submitter {create :teacher}
     from_instructor false
     script {create :script}
     level {create :level}
     level_source {create :level_source}
     data "MyText"
-
     before :create do |peer_review|
       create :user_level, user: peer_review.submitter, level: peer_review.level
     end
@@ -531,7 +605,11 @@ FactoryGirl.define do
     conditionals_d5_count 4
   end
 
-  # school info
+  # school info: default to public with district and school
+  # Other variations have factories below
+  factory :school_info, parent: :school_info_us_public do
+    with_school
+  end
 
   # this is the only factory used for testing the deprecated data formats (without country).
   factory :school_info_without_country, class: SchoolInfo do
@@ -570,6 +648,18 @@ FactoryGirl.define do
     school_name 'Princeton Day School'
   end
 
+  factory :school_info_with_public_school_only, class: SchoolInfo do
+    association :school, factory: :public_school
+  end
+
+  factory :school_info_with_private_school_only, class: SchoolInfo do
+    association :school, factory: :private_school
+  end
+
+  factory :school_info_with_charter_school_only, class: SchoolInfo do
+    association :school, factory: :charter_school
+  end
+
   factory :school_info_us_public, class: SchoolInfo do
     country 'US'
     school_type SchoolInfo::SCHOOL_TYPE_PUBLIC
@@ -580,7 +670,7 @@ FactoryGirl.define do
     end
 
     trait :with_school do
-      association :school, factory: :public_school
+      association :school, factory: :public_school, state: 'WA', school_type: SchoolInfo::SCHOOL_TYPE_PUBLIC
     end
   end
 
@@ -594,7 +684,7 @@ FactoryGirl.define do
     end
 
     trait :with_school do
-      association :school, factory: :charter_school
+      association :school, factory: :charter_school, state: 'WA', school_type: SchoolInfo::SCHOOL_TYPE_CHARTER
     end
   end
 
@@ -635,9 +725,12 @@ FactoryGirl.define do
     zip "98101"
   end
 
+  # Default school to public school. More specific factories below
+  factory :school, parent: :public_school
+
   factory :public_school, class: School do
     # school ids are not auto-assigned, so we have to assign one here
-    sequence(:id, 333)
+    id {(School.maximum(:id).to_i + 1).to_s}
     name "A seattle public school"
     city "Seattle"
     state "WA"
@@ -646,9 +739,19 @@ FactoryGirl.define do
     association :school_district
   end
 
+  factory :private_school, class: School do
+    # school ids are not auto-assigned, so we have to assign one here
+    id {(School.maximum(:id).to_i + 1).to_s}
+    name "A seattle private school"
+    city "Seattle"
+    state "WA"
+    zip "98122"
+    school_type SchoolInfo::SCHOOL_TYPE_PRIVATE
+  end
+
   factory :charter_school, class: School do
     # school ids are not auto-assigned, so we have to assign one here
-    sequence(:id, 333)
+    id {(School.maximum(:id).to_i + 1).to_s}
     name "A seattle charter school"
     city "Seattle"
     state "WA"
@@ -663,8 +766,21 @@ FactoryGirl.define do
     group 1
   end
 
+  factory :regional_partner_program_manager do
+    regional_partner {create :regional_partner}
+    program_manager {create :teacher}
+  end
+
   factory :regional_partners_school_district do
     association :school_district
     association :regional_partner
+  end
+
+  factory :channel_token do
+    transient {storage_user nil}
+    # Note: This creates channel_tokens where the channel is NOT an accurately
+    # encrypted version of storage_app_id/app_id
+    storage_app_id 1
+    storage_id {storage_user.try(:id) || 2}
   end
 end

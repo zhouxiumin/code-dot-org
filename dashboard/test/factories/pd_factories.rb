@@ -11,18 +11,31 @@ FactoryGirl.define do
       course Pd::Workshop::COURSE_CSP
       subject Pd::Workshop::SUBJECT_CSP_TEACHER_CON
     end
+    trait :local_summer_workshop do
+      course Pd::Workshop::COURSE_CSP
+      subject Pd::Workshop::SUBJECT_CSP_SUMMER_WORKSHOP
+    end
     capacity 10
     transient do
       num_sessions 0
+      num_facilitators 0
       sessions_from Date.today + 9.hours # Start time of the first session, then one per day after that.
+      each_session_hours 6
       num_enrollments 0
       enrolled_and_attending_users 0
       enrolled_unattending_users 0
+      num_completed_surveys 0
+      randomized_survey_answers false
     end
     after(:build) do |workshop, evaluator|
       # Sessions, one per day starting today
       evaluator.num_sessions.times do |i|
-        workshop.sessions << build(:pd_session, workshop: workshop, start: evaluator.sessions_from + i.days)
+        workshop.sessions << build(
+          :pd_session,
+          workshop: workshop,
+          start: evaluator.sessions_from + i.days,
+          duration_hours: evaluator.each_session_hours
+        )
       end
       evaluator.num_enrollments.times do
         workshop.enrollments << build(:pd_enrollment, workshop: workshop)
@@ -39,19 +52,40 @@ FactoryGirl.define do
         workshop.enrollments << build(:pd_enrollment, workshop: workshop, user: teacher)
       end
     end
+
+    after(:create) do |workshop, evaluator|
+      workshop.sessions.map(&:save)
+
+      evaluator.num_facilitators.times do
+        workshop.facilitators << (create :facilitator)
+      end
+
+      evaluator.num_completed_surveys.times do
+        enrollment = create :pd_enrollment, workshop: workshop
+        if workshop.teachercon?
+          create :pd_teachercon_survey, pd_enrollment: enrollment, randomized_survey_answers: evaluator.randomized_survey_answers
+        elsif workshop.local_summer?
+          create :pd_local_summer_workshop_survey, pd_enrollment: enrollment, randomized_survey_answers: evaluator.randomized_survey_answers
+        else
+          raise 'Num_completed_surveys trait unsupported for this workshop type'
+        end
+      end
+    end
   end
 
   factory :pd_ended_workshop, parent: :pd_workshop, class: 'Pd::Workshop' do
     num_sessions 1
-    association :section
     started_at {Time.zone.now}
     ended_at {Time.zone.now}
   end
 
   factory :pd_session, class: 'Pd::Session' do
+    transient do
+      duration_hours 6
+    end
     association :workshop, factory: :pd_workshop
     start {Date.today + 9.hours}
-    self.end {start + 6.hours}
+    self.end {start + duration_hours.hours}
   end
 
   factory :pd_teacher_application, class: 'Pd::TeacherApplication' do
@@ -114,19 +148,15 @@ FactoryGirl.define do
   end
 
   factory :pd_facilitator_program_registration, class: 'Pd::FacilitatorProgramRegistration' do
-    association :user, factory: :facilitator, strategy: :create
     transient do
-      form_data {build :pd_facilitator_program_registration_hash, user: user}
+      form_data_hash {build :pd_facilitator_program_registration_hash}
     end
-    form_data {form_data.to_json}
+    association :user, factory: :facilitator, strategy: :create
+    teachercon 1
+    form_data {form_data_hash.to_json}
   end
 
-  factory :pd_teachercon_survey, class: 'Pd::TeacherconSurvey' do
-    association :pd_enrollment, factory: :pd_enrollment, strategy: :create
-
-    form_data {(build :pd_teachercon_survey_hash).to_json}
-  end
-  # The raw attributes as returned by the teacher application form, and saved in Pd::FacilitatorProgramRegistration.application.
+  # The raw attributes as returned by the teacher application form, and saved in Pd::FacilitatorProgramRegistration.form_data.
   factory :pd_facilitator_program_registration_hash, class: 'Hash' do
     initialize_with do
       {
@@ -154,6 +184,86 @@ FactoryGirl.define do
         csYearsTaught: "1",
         liabilityWaiver: ["Yes"]
       }.stringify_keys
+    end
+  end
+
+  factory :pd_regional_partner_program_registration, class: 'Pd::RegionalPartnerProgramRegistration' do
+    transient do
+      form_data_hash {build :pd_regional_partner_program_registration_hash}
+      regional_partner {create :regional_partner}
+    end
+    user {regional_partner.contact}
+    teachercon 1
+    form_data {form_data_hash.to_json}
+  end
+
+  factory :pd_regional_partner_program_registration_hash, class: 'Hash' do
+    initialize_with do
+      {
+        confirmTeacherconDate: 'Yes',
+        fullName: 'Imaginary RP',
+        email: 'rp@example.com',
+        contactName: 'Fred',
+        contactRelationship: 'Imaginary Friend',
+        contactPhone: '123-456-7890',
+        dietaryNeeds: ['Gluten Free'],
+        liveFarAway: 'Yes',
+        howTraveling: 'Flying',
+        needHotel: 'Yes',
+        needAda: 'Yes',
+        photoRelease: ['Yes'],
+        liabilityWaiver: ['Yes']
+      }.stringify_keys
+    end
+  end
+
+  factory :pd_teachercon_survey, class: 'Pd::TeacherconSurvey' do
+    association :pd_enrollment, factory: :pd_enrollment, strategy: :create
+
+    transient do
+      randomized_survey_answers false
+    end
+
+    after(:build) do |survey, evaluator|
+      if survey.form_data.presence.nil?
+        enrollment = survey.pd_enrollment
+        workshop = enrollment.workshop
+
+        survey_hash = build :pd_teachercon_survey_hash
+
+        if evaluator.randomized_survey_answers
+          survey_hash.each do |k, _|
+            if Pd::TeacherconSurvey.options.key? k.underscore.to_sym
+              survey_hash[k] = Pd::TeacherconSurvey.options[k.underscore.to_sym].sample
+            else
+              survey_hash[k] = SecureRandom.hex[0..8]
+            end
+          end
+        end
+
+        Pd::TeacherconSurvey.facilitator_required_fields.each do |field|
+          survey_hash[field] = {}
+        end
+
+        survey_hash['whoFacilitated'] = workshop.facilitators.map(&:name)
+
+        workshop.facilitators.each do |facilitator|
+          Pd::TeacherconSurvey.facilitator_required_fields.each do |field|
+            if Pd::TeacherconSurvey.options.key? field
+              answers = Pd::TeacherconSurvey.options.key? field
+              survey_hash[field][facilitator.name] = evaluator.randomized_survey_answers ? answers.sample : answers.last
+            else
+              survey_hash[field][facilitator.name] = evaluator.randomized_survey_answers ? SecureRandom.hex[0..8] : 'Free Response'
+            end
+          end
+        end
+
+        if Pd::TeacherconSurvey::DISAGREES.include?(survey_hash['personalLearningNeedsMet'])
+          survey_hash[:how_could_improve] = evaluator.randomized_survey_answers ? SecureRandom.hex[0..8] : 'Rant about how to improve things'
+        end
+
+        survey.update_form_data_hash(survey_hash)
+      end
     end
   end
 
@@ -204,6 +314,14 @@ FactoryGirl.define do
     end
   end
 
+  factory :pd_workshop_survey, class: 'Pd::WorkshopSurvey' do
+    transient do
+      form_data_hash {build :pd_workshop_survey_hash}
+    end
+    association :pd_enrollment, factory: :pd_enrollment, strategy: :create
+    form_data {form_data_hash.to_json}
+  end
+
   factory :pd_workshop_survey_hash, class: 'Hash' do
     initialize_with do
       {
@@ -250,6 +368,52 @@ FactoryGirl.define do
           "English\/Language Arts"
         ]
       }.stringify_keys
+    end
+  end
+
+  factory :pd_local_summer_workshop_survey, class: 'Pd::LocalSummerWorkshopSurvey' do
+    association :pd_enrollment, factory: :pd_enrollment, strategy: :create
+
+    transient do
+      randomized_survey_answers false
+    end
+
+    after(:build) do |survey, evaluator|
+      if survey.form_data.nil?
+        enrollment = survey.pd_enrollment
+        workshop = enrollment.workshop
+
+        survey_hash = build :pd_local_summer_workshop_survey_hash
+
+        if evaluator.randomized_survey_answers
+          survey_hash.each do |k, _|
+            if Pd::LocalSummerWorkshopSurvey.options.key? k.underscore.to_sym
+              survey_hash[k] = Pd::LocalSummerWorkshopSurvey.options[k.underscore.to_sym].sample
+            else
+              survey_hash[k] = SecureRandom.hex[0..8]
+            end
+          end
+        end
+
+        Pd::LocalSummerWorkshopSurvey.facilitator_required_fields.each do |field|
+          survey_hash[field] = {}
+        end
+
+        survey_hash['whoFacilitated'] = workshop.facilitators.map(&:name)
+
+        workshop.facilitators.each do |facilitator|
+          Pd::LocalSummerWorkshopSurvey.facilitator_required_fields.each do |field|
+            if Pd::LocalSummerWorkshopSurvey.options.key? field
+              answers = Pd::LocalSummerWorkshopSurvey.options[field]
+              survey_hash[field][facilitator.name] = evaluator.randomized_survey_answers ? answers.sample : answers.last
+            else
+              survey_hash[field][facilitator.name] = evaluator.randomized_survey_answers ? SecureRandom.hex[0..8] : 'Free Response'
+            end
+          end
+        end
+
+        survey.update_form_data_hash(survey_hash)
+      end
     end
   end
 
@@ -305,12 +469,11 @@ FactoryGirl.define do
     sequence(:first_name) {|n| "Participant#{n}"}
     last_name 'Codeberg'
     sequence(:email) {|n| "participant#{n}@example.com.xx"}
-    association :school_info, factory: :school_info_without_country
-    school 'Example School'
+    association :school_info
     code {SecureRandom.hex(10)}
 
     trait :from_user do
-      user
+      user {create :teacher}
       full_name {user.name} # sets first_name and last_name
       email {user.email}
     end
@@ -347,5 +510,112 @@ FactoryGirl.define do
     state 'WA'
     add_attribute :zip_code, '98101'
     phone_number '555-111-2222'
+    address_override "0"
+  end
+
+  factory :pd_pre_workshop_survey, class: 'Pd::PreWorkshopSurvey' do
+    association :pd_enrollment
+  end
+
+  factory :pd_regional_partner_contact, class: 'Pd::RegionalPartnerContact' do
+    user nil
+    regional_partner nil
+    form_data nil
+  end
+
+  factory :pd_regional_partner_cohort, class: 'Pd::RegionalPartnerCohort' do
+    course Pd::Workshop::COURSE_CSP
+  end
+
+  factory :pd_regional_partner_mapping, class: 'Pd::RegionalPartnerMapping' do
+    association :regional_partner
+    state 'WA'
+  end
+
+  factory :pd_facilitator1819_application_hash, class: 'Hash' do
+    transient do
+      program Pd::Application::Facilitator1819Application::PROGRAM_OPTIONS.first
+      state 'Washington'
+      add_attribute :zip_code, '98101'
+    end
+
+    initialize_with do
+      {
+        firstName: 'Rubeus',
+        lastName: 'Hagrid',
+        phone: '555-555-5555',
+        address: '101 Hogwarts Ave',
+        city: 'Seattle',
+        state: state,
+        zipCode: zip_code,
+        genderIdentity: 'Male',
+        race: ['Other'],
+        institutionType: ['Institute of higher education'],
+        currentEmployer: 'Gryffindor House',
+        jobTitle: 'Keeper of Keys and Grounds of Hogwarts',
+        resumeLink: 'linkedin.com/rubeus_hagrid',
+        workedInCsJob: 'No',
+        completedCsCoursesAndActivities: ['Advanced CS in high school or college'],
+        diversityTraining: 'No',
+        howHeard: ['Code.org email'],
+        program: program,
+        planOnTeaching: ['Yes'],
+        abilityToMeetRequirements: '4',
+        ledCsExtracurriculars: ['Hour of Code'],
+        teachingExperience: 'No',
+        gradesTaught: ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7'],
+        gradesCurrentlyTeaching: ['Grade 7'],
+        subjects_taught: ['Computer Science'],
+        yearsExperience: 'None',
+        experienceLeading: ['AP CS A', 'Hour of Code'],
+        completedPd: ['CS Fundamentals (1 day workshop)'],
+        codeOrgFacilitator: 'No',
+        haveLedPd: 'Yes',
+        groupsLedPd: ['None'],
+        describePriorPd: 'PD description',
+        whoShouldHaveOpportunity: 'all students',
+        howSupportEquity: 'support equity',
+        expectedTeacherNeeds: 'teacher needs',
+        describeAdaptingLessonPlan: 'adapt lesson plan',
+        describeStrategies: 'strategies',
+        exampleHowUsedFeedback: 'used feedback',
+        exampleHowProvidedFeedback: 'provided feedback',
+        hopeToLearn: 'many things',
+        availableDuringWeek: 'Yes',
+        weeklyAvailability: ['10am ET / 7am PT'],
+        travelDistance: 'Within my city',
+        additionalInfo: 'none',
+        agree: true
+      }.tap do |hash|
+        if program == Pd::Application::Facilitator1819Application::PROGRAMS[:csf]
+          hash[:csfAvailability] = 'Yes'
+        else
+          hash[:csdCspTeacherconAvailability] = 'TeacherCon 1: June 17 - 22, 2018'
+          hash[:csdCspFitAvailability] = 'June 23 - 24, 2018 (immediately following TeacherCon 1)'
+        end
+      end.stringify_keys
+    end
+
+    trait :with_csf_specific_fields do
+      after :build do |hash|
+        hash['csfAvailability'] = Pd::Application::Facilitator1819Application::ONLY_WEEKEND
+        hash['csfPartialAttendanceReason'] = 'reasons'
+      end
+    end
+
+    trait :with_csd_csp_specific_fields do
+      after :build do |hash|
+        hash['csdCspFitAvailability'] = Pd::Application::Facilitator1819Application.options[:csd_csp_fit_availability].first
+        hash['csdCspTeacherconAvailability'] = Pd::Application::Facilitator1819Application.options[:csd_csp_teachercon_availability].first
+      end
+    end
+  end
+
+  factory :pd_facilitator1819_application, class: 'Pd::Application::Facilitator1819Application' do
+    association :user, factory: :teacher, strategy: :create
+    transient do
+      form_data_hash {build :pd_facilitator1819_application_hash}
+    end
+    form_data {form_data_hash.to_json}
   end
 end

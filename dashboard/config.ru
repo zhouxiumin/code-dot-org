@@ -2,8 +2,13 @@
 
 require ::File.expand_path('../config/environment',  __FILE__)
 
-require 'unicorn/oob_gc'
-use Unicorn::OobGC
+unless rack_env?(:development)
+  require 'cdo/unicorn_listener'
+  use Cdo::UnicornListener
+end
+
+require 'gctools/oobgc/unicorn_middleware'
+use GC::OOB::UnicornMiddleware
 use Rack::ContentLength
 require 'rack/ssl-enforcer'
 use Rack::SslEnforcer,

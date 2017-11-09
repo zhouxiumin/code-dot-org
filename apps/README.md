@@ -22,6 +22,13 @@ npm install -g grunt-cli yarn@0.23.2
 # Perform first full build
 yarn
 npm run build
+npm rebuild node-sass
+
+# automatically rebuild every time you make changes to source files
+npm run start
+
+# or, if you want it to rebuild even faster, do this instead:
+CHEAP=1 npm run start
 ```
 
 ### Seeing your development version of Apps in Dashboard
@@ -63,8 +70,8 @@ See also: [Full build with blockly-core](#full-build-with-blockly-core-changes)
 ```
 npm test
 ```
-* If you see an error like `ReferenceError: Blockly is not defined` or notes about missing npm packages, double check that you've run `grunt build` before `grunt test`
-* Right now, the tests require a full/production build to pass.  Failures like `Cannot set property 'imageDimensions_' of undefined` in setup steps may indicate that you are testing against a debug build.
+* If you see an error ~like `ReferenceError: Blockly is not defined` or notes~ about missing npm packages, double check that you've run `npm run build` beforehand.
+* ~Right now, the tests require a full/production build to pass.  Failures like `Cannot set property 'imageDimensions_' of undefined` in setup steps may indicate that you are testing against a debug build.~
 * These tests will also be run via Circle CI when you create a pull request
 
 To run an individual test, use the `--entry` option with `npm run test:entry` to target a file:
@@ -84,6 +91,16 @@ It's also possible to run an individual test or subset of tests with:
 
 ```
 npm run test:unit -- --grep='TutorialExplorer'
+```
+
+To run integration tests for a certain level type:
+```
+LEVEL_TYPE=applab npm run test:integration
+```
+
+You can also use the `--grep` flag with integration tests:
+```
+LEVEL_TYPE=applab npm run test:integration --grep ec_data_blocks
 ```
 
 ##### Rerun Tests Automatically #####
@@ -181,7 +198,7 @@ You can add new sections to the styleguide (perhaps for a new component you are
 building) by adding the following code:
 
 ```javascript
-if (BUILD_STYLEGUIDE) {
+if (IN_STORYBOOK) {
   SomeComponent.styleGuideExamples = storybook => {
     return storybook
       .storiesOf('SomeComponent', module)
@@ -193,7 +210,7 @@ if (BUILD_STYLEGUIDE) {
 }
 ```
 
-By wrapping your code in a `BUILD_STYLEGUIDE` check, you can guarantee that it
+By wrapping your code in a `IN_STORYBOOK` check, you can guarantee that it
 won't appear in production builds. See the
 [react-storybook documentation](https://github.com/kadirahq/react-storybook) for
 more information on how to use the `storybook` api.

@@ -10,6 +10,7 @@ require_relative 'sequel_test_case'
 class V2SectionRoutesTest < SequelTestCase
   describe 'Section Routes' do
     before do
+      DashboardSection.clear_caches
       FakeDashboard.use_fake_database
       $log.level = Logger::ERROR # Pegasus spams debug logging otherwise
       @pegasus = Rack::Test::Session.new(Rack::MockSession.new(MockPegasus.new, "studio.code.org"))
@@ -109,6 +110,7 @@ class V2SectionRoutesTest < SequelTestCase
               "code" => nil,
               "stage_extras" => false,
               "pairing_allowed" => true,
+              "hidden" => false,
             }
           ],
           JSON.parse(@pegasus.last_response.body)
@@ -302,6 +304,129 @@ class V2SectionRoutesTest < SequelTestCase
     def with_role(role)
       Documents.any_instance.stubs(:dashboard_user_id).
         returns(role.nil? ? nil : role[:id])
+    end
+
+    describe 'GET /v2/sections/valid_scripts' do
+      before do
+        @nonadmin_valid_scripts = [
+          {
+            "id" => 1,
+            "name" => "Foo",
+            "script_name" => "Foo",
+            "category" => "other",
+            "position" => nil,
+            "category_priority" => 15
+          },
+          {
+            "id" => 3,
+            "name" => "Bar",
+            "script_name" => "Bar",
+            "category" => "other",
+            "position" => nil,
+            "category_priority" => 15
+          },
+          {
+            "id" => 4,
+            "name" => "Minecraft Adventurer",
+            "script_name" => "mc",
+            "category" => "Hour of Code",
+            "position" => nil,
+            "category_priority" => 2
+          },
+          {
+            "id" => 5,
+            "name" => "Classic Maze",
+            "script_name" => "hourofcode",
+            "category" => "Hour of Code",
+            "position" => nil,
+            "category_priority" => 2
+          },
+          {
+            "id" => 6,
+            "name" => "Minecraft Designer",
+            "script_name" => "minecraft",
+            "category" => "Hour of Code",
+            "position" => nil,
+            "category_priority" => 2
+          },
+          {
+            "id" => 10,
+            "name" => "Make a Flappy game",
+            "script_name" => "flappy",
+            "category" => "Hour of Code",
+            "position" => 4,
+            "category_priority" => 2
+          },
+          {
+            "id" => 31,
+            "name" => "Unit 1: The Internet",
+            "script_name" => "csp1",
+            "category" => "CS Principles",
+            "position" => 0,
+            "category_priority" => 9
+          },
+          {
+            "id" => 32,
+            "name" => "Unit 2: Digital Information",
+            "script_name" => "csp2",
+            "category" => "CS Principles",
+            "position" => 1,
+            "category_priority" => 9
+          },
+          {
+            "id" => 34,
+            "name" => "Unit 3: Algorithms and Programming",
+            "script_name" => "csp3",
+            "category" => "CS Principles",
+            "position" => 2,
+            "category_priority" => 9
+          },
+        ]
+      end
+
+      it 'returns 403 "Forbidden" when not signed in' do
+        with_role nil
+        @pegasus.get '/v2/sections/valid_scripts'
+        assert_equal 403, @pegasus.last_response.status
+      end
+
+      it 'returns script list when signed in as a student' do
+        with_role FakeDashboard::STUDENT
+        @pegasus.get '/v2/sections/valid_scripts'
+        assert_equal 200, @pegasus.last_response.status
+        assert_equal @nonadmin_valid_scripts, JSON.parse(@pegasus.last_response.body)
+      end
+
+      it 'returns script list when signed in as a teacher' do
+        with_role FakeDashboard::TEACHER
+        @pegasus.get '/v2/sections/valid_scripts'
+        assert_equal 200, @pegasus.last_response.status
+        assert_equal @nonadmin_valid_scripts, JSON.parse(@pegasus.last_response.body)
+      end
+
+      it 'returns script list with hidden scripts when signed in as an admin' do
+        with_role FakeDashboard::ADMIN
+        @pegasus.get '/v2/sections/valid_scripts'
+        assert_equal 200, @pegasus.last_response.status
+        assert_equal(
+          @nonadmin_valid_scripts << {
+            'id' => 45,
+            'name' => 'allthehiddenthings *',
+            'script_name' => 'allthehiddenthings',
+            'category' => 'other',
+            'position' => nil,
+            'category_priority' => 15
+          } << {
+            "id" => 53,
+            "name" => "csp2-alt *",
+            "script_name" => "csp2-alt",
+            "category" => "other",
+            "position" => nil,
+            "category_priority" => 15
+          },
+          JSON.parse(@pegasus.last_response.body)
+        )
+      end
     end
   end
 end

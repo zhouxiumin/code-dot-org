@@ -1,8 +1,8 @@
 import $ from 'jquery';
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {connect} from 'react-redux';
 var CodeWorkspaceContainer = require('../CodeWorkspaceContainer');
-var TopInstructions = require('./TopInstructions');
+import TopInstructions from './TopInstructions';
 var instructions = require('../../redux/instructions');
 
 /**
@@ -15,10 +15,10 @@ var instructions = require('../../redux/instructions');
 var InstructionsWithWorkspace = React.createClass({
   propTypes: {
     // props provided via connect
-    instructionsHeight: React.PropTypes.number.isRequired,
+    instructionsHeight: PropTypes.number.isRequired,
 
-    setInstructionsMaxHeightAvailable: React.PropTypes.func.isRequired,
-    children: React.PropTypes.node,
+    setInstructionsMaxHeightAvailable: PropTypes.func.isRequired,
+    children: PropTypes.node,
   },
 
   getInitialState() {

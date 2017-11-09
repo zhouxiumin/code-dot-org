@@ -25,6 +25,13 @@ class LevelSourcesControllerTest < ActionController::TestCase
     assert_equal([], assigns(:view_options)[:callouts])
   end
 
+  test "should get show with encrypted level source ID" do
+    encrypted = @level_source.encrypt_level_source_id @admin.id
+    get :show, params: {level_source_id_and_user_id: encrypted}
+    assert_response :success
+    assert_equal @level_source, assigns(:level_source)
+  end
+
   test "should get show with embed" do
     get :show, params: {id: @level_source.id, embed: '1'}
     assert_response :success
@@ -47,15 +54,17 @@ class LevelSourcesControllerTest < ActionController::TestCase
     end
   end
 
-  test "should get show if hidden and admin" do
-    sign_in @admin
+  test "should get show if hidden and we have reset abuse permission" do
+    user = create(:teacher)
+    user.permission = UserPermission::RESET_ABUSE
+    sign_in user
     get :show, params: {id: @hidden_level_source.id}
     assert_response :success
   end
 
-  test "should update if we have block share permission" do
-    user = create(:user)
-    user.permission = UserPermission::BLOCK_SHARE
+  test "should update if we have reset abuse permission" do
+    user = create(:teacher)
+    user.permission = UserPermission::RESET_ABUSE
     sign_in user
     patch :update, params: {level_source: {hidden: true}, id: @level_source}
 

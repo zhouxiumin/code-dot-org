@@ -1,9 +1,9 @@
 /** @file controls below an animation looping toggle */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {OverlayTrigger, Tooltip} from "react-bootstrap";
 import Radium from 'radium';
 
-var styles = {
+const styles = {
   loopToggleStyle: {
     cursor: 'pointer',
     float: 'left'
@@ -14,22 +14,16 @@ var styles = {
  * The toggle that controls whether the animation loops frames.
  */
 
-const ItemLoopToggle = React.createClass({
-  getDefaultProps: function () {
-    return {
-      looping: true
-    };
-  },
+class ItemLoopToggle extends React.Component {
+  static defaultProps = {looping: true};
 
-  propTypes: {
-    style: React.PropTypes.object,
-    onToggleChange: React.PropTypes.func.isRequired,
-    looping: React.PropTypes.bool.isRequired
-  },
+  static propTypes = {
+    style: PropTypes.object,
+    onToggleChange: PropTypes.func.isRequired,
+    looping: PropTypes.bool.isRequired
+  };
 
-  toggleClicked() {
-    this.props.onToggleChange(!this.props.looping);
-  },
+  toggleClicked = () => this.props.onToggleChange(!this.props.looping);
 
   render() {
     const iconImageName = this.props.looping ? 'looping-continuous' : 'looping-one-time';
@@ -45,6 +39,6 @@ const ItemLoopToggle = React.createClass({
       </OverlayTrigger>
     );
   }
-});
+}
 
-module.exports = Radium(ItemLoopToggle);
+export default Radium(ItemLoopToggle);

@@ -37,7 +37,7 @@
         NetSim: "Интернет-симулятор"
         Custom: "Художник"
         CustomStudio: "Лаборатория игр"
-        Gamelab: Game Lab
+        Gamelab: "Игровая лаборатория"
     trophy:
       name:
         Bronze: "Бронзовый"
@@ -732,10 +732,22 @@
         C4_unplugged_forloops: "Циклы с параметром"
         C4_unplugged_parameters: "Написание песен с параметрами"
         C4_unplugged_binary: "Двоичный"
-        CSF_EF_cs_matters: Computer Science Matters
-        CSF_stevie_big_project: Stevie and the Big Project
-        CSF_unspotted_bugs: Unspotted Bugs
-        CSF_zuck_loops_short: Repeat Loops
+        CSF_artist_angles: "Углы в художнике"
+        CSF_collector_k1_blocks: "Оснвы CS: Коллектор"
+        CSF_collector_repeat_loops: "Коллектор Повторяет Циклы"
+        CSF_collector_text_blocks: "Оснвы CS: Коллектор"
+        CSF_create_functions: "Создание Функций"
+        CSF_debugging_k1_blocks: Debugging
+        CSF_debugging_text_blocks: Debugging
+        CSF_EF_cs_matters: "Вопросы Информатики"
+        CSF_maze_intro_k1_blocks: "Введение в Студию Кода"
+        CSF_maze_intro_text_blocks: "Введение в Студию Кода"
+        CSF_my_robotic_friends: "Мои друзья роботы"
+        CSF_Power_of_Words: "Сила Слов"
+        CSF_Super_Digital_Citizen: "Очень Цифровой Гражданин"
+        CSF_stevie_big_project: "Стиви и Большой Проект"
+        CSF_unspotted_bugs: "Незамеченные Баги"
+        CSF_zuck_loops_short: "Повторить Циклы"
         frozen_intro: "Час кода. Введение"
         frozen_loops: "Циклы. Введение"
         frozen_functions: "Функции. Введение"
@@ -746,18 +758,27 @@
         infinity_playlab_intro: "Лаборатория игр. Введение"
         infinity_playlab_events: "Лаборатория игр. События"
         infinity_playlab_repeat_forever: "Лаборатория игр. Блок «повторять бесконечно»"
-        csd_gamelab_animation_tab: The Animation Tab
+        csd_concept_computer: "Что Делает Компьютер, Компьютер?"
+        csd_concept_binary_data: 'How Computers Work: Binary & Data'
+        csd_concept_search: "Как Работает Поиск"
+        csd_external_amazon_data: How Big Data Is Used In Amazon Recommendation Systems
+          To Change Our Lives
+        csd_gamelab_animation_tab: "Вкладка Анимация"
+        csd_gamelab_conditionals_1: Introduction to Conditionals - Part 1
+        csd_gamelab_conditionals_2: Introduction to Conditionals - Part 2
         csd_gamelab_draw_1: Drawing in Game Lab - Part 1
         csd_gamelab_draw_2: Drawing in Game Lab - Part 2
         csd_gamelab_drawloop: Introduction to the Draw Loop
         csd_gamelab_sprites_1: Introduction to Sprites
         csd_gamelab_sprites_2: Animating Sprites
-        csd_gamelab_velocity: Velocity
-        csd_weblab_intro_1: Intro to Web Lab - Part 1
-        csd_weblab_intro_2: Intro to Web Lab - Part 2
-        csd_weblab_css_1: Intro to CSS - Part 1
-        csd_weblab_css_2: Intro to CSS - Part 2
-        csd_weblab_intro_3: Intro to Web Lab - Part 3
+        csd_gamelab_variables_1: Introduction to Variables - Part 1
+        csd_gamelab_variables_2: Introduction to Variables - Part 2
+        csd_gamelab_velocity: "Скорость"
+        csd_weblab_intro_1: "Введение в Web Практику - Часть 1"
+        csd_weblab_intro_2: "Введение в Web практику - Часть 2"
+        csd_weblab_css_1: "Введение в CSS - Часть 1"
+        csd_weblab_css_2: "Введение в CSS - Часть 2"
+        csd_weblab_intro_3: "Введение в Web Практикум - Часть 3"
         csp_applab_objects: Introduction to Objects
         csp_applab_databases_1: Introduction to Databases - Part 1
         csp_applab_databases_2: Introduction to Databases - Part 2
@@ -851,6 +872,14 @@
         mc_2016_events: "Час Кода Minecraft - События"
         mc_2016_spawn: Minecraft Час Кода - Вариации
         mc_2016_congrats: "Час Кода Minecraft - Поздравления"
+        applab_hoc_welcome: App Lab Hour of Code - Welcome
+        applab_hoc_setproperty: App Lab Hour of Code - setProperty
+        applab_hoc_onevent: App Lab Hour of Code - onEvent
+        applab_hoc_designmode: AppLab Hour of Code - Design Mode
+        applab_hoc_share: AppLab Hour of Code - Share
+        mc_2017_agent_intro: Minecraft Hour of Code - The Agent
+        mc_2017_repeat: Minecraft Hour of Code - Repeat Loops
+        mc_2017_functions: Minecraft Hour of Code - Functions
     callout:
       text:
         drag_blocks: "Перетащите блок «переместить» и поставьте его ниже другого блока"

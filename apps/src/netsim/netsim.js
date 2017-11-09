@@ -11,6 +11,7 @@ import ReactDOM from 'react-dom';
 import {openDialog as openInstructionsDialog} from '../redux/instructionsDialog';
 import {getStore} from '../redux';
 var _ = require('lodash');
+/** @type {Object<string, function>} */
 var i18n = require('@cdo/netsim/locale');
 var ObservableEventDEPRECATED = require('../ObservableEventDEPRECATED');
 var RunLoop = require('../RunLoop');
@@ -159,7 +160,6 @@ NetSim.prototype.injectStudioApp = function (studioApp) {
  * @param {Object} config
  * @param {Object} config.skin
  * @param {NetSimLevelConfiguration} config.level
- * @param {string} config.rackEnv - development/production/etc.
  * @param {boolean} config.enableShowCode - Always false for NetSim
  * @param {function} config.loadAudio
  */
@@ -188,12 +188,6 @@ NetSim.prototype.init = function (config) {
    * @type {NetSimLevelConfiguration}
    */
   this.level = NetSimUtils.scrubLevelConfiguration_(config.level);
-
-  /**
-   * Current operating environment, used to drive certain configuration.
-   * @type {string} one of "development"|"staging"|"test"|"production"
-   */
-  this.environment = config.rackEnv;
 
   /**
    * Whether NetSim should subscribe to events using Pusher.
@@ -1358,7 +1352,7 @@ NetSim.prototype.resetShard = function () {
 NetSim.prototype.showInstructionsDialog = function () {
   getStore().dispatch(openInstructionsDialog({
     autoClose: false,
-    aniGifOnly: false,
+    imgOnly: false,
     hintsOnly: false
   }));
 };

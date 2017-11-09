@@ -69,6 +69,12 @@
   congratulations_on_completing_course2: "Gratulujeme ti k dokončení kurzu 2"
   congratulations_on_completing_course3: "Gratulujeme ti k dokončení kurzu 3"
   congratulations_on_completing_course4: "Gratulujeme ti k dokončení kurzu 4"
+  congratulations_on_completing_coursea: "Congratulations on completing Course A"
+  congratulations_on_completing_courseb: "Congratulations on completing Course B"
+  congratulations_on_completing_coursec: "Congratulations on completing Course C"
+  congratulations_on_completing_coursed: "Congratulations on completing Course D"
+  congratulations_on_completing_coursee: "Congratulations on completing Course E"
+  congratulations_on_completing_coursef: "Congratulations on completing Course F"
   congratulations_on_completing_accelerated: "Gratulujeme ti k dokončení zrychleného kurzu"
   congrats_next_tutorials_title: "Dále vyzkoušejte tyto výukové programy"
   congrats_next_tutorials_desc: "Vyzkoušejte tyto kratší, jednohodinovou výuku nebo zkuste <a href=\"%{current_path}/next\"> partnerská výuka</a>."
@@ -194,7 +200,25 @@
   just_did_course2: "Právě jsem dokončil kurz 2 - zkus si ho! @codeorg"
   just_did_course3: "Právě jsem dokončil kurz 3 - zkus si ho! @codeorg"
   just_did_course4: "Právě jsem dokončil kurz 4 - zkus si ho! @codeorg"
+  just_did_coursea: "I just finished Course A - check it out! @codeorg"
+  just_did_courseb: "I just finished Course B - check it out! @codeorg"
+  just_did_coursec: "I just finished Course C - check it out! @codeorg"
+  just_did_coursed: "I just finished Course D - check it out! @codeorg"
+  just_did_coursee: "I just finished Course E - check it out! @codeorg"
+  just_did_coursef: "I just finished Course F - check it out! @codeorg"
   just_did_accelerated: "Právě jsem dokončil zrychlený kurz - zkus si ho! @codeorg"
+  just_did_hoc_donor: 'I just did the #HourOfCode - check it out! (Thanks %{donor_twitter} for supporting @codeorg)'
+  just_did_course1_donor: "I just finished Course 1 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course2_donor: "I just finished Course 2 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course3_donor: "I just finished Course 3 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course4_donor: "I just finished Course 4 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursea_donor: "I just finished Course A - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_courseb_donor: "I just finished Course B - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursec_donor: "I just finished Course C - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursed_donor: "I just finished Course D - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursee_donor: "I just finished Course E - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursef_donor: "I just finished Course F - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_accelerated_donor: "I just finished the Accelerated Course - check it out! Thanks %{donor_twitter} for supporting @codeorg"
   twitter_teach_cs: "9 z 10 lidí souhlasí s tím, že školy by měly učit informatiku. http://youtu.be/nKIu9yen5nc. Navštivte https://code.org/."
   twitter_cs_foundational: "Studium informatiky je pro každého studenta základní. https://youtu.be/QvyTEx1wyOY."
   learn_hoc: "Učte se s Hodinou Kódu"
@@ -207,6 +231,7 @@
   lines_of_code: "DOSUD NAPSÁNO PŘES <b># ŘÁDKŮ KÓDU</b>."
   lines_of_code_alt: "<b>#</b> ŘÁDKŮ KÓDU NAPSANÝCH STUDENTY"
   who_has_done_hoc: 'Kdo udělal #HourOfCode? @codeorg'
+  who_has_done_hoc_donor: 'Who has done the #HourOfCode? (Thanks %{donor_twitter} for supporting @codeorg)'
   hoc_leaderboards: "Žebříčky Hodiny Kódu"
   students_and_lines: "%{students} studentů absolvovalo Hodinu Kódu a napsalo %{lines} řádků kódu."
   start_hoc: "Začni Hodinu Kódu teď"
@@ -246,6 +271,10 @@
   homepage_hero_text_satya: |-
     &ldquo;Informatika umí otevřít ty nejlepší příležitosti ve světě.&rdquo;
     Satya, CEO Microsoft
+  homepage_hero_text_satya_new: |-
+    &ldquo;Computer science empowers
+    students to create the world of tomorrow.&rdquo;
+    Satya, CEO of Microsoft
   homepage_hero_text_bosh: |-
     &ldquo;Když programuješ, můžeš si vybrat a zvolit směr svého života.&rdquo;
     Chris Bosh
@@ -328,6 +357,7 @@
   homepage_slot_text_link_buy: "Zapojte se"
   homepage_slot_text_link_donate: "Přispějte"
   homepage_slot_text_link_shop: "Trička, čepice a další"
+  homepage_slot_text_link_administrators: "Bring to your school or district"
   homepage_header_codestudio: "Studentská tvorba v Code studiu"
   homepage_header_donors: "Code.org děkuje svým příznivcům"
   homepage_donors_seall: "Podívejte se na všechny"
@@ -516,6 +546,8 @@
   volunteer_engineer_submission_type_task_remote: "Chci, abys pomocí Skype řekl mé třídě pár slov k inspiraci dětí"
   volunteer_engineer_submission_type_task_mentor: "Hledám mentora, aby mne pomohl připravit na kódování s mvými studenty"
   petition_age: "Věk"
+  dashboard_announce_hoc_scaling_progress: "Yikes! We are experiencing high Hour of Code traffic. We are unable to save any progress this week, but progress from before this week is still safe."
+  dashboard_announce_learn_more_button: "Zjisti více"
   dashboard_landing_title: "Učitelská domovská stránka"
   dashboard_landing_welcome: "Vítáme vás na novém a vylepšeném řídicím panelu pro učitele."
   dashboard_landing_video: "Podívejte se na toto video"
@@ -652,6 +684,7 @@
   dashboard_students_add_student: "Přidat studenta"
   dashboard_students_add_students: "Přidat více studentů"
   dashboard_students_add_multiple: 'Zadejte nebo vložte jména vašich studentů, jeden na řádek:'
+  dashboard_students_new_google_classroom_section: "To add students, use <a href='http://classroom.google.com' target='_blank'>Google Classroom</a> and then click the <b>Sync students from Google Classroom</b> button above."
   dashboard_students_new_section: "Vytvořili jste novou sekci! Nyní přidejte své studenty pomocí tlačítka <b>Přidat studenta</b> a <b>Přidat více studentů</b> výše."
   dashboard_students_placeholder_name: "Jméno studenta"
   dashboard_students_name: "Jméno"
@@ -694,6 +727,12 @@
   dashboard_course2: 'Kurz 2:'
   dashboard_course3: 'Kurz 3:'
   dashboard_course4: 'Kurz 4 (beta): '
+  dashboard_coursea: 'Course A: '
+  dashboard_courseb: 'Course B: '
+  dashboard_coursec: 'Course C: '
+  dashboard_coursed: 'Course D: '
+  dashboard_coursee: 'Course E: '
+  dashboard_coursef: 'Course F: '
   dashboard_unplugged: "Pokud nemáte přístup k počítačům, vyzkoušejte ve třídě tyto <a href='%{unplugged_url}'>lekce bez počítače</a>."
   dashboard_curriculum: "Kurikulum"
   dashboard_curriculum_overview: "Přehled učiva 1. stupně ZŠ"
@@ -780,7 +819,7 @@
   carousel_heading_international: "Výuka ve tvém jazyce"
   carousel_heading_domestic: "Kurzy dostupné v angličtině"
   carousel_heading_beginners: "Kurzy pro začátečníky"
-  carousel_heading_beyond_beginners: "Kurzy pro začátečníky"
+  carousel_heading_beyond_beginners: Kurzy pro začátečníky
   carousel_heading_javascript: "Kurzy, které učí Javascript"
   carousel_heading_beyond_javascript: "Kurzy, které učí Javascript"
   carousel_heading_unplugged: "Žádné zařízení nebo internet? Zkuste informatiku \"unplugged\""
@@ -793,12 +832,18 @@
   carousel_heading_webpages: "Naučte se dělat webové stránky"
   carousel_heading_robots: "Naučte se programovat s roboty"
   carousel_heading_ide: "Platformy, které jsou populární mezi učiteli"
+  carousel_heading_desktop: "Learn to code on a computer"
+  carousel_heading_mobtabelem: "For phones and tablets"
+  carousel_heading_prereader: "For pre-readers"
+  carousel_heading_beyondblocks: "Go beyond blocks - learn a programming language"
+  carousel_heading_nointernet: "Poor internet? Install these apps on your computer"
   educator_notes: "Poznámky pro školitele"
   teach_led_lesson_plans: "Učitelské vedení rozvrhu cvičení Hodiny kódu"
   learn_footer_all_tutorials: "Viz <a href=\"https://code.org/educate/allhourofcode\"> úplný seznam tutoriálů Hodiny kódu</a>. Chcete-li vidět naše kritéria a pokyny pro odeslání výukové Hodiny kódu, <a href=\"https://hourofcode.com/tutorial-guidelines\">, klepněte sem.</a>"
   how_to_teach_hoc: "Jak učit Hodinu kódu"
   more_resources_educators: "Další zdroje pro učitele"
   beyond_submission: "Chcete odeslat výuku za mimoškolní aktivitu? Viz kritéria a odesílací formulář."
+  third_party_submission: "Want to submit a tutorial to be listed here? <a href=\"%{submission_url}\">See the criteria and submission form.</a>"
   participants: "účastníci"
   teachers_notes: "Poznámky pro učitele"
   teachers_notes_hoc: 'Učitelé: Zde si přečtěte důležité informace pro vyučující'
@@ -862,12 +907,20 @@
   course3_name: "Kurz 3"
   course4_name: "Kurz 4"
   coursea-draft_name: Kurz A
+  coursea_name: "Kurz A"
   courseb-draft_name: Kurz B
+  courseb_name: "Kurz B"
   coursec-draft_name: Kurz C
+  coursec_name: "Kurz C"
   coursed-draft_name: Kurz D
+  coursed_name: "Kurz D"
   coursee-draft_name: Kurz E
+  coursee_name: "Kurz E"
   coursef-draft_name: Kurz F
+  coursef_name: "Kurz F"
   accelerated_name: "Zrychlený kurz"
+  express_name: "Express Course"
+  pre-express_name: Pre-reader Express Course
   cspunit1_name: '1. lekce: Digitální informace'
   cspunit2_name: '2. lekce: Internet'
   cspunit3_name: '3. lekce: Programování'
@@ -883,9 +936,12 @@
   csp1_name: '1. lekce: Internet'
   csp2_name: '2. lekce: Digitální informace'
   csp3_name: 'Unit 3: Algorithms and Programming'
+  csp3-a_name: 'Unit 3: Intro Programming (version A)'
+  csp3-research-mxghyt_name: 'Unit 3: Intro Programming (Subgoals)'
   csp4_name: 'Unit 4: Big Data and Privacy'
   csp5_name: 'Unit 5: Building Apps'
   csp6_name: 'Unit 6: AP Performance Tasks'
+  csp-ap_name: AP Performance Tasks
   csppostap_name: 'Po testu: Databáze v aplikacích'
   cspassessment_name: "Úplný test - 50 otázek"
   cspexam1-mWU7ilDYM9_name: 1. část testu - 25 otázek
@@ -908,6 +964,7 @@
   math_category_name: "Matematika"
   hoc_category_name: "Hodina kódu"
   csf_category_name: "Základy informatiky"
+  csf_international_category_name: "CS Fundamentals International"
   csf2_draft_category_name: 'Ve vývoji: Kurzy A - F'
   csd_category_name: "CS Discoveries"
   csp_category_name: "Principy informatiky 2015-2016"
@@ -973,6 +1030,12 @@
   course2_gradelevel: "Věk 6-18"
   course3_gradelevel: "Ve věku 8-18"
   course4_gradelevel: "Stáří 10-13"
+  coursea_gradelevel: "Grade 5+"
+  courseb_gradelevel: "Grade 6+"
+  coursec_gradelevel: "Grade 7+"
+  coursed_gradelevel: "Známky 8+"
+  coursee_gradelevel: "Grade 9+"
+  coursef_gradelevel: "Grade 10+"
   accelerated_gradelevel: "Stáří 10-13"
   codeorg_platformtext: "Moderní prohlížeče, smartphony, tablety"
   codeintl_platformtext: "Moderní prohlížeče, smartphony, tablety"
@@ -1075,6 +1138,12 @@
   course2_shortdescription_congrats: "Pro studenty se základní schopností čtení tento kurz navazuje na kurz 1. Studenti vytvoří programy za účelem řešení problémů a vyvinou interaktivní hry nebo příběhy, které mohou sdílet. Vhodné pro 2.-5. třídu ZŠ."
   course3_shortdescription_congrats: "Připraveni na další úroveň? Studenti se hlouběji ponoří do programovacích témat z předchozích kurzů a budou hledat vhodná řešení složitějších problémů. Na konci tohoto kurzu studenti tvoří interaktivní příběhy a hry, které mohou s kýmkoli sdílet. Vhodné pro 4.-5. ročník ZŠ."
   course4_shortdescription_congrats: "Můžeme postoupit dále? Studenti se hlouběji ponoří do programovacích témat z předchozích kurzů a budou hledat vhodná řešení složitějších problémů. Na konci tohoto kurzu studenti tvoří interaktivní příběhy a hry, které mohou s kýmkoli sdílet. Vhodné pro 4.-8. ročník ZŠ."
+  coursea_shortdescription_congrats: ""
+  courseb_shortdescription_congrats: ""
+  coursec_shortdescription_congrats: ""
+  coursed_shortdescription_congrats: ""
+  coursee_shortdescription_congrats: ""
+  coursef_shortdescription_congrats: ""
   codeorg_longdescription: "Nauč se základní pojmy informatiky pomocí tahání myší. Je to hravá, samostatně vedená výuka, v jejíchž videolekcích v hlavních rolích vystupují hvězdy jako Bill Gates, Mark Zuckerberg, Angry Birds a Plants vs. Zombies. Nauč se příkazy opakování, rozhodování a základní algoritmy. Dostupné v 34 jazycích."
   codeintl_longdescription: "Nauč se základní pojmy informatiky pomocí tahání myší. Je to hravá, samostatně vedená výuka, v jejíchž videolekcích v hlavních rolích vystupují hvězdy jako Bill Gates, Mark Zuckerberg, Angry Birds a Plants vs. Zombies. Nauč se příkazy opakování, rozhodování a základní algoritmy. Dostupné v 34 jazycích."
   thinkersmithspanish_longdescription: "Použitím předdefinovaného \"slovníkového Robota\" budou žáci vedeni k objevování tak, aby prováděli specifické úkoly bez předchozí instruktáže. Tato pasáž učí žáky spojení mezi symboly a akcí, jakož i cennou dovednost ladění."
@@ -1319,8 +1388,10 @@
   playlab_shortcode: "lab"
   artist_shortcode: "art"
   header_home: "Home"
+  header_my_dashboard: "My Dashboard"
   header_courses: "kurzy"
-  header_project_gallery: "Project Gallery"
+  header_course_catalog: "Course Catalog"
+  header_project_gallery: "Projekty"
   header_sections: "Sections"
   header_professional_learning: "Professional Learning"
   header_educate_overview: "Educator Overview"
@@ -1353,6 +1424,37 @@
   header_report_bug: "Report bug"
   header_tutorials: "Tutorials"
   header_documentation: "Documentation"
-  csp_name: "CS Principles"
+  csp_name: "Principy informatiky 2016-2017"
   csd_name: "CS Discoveries"
   full_course_category_name: "Full Courses"
+  user_header_label: "Ahoj %{username}"
+  user_header_settings: "Můj účet"
+  user_header_logout: "Odhlásit se"
+  user_header_signin: "Přihlásit"
+  view_all_sections: "View All Sections"
+  view_section: "View Section"
+  view_named_section: "View %{section_name}"
+  privacy_doc_explanation: "Click here for our privacy document that can be shared or printed for your students."
+  signing_in: "Signing In"
+  sign_in_overview: 'Your students can sign in to their Code.org accounts by following these steps:'
+  sign_in_instruct_website: "Go to %{code_org_url}."
+  sign_in_instruct_code: 'Type in their section code: %{section_code}.'
+  sign_in_instruct_name: "Choose their display name."
+  sign_in_instruct_secret: "Choose their secret %{secret}."
+  sign_in_instruct_button: "Click the “Sign in” button."
+  sign_in_overview_cards: "Students can find all of this information, including their secret %{secret}, in the login cards below."
+  reset_student_password: "Resetting student passwords"
+  reset_student_password_instructions: "You can reset the secret <word/picture> for any of your students by going to the “Manage Students” tab for the section, clicking the “Show secret” button under the “Password” column, and clicking the “Reset secret” button."
+  login_cards: "Login Cards"
+  print_login_cards: "Print login cards"
+  joining_section: "Joining your section (one-time only)"
+  joining_section_overview: "If a student has not already joined your section, please ask them to do the following steps. Note that they only need to do this once. By joining your section, students will be able see the course assigned to them and you will be able to track the progress of the work they complete while they are signed in."
+  joining_section_instruct_website: 'Create a Code.org account if they haven’t already done so. They can do this at https://studio.code.org/users/sign_up. Note that they can either sign up with an email address and password, or sign up through Google, Facebook, or Microsoft by clicking on one of these buttons:'
+  joining_section_instruct_account: "Sign in to their Code.org account."
+  joining_section_instruct_code: 'Navigate to %{code_org_url} and type in their section code: %{section_code}.'
+  joining_section_instruct_button: "Once they press the “Go” button, they should be added to your section."
+  signing_in_single_instruct: "Your students can sign in to their Code.org accounts by going to https://code.org/ and clicking on the “Sign in” button on the top right corner."
+  reset_student_password_email: "If your student created a Code.org account by using their email address and password (instead of signing in through their Google, Facebook, Microsoft, or Clever account), you can reset their password by going to the “Manage Students” tab for the section, and clicking the “Reset password” button under the “Password” column."
+  syncing_students: "Syncing your students"
+  syncing_students_instructions: 'If your Code.org section is ever out of date with your list of students in Google Classroom, click on the “Sync students from Google Classroom” button on the “Manage students” tab:'
+  google_sign_in_instruct: 'From there, they should choose the “Sign in with Google Account” option:'

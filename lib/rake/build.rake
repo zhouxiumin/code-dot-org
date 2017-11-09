@@ -7,23 +7,31 @@ namespace :build do
   desc 'Builds apps.'
   task :apps do
     Dir.chdir(apps_dir) do
-      ChatClient.log 'Installing <b>apps</b> dependencies...'
-      RakeUtils.npm_install
-
-      # Workaround for https://github.com/sass/node-sass/issues/1804
-      RakeUtils.npm_rebuild 'node-sass'
-
-      # Workaround for https://github.com/karma-runner/karma-phantomjs-launcher/issues/120
-      RakeUtils.npm_rebuild 'phantomjs-prebuilt'
-
       if rack_env?(:staging)
         ChatClient.log 'Updating <b>apps</b> i18n strings...'
         RakeUtils.system './sync-apps.sh'
       end
 
+      # Only rebuild if apps contents have changed since last build.
+      commit_hash = apps_dir('build/commit_hash')
+      if !RakeUtils.git_staged_changes?(apps_dir) &&
+        File.exist?(commit_hash) &&
+        File.read(commit_hash) == RakeUtils.git_folder_hash(apps_dir)
+
+        ChatClient.log '<b>apps</b> unchanged since last build, skipping.'
+        next
+      end
+
+      ChatClient.log 'Installing <b>apps</b> dependencies...'
+      RakeUtils.npm_install
+
+      # Workaround for https://github.com/karma-runner/karma-phantomjs-launcher/issues/120
+      RakeUtils.npm_rebuild 'phantomjs-prebuilt'
+
       ChatClient.log 'Building <b>apps</b>...'
       npm_target = (rack_env?(:development) || ENV['CI']) ? 'build' : 'build:dist'
       RakeUtils.system "npm run #{npm_target}"
+      File.write(commit_hash, RakeUtils.git_folder_hash(apps_dir))
     end
   end
 
@@ -80,10 +88,20 @@ namespace :build do
           ChatClient.log 'consider setting "skip_seed_all" in locals.yml if this is taking too long' if rack_env?(:development)
           RakeUtils.rake 'seed:all'
         end
+
+        # Commit dsls.en.yml changes on staging
+        dsls_file = dashboard_dir('config/locales/dsls.en.yml')
+        if rack_env?(:staging) && GitUtils.file_changed_from_git?(dsls_file)
+          RakeUtils.system 'git', 'add', dsls_file
+          ChatClient.log 'Committing updated dsls.en.yml file...', color: 'purple'
+          RakeUtils.system 'git', 'commit', '-m', '"Update dsls.en.yml"', dsls_file
+          RakeUtils.git_push
+        end
       end
 
       # Skip asset precompile in development where `config.assets.digest = false`.
-      unless rack_env?(:development)
+      # Also skip on Circle CI where we will precompile assets later, right before UI tests.
+      unless rack_env?(:development) || ENV['CIRCLECI']
         # Skip cleaning assets in production, to be extra sure we don't break anything.
         # Do clean assets in staging and test, to hopefully expose any bugs where we
         # depend on outdated assets.

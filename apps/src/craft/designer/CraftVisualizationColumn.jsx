@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import msg from '@cdo/locale';
 import craftMsg from './locale';
 
@@ -7,11 +7,11 @@ import BelowVisualization from '../../templates/BelowVisualization';
 import ArrowButtons from '../../templates/ArrowButtons';
 import ProtectedVisualizationDiv from '../../templates/ProtectedVisualizationDiv';
 
-export default React.createClass({
-  propTypes: {
-    showFinishButton: React.PropTypes.bool.isRequired,
-    showScore: React.PropTypes.bool.isRequired
-  },
+export default class CraftVisualizationColumn extends React.Component {
+  static propTypes = {
+    showFinishButton: PropTypes.bool.isRequired,
+    showScore: PropTypes.bool.isRequired
+  };
 
   render() {
     return (
@@ -43,4 +43,4 @@ export default React.createClass({
       </span>
     );
   }
-});
+}

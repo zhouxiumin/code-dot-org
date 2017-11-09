@@ -1,6 +1,6 @@
 /** @file Root component for Modulo Clock widget */
 import _ from 'lodash';
-import React from 'react';
+import React, {PropTypes} from 'react';
 import color from "../util/color";
 import ModuloClock from './ModuloClock';
 import IntegerDropdown from './IntegerDropdown';
@@ -38,35 +38,27 @@ const style = {
 };
 
 /** Root component for Public Key Cryptography widget */
-const ModuloClockWidget = React.createClass({
-  getInitialState() {
-    return {
-      dividend: 247,
-      modulus: 37,
-      speed: 1,
-      animating: false
-    };
-  },
+export default class ModuloClockWidget extends React.Component {
+  state = {
+    dividend: 247,
+    modulus: 37,
+    speed: 1,
+    animating: false
+  };
 
-  onDividendChange(dividend) {
-    this.setState({dividend});
-  },
+  onDividendChange = dividend => this.setState({dividend});
 
-  onModulusChange(modulus) {
-    this.setState({modulus});
-  },
+  onModulusChange = modulus => this.setState({modulus});
 
-  onGoClick() {
+  onGoClick = () => {
     this.setState({animating: true});
     const maximumDuration = 8000 / this.state.speed + 2000;
     this.moduloClock.animateTo(this.state.dividend, maximumDuration, null, () => {
       this.setState({animating: false});
     });
-  },
+  };
 
-  onSpeedChange(speed) {
-    this.setState({speed});
-  },
+  onSpeedChange = speed => this.setState({speed});
 
   render() {
     const {dividend, modulus, speed, animating} = this.state;
@@ -118,8 +110,7 @@ const ModuloClockWidget = React.createClass({
         <WidgetContinueButton/>
       </div>);
   }
-});
-export default ModuloClockWidget;
+}
 
 function LabelBelow(props) {
   return (
@@ -129,6 +120,6 @@ function LabelBelow(props) {
     </div>);
 }
 LabelBelow.propTypes = {
-  label: React.PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
   children: AnyChildren
 };

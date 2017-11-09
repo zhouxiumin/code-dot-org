@@ -1,5 +1,7 @@
 class SectionsController < ApplicationController
-  before_action :load_section_by_code, except: :update
+  include UsersHelper
+
+  before_action :load_section_by_code, only: [:log_in, :show]
 
   def show
     @secret_pictures = SecretPicture.all.shuffle
@@ -11,7 +13,23 @@ class SectionsController < ApplicationController
     section = Section.find(params[:id])
     authorize! :manage, section
 
-    section.update!(course_id: params[:course_id], script_id: nil)
+    course_id = params[:course_id]
+    script_id = params[:script_id]
+
+    if script_id
+      script = Script.get_from_cache(script_id)
+      # If given a course and script, make sure the script is in that course
+      return head :bad_request if course_id && course_id != script.course.try(:id)
+      # If script has a course and no course_id was provided, use default course
+      course_id = script.course.try(:id) unless course_id
+    end
+
+    section.update!(course_id: course_id, script_id: script_id)
+    if script_id
+      section.students.each do |student|
+        student.assign_script(script)
+      end
+    end
     render json: {}
   end
 
@@ -20,7 +38,8 @@ class SectionsController < ApplicationController
       bypass_sign_in user
       user.update_tracked_fields!(request)
       session[:show_pairing_dialog] = true if params[:show_pairing_dialog]
-      redirect_to_section_script
+      check_and_apply_clever_takeover(user)
+      redirect_to_section_script_or_course
     else
       flash[:alert] = I18n.t('signinsection.invalid_login')
       redirect_to section_path(id: @section.code)
@@ -29,9 +48,11 @@ class SectionsController < ApplicationController
 
   private
 
-  def redirect_to_section_script
+  def redirect_to_section_script_or_course
     if @section.script
       redirect_to @section.script
+    elsif @section.course
+      redirect_to @section.course
     else
       redirect_to '/'
     end

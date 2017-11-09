@@ -1,8 +1,8 @@
 /** @file Vertical scrolling list */
-var React = require('react');
-var Radium = require('radium');
+import React, {PropTypes} from 'react';
+import Radium from 'radium';
 
-var staticStyles = {
+const staticStyles = {
   root: {
     overflowX: 'hidden',
     overflowY: 'scroll'
@@ -16,14 +16,14 @@ var staticStyles = {
  * Component displaying a vertical list of tiles that scrolls if it grows
  * beyond its natural height.
  */
-var ScrollableList = React.createClass({
-  propTypes: {
-    className: React.PropTypes.string,
-    style: React.PropTypes.object,
-    children: React.PropTypes.node,
-  },
+class ScrollableList extends React.Component {
+  static propTypes = {
+    className: PropTypes.string,
+    style: PropTypes.object,
+    children: PropTypes.node,
+  };
 
-  render: function () {
+  render() {
     return (
       <div className={this.props.className} style={[staticStyles.root, this.props.style]}>
         <div style={staticStyles.margins}>
@@ -32,5 +32,6 @@ var ScrollableList = React.createClass({
       </div>
     );
   }
-});
-module.exports = Radium(ScrollableList);
+}
+
+export default Radium(ScrollableList);

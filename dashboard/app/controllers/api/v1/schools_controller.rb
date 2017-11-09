@@ -7,4 +7,12 @@ class Api::V1::SchoolsController < ApplicationController
     end
     render json: serialized_schools
   end
+
+  # GET /dashboardapi/v1/schoolsearch/:q/:limit
+  def search
+    render json: Api::V1::SchoolAutocomplete.get_matches(
+      params.require(:q),
+      params[:limit]
+    )
+  end
 end

@@ -18,6 +18,18 @@ TeacherCon Phoenix
 TeacherCon is an intensive, hands-on, in-person workshop providing foundational experiences with computer science and the Code.org suite of tools. The five-day workshop is the primary capacity building experience for teachers prior to their first year of instruction. Participants will explore the curriculum and tools, consider and experiment with specific classroom management and teaching strategies, and build a local community of teachers who are also using this curriculum.
 
 ## **Travel & Hotel Information**
+### NEW INFO: How to get from the airport to the hotel!
+**Want to share a ride from the airport to the hotel with fellow TeacherCon attendees?**
+<p>
+For privacy reasons, Code.org is not able to share attendee contact information, but you're welcome to meet up with each other at the airport and ride together to the hotel. If you'd like to share a ride, our suggestion is to join a group meeting every 30 minutes between 10 am and 4:30 pm inside the airport (see suggested meeting locations below), and then find a taxi, Uber, or Lyft together. **Please note that Code.org staff will not be at the meeting location.** When you get to the meeting location, make sure to ask others nearby if they are part of TeacherCon.
+</p> 
+
+**Suggested meeting locations at PHX Sky Harbor:**
+
+- Terminal 2: Meet at door 7
+- Terminal 3: Meet at door 4
+- Terminal 4: Meet at door 1
+
 <details>
   <summary>**Hotel Information**</summary>
   <p>
@@ -153,13 +165,23 @@ This section will be updated as emails are sent for this event.
 </details>
 
 <details>
-<summary>**Pre-work and important infor about your upcoming TeacherCon!**</summary>
+<summary>**Pre-work and important info about your upcoming TeacherCon!**</summary>
  <p>
  <br>
 **CS Principles Teachers:** [Click here](http://go.pardot.com/webmail/153401/210813081/f7e01395f2e5bb7f0cc319f4106346c043330c5b5b064af9cd862fed315c3da9) to view a web version of our previous email.
 </p>
  <p>
 **CS Discoveries Teachers:** [Click here](http://go.pardot.com/webmail/153401/210813485/f7e01395f2e5bb7f0cc319f4106346c043330c5b5b064af9cd862fed315c3da9) to view a web version of our previous email.
+</p>
+</details>
+
+<details>
+<summary>**We're one week away from TeacherCon!**</summary>
+ <p>
+ <br>
+**CS Principles Teachers:** [Click here](http://go.pardot.com/webmail/153401/218257869/f7e01395f2e5bb7f0cc319f4106346c043330c5b5b064af9cd862fed315c3da9) to view a web version of our previous email.</p>
+<p>
+**CS Discoveries Teachers:** [Click here](http://go.pardot.com/webmail/153401/218257875/f7e01395f2e5bb7f0cc319f4106346c043330c5b5b064af9cd862fed315c3da9) to view a web version of our previous email.
 </p>
 </details>
 

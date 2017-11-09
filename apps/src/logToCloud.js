@@ -7,7 +7,9 @@ var PageAction = utils.makeEnum(
   'UserJavaScriptError',
   'RunButtonClick',
   'StartWebRequest',
-  'StaticResourceFetchError'
+  'StaticResourceFetchError',
+  'PegasusSectionsRedirect',
+  'BrambleError'
 );
 
 var MAX_FIELD_LENGTH = 4095;

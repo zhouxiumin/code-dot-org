@@ -1,20 +1,20 @@
 /**
  * Displays nicely-formatted session time for a workshop.
 */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import moment from 'moment';
 import {
   TIME_FORMAT,
   DATETIME_FORMAT
 } from '../workshopConstants';
 
-const SessionTime = React.createClass({
-  propTypes: {
-    session: React.PropTypes.shape({
-      start: React.PropTypes.string.isRequired,
-      end: React.PropTypes.string.isRequired
+export default class SessionTime extends React.Component {
+  static propTypes = {
+    session: PropTypes.shape({
+      start: PropTypes.string.isRequired,
+      end: PropTypes.string.isRequired
     }).isRequired
-  },
+  };
 
   render() {
     const formattedTime = moment.utc(this.props.session.start).format(DATETIME_FORMAT) +
@@ -22,5 +22,4 @@ const SessionTime = React.createClass({
 
     return <div>{formattedTime}</div>;
   }
-});
-export default SessionTime;
+}

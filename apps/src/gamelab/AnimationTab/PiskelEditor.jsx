@@ -1,10 +1,10 @@
 /** @file Component wrapping embedded Piskel editor */
 // PISKEL_DEVELOPMENT_MODE is a build flag.  See Gruntfile.js for how to enable it.
 /* global PISKEL_DEVELOPMENT_MODE */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {connect} from 'react-redux';
 import PiskelApi from '@code-dot-org/piskel';
-import * as PropTypes from '../PropTypes';
+import * as shapes from '../shapes';
 import { editAnimation, removePendingFramesAction } from '../animationListModule';
 import { show, Goal } from '../AnimationPicker/animationPickerModule';
 
@@ -21,20 +21,20 @@ const PISKEL_PATH = '/blockly/js/piskel/index.html' +
  * (and never re-rendering!) that iframe, and sending state updates to the
  * iframe.
  */
-const PiskelEditor = React.createClass({
-  propTypes: {
+class PiskelEditor extends React.Component {
+  static propTypes = {
     // Provided manually
-    style: React.PropTypes.object,
+    style: PropTypes.object,
     // Provided by Redux
-    animationList: PropTypes.AnimationList.isRequired,
-    selectedAnimation: PropTypes.AnimationKey,
-    channelId: React.PropTypes.string.isRequired,
-    editAnimation: React.PropTypes.func.isRequired,
-    allAnimationsSingleFrame: React.PropTypes.bool.isRequired,
-    onNewFrameClick: React.PropTypes.func.isRequired,
-    pendingFrames: React.PropTypes.object,
-    removePendingFrames: React.PropTypes.func.isRequired
-  },
+    animationList: shapes.AnimationList.isRequired,
+    selectedAnimation: shapes.AnimationKey,
+    channelId: PropTypes.string.isRequired,
+    editAnimation: PropTypes.func.isRequired,
+    allAnimationsSingleFrame: PropTypes.bool.isRequired,
+    onNewFrameClick: PropTypes.func.isRequired,
+    pendingFrames: PropTypes.object,
+    removePendingFrames: PropTypes.func.isRequired
+  };
 
   componentDidMount() {
     /**
@@ -59,12 +59,12 @@ const PiskelEditor = React.createClass({
     this.piskel.onPiskelReady(this.onPiskelReady);
     this.piskel.onStateSaved(this.onAnimationSaved);
     this.piskel.onAddFrame(this.onAddFrame);
-  },
+  }
 
   componentWillUnmount() {
     this.piskel.detachFromPiskel();
     this.piskel = undefined;
-  },
+  }
 
   componentWillReceiveProps(newProps) {
     if (newProps.selectedAnimation !== this.props.selectedAnimation) {
@@ -74,7 +74,7 @@ const PiskelEditor = React.createClass({
         newProps.selectedAnimation === newProps.pendingFrames.key) {
       this.sendPendingFramesToPiskel(newProps.pendingFrames);
     }
-  },
+  }
 
   sendPendingFramesToPiskel(animationProps) {
     const key = this.props.selectedAnimation;
@@ -102,7 +102,7 @@ const PiskelEditor = React.createClass({
           }
         });
     }
-  },
+  }
 
   loadSelectedAnimation_(props) {
     const key = props.selectedAnimation;
@@ -159,27 +159,25 @@ const PiskelEditor = React.createClass({
             }
           });
     }
-  },
+  }
 
   // We are hosting an embedded application in an iframe; we should never try
   // to re-render it.
   shouldComponentUpdate() {
     return false;
-  },
+  }
 
-  onAddFrame() {
-    this.props.onNewFrameClick();
-  },
+  onAddFrame = () => this.props.onNewFrameClick();
 
-  onPiskelReady() {
+  onPiskelReady = () => {
     this.isPiskelReady_ = true;
     if (this.props.allAnimationsSingleFrame) {
       this.piskel.toggleFrameColumn(true);
     }
     this.loadSelectedAnimation_(this.props);
-  },
+  };
 
-  onAnimationSaved(message) {
+  onAnimationSaved = (message) => {
     if (this.isLoadingAnimation_) {
       return;
     }
@@ -191,7 +189,7 @@ const PiskelEditor = React.createClass({
       frameCount: message.frameCount,
       frameDelay: message.frameRate
     });
-  },
+  };
 
   render() {
     return (
@@ -202,7 +200,7 @@ const PiskelEditor = React.createClass({
       />
     );
   }
-});
+}
 export default connect(state => ({
   selectedAnimation: state.animationTab.selectedAnimation,
   animationList: state.animationList,

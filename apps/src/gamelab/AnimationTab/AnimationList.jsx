@@ -1,8 +1,8 @@
 /** @file Vertical scrolling list of animation sequences */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
 import color from "../../util/color";
-import * as PropTypes from '../PropTypes';
+import * as shapes from '../shapes';
 import { show, Goal } from '../AnimationPicker/animationPickerModule';
 import AnimationListItem from './AnimationListItem';
 import NewListItem from './NewListItem';
@@ -24,34 +24,34 @@ const styles = {
 /**
  * Vertical scrolling list of animations associated with the project.
  */
-const AnimationList = React.createClass({
-  propTypes: {
-    animationList: PropTypes.AnimationList.isRequired,
-    selectedAnimation: PropTypes.AnimationKey,
-    onNewItemClick: React.PropTypes.func.isRequired
-  },
+class AnimationList extends React.Component {
+  static propTypes = {
+    animationList: shapes.AnimationList.isRequired,
+    selectedAnimation: shapes.AnimationKey,
+    onNewItemClick: PropTypes.func.isRequired
+  };
 
   render() {
     return (
-        <ScrollableList style={styles.root} className="animationList">
-          {this.props.animationList.orderedKeys.map(key =>
-            <AnimationListItem
-              key={key}
-              animationKey={key}
-              animationProps={this.props.animationList.propsByKey[key]}
-              isSelected={key === this.props.selectedAnimation}
-              animationList={this.props.animationList}
-            />
-          )}
-          <NewListItem
-            key="new_animation"
-            label="new animation"
-            onClick={this.props.onNewItemClick}
+      <ScrollableList style={styles.root} className="animationList">
+        {this.props.animationList.orderedKeys.map(key =>
+          <AnimationListItem
+            key={key}
+            animationKey={key}
+            animationProps={this.props.animationList.propsByKey[key]}
+            isSelected={key === this.props.selectedAnimation}
+            animationList={this.props.animationList}
           />
-        </ScrollableList>
+        )}
+        <NewListItem
+          key="new_animation"
+          label="new animation"
+          onClick={this.props.onNewItemClick}
+        />
+      </ScrollableList>
     );
   }
-});
+}
 export default connect(state => ({
   animationList: state.animationList,
   selectedAnimation: state.animationTab.selectedAnimation

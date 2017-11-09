@@ -1,17 +1,17 @@
 /**
  * List of facilitators for display in the workshop summary.
  */
-import React from 'react';
+import React, {PropTypes} from 'react';
 
-const FacilitatorsList = React.createClass({
-  propTypes: {
-    facilitators: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        name: React.PropTypes.string,
-        email: React.PropTypes.string
+export default class FacilitatorsList extends React.Component {
+  static propTypes = {
+    facilitators: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        email: PropTypes.string
       })
     ).isRequired
-  },
+  };
 
   render() {
     const listItems = this.props.facilitators.map((facilitator, i) => {
@@ -28,5 +28,4 @@ const FacilitatorsList = React.createClass({
       </ul>
     );
   }
-});
-export default FacilitatorsList;
+}

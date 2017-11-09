@@ -19,12 +19,15 @@ var Hammer = require("../third-party/hammer");
 var constants = require('../constants');
 import {getStore} from '../redux';
 var KeyCodes = constants.KeyCodes;
+import {getRandomDonorTwitter} from '../util/twitterHelper';
 
 var SquareType = tiles.SquareType;
 
 import {TestResults, ResultType} from '../constants';
 
 import '../util/svgelement-polyfill';
+import experiments from '../util/experiments';
+import {SignInState} from '../code-studio/progressRedux';
 
 /**
  * Create a namespace for the application.
@@ -68,7 +71,7 @@ Bounce.scale = {
 };
 
 var twitterOptions = {
-  text: bounceMsg.shareBounceTwitter(),
+  text: bounceMsg.shareBounceTwitterDonor({donor: getRandomDonorTwitter()}),
   hashtag: "BounceCode"
 };
 
@@ -971,6 +974,9 @@ Bounce.reset = function (first) {
  */
 // XXX This is the only method used by the templates!
 Bounce.runButtonClick = function () {
+  if (level.edit_blocks) {
+    Bounce.onPuzzleComplete();
+  }
   var runButton = document.getElementById('runButton');
   var resetButton = document.getElementById('resetButton');
   // Ensure that Reset button is at least as wide as Run button.
@@ -983,7 +989,7 @@ Bounce.runButtonClick = function () {
   studioApp().attempts++;
   Bounce.execute();
 
-  if (level.freePlay && !studioApp().hideSource) {
+  if (level.freePlay && !level.isProjectLevel && !studioApp().hideSource) {
     var shareCell = document.getElementById('share-cell');
     shareCell.className = 'share-cell-enabled';
   }
@@ -998,6 +1004,7 @@ Bounce.runButtonClick = function () {
  * studioApp().displayFeedback when appropriate
  */
 var displayFeedback = function () {
+  const isSignedIn = getStore().getState().progress.signInState === SignInState.SignedIn;
   if (!Bounce.waitingForReport) {
     studioApp().displayFeedback({
       app: 'bounce', //XXX
@@ -1011,14 +1018,16 @@ var displayFeedback = function () {
       appStrings: {
         reinfFeedbackMsg: bounceMsg.reinfFeedbackMsg(),
         sharingText: bounceMsg.shareGame()
-      }
+      },
+      saveToProjectGallery: experiments.isEnabled('publishMoreProjects'),
+      disableSaveToGallery: !isSignedIn,
     });
   }
 };
 
 /**
  * Function to be called when the service report call is complete
- * @param {object} JSON response (if available)
+ * @param {MilestoneResponse} response - JSON response (if available)
  */
 Bounce.onReportComplete = function (response) {
   Bounce.response = response;
@@ -1082,9 +1091,9 @@ Bounce.onPuzzleComplete = function () {
   }
 
   if (Bounce.testResults >= TestResults.FREE_PLAY) {
-    studioApp().playAudio('win');
+    studioApp().playAudioOnWin();
   } else {
-    studioApp().playAudio('failure');
+    studioApp().playAudioOnFailure();
   }
 
   if (level.editCode) {

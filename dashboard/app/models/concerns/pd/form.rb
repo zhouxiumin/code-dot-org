@@ -8,9 +8,16 @@ module Pd::Form
   end
 
   module ClassMethods
+    # Options supplied to the client for rendering,
+    # and used for validation on the server.
     def options
       # should be overridden by including model
       {}
+    end
+
+    def public_fields
+      # should be overridden by including model
+      []
     end
 
     def required_fields
@@ -19,8 +26,27 @@ module Pd::Form
     end
 
     def camelize_required_fields
-      required_fields.map {|s| s.to_s.camelize :lower}
+      camelize_fields required_fields
     end
+
+    def camelize_fields(fields)
+      fields.map {|s| s.to_s.camelize :lower}
+    end
+  end
+
+  # Dynamic options are only used for validation on the server.
+  # They are not supplied to the client like #options.
+  def dynamic_options
+    # should be overridden by including in model
+    {}
+  end
+
+  # Dynamic require fields are only used for validation on the server.
+  # They are not supplied to the client like #required_fields.
+  # Use for conditionally required fields, such as those that are dependent on other answers
+  def dynamic_required_fields(sanitized_form_data_hash)
+    # should be overridden by including in model
+    []
   end
 
   def add_key_error(key)
@@ -29,37 +55,54 @@ module Pd::Form
   end
 
   def validate_required_fields
+    # The form data should be considered valid (regardless of whether or not it contains data) if
+    # its owner has been deleted.
+    return if owner_deleted?
+
     hash = sanitize_form_data_hash
 
     # empty fields may come about when the user selects then unselects an
     # option. They should be treated as if they do not exist
     hash.delete_if do |_, value|
-      value.empty?
+      value.blank?
     end
 
     self.class.required_fields.each do |key|
       add_key_error(key) unless hash.key?(key)
     end
+
+    dynamic_required_fields(hash).each do |key|
+      add_key_error(key) unless hash.key?(key)
+    end
   end
 
   def validate_options
+    # The form data should be considered valid (regardless of whether or not it contains data) if
+    # its owner has been deleted.
+    return if owner_deleted?
+
+    validate_with self.class.options
+    validate_with dynamic_options
+  end
+
+  def validate_with(options)
     hash = sanitize_form_data_hash
 
     hash_with_options = hash.select do |key, _|
-      self.class.options.key? key
+      options.key? key
     end
 
     hash_with_options.each do |key, value|
       if value.is_a? Array
         value.each do |subvalue|
-          add_key_error(key) unless self.class.options[key].include? subvalue
+          add_key_error(key) unless options[key].try(:include?, subvalue)
         end
       elsif value.is_a? Hash
         value.each do |_key, subvalue|
-          add_key_error(key) unless self.class.options[key].include? subvalue
+          add_key_error(key) unless options[key].try(:include?, subvalue)
         end
       else
-        add_key_error(key) unless self.class.options[key].include? value
+        add_key_error(key) unless options[key].try(:include?, value)
       end
     end
   end
@@ -78,5 +121,20 @@ module Pd::Form
 
   def sanitize_form_data_hash
     form_data_hash.transform_keys {|key| key.underscore.to_sym}
+  end
+
+  def public_sanitized_form_data_hash
+    sanitize_form_data_hash.select {|key| self.class.public_fields.include? key}
+  end
+
+  def clear_form_data
+    write_attribute :form_data, {}.to_json
+  end
+
+  # Returns whether the owner of the form (through an associated user_id or pd_enrollment_id) has
+  # been deleted. This method should be override by classes implementing this concern.
+  # @return [Boolean] Whether the owner of the form has been deleted.
+  def owner_deleted?
+    false
   end
 end

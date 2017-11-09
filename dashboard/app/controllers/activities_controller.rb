@@ -34,9 +34,12 @@ class ActivitiesController < ApplicationController
     # Check a second switch if we passed the last level of the script.
     # Keep this logic in sync with code-studio/reporting#sendReport on the client.
     post_milestone = Gatekeeper.allows('postMilestone', where: {script_name: script_name}, default: true)
-    post_final_milestone = Gatekeeper.allows('postFinalMilestone', where: {script_name: script_name}, default: true)
-    solved_final_level = solved && @script_level.try(:final_level?)
-    unless post_milestone || (post_final_milestone && solved_final_level)
+    post_failed_run_milestone = Gatekeeper.allows('postFailedRunMilestone', where: {script_name: script_name}, default: true)
+    final_level = @script_level.try(:final_level?)
+    # We should only expect milestone posts if:
+    #  - post_milestone is true, AND (we post on failed runs, or this was successful), or
+    #  - this is the final level - we always post on final level
+    unless (post_milestone && (post_failed_run_milestone || solved)) || final_level
       head 503
       return
     end
@@ -54,7 +57,7 @@ class ActivitiesController < ApplicationController
         end
       end
 
-      unless share_failure
+      unless share_failure || ActivityConstants.skipped?(params[:new_result].to_i)
         @level_source = LevelSource.find_identical_or_create(
           @level,
           params[:program].strip_utf8mb4
@@ -75,8 +78,12 @@ class ActivitiesController < ApplicationController
         level_id: @script_level.level.id,
         script_id: @script_level.script.id
       )
+      # For lockable stages, the last script_level (which will be a LevelGroup) is the only one where
+      # we actually prevent milestone requests. It will be have no user_level until it first gets unlocked
+      # so having no user_level is equivalent to bein glocked
+      nonsubmitted_lockable = user_level.nil? && @script_level.end_of_stage?
       # we have a lockable stage, and user_level is locked. disallow milestone requests
-      if user_level.nil? || user_level.locked?(@script_level.stage) || user_level.try(:readonly_answers?)
+      if nonsubmitted_lockable || user_level.try(:locked?, @script_level.stage) || user_level.try(:readonly_answers?)
         return head 403
       end
     end
@@ -87,16 +94,7 @@ class ActivitiesController < ApplicationController
       params[:lines] = MAX_LINES_OF_CODE if params[:lines] > MAX_LINES_OF_CODE
     end
 
-    # Store the image only if the image is set, and the image has not been saved
-    if params[:image] && @level_source.try(:id)
-      @level_source_image = LevelSourceImage.find_by(level_source_id: @level_source.id)
-      unless @level_source_image
-        @level_source_image = LevelSourceImage.new(level_source_id: @level_source.id)
-        unless @level_source_image.save_to_s3(Base64.decode64(params[:image]))
-          @level_source_image = nil
-        end
-      end
-    end
+    @level_source_image = find_or_create_level_source_image(params[:image], @level_source.try(:id))
 
     @new_level_completed = false
     if current_user
@@ -178,10 +176,14 @@ class ActivitiesController < ApplicationController
     synchronous_save = solved &&
         (params[:save_to_gallery] == 'true' || @level.try(:free_play) == 'true' ||
             @level.try(:impressive) == 'true' || test_result == ActivityConstants::FREE_PLAY_RESULT)
-    if synchronous_save
-      @activity = Activity.create!(attributes)
-    else
-      @activity = Activity.create_async!(attributes)
+
+    allow_activity_writes = Gatekeeper.allows('activities', where: {script_name: @script_level.script.name}, default: true)
+    if allow_activity_writes
+      if synchronous_save
+        @activity = Activity.new(attributes).tap(&:atomic_save!)
+      else
+        @activity = Activity.create_async!(attributes)
+      end
     end
     if @script_level
       if synchronous_save

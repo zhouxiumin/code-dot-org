@@ -8,18 +8,17 @@ class Api::V1::Pd::WorkshopOrganizersControllerTest < ::ActionController::TestCa
   end
 
   test 'results' do
-    organizers = 2.times.map do
-      create :workshop_organizer
-    end
-
-    # extra users who are not organizers
-    create :facilitator
-    create :teacher
+    organizers = create_list :workshop_organizer, 2
+    non_organizers = [
+      create(:facilitator),
+      create(:teacher)
+    ]
 
     sign_in (create :workshop_admin)
     get :index
     response = JSON.parse(@response.body)
-    assert_equal 2, response.count
+
+    # All organizers returned
     organizers.each do |organizer|
       expected = {
         id: organizer.id,
@@ -27,6 +26,11 @@ class Api::V1::Pd::WorkshopOrganizersControllerTest < ::ActionController::TestCa
         email: organizer.email
       }.stringify_keys
       assert_equal expected, response.find {|o| o['id'] == organizer.id}
+    end
+
+    # No non-organizers returned
+    non_organizers.each do |non_organizer|
+      refute response.any? {|o| o['id'] == non_organizer.id}
     end
   end
 end

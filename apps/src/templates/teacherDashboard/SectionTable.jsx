@@ -1,27 +1,133 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import color from "@cdo/apps/util/color";
-import SectionRow from './SectionRow';
+import {Table, sort} from 'reactabular';
 import i18n from '@cdo/locale';
-import { styles as tableStyles } from '@cdo/apps/templates/studioHomepages/SectionsTable';
+import wrappedSortable from '../tables/wrapped_sortable';
+import orderBy from 'lodash/orderBy';
+import {getSectionRows} from './teacherSectionsRedux';
+import {sortableSectionShape, OAuthSectionTypes} from "./shapes";
+import {tableLayoutStyles, sortableOptions} from '../tables/tableConstants';
+import {pegasus} from "../../lib/util/urlHelpers";
+import SectionTableButtonCell from "./SectionTableButtonCell";
+import Button from '@cdo/apps/templates/Button';
+
+/** @enum {number} */
+export const COLUMNS = {
+  ID: 0,
+  SECTION_NAME: 1,
+  GRADE: 2,
+  COURSE: 3,
+  STUDENTS: 4,
+  LOGIN_INFO: 5,
+  EDIT_DELETE: 6,
+};
 
 const styles = {
-  table: {
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: color.border_gray,
+  currentUnit: {
+    marginTop: 10
   },
-  headerRow: tableStyles.headerRow,
-  col: tableStyles.col,
-  colText: tableStyles.colText,
-  link: {
-    color: color.white
+  //Hides a column so that we can sort by a value not displayed
+  hiddenCol: {
+    width: 0,
+    padding: 0,
+    border: 0
+  },
+  //Assigned to a column with the hidden column to the left
+  leftHiddenCol: {
+    borderLeft: 0,
+  },
+  unsortableHeader: tableLayoutStyles.unsortableHeader,
+  colButton: {
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingBottom: 20,
+  },
+  sectionCol: {
+    paddingLeft: 20,
+  },
+  sectionCodeNone: {
+    color: color.light_gray,
+    fontSize: 16,
+  },
+};
+
+// Cell formatters for sortable SectionTable.
+export const sectionLinkFormatter = function (name, {rowData}) {
+  const pegasusUrl = pegasus('/teacher-dashboard#/sections/' + rowData.id);
+  return <a style={tableLayoutStyles.link} href={pegasusUrl}>{rowData.name}</a>;
+};
+
+export const courseLinkFormatter = function (course, {rowData}) {
+  const { assignmentNames, assignmentPaths } = rowData;
+  return (
+    <div>
+      <a
+        href={rowData.assignmentPaths[0]}
+        style={tableLayoutStyles.link}
+      >
+        {rowData.assignmentNames[0]}
+      </a>
+      {assignmentPaths.length > 1 && (
+        <div style={styles.currentUnit}>
+          <div>{i18n.currentUnit()}</div>
+          <a
+            href={assignmentPaths[1]}
+            style={tableLayoutStyles.link}
+          >
+            {assignmentNames[1]}
+          </a>
+        </div>
+      )}
+      {assignmentPaths.length < 1 && (
+        <Button
+          text={i18n.coursesCardAction()}
+          href={'/courses'}
+          color={Button.ButtonColor.gray}
+        />
+      )}
+    </div>
+  );
+};
+
+export const gradeFormatter = function (grade, {rowData}) {
+  return <div>{rowData.grade}</div>;
+};
+
+export const loginInfoFormatter = function (loginType, {rowData}) {
+  let sectionCode = '';
+  let pegasusUrl = pegasus('/teacher-dashboard#/sections/' + rowData.id + '/print_signin_cards');
+  // For managed logins, just show the provider name rather than the login code.
+  if (rowData.loginType === OAuthSectionTypes.clever){
+    sectionCode = i18n.loginTypeClever();
+  } else if (rowData.loginType === OAuthSectionTypes.google_classroom) {
+    sectionCode = i18n.loginTypeGoogleClassroom();
+  } else {
+    sectionCode = rowData.code;
   }
+  return <a style={tableLayoutStyles.link} href={pegasusUrl}>{sectionCode}</a>;
+};
+
+export const studentsFormatter = function (studentCount, {rowData}) {
+  const pegasusUrl = pegasus('/teacher-dashboard#/sections/' + rowData.id + "/manage");
+  const studentHtml = rowData.studentCount <= 0 ?
+    <Button
+      text={i18n.addStudents()}
+      href={pegasusUrl}
+      color={Button.ButtonColor.gray}
+    /> :
+    <a style={tableLayoutStyles.link} href={pegasusUrl}>{rowData.studentCount}</a>;
+  return studentHtml;
+};
+
+//Displays nothing for hidden column
+const hiddenFormatter = function (id) {
+  return null;
 };
 
 /**
  * This is a component that shows information about the sections that a teacher
- * owns, and allows for editing them.
+ * owns, and allows for editing, deleting and sorting them.
  * It shows some of the same information as the SectionsTable used on the teacher
  * homepage. However, for historical reasons it unfortunately has a somewhat
  * different set/shape of input data. This component gets its data from
@@ -34,86 +140,155 @@ const styles = {
 class SectionTable extends Component {
   static propTypes = {
     sectionIds: PropTypes.arrayOf(PropTypes.number).isRequired,
+    onEdit: PropTypes.func.isRequired,
+
+    //Provided by redux
+    sectionRows: PropTypes.arrayOf(sortableSectionShape).isRequired,
+  };
+
+  state = {
+    sortingColumns: {
+      [COLUMNS.ID]: {
+        direction: 'desc',
+        position: 0
+      }
+    }
+  };
+
+  actionCellFormatter = (temp, {rowData}) => {
+    return <SectionTableButtonCell sectionData={rowData} handleEdit={this.props.onEdit}/>;
+  };
+
+  // The user requested a new sorting column. Adjust the state accordingly.
+  onSort = (selectedColumn) => {
+    this.setState({
+      sortingColumns: sort.byColumn({
+        sortingColumns: this.state.sortingColumns,
+        // Custom sortingOrder removes 'no-sort' from the cycle
+        sortingOrder: {
+          FIRST: 'asc',
+          asc: 'desc',
+          desc: 'asc'
+        },
+        selectedColumn
+      })
+    });
+  };
+
+  getSortingColumns = () => {
+    return this.state.sortingColumns || {};
+  };
+
+  getColumns = (sortable) => {
+    const colStyle = {...tableLayoutStyles.cell, ...styles.sectionCol};
+    return [
+      {
+        //displays nothing, but used as initial sort
+        property: 'id',
+        header:{
+          props: {style: styles.hiddenCol}
+        },
+        cell: {
+          format: hiddenFormatter,
+          props: {style: styles.hiddenCol}
+        }},
+
+      {
+        property: 'name',
+        header: {
+          label: i18n.section(),
+          props: {style: tableLayoutStyles.headerCell},
+          transforms: [sortable],
+        },
+        cell: {
+          format: sectionLinkFormatter,
+          props: {style: {...colStyle, ...styles.leftHiddenCol}}
+        }
+      },
+      {
+        property: 'grade',
+        header: {
+          label: i18n.grade(),
+          props: {style: tableLayoutStyles.headerCell},
+          transforms: [sortable],
+        },
+        cell: {
+          format: gradeFormatter,
+          props: {style: colStyle}
+        }
+      },
+      {
+        property: 'course',
+        header: {
+          label: i18n.course(),
+          props: {style: {...tableLayoutStyles.headerCell, ...styles.unsortableHeader}},
+        },
+        cell: {
+          format: courseLinkFormatter,
+          props: {style: colStyle}
+        }
+      },
+      {
+        property: 'studentCount',
+        header: {
+          label: i18n.students(),
+          props: {style: tableLayoutStyles.headerCell},
+          transforms: [sortable],
+        },
+        cell: {
+          format: studentsFormatter,
+          props: {style: colStyle}
+        }
+      },
+      {
+        property: 'loginType',
+        header: {
+          label: i18n.loginInfo(),
+          props:{style: {...tableLayoutStyles.headerCell, ...styles.unsortableHeader}}
+        },
+        cell: {
+          format: loginInfoFormatter,
+          props: {style: colStyle}
+        }
+      },
+      {
+        property: 'actions',
+        header: {
+          props:{style: tableLayoutStyles.headerCell},
+        },
+        cell: {
+          format: this.actionCellFormatter,
+          props: {style: {...tableLayoutStyles.cell, ...styles.colButton}}
+        }
+      }
+    ];
   };
 
   render() {
-    const { sectionIds } = this.props;
+    const sortable = wrappedSortable(this.getSortingColumns, this.onSort, sortableOptions);
+    const columns = this.getColumns(sortable);
+    const sortingColumns = this.getSortingColumns();
+
+    const sortedRows = sort.sorter({
+      columns,
+      sortingColumns,
+      sort: orderBy,
+    })(this.props.sectionRows);
 
     return (
-      <table style={styles.table}>
-        <colgroup>
-          <col width="200"/>
-          <col width="130"/>
-          <col width="98"/>
-          <col width="130"/>
-          <col/>
-          <col/>
-          <col/>
-          <col/>
-          <col/>
-        </colgroup>
-        <thead>
-          <tr style={styles.headerRow}>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.section()}
-              </div>
-            </td>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.loginType()}
-              </div>
-            </td>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.grade()}
-              </div>
-            </td>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.course()}
-              </div>
-            </td>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.stageExtras()}
-              </div>
-            </td>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.pairProgramming()}
-              </div>
-            </td>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.students()}
-              </div>
-            </td>
-            <td style={styles.col}>
-              <div style={styles.colText}>
-                {i18n.sectionCode()}
-              </div>
-            </td>
-            <td style={styles.col}>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          {sectionIds.map((sid, index) => (
-            <SectionRow
-              key={sid}
-              sectionId={sid}
-              lightRow={index % 2 === 0}
-            />
-          ))}
-        </tbody>
-      </table>
+      <Table.Provider
+        columns={columns}
+        style={tableLayoutStyles.table}
+      >
+        <Table.Header />
+        <Table.Body rows={sortedRows} rowKey="id" />
+      </Table.Provider>
     );
   }
 }
 
 export const UnconnectedSectionTable = SectionTable;
 
-export default connect(state => ({
-  sectionIds: state.teacherSections.sectionIds
+export default connect((state, ownProps) => ({
+  sectionRows: getSectionRows(state, ownProps.sectionIds)
 }))(SectionTable);

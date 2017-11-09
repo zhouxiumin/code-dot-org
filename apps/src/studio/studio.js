@@ -11,10 +11,10 @@ import * as constants from './constants';
 import * as utils from '../utils';
 import _ from 'lodash';
 import AppView from '../templates/AppView';
-import BigGameLogic from './bigGameLogic';
+import BigGameLogic from './customLogic/bigGameLogic';
 import CollisionMaskWalls from './collisionMaskWalls';
 import Hammer from "../third-party/hammer";
-import ImageFilterFactory from './ImageFilterFactory';
+import GlowFilter from './starwars/GlowFilter';
 import InputPrompt from '../templates/InputPrompt';
 import Item from './Item';
 import JSInterpreter from '../lib/tools/jsinterpreter/JSInterpreter';
@@ -24,8 +24,8 @@ import ObstacleZoneWalls from './obstacleZoneWalls';
 import Projectile from './projectile';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import RocketHeightLogic from './rocketHeightLogic';
-import SamBatLogic from './samBatLogic';
+import RocketHeightLogic from './customLogic/rocketHeightLogic';
+import SamBatLogic from './customLogic/samBatLogic';
 import Sprite from './Sprite';
 import StudioVisualizationColumn from './StudioVisualizationColumn';
 import ThreeSliceAudio from './ThreeSliceAudio';
@@ -39,7 +39,7 @@ import dropletConfig from './dropletConfig';
 import paramLists from './paramLists.js';
 import studioCell from './cell';
 import studioMsg from './locale';
-import { GridMove, GridMoveAndCancel } from './spriteActions';
+import { GridTurn, GridMove, GridMoveAndCancel } from './spriteActions';
 import { Provider } from 'react-redux';
 import { singleton as studioApp } from '../StudioApp';
 import {
@@ -49,7 +49,6 @@ import {
 import JavaScriptModeErrorHandler from '../JavaScriptModeErrorHandler';
 import {
   getContainedLevelResultInfo,
-  getValidatedResult,
   postContainedLevelAttempt,
   runAfterPostContainedLevel
 } from '../containedLevels';
@@ -57,8 +56,9 @@ import {getStore} from '../redux';
 import Sounds from '../Sounds';
 import {captureThumbnailFromSvg} from '../util/thumbnail';
 import project from '../code-studio/initApp/project';
-import {blockAsXmlNode} from '../block_utils';
-import {parseElement, visitAll} from '../xml';
+import {blockAsXmlNode, cleanBlocks} from '../block_utils';
+import {parseElement} from '../xml';
+import {getRandomDonorTwitter} from '../util/twitterHelper';
 
 // tests don't have svgelement
 import '../util/svgelement-polyfill';
@@ -72,6 +72,8 @@ const turnRight90 = constants.turnRight90;
 const turnLeft90 = constants.turnLeft90;
 
 import {TestResults, ResultType, KeyCodes, SVG_NS} from '../constants';
+import experiments from '../util/experiments';
+import {SignInState} from '../code-studio/progressRedux';
 
 // Whether we are showing debug information
 var showDebugInfo = false;
@@ -117,6 +119,11 @@ const EdgeClassNames = [
 
 let level;
 let skin;
+
+// These skins can be published as projects.
+const PUBLISHABLE_SKINS = [
+  'gumball', 'studio', 'iceage', 'infinity'
+].concat(experiments.isEnabled('publishMoreProjects') ? 'hoc2015' : undefined);
 
 //TODO: Make configurable.
 studioApp().setCheckForEmptyBlocks(true);
@@ -177,7 +184,7 @@ var RESET_TEXT_Y_POSITION = 380;
 var MIN_TIME_BETWEEN_PROJECTILES = 500; // time in ms
 
 var twitterOptions = {
-  text: studioMsg.shareStudioTwitter(),
+  text: studioMsg.shareStudioTwitterDonor({donor: getRandomDonorTwitter()}),
   hashtag: "StudioCode"
 };
 
@@ -735,7 +742,7 @@ var goalFilterEffect = null;
 Studio.applyGoalEffect = function () {
   if (!goalFilterEffect) {
     var svg = document.getElementById('svgStudio');
-    goalFilterEffect = ImageFilterFactory.makeFilterOfType(skin.goalEffect, svg);
+    goalFilterEffect = new GlowFilter(svg);
   }
 
   if (goalFilterEffect) {
@@ -788,7 +795,7 @@ var calcMoveDistanceFromQueues = function (index, modifyQueues) {
       if (modifyQueues && (moveDirection.x !== 0 || moveDirection.y !== 0)) {
         cmd.opts.queuedDistance -=  distThisMove;
         if ("0.00" === Math.abs(cmd.opts.queuedDistance).toFixed(2)) {
-          cmd.opts.queuedDistance = 0;
+          handler.cmdQueue.shift();
         }
       }
     }
@@ -1305,16 +1312,20 @@ Studio.onTick = function () {
       performQueuedMoves(i);
     }
 
+    const sprite = Studio.sprite[i];
+
     // After 5 ticks of no movement, turn sprite forward.
-    if (Studio.tickCount - Studio.sprite[i].lastMove > Studio.ticksBeforeFaceSouth) {
-      Studio.sprite[i].setDirection(Direction.NONE);
+    if (
+      sprite.shouldFaceSouthOnIdle() &&
+      (Studio.tickCount - sprite.lastMove > Studio.ticksBeforeFaceSouth)
+    ) {
+      sprite.setDirection(Direction.NONE);
       Studio.movementAudioOff();
     }
 
     // Display sprite:
     Studio.displaySprite(i);
 
-    var sprite = Studio.sprite[i];
     if (sprite.hasActions()) {
       spritesNeedMoreAnimationFrames = true;
     }
@@ -2147,9 +2158,19 @@ Studio.init = function (config) {
     }
   };
 
-  studioApp().setPageConstants(config, {
-    hideCoordinateOverlay: !level.toolbox || !level.toolbox.match(/studio_setSpriteXY/)
-  });
+  // Override Page constants
+  const appSpecificConstants = {
+    hideCoordinateOverlay: !level.toolbox || !level.toolbox.match(/studio_setSpriteXY/),
+  };
+
+  // for hoc2015x, we only have permission to show the Rey avatar for approved
+  // scripts. For all others, we override the avatars with an empty image
+  if (config.skin.avatarAllowedScripts &&
+      !config.skin.avatarAllowedScripts.includes(config.scriptName)) {
+    appSpecificConstants.smallStaticAvatar = config.skin.blankAvatar;
+    appSpecificConstants.failureAvatar = config.skin.blankAvatar;
+  }
+  studioApp().setPageConstants(config, appSpecificConstants);
 
   var visualizationColumn = (
     <StudioVisualizationColumn
@@ -2265,11 +2286,7 @@ Studio.prepareForRemix = function () {
   }
 
   whenRun.appendChild(next);
-  visitAll(blocksDom, block => {
-    if (block.getAttribute && block.getAttribute('uservisible')) {
-      block.setAttribute('uservisible', "true");
-    }
-  });
+  cleanBlocks(blocksDom);
 
   Blockly.mainBlockSpace.clear();
   Blockly.Xml.domToBlockSpace(Blockly.mainBlockSpace, blocksDom);
@@ -2348,7 +2365,7 @@ Studio.clearEventHandlersKillTickLoop = function () {
   Studio.eventHandlers.forEach(function (handler) {
     var cmd = handler.cmdQueue[0];
 
-    if (cmd && cmd.opts.waitTimeout && !cmd.opts.complete) {
+    if (cmd && cmd.opts && cmd.opts.waitTimeout && !cmd.opts.complete) {
       // Note: not calling waitCallback() or setting complete = true
       window.clearTimeout(cmd.opts.waitTimeout);
     }
@@ -2500,9 +2517,6 @@ Studio.reset = function (first) {
     hasThrownProjectile: false
   };
 
-  // Reset the record of the last direction that the user moved the sprite.
-  Studio.lastMoveSingleDir = Direction.EAST;
-
   // Reset goal successState:
   if (level.goal) {
     level.goal.successState = {};
@@ -2556,6 +2570,7 @@ Studio.reset = function (first) {
       // overridden as soon as we call setSprite
       visible: !level.spritesHiddenToStart
     });
+    Studio.lastMoveSingleDir = spriteStart.direction;
 
     var sprite = i % Studio.startAvatars.length;
 
@@ -2750,7 +2765,8 @@ Studio.runButtonClick = function () {
 Studio.displayFeedback = function () {
   var tryAgainText;
   // For free play, show keep playing, unless it's a big game level
-  if (level.freePlay && !(Studio.customLogic instanceof BigGameLogic)) {
+  if ((level.freePlay || Studio.testResults >= TestResults.MINIMUM_OPTIMAL_RESULT) &&
+      !(Studio.customLogic instanceof BigGameLogic)) {
     tryAgainText = commonMsg.keepPlaying();
   } else {
     tryAgainText = commonMsg.tryAgain();
@@ -2769,10 +2785,8 @@ Studio.displayFeedback = function () {
   };
 
   if (!Studio.waitingForReport) {
-    const saveToProjectGallery = skin.id === 'studio';
-    const {isSignedIn} = getStore().getState().pageConstants;
-    const showFailureIcon = studioApp().hasContainedLevels &&
-      !getValidatedResult();
+    const saveToProjectGallery = PUBLISHABLE_SKINS.includes(skin.id);
+    const isSignedIn = getStore().getState().progress.signInState === SignInState.SignedIn;
 
     studioApp().displayFeedback({
       app: 'studio', //XXX
@@ -2788,21 +2802,20 @@ Studio.displayFeedback = function () {
       feedbackImage: Studio.feedbackImage,
       twitter: skin.twitterOptions || twitterOptions,
       // allow users to save freeplay levels to their gallery (impressive non-freeplay levels are autosaved)
-      saveToGalleryUrl: level.freePlay && Studio.response && Studio.response.save_to_gallery_url,
+      saveToLegacyGalleryUrl: level.freePlay && Studio.response && Studio.response.save_to_gallery_url,
       // save to the project gallery instead of the legacy gallery
       saveToProjectGallery: saveToProjectGallery,
-      disableSaveToGallery: level.disableSaveToGallery || !isSignedIn,
+      disableSaveToGallery: !isSignedIn,
       message: Studio.message,
       appStrings: appStrings,
       disablePrinting: level.disablePrinting,
-      showFailureIcon: showFailureIcon,
     });
   }
 };
 
 /**
  * Function to be called when the service report call is complete
- * @param {object} JSON response (if available)
+ * @param {MilestoneResponse} response - JSON response (if available)
  */
 Studio.onReportComplete = function (response) {
   Studio.response = response;
@@ -3107,8 +3120,8 @@ Studio.hasUnexpectedLocalFunction_ = function () {
   }
 };
 
-function handleExecutionError(err, lineNumber) {
-  outputError(String(err), lineNumber);
+function handleExecutionError(err, lineNumber, outputString) {
+  outputError(outputString, lineNumber);
   Studio.executionError = { err: err, lineNumber: lineNumber };
 
   // Call onPuzzleComplete() if syntax error or any time we're not on a freeplay level:
@@ -3345,11 +3358,10 @@ Studio.onPuzzleComplete = function () {
       studioApp().getTestResults(levelComplete, { executionError: Studio.executionError });
   }
 
-  if (Studio.testResults >= TestResults.TOO_MANY_BLOCKS_FAIL &&
-      (!studioApp().hasContainedLevels || getValidatedResult())) {
-    Studio.playSound({ soundName: 'win' });
+  if (Studio.testResults >= TestResults.TOO_MANY_BLOCKS_FAIL) {
+    studioApp().playAudioOnWin();
   } else {
-    Studio.playSound({ soundName: 'failure' });
+    studioApp().playAudioOnFailure();
   }
 
   if (studioApp().hasContainedLevels && !level.edit_blocks) {
@@ -4258,29 +4270,29 @@ Studio.callCmd = function (cmd) {
     case 'moveRight':
       studioApp().highlight(cmd.id);
       Studio.moveSingle({
-          spriteIndex: Studio.protagonistSpriteIndex || 0,
-          dir: Direction.EAST,
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: Direction.EAST,
       });
       break;
     case 'moveLeft':
       studioApp().highlight(cmd.id);
       Studio.moveSingle({
-          spriteIndex: Studio.protagonistSpriteIndex || 0,
-          dir: Direction.WEST,
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: Direction.WEST,
       });
       break;
     case 'moveUp':
       studioApp().highlight(cmd.id);
       Studio.moveSingle({
-          spriteIndex: Studio.protagonistSpriteIndex || 0,
-          dir: Direction.NORTH,
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: Direction.NORTH,
       });
       break;
     case 'moveDown':
       studioApp().highlight(cmd.id);
       Studio.moveSingle({
-          spriteIndex: Studio.protagonistSpriteIndex || 0,
-          dir: Direction.SOUTH,
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: Direction.SOUTH,
       });
       break;
     case 'moveForward':
@@ -4294,17 +4306,23 @@ Studio.callCmd = function (cmd) {
       studioApp().highlight(cmd.id);
       Studio.moveSingle({
         spriteIndex: Studio.protagonistSpriteIndex || 0,
-        dir: turnRight90(turnRight90(Studio.lastMoveSingleDir)),
+        dir: Studio.lastMoveSingleDir,
+        backward: true
       });
-      Studio.lastMoveSingleDir = turnRight90(turnRight90(Studio.lastMoveSingleDir));
       break;
     case 'turnRight':
       studioApp().highlight(cmd.id);
-      Studio.lastMoveSingleDir = turnRight90(Studio.lastMoveSingleDir);
+      Studio.turnSingle({
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: turnRight90(Studio.lastMoveSingleDir),
+      });
       break;
     case 'turnLeft':
       studioApp().highlight(cmd.id);
-      Studio.lastMoveSingleDir = turnLeft90(Studio.lastMoveSingleDir);
+      Studio.turnSingle({
+        spriteIndex: Studio.protagonistSpriteIndex || 0,
+        dir: turnLeft90(Studio.lastMoveSingleDir),
+      });
       break;
     case 'moveDistance':
       if (!cmd.opts.started) {
@@ -5509,7 +5527,7 @@ var createSpeechBubble = function (spriteIndex, text) {
 Studio.stop = function (opts) {
   cancelQueuedMovements(opts.spriteIndex, true);
   cancelQueuedMovements(opts.spriteIndex, false);
-  Studio.sprite[opts.spriteIndex].activity = constants.BEHAVIOR_STOP;
+  Studio.sprite[opts.spriteIndex].setActivity(constants.BEHAVIOR_STOP);
 
   if (!opts.dontResetCollisions) {
     // Reset collisionMasks so the next movement will fire another collision
@@ -5857,6 +5875,28 @@ Studio.getSkin = function () {
 };
 
 /**
+ * For grid-aligned movement, we want a single movement action to take place
+ * over several ticks (as opposed to normal movement, which takes place on a
+ * per-tick basis). We therefore yield control for the movement duration.
+ *
+ * @see Studio.turnSingle
+ * @see Studio.moveSingle
+ */
+Studio.yieldGridAlignedTicks = function () {
+  Studio.yieldExecutionTicks += (1 + Studio.gridAlignedExtraPauseSteps);
+  if (Studio.JSInterpreter) {
+    // Stop executing the interpreter in a tight loop and yield the current
+    // execution tick:
+    Studio.JSInterpreter.yield();
+    // Highlight the code in the editor so the student can see the progress
+    // of their program:
+    Studio.JSInterpreter.selectCurrentCode();
+  }
+
+  Studio.movementAudioOn();
+};
+
+/**
  * For executing a single "goLeft" or "goNorth" sort of command in student code.
  * Moves the avatar by a different amount.
  * Has slightly different behaviors depending on whether the level is configured
@@ -5864,6 +5904,33 @@ Studio.getSkin = function () {
  * @param {Object} opts
  * @param {Direction} opts.dir - The direction in which the sprite should move.
  * @param {number} opts.spriteIndex
+ * @param {boolean} opts.backward - whether the sprite should move toward
+ *        (default) or away from the given direction
+ */
+Studio.turnSingle = function (opts) {
+  if (!skin.gridAlignedMovement) {
+    throw new TypeError("Studio.turnSingle is only valid in grid-aligned mode");
+  }
+
+  const sprite = Studio.sprite[opts.spriteIndex];
+  sprite.lastMove = Studio.tickCount;
+  sprite.setActivity(constants.BEHAVIOR_GRID_ALIGNED);
+  sprite.addAction(new GridTurn(opts.dir, skin.slowExecutionFactor));
+
+  Studio.yieldGridAlignedTicks();
+  Studio.lastMoveSingleDir = opts.dir;
+};
+
+/**
+ * For executing a single "goLeft" or "goNorth" sort of command in student code.
+ * Moves the avatar by a different amount.
+ * Has slightly different behaviors depending on whether the level is configured
+ * for discrete, grid-based movement or free movement.
+ * @param {Object} opts
+ * @param {Direction} opts.dir - The direction in which the sprite should move.
+ * @param {number} opts.spriteIndex
+ * @param {boolean} opts.backward - whether the sprite should move toward
+ *        (default) or away from the given direction
  */
 Studio.moveSingle = function (opts) {
   var sprite = Studio.sprite[opts.spriteIndex];
@@ -5888,6 +5955,11 @@ Studio.moveSingle = function (opts) {
       break;
   }
 
+  if (opts.backward) {
+    deltaX *= -1;
+    deltaY *= -1;
+  }
+
   var projectedX = sprite.x + deltaX;
   var projectedY = sprite.y + deltaY;
 
@@ -5908,25 +5980,16 @@ Studio.moveSingle = function (opts) {
   }
 
   if (skin.gridAlignedMovement) {
+    sprite.setActivity(constants.BEHAVIOR_GRID_ALIGNED);
     if (wallCollision || playspaceEdgeCollision) {
       sprite.addAction(new GridMoveAndCancel(
-          deltaX, deltaY, skin.slowExecutionFactor));
+          deltaX, deltaY, skin.slowExecutionFactor, opts.backward));
     } else {
       sprite.addAction(new GridMove(
-          deltaX, deltaY, skin.slowExecutionFactor));
+          deltaX, deltaY, skin.slowExecutionFactor, opts.backward));
     }
 
-    Studio.yieldExecutionTicks += (1 + Studio.gridAlignedExtraPauseSteps);
-    if (Studio.JSInterpreter) {
-      // Stop executing the interpreter in a tight loop and yield the current
-      // execution tick:
-      Studio.JSInterpreter.yield();
-      // Highlight the code in the editor so the student can see the progress
-      // of their program:
-      Studio.JSInterpreter.selectCurrentCode();
-    }
-
-    Studio.movementAudioOn();
+    Studio.yieldGridAlignedTicks();
   } else {
     if (!wallCollision) {
       if (playspaceEdgeCollision) {

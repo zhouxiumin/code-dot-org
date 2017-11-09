@@ -1,7 +1,7 @@
 /**
  * Report Table
  */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {orderBy} from 'lodash';
 import {Table, sort} from 'reactabular';
 import wrappedSortable from '@cdo/apps/templates/tables/wrapped_sortable';
@@ -13,28 +13,24 @@ const styles = {
   }
 };
 
-const ReportTable = React.createClass({
-  propTypes: {
-    columns: React.PropTypes.array.isRequired,
-    rows: React.PropTypes.array.isRequired
-  },
+export default class ReportTable extends React.Component {
+  static propTypes = {
+    columns: PropTypes.array.isRequired,
+    rows: PropTypes.array.isRequired
+  };
 
-  getInitialState() {
-    return {
-      sortingColumns: {
-        workshop_id: {
-          direction: 'asc',
-          position: 0
-        }
+  state = {
+    sortingColumns: {
+      workshop_id: {
+        direction: 'asc',
+        position: 0
       }
-    };
-  },
+    }
+  };
 
-  getSortingColumns() {
-    return this.state.sortingColumns || {};
-  },
+  getSortingColumns = () => this.state.sortingColumns || {};
 
-  onSort(selectedColumn) {
+  onSort = (selectedColumn) => {
     const sortingColumns = sort.byColumn({
       sortingColumns: this.state.sortingColumns,
       // Custom sortingOrder removes 'no-sort' from the cycle
@@ -51,7 +47,7 @@ const ReportTable = React.createClass({
         sortingColumns
       })
     });
-  },
+  };
 
   getSortableTransform() {
     return wrappedSortable(
@@ -62,12 +58,12 @@ const ReportTable = React.createClass({
         default: {color: color.light_gray}
       }
     );
-  },
+  }
 
   addTransform(element, transform) {
     element.transforms = element.transforms || [];
     element.transforms.push(transform);
-  },
+  }
 
   // Apply to all headers
   applyHeaderTransforms(columns) {
@@ -77,7 +73,7 @@ const ReportTable = React.createClass({
     });
 
     return columns;
-  },
+  }
 
   render() {
     // Since there may not be a unique id per row, add a rowKey based on pre-sorted index.
@@ -107,5 +103,4 @@ const ReportTable = React.createClass({
       </div>
     );
   }
-});
-export default ReportTable;
+}

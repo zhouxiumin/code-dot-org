@@ -1,38 +1,48 @@
-import React from 'react';
+import React, {PropTypes, Component} from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import HeaderBanner from '../HeaderBanner';
-import Announcements from './Announcements';
+import Notification from '../Notification';
 import RecentCourses from './RecentCourses';
-import Sections from './Sections';
+import TeacherSections from './TeacherSections';
+import StudentSections from './StudentSections';
 import TeacherResources from './TeacherResources';
+import ProjectWidgetWithData from '@cdo/apps/templates/projects/ProjectWidgetWithData';
 import shapes from './shapes';
 import ProtectedStatefulDiv from '../ProtectedStatefulDiv';
 import i18n from "@cdo/locale";
 
-const TeacherHomepage = React.createClass({
-  propTypes: {
-    sections: React.PropTypes.array,
+const styles = {
+  clear: {
+    clear: 'both',
+    height: 30
+  }
+};
+
+export default class TeacherHomepage extends Component {
+  static propTypes = {
+    joinedSections: shapes.sections,
     courses: shapes.courses,
-    announcements: React.PropTypes.array.isRequired,
-    codeOrgUrlPrefix: React.PropTypes.string.isRequired,
-    isRtl: React.PropTypes.bool.isRequired
-  },
+    topCourse: shapes.topCourse,
+    announcements: PropTypes.array.isRequired,
+    isRtl: PropTypes.bool.isRequired,
+    queryStringOpen: PropTypes.string,
+  };
 
   componentDidMount() {
     // The component used here is implemented in legacy HAML/CSS rather than React.
     $('#terms_reminder').appendTo(ReactDOM.findDOMNode(this.refs.termsReminder)).show();
     $('#flashes').appendTo(ReactDOM.findDOMNode(this.refs.flashes)).show();
-  },
+  }
 
   render() {
-    const { courses, sections, announcements, codeOrgUrlPrefix, isRtl } = this.props;
+    const { courses, topCourse, announcements, isRtl, queryStringOpen, joinedSections } = this.props;
 
     return (
       <div>
         <HeaderBanner
           headingText={i18n.homepageHeading()}
-          extended={false}
+          short={true}
         />
         <ProtectedStatefulDiv
           ref="flashes"
@@ -40,29 +50,42 @@ const TeacherHomepage = React.createClass({
         <ProtectedStatefulDiv
           ref="termsReminder"
         />
-        <Announcements
-          announcements={announcements}
+        {announcements.length > 0 && (
+          <div>
+            <Notification
+              type={announcements[0].type || "bullhorn"}
+              notice={announcements[0].heading}
+              details={announcements[0].description}
+              dismissible={false}
+              buttonText={announcements[0].buttonText}
+              buttonLink={announcements[0].link}
+              newWindow={true}
+              analyticId={announcements[0].id}
+              isRtl={isRtl}
+            />
+            <div style={styles.clear}/>
+          </div>
+        )}
+        <TeacherSections
           isRtl={isRtl}
-        />
-        <Sections
-          sections={sections}
-          codeOrgUrlPrefix={codeOrgUrlPrefix}
-          isRtl={isRtl}
+          queryStringOpen={queryStringOpen}
         />
         <RecentCourses
           courses={courses}
+          topCourse={topCourse}
           showAllCoursesLink={true}
-          heading={i18n.recentCourses()}
           isTeacher={true}
           isRtl={isRtl}
         />
-        <TeacherResources
-          codeOrgUrlPrefix={codeOrgUrlPrefix}
+        <TeacherResources isRtl={isRtl}/>
+        <ProjectWidgetWithData isRtl={isRtl}/>
+        <StudentSections
+          initialSections={joinedSections}
+          canLeave={true}
           isRtl={isRtl}
+          isTeacher={true}
         />
       </div>
     );
   }
-});
-
-export default TeacherHomepage;
+}

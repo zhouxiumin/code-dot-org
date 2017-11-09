@@ -18,9 +18,14 @@ var FlappyVisualizationColumn = require('./FlappyVisualizationColumn');
 var dom = require('../dom');
 var constants = require('./constants');
 var utils = require('../utils');
+import {getRandomDonorTwitter} from '../util/twitterHelper';
 import {getStore} from '../redux';
 
 import {TestResults, ResultType} from '../constants';
+import experiments from '../util/experiments';
+import placeholder from '../../static/flappy/placeholder.jpg';
+import {dataURIFromURI} from '../imageUtils';
+import {SignInState} from '../code-studio/progressRedux';
 
 /**
  * Create a namespace for the application.
@@ -66,7 +71,7 @@ Flappy.scale = {
 };
 
 var twitterOptions = {
-  text: flappyMsg.shareFlappyTwitter(),
+  text: flappyMsg.shareFlappyTwitterDonor({donor: getRandomDonorTwitter()}),
   hashtag: "FlappyCode"
 };
 
@@ -567,7 +572,9 @@ Flappy.init = function (config) {
     studioApp().init(config);
 
     var rightButton = document.getElementById('rightButton');
-    dom.addClickTouchEvent(rightButton, Flappy.onPuzzleComplete);
+    if (rightButton) {
+      dom.addClickTouchEvent(rightButton, Flappy.onPuzzleComplete);
+    }
   };
 
   studioApp().setPageConstants(config);
@@ -575,7 +582,11 @@ Flappy.init = function (config) {
   ReactDOM.render(
     <Provider store={getStore()}>
       <AppView
-        visualizationColumn={<FlappyVisualizationColumn/>}
+        visualizationColumn={
+          <FlappyVisualizationColumn
+            showFinishButton={!config.level.isProjectLevel}
+          />
+        }
         onMount={onMount}
       />
     </Provider>,
@@ -674,7 +685,7 @@ Flappy.runButtonClick = function () {
   studioApp().attempts++;
   Flappy.execute();
 
-  if (level.freePlay) {
+  if (level.freePlay && !level.isProjectLevel) {
     var rightButtonCell = document.getElementById('right-button-cell');
     rightButtonCell.className = 'right-button-cell-enabled';
   }
@@ -689,26 +700,32 @@ Flappy.runButtonClick = function () {
  * studioApp().displayFeedback when appropriate
  */
 var displayFeedback = function () {
+  const isSignedIn = getStore().getState().progress.signInState === SignInState.SignedIn;
   if (!Flappy.waitingForReport) {
-    studioApp().displayFeedback({
-      app: 'flappy', //XXX
-      skin: skin.id,
-      feedbackType: Flappy.testResults,
-      response: Flappy.response,
-      level: level,
-      showingSharing: level.freePlay && level.shareable,
-      twitter: twitterOptions,
-      appStrings: {
-        reinfFeedbackMsg: flappyMsg.reinfFeedbackMsg(),
-        sharingText: flappyMsg.shareGame()
-      }
+    dataURIFromURI(placeholder).then(feedbackImageUri => {
+      studioApp().displayFeedback({
+        app: 'flappy', //XXX
+        skin: skin.id,
+        feedbackType: Flappy.testResults,
+        response: Flappy.response,
+        level: level,
+        showingSharing: level.freePlay && level.shareable,
+        twitter: twitterOptions,
+        appStrings: {
+          reinfFeedbackMsg: flappyMsg.reinfFeedbackMsg(),
+          sharingText: flappyMsg.shareGame()
+        },
+        saveToProjectGallery: experiments.isEnabled('publishMoreProjects'),
+        feedbackImage: feedbackImageUri,
+        disableSaveToGallery: !isSignedIn,
+      });
     });
   }
 };
 
 /**
  * Function to be called when the service report call is complete
- * @param {object} JSON response (if available)
+ * @param {MilestoneResponse} response - JSON response (if available)
  */
 Flappy.onReportComplete = function (response) {
   Flappy.response = response;
@@ -774,7 +791,7 @@ Flappy.onPuzzleComplete = function () {
   // Special case for Flappy level 1 where you have the right blocks, but you
   // don't flap to the goal.  Note: See pivotal item 66362504 for why we
   // check for both TOO_FEW_BLOCKS_FAIL and LEVEL_INCOMPLETE_FAIL here.
-  if (level.id === "1" &&
+  if (level.appSpecificFailError &&
     (Flappy.testResults === TestResults.TOO_FEW_BLOCKS_FAIL ||
      Flappy.testResults === TestResults.LEVEL_INCOMPLETE_FAIL)) {
     // Feedback message is found in level.other1StarError.
@@ -782,9 +799,9 @@ Flappy.onPuzzleComplete = function () {
   }
 
   if (Flappy.testResults >= TestResults.FREE_PLAY) {
-    studioApp().playAudio('win');
+    studioApp().playAudioOnWin();
   } else {
-    studioApp().playAudio('failure');
+    studioApp().playAudioOnFailure();
   }
 
   if (level.editCode) {
@@ -793,21 +810,25 @@ Flappy.onPuzzleComplete = function () {
       TestResults.TOO_FEW_BLOCKS_FAIL;
   }
 
-  var xml = Blockly.Xml.blockSpaceToDom(Blockly.mainBlockSpace);
-  var textBlocks = Blockly.Xml.domToText(xml);
+  sendReport();
+};
+
+function sendReport() {
+  const xml = Blockly.Xml.blockSpaceToDom(Blockly.mainBlockSpace);
+  const textBlocks = Blockly.Xml.domToText(xml);
 
   Flappy.waitingForReport = true;
 
   // Report result to server.
   studioApp().report({
-                     app: 'flappy',
-                     level: level.id,
-                     result: Flappy.result === ResultType.SUCCESS,
-                     testResult: Flappy.testResults,
-                     program: encodeURIComponent(textBlocks),
-                     onComplete: Flappy.onReportComplete
-                     });
-};
+    app: 'flappy',
+    level: level.id,
+    result: Flappy.result === ResultType.SUCCESS,
+    testResult: Flappy.testResults,
+    program: encodeURIComponent(textBlocks),
+    onComplete: Flappy.onReportComplete
+  });
+}
 
 /**
  * Display Avatar at the specified location

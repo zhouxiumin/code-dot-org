@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 const styles = {
   main: {
@@ -12,10 +12,10 @@ const styles = {
 /**
  * Simple component for our icon for hints.
  */
-const PromptIcon = React.createClass({
-  propTypes: {
-    src: React.PropTypes.string.isRequired
-  },
+export default class PromptIcon extends React.Component {
+  static propTypes = {
+    src: PropTypes.string.isRequired
+  };
 
   render() {
     return (
@@ -26,6 +26,4 @@ const PromptIcon = React.createClass({
       />
     );
   }
-});
-
-export default PromptIcon;
+}

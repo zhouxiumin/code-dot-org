@@ -1,55 +1,53 @@
-import React from 'react';
+import React, {PropTypes, Component} from 'react';
 import ReactDOM from 'react-dom';
 import HeaderBanner from '../HeaderBanner';
 import RecentCourses from './RecentCourses';
-import StudentResources from './StudentResources';
+import StudentSections from './StudentSections';
+import ProjectWidgetWithData from '@cdo/apps/templates/projects/ProjectWidgetWithData';
 import shapes from './shapes';
 import ProtectedStatefulDiv from '../ProtectedStatefulDiv';
-import i18n from "@cdo/locale";
+import i18n from '@cdo/locale';
+import $ from 'jquery';
 
-const styles = {
-  userHero: {
-    paddingTop: 10
-  }
-};
-
-const StudentHomepage = React.createClass({
-  propTypes: {
-    courses: shapes.courses
-  },
+export default class StudentHomepage extends Component {
+  static propTypes = {
+    courses: shapes.courses,
+    topCourse: shapes.topCourse,
+    sections: shapes.sections,
+    isRtl: PropTypes.bool.isRequired,
+    canLeave: PropTypes.bool.isRequired,
+  };
 
   componentDidMount() {
     // The component used here is implemented in legacy HAML/CSS rather than React.
-    $('#user_hero').appendTo(ReactDOM.findDOMNode(this.refs.userHero)).show();
-  },
+    $('#flashes').appendTo(ReactDOM.findDOMNode(this.refs.flashes)).show();
+  }
 
   render() {
-    const { courses } = this.props;
+    const { courses, sections, isRtl, canLeave, topCourse } = this.props;
 
     return (
       <div>
         <HeaderBanner
           headingText={i18n.homepageHeading()}
+          short={true}
         />
-
         <ProtectedStatefulDiv
-          style={styles.userHero}
-          ref="userHero"
+          ref="flashes"
         />
-
         <RecentCourses
           courses={courses}
-          showAllCoursesLink={true}
-          header={i18n.myCourses()}
-          isRtl={false}
+          topCourse={topCourse}
           isTeacher={false}
+          isRtl={false}
         />
-
-        <StudentResources/>
-
+        <ProjectWidgetWithData isRtl={isRtl}/>
+        <StudentSections
+          initialSections={sections}
+          isRtl={isRtl}
+          canLeave={canLeave}
+        />
       </div>
     );
   }
-});
-
-export default StudentHomepage;
+}

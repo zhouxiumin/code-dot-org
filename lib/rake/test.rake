@@ -36,8 +36,8 @@ namespace :test do
   task :eyes_ui do
     Dir.chdir(dashboard_dir('test/ui')) do
       ChatClient.log 'Running <b>dashboard</b> UI visual tests...'
-      eyes_features = `grep -lr '@eyes' features`.split("\n")
-      failed_browser_count = RakeUtils.system_with_chat_logging 'bundle', 'exec', './runner.rb', '-c', 'ChromeLatestWin7,iPhone', '-d', 'test-studio.code.org', '--eyes', '--with-status-page', '-f', eyes_features.join(","), '--parallel', (eyes_features.count * 2).to_s
+      eyes_features = `find features/ -name "*.feature" | xargs grep -lr '@eyes'`.split("\n")
+      failed_browser_count = RakeUtils.system_with_chat_logging 'bundle', 'exec', './runner.rb', '-c', 'ChromeLatestWin7,iPhone', '-d', 'test-studio.code.org', '--eyes', '--retry_count', '1', '--with-status-page', '-f', eyes_features.join(","), '--parallel', (eyes_features.count * 2).to_s
       if failed_browser_count == 0
         message = '⊙‿⊙ Eyes tests for <b>dashboard</b> succeeded, no changes detected.'
         ChatClient.log message
@@ -55,7 +55,7 @@ namespace :test do
 
   task :ui_test_flakiness do
     Dir.chdir(deploy_dir) do
-      flakiness_output = `./bin/test_flakiness 5`
+      flakiness_output = `./bin/test_flakiness -n 5`
       ChatClient.log "Flakiest tests: <br/><pre>#{flakiness_output}</pre>"
     end
   end
@@ -144,7 +144,12 @@ namespace :test do
           require 'parallel_tests'
           procs = ParallelTests.determine_number_of_processes(nil)
           CDO.log.info "Test data modified, cloning across #{procs} databases..."
-          pipes = Array.new(procs) {|i| ">(mysql -u#{writer.user} dashboard_test#{i + 1})"}.join(' ')
+          databases = procs.times.map {|i| "dashboard_test#{i + 1}"}
+          databases.each do |db|
+            recreate_db = "DROP DATABASE IF EXISTS #{db}; CREATE DATABASE IF NOT EXISTS #{db};"
+            RakeUtils.system_stream_output "echo '#{recreate_db}' | mysql -u#{writer.user}"
+          end
+          pipes = databases.map {|db| ">(mysql -u#{writer.user} #{db})"}.join(' ')
           RakeUtils.system_stream_output "/bin/bash -c 'tee <#{seed_file.path} #{pipes} >/dev/null'"
         end
 
@@ -194,28 +199,48 @@ namespace :test do
 
     desc 'Runs dashboard tests if dashboard might have changed from staging.'
     task :dashboard do
-      run_tests_if_changed('dashboard', ['dashboard/**/*', 'lib/**/*', 'shared/**/*']) do
+      run_tests_if_changed(
+        'dashboard',
+        [
+          'Gemfile',
+          'deployment.rb',
+          'dashboard/**/*',
+          'lib/**/*',
+          'shared/**/*'
+        ],
+        ignore: ['dashboard/test/ui/**/*']
+      ) do
         TestRunUtils.run_dashboard_tests
       end
     end
 
     desc 'Runs pegasus tests if pegasus might have changed from staging.'
     task :pegasus do
-      run_tests_if_changed('pegasus', ['pegasus/**/*', 'lib/**/*', 'shared/**/*']) do
+      run_tests_if_changed(
+        'pegasus',
+        [
+          'Gemfile',
+          'deployment.rb',
+          'pegasus/**/*',
+          'lib/**/*',
+          'shared/**/*',
+          'dashboard/db/schema.rb'
+        ]
+      ) do
         TestRunUtils.run_pegasus_tests
       end
     end
 
     desc 'Runs shared tests if shared might have changed from staging.'
     task :shared do
-      run_tests_if_changed('shared', ['shared/**/*', 'lib/**/*']) do
+      run_tests_if_changed('shared', ['Gemfile', 'deployment.rb', 'shared/**/*', 'lib/**/*']) do
         TestRunUtils.run_shared_tests
       end
     end
 
     desc 'Runs lib tests if lib might have changed from staging.'
     task :lib do
-      run_tests_if_changed('lib', ['lib/**/*']) do
+      run_tests_if_changed('lib', ['Gemfile', 'deployment.rb', 'lib/**/*']) do
         TestRunUtils.run_lib_tests
       end
     end
@@ -239,12 +264,12 @@ namespace :test do
 end
 task test: ['test:changed']
 
-def run_tests_if_changed(test_name, changed_globs)
+def run_tests_if_changed(test_name, changed_globs, ignore: [])
   base_branch = GitUtils.current_branch_base
   max_identifier_length = 12
   justified_test_name = test_name.ljust(max_identifier_length)
 
-  relevant_changed_files = GitUtils.files_changed_in_branch_or_local(base_branch, changed_globs)
+  relevant_changed_files = GitUtils.files_changed_in_branch_or_local(base_branch, changed_globs, ignore_patterns: ignore)
   if relevant_changed_files.empty?
     ChatClient.log "Files affecting #{justified_test_name} tests unmodified from #{base_branch}. Skipping tests."
   else

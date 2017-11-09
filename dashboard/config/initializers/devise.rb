@@ -278,7 +278,16 @@ Devise.setup do |config|
   config.omniauth :facebook, CDO.dashboard_facebook_key, CDO.dashboard_facebook_secret, scope: 'email,public_profile',
     client_options: {site: 'https://graph.facebook.com/v2.6',
                      authorize_url: "https://www.facebook.com/v2.6/dialog/oauth"}
-  config.omniauth :google_oauth2, CDO.dashboard_google_key, CDO.dashboard_google_secret
+
+  config.omniauth :google_oauth2, CDO.dashboard_google_key, CDO.dashboard_google_secret, {
+    include_granted_scopes: true,
+    setup: lambda do |env|
+      # If requesting additional scopes, always re-confirm with the user so we get a new refresh token.
+      if env['omniauth.strategy'].authorize_params['scope'] != 'email profile'
+        env['omniauth.strategy'].options[:prompt] = 'consent'
+      end
+    end,
+  }
   config.omniauth :windowslive, CDO.dashboard_windowslive_key, CDO.dashboard_windowslive_secret, scope: 'wl.basic wl.emails'
 
   # for clever (and only clever) we ignore state because clever
@@ -315,14 +324,15 @@ Devise.setup do |config|
     manager.failure_app = CustomDeviseFailure
   end
 
+  require 'cookie_helpers'
   Warden::Manager.after_set_user do |user, auth|
-    cookie_key = '_user_type' + (Rails.env.production? ? '' : "_#{Rails.env}")
-    auth.cookies[cookie_key] = {value: user.teacher? ? "teacher" : "student", domain: :all, httponly: true}
+    auth.cookies[environment_specific_cookie_name("_user_type")] = {value: user.teacher? ? "teacher" : "student", domain: :all, httponly: true}
+    auth.cookies[environment_specific_cookie_name("_shortName")] = {value: user.short_name, domain: :all}
   end
 
   Warden::Manager.before_logout do |_, auth|
-    cookie_key = '_user_type' + (Rails.env.production? ? '' : "_#{Rails.env}")
-    auth.cookies[cookie_key] = {value: "", expires: Time.at(0), domain: :all, httponly: true}
+    auth.cookies[environment_specific_cookie_name("_user_type")] = {value: "", expires: Time.at(0), domain: :all, httponly: true}
+    auth.cookies[environment_specific_cookie_name("_shortName")] = {value: "", expires: Time.at(0), domain: :all}
   end
 
   # ==> Mountable engine configurations

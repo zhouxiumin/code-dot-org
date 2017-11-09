@@ -1,4 +1,4 @@
-/* globals dashboard, appOptions */
+/* globals dashboard, appOptions, Craft */
 
 import $ from 'jquery';
 import React from 'react';
@@ -8,8 +8,13 @@ import popupWindow from './popup-window';
 import ShareDialog from './components/ShareDialog';
 import progress from './progress';
 import Dialog from './LegacyDialog';
-import {Provider} from 'react-redux';
-import {getStore} from '../redux';
+import { Provider } from 'react-redux';
+import { getStore } from '../redux';
+import { showShareDialog } from './components/shareDialogRedux';
+import { PublishableProjectTypesOver13 } from '../util/sharedConstants';
+
+import { convertBlocksXml } from '../craft/code-connection/utils';
+import experiments from '../util/experiments';
 
 /**
  * Dynamic header generation and event bindings for header actions.
@@ -45,10 +50,13 @@ const PUZZLE_PAGE_NONE = -1;
  * @param {object} progressData
  * @param {string} currentLevelId
  * @param {number} puzzlePage
- * @param {boolean} [signedIn] True/false if we know the sign in state of the
+ * @param {boolean} signedIn True/false if we know the sign in state of the
  *   user, null otherwise
+ * @param {boolean} stageExtrasEnabled Whether this user is in a section with
+ *   stageExtras enabled for this script
  */
-header.build = function (scriptData, stageData, progressData, currentLevelId, puzzlePage, signedIn) {
+header.build = function (scriptData, stageData, progressData, currentLevelId,
+    puzzlePage, signedIn, stageExtrasEnabled) {
   scriptData = scriptData || {};
   stageData = stageData || {};
   progressData = progressData || {};
@@ -66,7 +74,15 @@ header.build = function (scriptData, stageData, progressData, currentLevelId, pu
   }
 
   let saveAnswersBeforeNavigation = puzzlePage !== PUZZLE_PAGE_NONE;
-  progress.renderStageProgress(scriptData, stageData, progressData, currentLevelId, saveAnswersBeforeNavigation, signedIn);
+  progress.renderStageProgress(
+    scriptData,
+    stageData,
+    progressData,
+    currentLevelId,
+    saveAnswersBeforeNavigation,
+    signedIn,
+    stageExtrasEnabled
+  );
 
   $('.level_free_play').qtip({
     content: {
@@ -137,7 +153,7 @@ header.build = function (scriptData, stageData, progressData, currentLevelId, pu
 };
 
 function shareProject() {
-  dashboard.project.save(function () {
+  dashboard.project.save().then(() => {
     var shareUrl;
     if (appOptions.baseShareUrl) {
       shareUrl = `${appOptions.baseShareUrl}/${dashboard.project.getCurrentId()}`;
@@ -161,23 +177,135 @@ function shareProject() {
     const pageConstants = getStore().getState().pageConstants;
     const canShareSocial = !pageConstants.isSignedIn || pageConstants.is13Plus;
 
+    // Only show the publish button for non-experimental project types in the
+    // project share dialog. this list can go away once the publishMoreProjects
+    // experiment is launched.
+    const nonExperimentalProjectTypes = [
+      'artist', 'playlab', 'gumball', 'iceage', 'infinity', 'applab', 'gamelab',
+    ];
+    const projectTypes = experiments.isEnabled('publishMoreProjects') ?
+      PublishableProjectTypesOver13 : nonExperimentalProjectTypes;
+
+    // Allow publishing for any project type that older students can publish.
+    // Younger students should never be able to get to the share dialog in the
+    // first place, so there's no need to check age against project types here.
+    const canPublish = !!appOptions.isSignedIn && projectTypes.includes(appType);
+
     ReactDOM.render(
       <Provider store={getStore()}>
         <ShareDialog
+          isProjectLevel={!!dashboard.project.isProjectLevel()}
           i18n={i18n}
-          icon={appOptions.skin.staticAvatar}
           shareUrl={shareUrl}
+          thumbnailUrl={dashboard.project.getThumbnailUrl()}
           isAbusive={dashboard.project.exceedsAbuseThreshold()}
+          canPublish={canPublish}
+          isPublished={dashboard.project.isPublished()}
           channelId={dashboard.project.getCurrentId()}
           appType={appType}
           onClickPopup={popupWindow}
           // TODO: Can I not proliferate the use of global references to Applab somehow?
           onClickExport={window.Applab ? window.Applab.exportApp : null}
           canShareSocial={canShareSocial}
+          userSharingDisabled={appOptions.userSharingDisabled}
         />
       </Provider>,
       dialogDom
     );
+
+    getStore().dispatch(showShareDialog());
+  });
+}
+
+function setupReduxSubscribers(store) {
+  let state = {};
+  store.subscribe(() => {
+    let lastState = state;
+    state = store.getState();
+
+    // Update the project state when a PublishDialog state transition indicates
+    // that a project has just been published.
+    if (
+      lastState.publishDialog &&
+      lastState.publishDialog.lastPublishedAt !==
+        state.publishDialog.lastPublishedAt
+    ) {
+      window.dashboard.project.setPublishedAt(state.publishDialog.lastPublishedAt);
+    }
+
+    // Update the project state when a ShareDialog state transition indicates
+    // that a project has just been unpublished.
+    if (
+      lastState.shareDialog &&
+      !lastState.shareDialog.didUnpublish &&
+      state.shareDialog.didUnpublish
+    ) {
+      window.dashboard.project.setPublishedAt(null);
+    }
+  });
+}
+setupReduxSubscribers(getStore());
+
+/**
+ * Show a popup dialog to collect an Hour of Code share link, and create a new
+ * channel-backed project from the associated LevelSource.
+ *
+ * Currently only supported for Minecraft Code Connection Projects and Minecraft
+ * Agent share links
+ */
+function importProject() {
+  if (!Craft) {
+    return;
+  }
+
+  Craft.showImportFromShareLinkPopup((shareLink) => {
+    if (!shareLink) {
+      return;
+    }
+
+    let shareUrl;
+    try {
+      shareUrl = new URL(shareLink);
+    } catch (e) {
+      // a shareLink that does not represent a valid URL will throw a TypeError
+      Craft.showErrorMessagePopup(dashboard.i18n.t('project.share_link_import_bad_link_header'), dashboard.i18n.t('project.share_link_import_bad_link_body'));
+      return;
+    }
+
+    const legacyShareRegex = /^\/c\/([^\/]*)/;
+    const obfuscatedShareRegex = /^\/r\/([^\/]*)/;
+
+    let levelSourcePath;
+
+    // Try a couple different kinds of share links
+    if (shareUrl.pathname.match(legacyShareRegex)) {
+      const levelSourceId = shareUrl.pathname.match(legacyShareRegex)[1];
+      levelSourcePath = `/c/${levelSourceId}.json`;
+    } else if (shareUrl.pathname.match(obfuscatedShareRegex)) {
+      const levelSourceId = shareUrl.pathname.match(obfuscatedShareRegex)[1];
+      levelSourcePath = `/r/${levelSourceId}.json`;
+    }
+
+    if (levelSourcePath) {
+      $.ajax({
+        url: levelSourcePath,
+        type: "get",
+        dataType: "json"
+      }).done(function (data) {
+        // Source data will likely be from a different project type than this one,
+        // so convert it
+
+        const convertedSource = convertBlocksXml(data.data);
+        dashboard.project.createNewChannelFromSource(convertedSource, function (channelData) {
+          const pathName = dashboard.project.appToProjectUrl() + '/' + channelData.id + '/edit';
+          location.href = pathName;
+        });
+      }).error(function () {
+        Craft.showErrorMessagePopup(dashboard.i18n.t('project.share_link_import_error_header'), dashboard.i18n.t('project.share_link_import_error_body'));
+      });
+    } else {
+        Craft.showErrorMessagePopup(dashboard.i18n.t('project.share_link_import_bad_link_header'), dashboard.i18n.t('project.share_link_import_bad_link_body'));
+    }
   });
 }
 
@@ -191,9 +319,9 @@ function remixProject() {
     // page or a script level. In these cases, copy will create a new project
     // for us.
     var newName = "Remix: " + (dashboard.project.getCurrentName() || appOptions.level.projectTemplateLevelName || "My Project");
-    dashboard.project.copy(newName, function () {
-      $(".project_name").text(newName);
-    }, {shouldNavigate: true});
+    dashboard.project.copy(newName, {shouldNavigate: true})
+      .then(() => $(".project_name").text(newName))
+      .catch(err => console.log(err));
   }
 }
 
@@ -264,8 +392,14 @@ header.showProjectHeader = function () {
       .append($('<div class="project_remix header_button header_button_light">').text(dashboard.i18n.t('project.remix')))
       .append($('<div class="project_new header_button header_button_light">').text(dashboard.i18n.t('project.new')));
 
-  // TODO: Remove this (and the related style) when Game Lab and/or Web Lab are no longer in beta.
-  if ('gamelab' === appOptions.app || 'weblab' === appOptions.app) {
+  // For Minecraft Code Connection (aka CodeBuilder) projects, add the option to
+  // import code from an Hour of Code share link
+  if (appOptions.level.isConnectionLevel) {
+    $('.project_info').append($('<div class="project_import header_button header_button_light">').text(dashboard.i18n.t('project.import')));
+  }
+
+  // TODO: Remove this (and the related style) when Web Lab is no longer in beta.
+  if ('weblab' === appOptions.app) {
     $('.project_info').append($('<div class="beta-notice">').text(dashboard.i18n.t('beta')));
   }
 
@@ -292,6 +426,7 @@ header.showProjectHeader = function () {
 
   $('.project_share').click(shareProject);
   $('.project_remix').click(remixProject);
+  $('.project_import').click(importProject);
 
   var $projectMorePopup = $('.project_more_popup');
   function hideProjectMore() {

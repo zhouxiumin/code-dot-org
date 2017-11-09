@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {createUuid} from '../../utils';
 import { connect } from 'react-redux';
 import BaseDialog from '../../templates/BaseDialog.jsx';
@@ -7,7 +7,7 @@ import styles from './styles';
 import { hide, pickNewAnimation, pickLibraryAnimation, beginUpload,
     handleUploadComplete, handleUploadError } from './animationPickerModule';
 import AnimationPickerBody from './AnimationPickerBody.jsx';
-const HiddenUploader = window.dashboard.HiddenUploader;
+import HiddenUploader from '../../code-studio/components/HiddenUploader';
 
 // Some operating systems round their file sizes, so max size is 101KB even
 // though our error message says 100KB, to help users avoid confusion.
@@ -27,29 +27,27 @@ const MAX_UPLOAD_SIZE = 101000;
  * As a dialog-type redux-friendly component, the AnimationPicker handles its
  * own display state and can be "rendered" at all times by its parent.
  */
-const AnimationPicker = React.createClass({
-  propTypes: {
+class AnimationPicker extends React.Component {
+  static propTypes = {
     // Provided externally
-    channelId: React.PropTypes.string.isRequired,
-    allowedExtensions: React.PropTypes.string,
+    channelId: PropTypes.string.isRequired,
+    allowedExtensions: PropTypes.string,
 
     // Provided via Redux
-    visible: React.PropTypes.bool.isRequired,
-    uploadInProgress: React.PropTypes.bool.isRequired,
-    uploadError: React.PropTypes.string,
-    is13Plus: React.PropTypes.bool,
-    onClose: React.PropTypes.func.isRequired,
-    onPickNewAnimation: React.PropTypes.func.isRequired,
-    onPickLibraryAnimation: React.PropTypes.func.isRequired,
-    onUploadStart: React.PropTypes.func.isRequired,
-    onUploadDone: React.PropTypes.func.isRequired,
-    onUploadError: React.PropTypes.func.isRequired,
-    playAnimations: React.PropTypes.bool.isRequired
-  },
+    visible: PropTypes.bool.isRequired,
+    uploadInProgress: PropTypes.bool.isRequired,
+    uploadError: PropTypes.string,
+    is13Plus: PropTypes.bool,
+    onClose: PropTypes.func.isRequired,
+    onPickNewAnimation: PropTypes.func.isRequired,
+    onPickLibraryAnimation: PropTypes.func.isRequired,
+    onUploadStart: PropTypes.func.isRequired,
+    onUploadDone: PropTypes.func.isRequired,
+    onUploadError: PropTypes.func.isRequired,
+    playAnimations: PropTypes.bool.isRequired
+  };
 
-  onUploadClick() {
-    this.refs.uploader.openFileChooser();
-  },
+  onUploadClick = () => this.refs.uploader.openFileChooser();
 
   renderVisibleBody() {
     if (this.props.uploadError) {
@@ -66,7 +64,7 @@ const AnimationPicker = React.createClass({
           playAnimations={this.props.playAnimations}
         />
     );
-  },
+  }
 
   render() {
     if (!this.props.visible) {
@@ -93,7 +91,7 @@ const AnimationPicker = React.createClass({
       </BaseDialog>
     );
   }
-});
+}
 
 export default connect(state => ({
   visible: state.animationPicker.visible,

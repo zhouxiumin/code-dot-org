@@ -1,17 +1,17 @@
 /**
  * Displays a list of nicely-formatted session times for a workshop.
  */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import SessionTime from './session_time';
 
-const SessionTimesList = React.createClass({
-  propTypes: {
-    sessions: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        id: React.PropTypes.number.isRequired
+export default class SessionTimesList extends React.Component {
+  static propTypes = {
+    sessions: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired
       })
     ).isRequired
-  },
+  };
 
   render() {
     const listItems = this.props.sessions.map(session => {
@@ -28,5 +28,4 @@ const SessionTimesList = React.createClass({
       </ul>
     );
   }
-});
-export default SessionTimesList;
+}

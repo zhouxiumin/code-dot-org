@@ -2,10 +2,11 @@
  * Workshop Index. Displays workshop summaries and controls for CRUD actions.
  * Route: /workshops
  */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {Button, ButtonToolbar} from 'react-bootstrap';
 import ServerSortWorkshopTable from './components/server_sort_workshop_table';
 import Permission from '../permission';
+import $ from 'jquery';
 
 const FILTER_API_URL = "/api/v1/pd/workshops/filter";
 const defaultFilters = {
@@ -28,39 +29,39 @@ const filterParams = {
   }
 };
 
-const WorkshopIndex = React.createClass({
-  contextTypes: {
-    router: React.PropTypes.object.isRequired
-  },
+export default class WorkshopIndex extends React.Component {
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  };
 
   componentWillMount() {
     this.permission = new Permission();
-  },
+  }
 
-  handleNewWorkshopClick() {
+  handleNewWorkshopClick = () => {
     this.context.router.push('/workshops/new');
-  },
+  };
 
-  handleAttendanceReportsClick() {
+  handleAttendanceReportsClick = () => {
     this.context.router.push('/reports');
-  },
+  };
 
-  handleOrganizerSurveyResultsClick() {
+  handleOrganizerSurveyResultsClick = () => {
     this.context.router.push('/organizer_survey_results');
-  },
+  };
 
-  handleSurveyResultsClick() {
+  handleSurveyResultsClick = () => {
     this.context.router.push('/survey_results');
-  },
+  };
 
-  handleFilterClick(e) {
+  handleFilterClick = (e) => {
     e.preventDefault();
     this.context.router.push('/workshops/filter');
-  },
+  };
 
   generateFilterUrl(state) {
     return `/workshops/filter?${$.param({state})}`;
-  },
+  }
 
   render() {
     const showOrganizer = this.permission.isWorkshopAdmin;
@@ -69,9 +70,13 @@ const WorkshopIndex = React.createClass({
       <div>
         <h1>Your Workshops</h1>
         <ButtonToolbar>
-          <Button className="btn-primary" onClick={this.handleNewWorkshopClick}>
-            New Workshop
-          </Button>
+          {(this.permission.isWorkshopAdmin || this.permission.isOrganizer) &&
+            (
+              <Button className="btn-primary" onClick={this.handleNewWorkshopClick}>
+                New Workshop
+              </Button>
+            )
+          }
           {(this.permission.isWorkshopAdmin || this.permission.isOrganizer) && <Button onClick={this.handleAttendanceReportsClick}>Attendance Reports</Button>}
           {this.permission.isPartner && <Button onClick={this.handleOrganizerSurveyResultsClick}>Organizer Survey Results</Button>}
           {this.permission.isFacilitator && <Button onClick={this.handleSurveyResultsClick}>Facilitator Survey Results</Button>}
@@ -112,5 +117,4 @@ const WorkshopIndex = React.createClass({
       </div>
     );
   }
-});
-export default WorkshopIndex;
+}

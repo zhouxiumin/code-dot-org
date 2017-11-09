@@ -1,9 +1,9 @@
 /* RoboticsButton: A button shown below the filters that goes to /learn/robotics.
  */
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { getResponsiveValue } from './responsive';
-import i18n from './locale';
+import i18n from '@cdo/tutorialExplorer/locale';
 
 const styles = {
   button: {
@@ -40,10 +40,10 @@ const styles = {
   }
 };
 
-const RoboticsButton = React.createClass({
-  propTypes: {
-    url: React.PropTypes.string
-  },
+export default class RoboticsButton extends React.Component {
+  static propTypes = {
+    url: PropTypes.string
+  };
 
   render() {
     const roboticsTextStyle = {
@@ -76,6 +76,4 @@ const RoboticsButton = React.createClass({
       </div>
     );
   }
-});
-
-export default RoboticsButton;
+}

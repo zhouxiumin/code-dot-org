@@ -1,9 +1,9 @@
 import MD5 from 'crypto-js/md5';
 import Radium from 'radium';
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
 import trackEvent from '../../util/trackEvent';
-var color = require("../../util/color");
+import color from '../../util/color';
 
 // TODO (elijah): have these constants shared w/dashboard
 const VOICES = {
@@ -46,6 +46,7 @@ const styles = {
   },
 
   button: {
+    cursor: 'pointer',
     'float': 'left',
     backgroundColor: color.lightest_purple,
     border: 'none',
@@ -71,23 +72,34 @@ const styles = {
     paddingLeft: 8,
     color: '#4d575f'
   },
+
+  hover: {
+    backgroundColor: color.cyan
+  }
 };
 
-const InlineAudio = React.createClass({
-  propTypes: {
-    assetUrl: React.PropTypes.func.isRequired,
-    locale: React.PropTypes.string,
-    textToSpeechEnabled: React.PropTypes.bool,
-    src: React.PropTypes.string,
-    message: React.PropTypes.string,
-    style: React.PropTypes.object
-  },
+class InlineAudio extends React.Component {
+  static propTypes = {
+    assetUrl: PropTypes.func.isRequired,
+    locale: PropTypes.string,
+    textToSpeechEnabled: PropTypes.bool,
+    src: PropTypes.string,
+    message: PropTypes.string,
+    style: PropTypes.object
+  };
 
-  componentWillUpdate: function (nextProps) {
+  state = {
+    audio: undefined,
+    playing: false,
+    error: false,
+    hover: false,
+  };
+
+  componentWillUpdate(nextProps) {
     if (this.props.src !== nextProps.src ||
         this.props.message !== nextProps.message) {
       // unload current Audio object
-      var audio = this.state.audio;
+      const audio = this.state.audio;
 
       if (audio) {
         audio.src = undefined;
@@ -99,23 +111,15 @@ const InlineAudio = React.createClass({
         playing: false,
       });
     }
-  },
+  }
 
-  getInitialState: function () {
-    return {
-      audio: undefined,
-      playing: false,
-      error: false,
-    };
-  },
-
-  getAudioElement: function () {
+  getAudioElement() {
     if (this.state.audio) {
       return this.state.audio;
     }
 
-    var src = this.getAudioSrc();
-    var audio = new Audio(src);
+    const src = this.getAudioSrc();
+    const audio = new Audio(src);
     audio.addEventListener("ended", e => {
       this.setState({
         playing: false
@@ -134,13 +138,13 @@ const InlineAudio = React.createClass({
     this.setState({ audio });
     trackEvent('InlineAudio', 'getAudioElement', src);
     return audio;
-  },
+  }
 
-  isLocaleSupported: function () {
+  isLocaleSupported() {
     return VOICES.hasOwnProperty(this.props.locale);
-  },
+  }
 
-  getAudioSrc: function () {
+  getAudioSrc() {
     if (this.props.src) {
       return this.props.src;
     }
@@ -153,31 +157,38 @@ const InlineAudio = React.createClass({
     const contentPath = `${hash}/${encodeURIComponent(message)}.mp3`;
 
     return `${TTS_URL}/${voicePath}/${contentPath}`;
-  },
+  }
 
-  toggleAudio: function () {
+  toggleAudio = () => {
     this.state.playing ? this.pauseAudio() : this.playAudio();
-  },
+  };
 
-  playAudio: function () {
+  playAudio() {
     this.getAudioElement().play();
     this.setState({ playing: true });
-  },
+  }
 
-  pauseAudio: function () {
+  pauseAudio() {
     this.getAudioElement().pause();
     this.setState({ playing: false });
-  },
+  }
 
-  render: function () {
+  toggleHover = () => {
+    this.setState({ hover: !this.state.hover });
+  };
+
+  render() {
     if (this.props.textToSpeechEnabled && !this.state.error && this.isLocaleSupported() && this.getAudioSrc()) {
       return (
         <div
           className="inline-audio"
           style={this.props.style && this.props.style.wrapper}
+          onMouseOver={this.toggleHover}
+          onMouseOut={this.toggleHover}
         >
           <div
-            style={[styles.button, styles.volumeButton, this.props.style && this.props.style.button]}
+            style={[styles.button, styles.volumeButton, this.props.style && this.props.style.button, this.state.hover && styles.hover]}
+            id="volume"
           >
             <i
               className={"fa fa-volume-up"}
@@ -186,7 +197,7 @@ const InlineAudio = React.createClass({
           </div>
           <div
             className="playPause"
-            style={[styles.button, styles.playPauseButton, this.props.style && this.props.style.button]}
+            style={[styles.button, styles.playPauseButton, this.props.style && this.props.style.button, this.state.hover && styles.hover]}
             onClick={this.toggleAudio}
           >
             <i
@@ -199,7 +210,7 @@ const InlineAudio = React.createClass({
     }
     return null;
   }
-});
+}
 
 export const StatelessInlineAudio = Radium(InlineAudio);
 export default connect(function propsFromStore(state) {
@@ -208,4 +219,4 @@ export default connect(function propsFromStore(state) {
     textToSpeechEnabled: state.pageConstants.textToSpeechEnabled || state.pageConstants.isK1,
     locale: state.pageConstants.locale,
   };
-})(Radium(InlineAudio));
+})(StatelessInlineAudio);

@@ -3,8 +3,11 @@ require 'cdo/sinatra'
 require 'base64'
 require 'cdo/db'
 require 'cdo/rack/request'
+require 'cdo/shared_constants'
 
 class ChannelsApi < Sinatra::Base
+  include SharedConstants
+
   helpers do
     %w(
       core.rb
@@ -173,13 +176,12 @@ class ChannelsApi < Sinatra::Base
   #
   post %r{/v3/channels/([^/]+)/publish/([^/]+)} do |channel_id, project_type|
     not_authorized unless owns_channel?(channel_id)
-    bad_request unless %w(artist playlab applab gamelab).include?(project_type)
-    forbidden if under_13? && !%w(artist playlab).include?(project_type)
+    bad_request unless PUBLISHABLE_PROJECT_TYPES_OVER_13.include?(project_type)
+    forbidden if under_13? && !PUBLISHABLE_PROJECT_TYPES_UNDER_13.include?(project_type)
 
     # Once we have back-filled the project_type column for all channels,
     # it will no longer be necessary to specify the project type here.
-    published_at = StorageApps.new(storage_id('user')).publish(channel_id, project_type)
-    {publishedAt: published_at}.to_json
+    StorageApps.new(storage_id('user')).publish(channel_id, project_type, current_user).to_json
   end
 
   #
@@ -204,6 +206,23 @@ class ChannelsApi < Sinatra::Base
 
     value = channel_policy_violation?(id)
     {has_violation: value}.to_json
+  end
+
+  #
+  #
+  # GET /v3/channels/<channel-id>/sharing_disabled
+  #
+  # Get the ability to share a project based on it's owner's share setting.
+  #
+  get %r{/v3/channels/([^/]+)/sharing_disabled} do |id|
+    dont_cache
+    content_type :json
+    begin
+      value = StorageApps.new(storage_id('user')).get_sharing_disabled(id, current_user_id)
+    rescue ArgumentError, OpenSSL::Cipher::CipherError
+      bad_request
+    end
+    {sharing_disabled: value}.to_json
   end
 
   #

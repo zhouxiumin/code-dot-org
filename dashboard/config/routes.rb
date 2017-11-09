@@ -21,6 +21,8 @@ Dashboard::Application.routes.draw do
 
   get "/home", to: "home#home"
 
+  get "/congrats", to: "congrats#index"
+
   resources :gallery_activities, path: '/gallery' do
     collection do
       get 'art', to: 'gallery_activities#index', app: Game::ARTIST
@@ -42,6 +44,7 @@ Dashboard::Application.routes.draw do
   end
 
   get 'maker/setup', to: 'maker#setup'
+  get 'maker/discountcode', to: 'maker#discountcode'
 
   # Media proxying
   get 'media', to: 'media_proxy#get', format: false
@@ -53,9 +56,21 @@ Dashboard::Application.routes.draw do
 
   get 'docs/*docs_route', to: 'docs_proxy#get'
 
+  # User-facing section routes
   resources :sections, only: [:show, :update] do
     member do
       post 'log_in'
+    end
+  end
+  # Section API routes (JSON only)
+  concern :section_api_routes do
+    resources :sections, only: [:index, :show, :create, :destroy] do
+      resources :students, only: [:index], controller: 'sections_students'
+      member do
+        post 'join'
+        post 'leave'
+        post 'update_sharing_disabled'
+      end
     end
   end
 
@@ -68,17 +83,33 @@ Dashboard::Application.routes.draw do
   get '/u/:id', to: redirect('/c/%{id}')
   get '/u/:id/:action_id', to: redirect('/c/%{id}/%{action_id}')
 
+  # These links should no longer be created (August 2017), though we will continue to support
+  # existing links. Instead, create /r/ links.
   resources :level_sources, path: '/c/', only: [:show, :edit, :update] do
     member do
       get 'generate_image'
       get 'original_image'
     end
   end
+  # These routes are being created to replace the /c/ routes (August 2017) so as to include the ID
+  # of the sharing user in the URL. Doing so allows us to block showing the level source if the user
+  # deletes themself.
+  resources :obfuscated_level_sources, path: '/r/', controller: :level_sources, param: :level_source_id_and_user_id, only: [:show, :edit, :update] do
+    member do
+      get 'generate_image'
+      get 'original_image'
+    end
+  end
+
   get '/share/:id', to: redirect('/c/%{id}')
 
   devise_scope :user do
     get '/oauth_sign_out/:provider', to: 'sessions#oauth_sign_out', as: :oauth_sign_out
     patch '/dashboardapi/users', to: 'registrations#update'
+    patch '/users/upgrade', to: 'registrations#upgrade'
+    patch '/users/set_age', to: 'registrations#set_age'
+    get '/users/clever_takeover', to: 'sessions#clever_takeover'
+    get '/users/clever_modal_dismissed', to: 'sessions#clever_modal_dismissed'
   end
   devise_for :users, controllers: {
     omniauth_callbacks: 'omniauth_callbacks',
@@ -149,7 +180,7 @@ Dashboard::Application.routes.draw do
     # /s/xxx/reset
     get 'reset', to: 'script_levels#reset'
     get 'next', to: 'script_levels#next'
-    get 'hidden_stages', to: 'script_levels#hidden'
+    get 'hidden_stages', to: 'script_levels#hidden_stage_ids'
     post 'toggle_hidden', to: 'script_levels#toggle_hidden'
 
     get 'instructions', to: 'scripts#instructions'
@@ -209,6 +240,11 @@ Dashboard::Application.routes.draw do
   post '/milestone/:user_id/:script_level_id/:level_id', to: 'activities#milestone', as: 'milestone_script_level'
 
   get '/admin', to: 'admin_reports#directory', as: 'admin_directory'
+  resources :regional_partners
+  post 'regional_partners/:id/assign_program_manager', controller: 'regional_partners', action: 'assign_program_manager'
+  get 'regional_partners/:id/remove_program_manager/:program_manager_id', controller: 'regional_partners', action: 'remove_program_manager'
+  post 'regional_partners/:id/add_mapping', controller: 'regional_partners', action: 'add_mapping'
+  get 'regional_partners/:id/remove_mapping/:id', controller: 'regional_partners', action: 'remove_mapping'
 
   # HOC dashboards.
   get '/admin/hoc/students_served', to: 'admin_hoc#students_served', as: 'hoc_students_served'
@@ -240,7 +276,12 @@ Dashboard::Application.routes.draw do
   post '/admin/manual_pass', to: 'admin_users#manual_pass', as: 'manual_pass'
   get '/admin/permissions', to: 'admin_users#permissions_form', as: 'permissions_form'
   post '/admin/grant_permission', to: 'admin_users#grant_permission', as: 'grant_permission'
-  post '/admin/revoke_all_permissions', to: 'admin_users#revoke_all_permissions', as: 'revoke_all_permissions'
+  get '/admin/revoke_permission', to: 'admin_users#revoke_permission', as: 'revoke_permission'
+  post '/admin/bulk_grant_permission', to: 'admin_users#bulk_grant_permission', as: 'bulk_grant_permission'
+  get '/admin/studio_person', to: 'admin_users#studio_person_form', as: 'studio_person_form'
+  post '/admin/studio_person_merge', to: 'admin_users#studio_person_merge', as: 'studio_person_merge'
+  post '/admin/studio_person_split', to: 'admin_users#studio_person_split', as: 'studio_person_split'
+  post '/admin/studio_person_add_email_to_emails', to: 'admin_users#studio_person_add_email_to_emails', as: 'studio_person_add_email_to_emails'
 
   get '/admin/styleguide', to: redirect('/styleguide/')
 
@@ -255,10 +296,13 @@ Dashboard::Application.routes.draw do
   post '/report_abuse', to: 'report_abuse#report_abuse'
   get '/report_abuse', to: 'report_abuse#report_abuse_form'
 
-  get '/too_young', to: redirect {|_p, req| req.flash[:alert] = I18n.t("errors.messages.too_young"); '/'}
+  get '/too_young', to: 'too_young#index'
 
   post '/sms/send', to: 'sms#send_to_phone', as: 'send_to_phone'
 
+  get '/experiments/set_course_experiment/:experiment_name', to: 'experiments#set_course_experiment'
+
+  get '/peer_reviews/dashboard', to: 'peer_reviews#dashboard'
   resources :peer_reviews
 
   concern :ops_routes do
@@ -328,6 +372,8 @@ Dashboard::Application.routes.draw do
         delete 'attendance/:session_id/enrollment/:enrollment_id', action: 'destroy_by_enrollment', controller: 'workshop_attendance'
 
         get :workshop_survey_report, action: :workshop_survey_report, controller: 'workshop_survey_report'
+        get :local_workshop_survey_report, action: :local_workshop_survey_report, controller: 'workshop_survey_report'
+        get :teachercon_survey_report, action: :teachercon_survey_report, controller: 'workshop_survey_report'
         get :workshop_organizer_survey_report, action: :workshop_organizer_survey_report, controller: 'workshop_organizer_survey_report'
       end
       resources :workshop_summary_report, only: :index
@@ -342,8 +388,20 @@ Dashboard::Application.routes.draw do
       post :facilitator_program_registrations, to: 'facilitator_program_registrations#create'
       post :regional_partner_program_registrations, to: 'regional_partner_program_registrations#create'
 
+      post :pre_workshop_surveys, to: 'pre_workshop_surveys#create'
       post :workshop_surveys, to: 'workshop_surveys#create'
       post :teachercon_surveys, to: 'teachercon_surveys#create'
+      post :regional_partner_contacts, to: 'regional_partner_contacts#create'
+
+      namespace :application do
+        post :facilitator, to: 'facilitator_applications#create'
+      end
+
+      resources :applications, controller: 'applications', only: [:index, :show, :update] do
+        collection do
+          get :quick_view
+        end
+      end
     end
   end
 
@@ -364,6 +422,10 @@ Dashboard::Application.routes.draw do
     get 'teacher_application/manage/:teacher_application_id/email', to: 'teacher_application#construct_email'
     post 'teacher_application/manage/:teacher_application_id/email', to: 'teacher_application#send_email'
 
+    namespace :application do
+      get 'facilitator', to: 'facilitator_application#new'
+    end
+
     get 'facilitator_program_registration', to: 'facilitator_program_registration#new'
     get 'regional_partner_program_registration', to: 'regional_partner_program_registration#new'
 
@@ -372,14 +434,12 @@ Dashboard::Application.routes.draw do
     get 'workshop_enrollment/:code', action: 'show', controller: 'workshop_enrollment'
     get 'workshop_enrollment/:code/thanks', action: 'thanks', controller: 'workshop_enrollment'
     get 'workshop_enrollment/:code/cancel', action: 'cancel', controller: 'workshop_enrollment'
-    get 'workshops/join/:section_code', action: 'join_section', controller: 'workshop_enrollment'
-    post 'workshops/join/:section_code', action: 'confirm_join', controller: 'workshop_enrollment'
-    patch 'workshops/join/:section_code', action: 'confirm_join', controller: 'workshop_enrollment'
 
     get 'workshop_materials/:enrollment_code', action: 'new', controller: 'workshop_material_orders'
     post 'workshop_materials/:enrollment_code', action: 'create', controller: 'workshop_material_orders'
     get 'workshop_materials', action: 'admin_index', controller: 'workshop_material_orders'
 
+    get 'pre_workshop_survey/:enrollment_code', action: 'new', controller: 'pre_workshop_survey', as: 'new_pre_workshop_survey'
     get 'workshop_survey/:enrollment_code', action: 'new', controller: 'workshop_survey', as: 'new_workshop_survey'
     get 'teachercon_survey/:enrollment_code', action: 'new', controller: 'teachercon_survey', as: 'new_teachercon_survey'
 
@@ -392,6 +452,19 @@ Dashboard::Application.routes.draw do
     post 'attend/:session_code/join', controller: 'workshop_enrollment', action: 'confirm_join_session'
     get 'attend/:session_code/upgrade', controller: 'session_attendance', action: 'upgrade_account'
     post 'attend/:session_code/upgrade', controller: 'session_attendance', action: 'confirm_upgrade_account'
+
+    get 'workshop_admins', controller: 'workshop_admins', action: 'directory', as: 'workshop_admins'
+    get 'workshop_user_management/facilitator_courses', controller: 'workshop_user_management', action: 'facilitator_courses_form', as: 'facilitator_courses'
+    post 'workshop_user_management/assign_course', controller: 'workshop_user_management', action: 'assign_course_to_facilitator'
+    # TODO: change remove_course to use http delete method
+    get 'workshop_user_management/remove_course', controller: 'workshop_user_management', action: 'remove_course_from_facilitator'
+
+    get 'regional_partner_contact/new', to: 'regional_partner_contact#new'
+    get 'regional_partner_contact/:contact_id/thanks', to: 'regional_partner_contact#thanks'
+
+    # React-router will handle sub-routes on the client.
+    get 'application_dashboard/*path', to: 'application_dashboard#index'
+    get 'application_dashboard', to: 'application_dashboard#index'
   end
 
   get '/dashboardapi/section_progress/:section_id', to: 'api#section_progress'
@@ -399,6 +472,9 @@ Dashboard::Application.routes.draw do
   get '/dashboardapi/section_assessments/:section_id', to: 'api#section_assessments'
   get '/dashboardapi/section_surveys/:section_id', to: 'api#section_surveys'
   get '/dashboardapi/student_progress/:section_id/:student_id', to: 'api#student_progress'
+  scope 'dashboardapi', module: 'api/v1' do
+    concerns :section_api_routes
+  end
 
   # Wildcard routes for API controller: select all public instance methods in the controller,
   # and all template names in `app/views/api/*`.
@@ -417,12 +493,12 @@ Dashboard::Application.routes.draw do
 
   post '/api/lock_status', to: 'api#update_lockable_state'
   get '/api/lock_status', to: 'api#lockable_state'
-  get '/api/script_structure/:script_name', to: 'api#script_structure'
+  get '/api/script_structure/:script', to: 'api#script_structure'
   get '/api/section_progress/:section_id', to: 'api#section_progress', as: 'section_progress'
   get '/api/student_progress/:section_id/:student_id', to: 'api#student_progress', as: 'student_progress'
-  get '/api/user_progress/:script_name', to: 'api#user_progress', as: 'user_progress'
-  get '/api/user_progress/:script_name/:stage_position/:level_position', to: 'api#user_progress_for_stage', as: 'user_progress_for_stage'
-  get '/api/user_progress/:script_name/:stage_position/:level_position/:level', to: 'api#user_progress_for_stage', as: 'user_progress_for_stage_and_level'
+  get '/api/user_progress/:script', to: 'api#user_progress', as: 'user_progress'
+  get '/api/user_progress/:script/:stage_position/:level_position', to: 'api#user_progress_for_stage', as: 'user_progress_for_stage'
+  get '/api/user_progress/:script/:stage_position/:level_position/:level', to: 'api#user_progress_for_stage', as: 'user_progress_for_stage_and_level'
   get '/api/user_progress', to: 'api#user_progress_for_all_scripts', as: 'user_progress_for_all_scripts'
   namespace :api do
     api_methods.each do |action|
@@ -433,6 +509,7 @@ Dashboard::Application.routes.draw do
   namespace :api do
     namespace :v1 do
       concerns :api_v1_pd_routes
+      concerns :section_api_routes
       post 'users/:user_id/using_text_mode', to: 'users#post_using_text_mode'
       get 'users/:user_id/using_text_mode', to: 'users#get_using_text_mode'
 
@@ -447,11 +524,23 @@ Dashboard::Application.routes.draw do
       # Routes used by UI test status pages
       get 'test_logs/*prefix/since/:time', to: 'test_logs#get_logs_since', defaults: {format: 'json'}
       get 'test_logs/*prefix/:name', to: 'test_logs#get_log_details', defaults: {format: 'json'}
+
+      # Routes used by the peer reviews admin pages
+      get 'peer_review_submissions/index', to: 'peer_review_submissions#index'
+      get 'peer_review_submissions/report_csv', to: 'peer_review_submissions#report_csv'
     end
   end
 
   get '/dashboardapi/v1/school-districts/:state', to: 'api/v1/school_districts#index', defaults: {format: 'json'}
   get '/dashboardapi/v1/schools/:school_district_id/:school_type', to: 'api/v1/schools#index', defaults: {format: 'json'}
+
+  # We want to allow searchs with dots, for instance "St. Paul", so we specify
+  # the constraint on :q to match anything but a slash.
+  # @see http://guides.rubyonrails.org/routing.html#specifying-constraints
+  get '/dashboardapi/v1/districtsearch/:q/:limit', to: 'api/v1/school_districts#search', defaults: {format: 'json'}, constraints: {q: /[^\/]+/}
+  get '/dashboardapi/v1/schoolsearch/:q/:limit', to: 'api/v1/schools#search', defaults: {format: 'json'}, constraints: {q: /[^\/]+/}
+
   get '/dashboardapi/v1/regional-partners/:school_district_id', to: 'api/v1/regional_partners#index', defaults: {format: 'json'}
   get '/dashboardapi/v1/projects/section/:section_id', to: 'api/v1/projects/section_projects#index', defaults: {format: 'json'}
+  get '/dashboardapi/courses', to: 'courses#index', defaults: {format: 'json'}
 end

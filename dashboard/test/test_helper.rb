@@ -9,7 +9,7 @@ if ENV['COVERAGE'] || ENV['CIRCLECI'] # set this environment variable when runni
 end
 
 require 'minitest/reporters'
-reporters = [Minitest::Reporters::SpecReporter.new]
+reporters = [Minitest::Reporters::ProgressReporter.new]
 if ENV['CIRCLECI']
   reporters << Minitest::Reporters::JUnitReporter.new("#{ENV['CIRCLE_TEST_REPORTS']}/dashboard")
 end
@@ -46,6 +46,7 @@ require 'dynamic_config/dcdo'
 require 'testing/setup_all_and_teardown_all'
 require 'testing/lock_thread'
 require 'testing/transactional_test_case'
+require 'testing/capture_queries'
 
 require 'parallel_tests/test/runtime_logger'
 
@@ -111,6 +112,7 @@ class ActiveSupport::TestCase
   include FactoryGirl::Syntax::Methods
   include ActiveSupport::Testing::SetupAllAndTeardownAll
   include ActiveSupport::Testing::TransactionalTestCase
+  include CaptureQueries
 
   def assert_creates(*args)
     assert_difference(args.collect(&:to_s).collect {|class_name| "#{class_name}.count"}) do
@@ -119,6 +121,18 @@ class ActiveSupport::TestCase
   end
 
   def assert_does_not_create(*args)
+    assert_no_difference(args.collect(&:to_s).collect {|class_name| "#{class_name}.count"}) do
+      yield
+    end
+  end
+
+  def assert_destroys(*args)
+    assert_difference(args.collect(&:to_s).collect {|class_name| "#{class_name}.count"}, -1) do
+      yield
+    end
+  end
+
+  def assert_does_not_destroy(*args)
     assert_no_difference(args.collect(&:to_s).collect {|class_name| "#{class_name}.count"}) do
       yield
     end
@@ -217,6 +231,16 @@ class ActiveSupport::TestCase
     Rails.logger.info '--------------'
     ActiveRecord::Base.stubs(:connection).raises 'Database disconnected'
   end
+
+  def setup_script_cache
+    Script.stubs(:should_cache?).returns true
+    Script.clear_cache
+    # turn on the cache (off by default in test env so tests don't confuse each other)
+    Rails.application.config.action_controller.perform_caching = true
+    Rails.application.config.cache_store = :memory_store, {size: 64.megabytes}
+
+    Rails.cache.clear
+  end
 end
 
 # Helpers for all controller test cases
@@ -227,6 +251,13 @@ class ActionController::TestCase
     ActionDispatch::Cookies::CookieJar.always_write_cookie = true
     request.env["devise.mapping"] = Devise.mappings[:user]
     request.env['cdo.locale'] = 'en-US'
+  end
+
+  # As `current_user` is not accessible from controller tests (only from within the controller),
+  # the signed in user is only accessible from the session.
+  # @returns [Integer, nil] The ID of the signed in user, nil if no user is signed in.
+  def signed_in_user_id
+    session['warden.user.user.key'].try(:first).try(:first)
   end
 
   # override default html document to ask it to raise errors on invalid html
@@ -279,6 +310,7 @@ class ActionController::TestCase
   #   Otherwise it will be generated based on parameter values.
   #   Note: It is recommended to supply a name when varying params or user procs,
   #     as the default generated names may be ambiguous and may conflict.
+  # @param queries [Number] optional number of expected ActiveRecord database queries.
   # @yield runs an optional block of additional test logic after asserting the response
   #   Note: name is required when providing a block.
   #
@@ -304,7 +336,7 @@ class ActionController::TestCase
   #     assert_equal :admin, assigns(:permission)
   #   end
   def self.test_user_gets_response_for(action, method: :get, response: :success,
-    user: nil, params: {}, name: nil, &block)
+    user: nil, params: {}, name: nil, queries: nil, &block)
 
     unless name.present?
       raise 'name is required when a block is provided' if block
@@ -333,8 +365,10 @@ class ActionController::TestCase
         sign_out :user
       end
 
-      send method, action, params: params
-      assert_response response
+      assert_queries queries do
+        send method, action, params: params
+        assert_response response
+      end
 
       # Run additional test logic, if supplied
       instance_exec(&block) if block
@@ -433,11 +467,13 @@ end
 
 # Mock StorageApps to generate random tokens
 class StorageApps
-  def initialize(_)
+  def initialize(storage_id)
+    @storage_id = storage_id
   end
 
   def create(_, _)
-    SecureRandom.base64 18
+    storage_app_id = SecureRandom.random_number(100000)
+    storage_encrypt_channel_id(@storage_id, storage_app_id)
   end
 
   def most_recent(_)
@@ -445,23 +481,15 @@ class StorageApps
   end
 end
 
-# Mock storage_id to generate random IDs
+# Mock storage_id to generate random IDs. Seed with current user so that a user maintains
+# the same id
 def storage_id(_)
-  SecureRandom.hex
+  return storage_id_for_user_id(current_user.id) if current_user
+  Random.new.rand(1_000_000)
 end
 
-def storage_encrypt_channel_id(storage_id, channel_id)
-  "STUB_CHANNEL_ID-#{storage_id}-#{channel_id}"
-end
-
-$stub_channel_owner = 33
-$stub_channel_id = 44
-# stubbing storage_decrypt is inappropriate access, but
-# allows storage_decrypt_channel_id to throw the right
-# errors if the input is malformed and keeps us from
-# having to access the Pegasus DB from Dashboard tests.
-def storage_decrypt(encrypted)
-  "#{$stub_channel_owner}:#{$stub_channel_id}"
+def storage_id_for_user_id(user_id)
+  Random.new(user_id).rand(1_000_000)
 end
 
 # A fake slogger implementation that captures the records written to it.
@@ -473,7 +501,8 @@ class FakeSlogger
   end
 
   def write(json)
-    @records << json
+    # Force application: :dashboard to ensure we don't incorrectly use the :pegasus version:
+    @records << json.merge({application: :dashboard})
   end
 end
 
@@ -493,5 +522,16 @@ module FakeSQS
 
   class TestIntegration
     prepend TestIntegrationExtensions
+  end
+end
+
+# helper method for mailers to test whether urls in an email are partial paths
+# first parameter is an email, ex: Pd::WorkshopMailer.detail_change_notification(enrollment)
+# allowed_urls is an optional array of strings that are not complete urls to allow anyway
+def links_are_complete_urls?(email, allowed_urls: nil)
+  html = Nokogiri::HTML(email.body.to_s)
+  urls = html.css('a').map {|link| link['href']}
+  urls.all? do |url|
+    url.starts_with?('mailto') || url.starts_with?('http') || allowed_urls.include?(url)
   end
 end

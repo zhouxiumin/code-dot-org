@@ -6,20 +6,21 @@
 // It doesn't do proper cleanup of the click handler for the non-React component
 // if UiTips goes away.
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import UiTip from './UiTip';
 import Dialog from '../Dialog';
 import _ from 'lodash';
+import styleConstants from '../../styleConstants';
 import trackEvent from '../../util/trackEvent';
 
 const UiTips = React.createClass({
   propTypes: {
-    userId: React.PropTypes.number,
-    tipId: React.PropTypes.string,
-    showInitialTips: React.PropTypes.bool,
-    beforeDialog: React.PropTypes.object,
-    afterDialog: React.PropTypes.object,
-    tips: React.PropTypes.array
+    userId: PropTypes.number,
+    tipId: PropTypes.string,
+    showInitialTips: PropTypes.bool,
+    beforeDialog: PropTypes.object,
+    afterDialog: PropTypes.object,
+    tips: PropTypes.array
   },
 
   getInitialState() {
@@ -43,7 +44,7 @@ const UiTips = React.createClass({
       showInitialTips: showInitialTips,
       tipsShowing: tipsShowing,
       showingDialog: showingDialog,
-      mobileWidth: $(window).width() <= 970
+      mobileWidth: $(window).width() <= styleConstants['content-width']
     };
   },
 
@@ -149,7 +150,7 @@ const UiTips = React.createClass({
   },
 
   onResize() {
-    this.setState({mobileWidth: $(window).width() <= 970});
+    this.setState({mobileWidth: $(window).width() <= styleConstants['content-width']});
   },
 
   render() {

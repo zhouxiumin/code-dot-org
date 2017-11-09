@@ -8,6 +8,7 @@ Each of our Regional Partners is listed below in alphabetical order by organizat
 - **[Colorado](#co)**</br/>
 - **[Florida](#fl)**<br/>
 - **[Georgia](#ga)**<br/>
+- **[Hawaii](#hi)**<br/>
 - **[Idaho](#id)**<br/>
 - **[Illinois](#il)**<br/>
 - **[Indiana](#in)**<br/>
@@ -16,20 +17,26 @@ Each of our Regional Partners is listed below in alphabetical order by organizat
 - **[Maine](#me)**</br/>
 - **[Maryland](#md)**<br/>
 - **[Michigan](#mi)**<br/>
+- **[Minnesota](#mn)**<br/>
+- **[Mississippi](#ms)**<br/>
+- **[Missouri](#mo)**<br/>
 - **[Montana](#mt)**</br/>
 - **[Nevada](#nv)**</br/>
 - **[New Jersey](#nj)**</br/>
+- **[New Mexico](#nm)**</br/>
 - **[New York](#ny)**<br/>
 - **[North Carolina](#nc)**<br/>
 - **[Ohio](#oh)**<br/>
 - **[Oklahoma](#ok)**<br/>
 - **[Pennsylvania](#pa)**</br/>
+- **[Rhode Island](#ri)**</br/>
 - **[South Carolina](#sc)**</br/>
 - **[Tennessee](#tn)**</br/>
 - **[Texas](#tx)**<br/>
 - **[Utah](#ut)**<br/>
 - **[Virginia](#va)**<br/>
 - **[Washington](#wa)**<br/>
+- **[West Virgina](#wv)**</br/>
 - **[Wisconsin](#wi)**</br/>
 
 ________________
@@ -103,8 +110,8 @@ CS Discoveries<br/>
 **Contact us for advice on:** Community outreach, K-12 professional development, and open source curriculum<br/>
 
 **Contact Information** <br/>
-Laura Lee	<br/>
-laura.lee@9-dots.org
+Nancy Se	<br/>
+nancy.se@9dots.org
 
 <br/>
 
@@ -172,6 +179,22 @@ Anthonette Pena<br/>
 apena@eisca.org
 
 <br/>
+### [Fresno County Superintendent of Schools](https://fcoe.org/)<br/>
+Fresno County, California	<br/>
+
+Fresno County Superintendent of Schools is a county office of education that supports the 32 school districts in Fresno County, California. 
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:** Working with school districts <br/>
+
+**Contact Information**<br/>
+Marlena Hebern<br/>
+code@fcoe.org
+
+<br/>
 
 ### [Riverside County Office of Education](http://www.rcoe.us/)<br/>
 Inland Empire, California	<br/>
@@ -206,8 +229,8 @@ CS Discoveries<br/>
 **Contact us for advice on:** In partnership with the business, high tech communities and school districts, SVEF disseminates tools and resources for innovation to ensure all students gain the skills they need to succeed in the 21st century economy. <br/>
 
 **Contact Information**<br/>
-Casey Agena<br/>
-casey@svefoundation.org
+Justin Sewell<br/>
+justin@svefoundation.org
 
 <br/>
 
@@ -342,6 +365,30 @@ tamara.pearson@ceismc.gatech.edu<br/>
 
 Chris Thompson<br/>
 chris.thompson@ceismc.gatech.edu<br/>
+
+<br/>
+
+[**Back to the top**](#top)
+<br/>
+
+________________
+<a id="hi"></a>
+
+## Hawaii
+### [STEMworks, a Program of Women In Technology](http://www.stemworkshawaii.org)<br/>
+Hawaii<br/>
+
+STEMworks, a program of Women In Technology, provides educational resources, inspiration and cutting edge tools designed to develop critical thinkers while empowering students to improve their local community and world.
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:** Supporting gender equity <br/>
+
+**Contact Information**<br/>
+Mapu Quitazol<br/>
+Mapu@medb.org<br/>
 
 <br/>
 
@@ -490,7 +537,7 @@ ________________
 <a id="me"></a>
 
 ## Maine
-### Educate Maine and the Maine Mathematics and Science Alliance <br/>
+### [Educate Maine](http://www.educatemaine.org/) & [Maine Mathematics and Science Alliance](https://mmsa.org/) <br/>
 Maine
 
 Educate Maine’s mission is to champion college and career readiness and to increase the education attainment of all Maine people. All Maine students should graduate from high school prepared to succeed in postsecondary education and in the workplace and the number of Maine people with a college degree, a postsecondary certificate, or a professional credential must increase to meet the demands of the economy. Project>Login, one of Educate Maine's programs, is a campaign to increase Maine’s computing and information technology professionals through education, information, and internships.
@@ -558,6 +605,74 @@ ksurd@wsesd.org
 <br/>
 
 ________________
+<a id="mn"></a>
+
+## Minnesota
+### [Twin Cities PBS](http://scigirlsconnect.org)<br/>
+Minnesota<br/>
+
+Twin Cities PBS (TPT) mission is to enrich lives and strengthen our community through the power of media. The STEM Department at TPT creates a nationally broadcast PBS television show, creates STEM content for K-12 educators, and runs a national education outreach program. 
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:** Gender equity, Adult learning strategies, Creating media<br/>
+
+**Contact Information**<br/>
+Alex Dexheimer<br/>
+adexheimer@tpt.org
+
+[**Back to the top**](#top)
+<br/>
+
+________________
+<a id="ms"></a>
+
+## Mississippi
+### [Mississippi State University](http://cs4ms.org/)<br/>
+Mississippi<br/>
+
+The Computer Science for Mississippi (CS4MS) Initiative is a statewide pilot program of the Mississippi Department of Education to incorporate computer science curricula into Mississippi classrooms.
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:** Implementing CS state-wide<br/>
+
+**Contact Information**<br/>
+Shelly Hollis<br/>
+thecs4ms@gmail.com
+
+
+[**Back to the top**](#top)
+<br/>
+
+________________
+<a id="mo"></a>
+
+## Missouri
+### [Institute for School Partnership at Washington University in St. Louis](https://schoolpartnership.wustl.edu/)<br/>
+Missouri<br/>
+
+The Institute for School Partnership is Washington University in St. Louis’ signature effort to strategically improve teaching and learning within the K-12 education community. Through ISP, local schools are connected with a world-class research university, teachers are inspired with new knowledge, and teachers and students are empowered with the best resources.
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:** Developing partnerships with districts, Building a self-sustaining program<br/>
+
+**Contact Information**<br/>
+Jaime Gilligan<br/>
+gilliganj@wustl.edu
+
+
+[**Back to the top**](#top)
+<br/>
+
+________________
 <a id="mt"></a>
 
 ## Montana
@@ -603,7 +718,7 @@ ________________
 <a id="nj"></a>
 
 ## New Jersey
-### TCNJ Center for Excellence in STEM Education(https://centerforstem.pages.tcnj.edu/)<br/>
+### [TCNJ Center for Excellence in STEM Education](https://centerforstem.pages.tcnj.edu/)<br/>
 New Jersey
 
 **Programs**<br/>
@@ -615,6 +730,27 @@ Henry Harms<br/>
 harms@tcnj.edu<br/><br/>
 [**Back to the top**](#top)
 <br/>
+________________
+<a id="nm"></a>
+## New Mexico
+### [Explora](http://www.explora.us/)<br/>
+New Mexico<br/>
+
+Explora is a Science Center and Children's Museum. Our mission is to create opportunities for inspirational discovery and the joy of lifelong learning through interactive experiences in science, technology, engineering, art, and math.
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:** Informal Science Education<br/>
+
+**Contact Information**<br/>
+Kevin Dilley<br/>
+kdilley@explora.us
+
+[**Back to the top**](#top)
+<br/>
+
 ________________
 <a id="ny"></a>
 ## New York
@@ -693,7 +829,7 @@ ________________
 ### [The Div](http://thediv.org/)<br/>
 Oklahoma
 
-The Div is a nonprofit dedicated helping the next generation thrive through access to technology education.  
+The Div is a nonprofit dedicated helping the next generation thrive through access to technology education.
 
 **Programs**<br/>
 CS Principles<br/>
@@ -730,6 +866,31 @@ jregino@dciu.org<br/>
 
 Rebecca Jervey<br/>
 rjervery@dciu.org<br/>
+
+[**Back to the top**](#top)
+<br/>
+
+________________
+<a id="ri"></a>
+
+## Rhode Island
+### [University of Rhode Island](http://k12.cs.uri.edu/)<br/>
+Rhode Island<br/>
+
+The University of Rhode Island’s Computer Science Department provides computer science and computational thinking to Rhode Island’s Elementary and Secondary Schools through free course materials, teacher professional development, and college credit in computer science for high school students.
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:**
+Cyber Security, CTE Programming and Web Development, Computing, and Data Science
+
+**Contact Information**<br/>
+Jessie Barrett<br/> 
+urics.k12@gmail.com<br/>
+
+
 
 [**Back to the top**](#top)
 <br/>
@@ -963,6 +1124,29 @@ CLydon@psesd.org<br/>
 
 [**Back to the top**](#top)
 <br/>
+
+________________
+<a id="wv"></a>
+
+## West Virgina
+### [WVU Center for Excellence in STEM Education](http://stemcenter.wvu.edu)<br/>
+West Virgina<br/>
+
+The WVU Center for Excellence in STEM Education's mission is to serve as a cross-college organizational structure that integrates, deepens, and extends the scope, nature, and ultimately, the impact of STEM education research. This Center seeks to promote activities that improve STEM education in West Virginia K-20.
+
+**Programs**<br/>
+CS Principles<br/>
+CS Discoveries<br/>
+
+**Contact us for advice on:** STEM pre-service teacher preparation; Physics education; STEM Education research
+
+**Contact Information**<br/>
+Amanda Jelsema<br/>
+amanda.jelsema@mail.wvu.edu<br/>
+
+[**Back to the top**](#top)
+<br/>
+
 
 ________________
 <a id="wi"></a>

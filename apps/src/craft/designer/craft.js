@@ -7,8 +7,9 @@ import Hammer from "hammerjs";
 import {singleton as studioApp} from '../../StudioApp';
 import craftMsg from './locale';
 import CustomMarshalingInterpreter from '../../lib/tools/jsinterpreter/CustomMarshalingInterpreter';
-import GameController from './game/GameController';
-import FacingDirection from './game/LevelMVC/FacingDirection';
+import GameController from '@code-dot-org/craft/src/js/game/GameController';
+import FacingDirection from '@code-dot-org/craft/src/js/game/LevelMVC/FacingDirection';
+import {convertActionPlaneEntitiesToConfig} from '@code-dot-org/craft/src/js/game/LevelMVC/Utils';
 import dom from '../../dom';
 import eventsLevelbuilderOverrides from './eventsLevelbuilderOverrides';
 import MusicController from '../../MusicController';
@@ -21,6 +22,8 @@ import Sounds from '../../Sounds';
 
 import {TestResults} from '../../constants';
 import trackEvent from '../../util/trackEvent';
+import experiments from '../../util/experiments';
+import {captureThumbnailFromCanvas} from '../../util/thumbnail';
 
 const MEDIA_URL = '/blockly/media/craft/';
 
@@ -266,7 +269,7 @@ Craft.init = function (config) {
           Phaser: window.Phaser,
           containerId: 'phaser-game',
           onScoreUpdate: config.level.useScore ? s => $('#score-number').text(s) : null,
-          assetRoot: Craft.skin.assetUrl('designer/'),
+          assetRoot: Craft.skin.assetUrl(''),
           audioPlayer: {
             register: studioApp().registerAudio.bind(studioApp()),
             play: studioApp().playAudio.bind(studioApp())
@@ -313,18 +316,30 @@ Craft.init = function (config) {
 
         dom.addMouseUpTouchEvent(document, Craft.onDocumentMouseUp, false);
         $('#soft-buttons').removeClass('soft-buttons-none').addClass('soft-buttons-' + 4);
-        $('#soft-buttons').hide();
+        Craft.hideSoftButtons();
 
         const phaserGame = document.getElementById('phaser-game');
+        const hammerToButton = {
+          [Hammer.DIRECTION_LEFT]: 'leftButton',
+          [Hammer.DIRECTION_RIGHT]: 'rightButton',
+          [Hammer.DIRECTION_UP]: 'upButton',
+          [Hammer.DIRECTION_DOWN]: 'downButton',
+        };
+
         const onDrag = function (e) {
-          const hammerToButton = {
-            [Hammer.DIRECTION_LEFT]: 'leftButton',
-            [Hammer.DIRECTION_RIGHT]: 'rightButton',
-            [Hammer.DIRECTION_UP]: 'upButton',
-            [Hammer.DIRECTION_DOWN]: 'downButton',
-          };
           if (hammerToButton[e.direction]) {
-            Craft.gameController.codeOrgAPI.arrowDown(directionToFacing[hammerToButton[e.direction]]);
+            Craft.gameController.codeOrgAPI.arrowDown(
+              directionToFacing[hammerToButton[e.direction]],
+            );
+          }
+          e.preventDefault();
+        };
+
+        const onDragEnd = function (e) {
+          if (hammerToButton[e.direction]) {
+            Craft.gameController.codeOrgAPI.arrowUp(
+              directionToFacing[hammerToButton[e.direction]],
+            );
           }
           e.preventDefault();
         };
@@ -334,6 +349,7 @@ Craft.init = function (config) {
         mc.add(new Hammer.Press({time: 150}) );
         mc.add(new Hammer.Tap() );
         mc.on("pan", onDrag);
+        mc.on('panend pancancel', onDragEnd);
         mc.on("press", () => Craft.gameController.codeOrgAPI.clickDown(() => {}));
         mc.on("tap", () => {
           Craft.gameController.codeOrgAPI.clickDown(() => {});
@@ -389,10 +405,10 @@ Craft.init = function (config) {
 };
 
 const directionToFacing = {
-  upButton: FacingDirection.Up,
-  downButton: FacingDirection.Down,
-  leftButton: FacingDirection.Left,
-  rightButton: FacingDirection.Right,
+  upButton: FacingDirection.North,
+  downButton: FacingDirection.South,
+  leftButton: FacingDirection.West,
+  rightButton: FacingDirection.East,
 };
 
 Craft.onArrowButtonDown = function (e, btn) {
@@ -420,7 +436,7 @@ var preloadImage = function (url) {
 };
 
 Craft.characterAssetPackName = function (playerName) {
-  return 'player' + playerName;
+  return 'player' + playerName + 'Events';
 };
 
 Craft.getCurrentCharacter = function () {
@@ -508,7 +524,7 @@ Craft.initializeAppLevel = function (levelConfig) {
     fluffPlane: fluffPlane,
     playerStartPosition: levelConfig.playerStartPosition,
     playerStartDirection: levelConfig.playerStartDirection,
-    playerName: Craft.getCurrentCharacter(),
+    playerName: Craft.getCurrentCharacter() + 'Events',
     assetPacks: levelAssetPacks,
     gridDimensions: levelConfig.gridWidth && levelConfig.gridHeight ?
         [levelConfig.gridWidth, levelConfig.gridHeight] :
@@ -564,50 +580,20 @@ Craft.earlyLoadAssetsForLevel = function (levelNumber) {
 
 Craft.niceToHaveAssetsForLevel = function (levelNumber) {
   if (levelNumber === FIRST_CHARACTER_LEVEL) {
-    return ['playerSteve', 'playerAlex'];
+    return ['playerSteveEvents', 'playerAlexEvents'];
   }
   return ['allAssetsMinusPlayer'];
 };
 
-/**
- * Converts entities found within the levelConfig.actionPlane to a
- * levelConfig.entities suitable for loading by the game initializer.
- *
- * ['sheepRight', 'creeperUp] -> [['sheep', 0, 0, 1], ['creeper', 1, 0, 0]]
- *
- * @param levelConfig
- */
-function convertActionPlaneEntitiesToConfig(levelConfig) {
-  const [width, height] = levelConfig.gridWidth && levelConfig.gridHeight ?
-      [levelConfig.gridWidth, levelConfig.gridHeight] : [10, 10];
+Craft.hideSoftButtons = function () {
+  $('#soft-buttons').hide();
+  studioApp().resizePinnedBelowVisualizationArea();
+};
 
-  var planesToCustomize = [levelConfig.actionPlane];
-  planesToCustomize.forEach(function (plane) {
-    for (var i = 0; i < plane.length; i++) {
-      var item = plane[i];
-
-      if (item.match(/sheep|zombie|ironGolem|creeper|cow|chicken/)) {
-        const suffixToDirection = {
-          Up: FacingDirection.Up,
-          Down: FacingDirection.Down,
-          Left: FacingDirection.Left,
-          Right: FacingDirection.Right,
-        };
-
-        levelConfig.entities = levelConfig.entities || [];
-        const x = i % width;
-        const y = Math.floor(i / height);
-
-        const directionMatch = item.match(/(.*)(Right|Left|Up|Down)/);
-        const directionToUse = directionMatch ?
-            suffixToDirection[directionMatch[2]] : FacingDirection.Right;
-        const entityToUse = directionMatch ? directionMatch[1] : item;
-        levelConfig.entities.push([entityToUse, x, y, directionToUse]);
-        plane[i] = '';
-      }
-    }
-  });
-}
+Craft.showSoftButtons = function () {
+  $('#soft-buttons').show();
+  studioApp().resizePinnedBelowVisualizationArea();
+};
 
 /**
  * Reset the app to the start position and kill any pending animation tasks.
@@ -618,8 +604,9 @@ Craft.reset = function (first) {
     return;
   }
   if (Craft.level.usePlayer) {
-    $('#soft-buttons').hide();
+    Craft.hideSoftButtons();
   }
+  captureThumbnailFromCanvas($('#minecraft-frame canvas')[0]);
   Craft.gameController.codeOrgAPI.resetAttempt();
 };
 
@@ -644,7 +631,7 @@ Craft.runButtonClick = function () {
   }
 
   if (Craft.level.usePlayer) {
-    $('#soft-buttons').show();
+    Craft.showSoftButtons();
   }
 
   var runButton = document.getElementById('runButton');
@@ -760,10 +747,10 @@ Craft.executeUserCode = function () {
     },
     moveDirection: function (direction, targetEntity, blockID) {
       const dirStringToDirection = {
-        up: FacingDirection.Up,
-        down: FacingDirection.Down,
-        left: FacingDirection.Left,
-        right: FacingDirection.Right,
+        up: FacingDirection.North,
+        down: FacingDirection.South,
+        left: FacingDirection.West,
+        right: FacingDirection.East,
       };
       appCodeOrgAPI.moveDirection(studioApp().highlight.bind(studioApp(), blockID),
           dirStringToDirection[direction], targetEntity);
@@ -808,7 +795,7 @@ Craft.executeUserCode = function () {
 
   CustomMarshalingInterpreter.evalWith(code, evalApiMethods, {legacy: true});
   appCodeOrgAPI.startAttempt(function (success) {
-    $('#soft-buttons').hide();
+    Craft.hideSoftButtons();
     if (Craft.level.freePlay) {
       return;
     }
@@ -842,6 +829,7 @@ Craft.reportResult = function (success) {
       Craft.gameController.getScreenshot() : null;
   // Grab the encoded image, stripping out the metadata, e.g. `data:image/png;base64,`
   const encodedImage = image ? encodeURIComponent(image.split(',')[1]) : null;
+  const saveToProjectGallery = experiments.isEnabled('publishMoreProjects');
 
   studioApp().report({
     app: 'craft',
@@ -872,7 +860,8 @@ Craft.reportResult = function (success) {
           generatedCodeDescription: craftMsg.generatedCodeDescription()
         },
         feedbackImage: image,
-        showingSharing: Craft.initialConfig.level.freePlay
+        showingSharing: Craft.initialConfig.level.freePlay,
+        saveToProjectGallery,
       });
     }
   });

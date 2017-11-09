@@ -4,8 +4,8 @@ require 'cdo/db'
 require 'cdo/rack/request'
 require 'cgi'
 require 'csv'
-require 'redis-slave-read'
 require_relative '../middleware/helpers/redis_table'
+require_relative '../middleware/helpers/sharded_redis_factory'
 require_relative '../middleware/channels_api'
 
 # NetSimApi implements a rest service for interacting with NetSim tables.
@@ -27,6 +27,12 @@ class NetSimApi < Sinatra::Base
     conflict: 'conflict',
     limit_reached: 'limit_reached'
   }
+
+  DEFAULT_LOCAL_REDIS = 'redis://localhost:6379'
+
+  # Largest request we allow from NetSim clients.
+  # Max request size we've observed in normal traffic: 9KB
+  MAX_REQUEST_SIZE = 50_000 # 50 KB
 
   helpers do
     %w{
@@ -52,7 +58,7 @@ class NetSimApi < Sinatra::Base
   # Return a new RedisTable instance for the given shard_id and table_name.
   def get_table(shard_id, table_name)
     RedisTable.new(
-      get_redis_client, get_pub_sub_api, shard_id, table_name,
+      get_redis_client(shard_id), get_pub_sub_api, shard_id, table_name,
       CDO.netsim_shard_expiry_seconds
     )
   end
@@ -86,7 +92,11 @@ class NetSimApi < Sinatra::Base
   get %r{/v3/netsim/([^/]+)/(\w+)/(\d+)$} do |shard_id, table_name, id|
     dont_cache
     content_type :json
-    get_table(shard_id, table_name).fetch(id.to_i).to_json
+    begin
+      get_table(shard_id, table_name).fetch(id.to_i).to_json
+    rescue RedisTable::NotFound
+      not_found
+    end
   end
 
   # GET /v3/netsim/<shard-id>?t[]=<table1>@<id1>&t[]=<table2>@<id2>&...
@@ -98,7 +108,7 @@ class NetSimApi < Sinatra::Base
     dont_cache
     content_type :json
     table_map = parse_table_map_from_query_string(CGI.unescape(request.query_string))
-    RedisTable.get_tables(get_redis_client, shard_id, table_map).to_json
+    RedisTable.get_tables(get_redis_client(shard_id), shard_id, table_map).to_json
   end
 
   #
@@ -152,7 +162,8 @@ class NetSimApi < Sinatra::Base
   delete %r{/v3/netsim/([^/]+)$} do |shard_id|
     dont_cache
     not_authorized unless allowed_to_delete_shard? shard_id
-    RedisTable.reset_shard(shard_id, get_redis_client, get_pub_sub_api)
+    RedisTable.reset_shard(shard_id, get_redis_client(shard_id), get_pub_sub_api)
+    record_metric('ResetShard')
     no_content
   end
 
@@ -207,9 +218,17 @@ class NetSimApi < Sinatra::Base
     dont_cache
     unsupported_media_type unless has_json_utf8_headers?(request)
 
+    body_string = request.body.read
+
+    # Block request if payload is unusually large.
+    if body_string.length > MAX_REQUEST_SIZE
+      record_metric("InsertTooLarge_#{table_name}", body_string.length)
+      too_large
+    end
+
     # Parse JSON
     begin
-      body = JSON.parse(request.body.read)
+      body = JSON.parse(body_string)
     rescue JSON::ParserError
       json_bad_request(VALIDATION_ERRORS[:malformed])
     end
@@ -228,6 +247,9 @@ class NetSimApi < Sinatra::Base
     # If we get all the way down here without errors, insert everything
     table = get_table(shard_id, table_name)
     result = values.map {|value| table.insert(value, request.ip)}
+
+    record_metric("InsertBytes_#{table_name}", body_string.length)
+    record_metric("InsertRows_#{table_name}", values.count)
 
     # Finally, if we are not performing a multi-insert, denormalize our
     # return value to a single item
@@ -326,13 +348,25 @@ class NetSimApi < Sinatra::Base
     dont_cache
     unsupported_media_type unless has_json_utf8_headers?(request)
 
+    body_string = request.body.read
+
+    # Block request if payload is unusually large.
+    if body_string.length > MAX_REQUEST_SIZE
+      record_metric("UpdateTooLarge_#{table_name}", body_string.length)
+      too_large
+    end
+
     begin
       table = get_table(shard_id, table_name)
       int_id = id.to_i
-      value = table.update(int_id, JSON.parse(request.body.read), request.ip)
+      value = table.update(int_id, JSON.parse(body_string), request.ip)
+    rescue RedisTable::NotFound
+      not_found
     rescue JSON::ParserError
       json_bad_request
     end
+
+    record_metric("UpdateBytes_#{table_name}", body_string.length)
 
     dont_cache
     content_type :json
@@ -363,41 +397,37 @@ class NetSimApi < Sinatra::Base
 
   private
 
-  # Returns a new Redis client for the current configuration.
+  # Returns a new Redis client for the current configuration shard id.
   #
+  # @param [String] shard_id
   # @return [Redis]
-  def get_redis_client
+  def get_redis_client(shard_id)
     return @@overridden_redis unless @@overridden_redis.nil?
-    Redis::SlaveRead::Interface::Hiredis.new(
-      {
-        master: Redis.new(url: redis_url),
-        slaves: redis_read_replica_urls.map {|url| Redis.new(url: url)}
-      }
-    )
+    ShardedRedisFactory.new(redis_groups).client_for_key(shard_id)
   end
 
-  # Returns the URL (configuration string) of the redis service in the current
-  # configuration.  Should be passed as the :url parameter in the options hash
-  # to Redis.new.
+  # The set of Redis node URLs to be used in the current environment.
   #
-  # @return [String]
-  def redis_url
-    CDO.geocoder_redis_url || 'redis://localhost:6379'
-  end
-
-  # Returns an array of URLs for the redis read replicas in the current
-  # configuration.  Returns an empty array if no read replicas are
-  # available.
+  # You can configure these in locals.yml with the following data structure:
+  # netsim_redis_groups:
+  #   - master: 'redis://master1'
+  #     read_replicas:
+  #       - 'redis://master1replica1'
+  #       - 'redis://master1replica2'
+  #   - master: 'redis://master2'
+  #     read_replicas:
+  #       - 'redis://master2replica1'
+  #       - 'redis://master2replica2'
   #
-  # @return [Array]
-  def redis_read_replica_urls
-    urls = []
-    urls.push(CDO.geocoder_read_replica_1) unless CDO.geocoder_read_replica_1.nil?
-    urls.push(CDO.geocoder_read_replica_2) unless CDO.geocoder_read_replica_2.nil?
-    urls.push(CDO.geocoder_read_replica_3) unless CDO.geocoder_read_replica_3.nil?
-    urls.push(CDO.geocoder_read_replica_4) unless CDO.geocoder_read_replica_4.nil?
-    urls.push(CDO.geocoder_read_replica_5) unless CDO.geocoder_read_replica_5.nil?
-    urls
+  # The read_replicas key is optional and you can specify any number of groups.
+  #
+  # In our production environment these are configured with the equivalent
+  # JSON blob in Chef.  If no configuration is available, NetSim will attempt
+  # to connect to a single master node at the default port on localhost.
+  #
+  # @return [Hash<'master':String, 'read_replicas':String[]>[]]
+  def redis_groups
+    CDO.netsim_redis_groups || [{'master' => DEFAULT_LOCAL_REDIS}]
   end
 
   # Get the Pub/Sub API interface for the current configuration
@@ -464,6 +494,17 @@ class NetSimApi < Sinatra::Base
     end
     message_ids = messages.map {|message| message['id']}
     message_table.delete(message_ids) unless message_ids.empty?
+  end
+
+  # Record a custom metric that will be aggregated and sent to New Relic about
+  # once a minute.
+  # @private
+  # @param [String] event_type - unique metric key within NetSimApi
+  # @param [Number] value (default 1) value of measurement, omit if we only care
+  #   about event counts.
+  def record_metric(event_type, value = 1)
+    return unless CDO.newrelic_logging
+    NewRelic::Agent.record_metric("Custom/NetSimApi/#{event_type}", value)
   end
 end
 

@@ -5,10 +5,9 @@
 import React, { PropTypes } from 'react';
 import Radium from 'radium';
 import ProgressBubble from './ProgressBubble';
-import ProgressPill from './ProgressPill';
 import color from "@cdo/apps/util/color";
-import { getIconForLevel } from './progressHelpers';
-import i18n from '@cdo/locale';
+import { levelType } from './progressTypes';
+import { DOT_SIZE, DIAMOND_DOT_SIZE } from './progressStyles';
 
 const styles = {
   main: {
@@ -25,8 +24,15 @@ const styles = {
     position: 'absolute',
     left: 0,
     right: 0,
-    marginTop: (ProgressBubble.height - 10) / 2,
-    marginBottom: (ProgressBubble.height - 10) / 2,
+    // dot size, plus borders, plus margin, minus our height of "background"
+    top: (DOT_SIZE + 4 + 6 - 10) / 2,
+  },
+  backgroundDiamond: {
+    top: (DIAMOND_DOT_SIZE + 4 + 6 - 10) / 2,
+  },
+  backgroundPill: {
+    // pill has height of 18, border of 2, padding of 6
+    top: (18 + 4 + 12 - 10) / 2,
   },
   backgroundFirst: {
     left: 15
@@ -37,25 +43,23 @@ const styles = {
   container: {
     position: 'relative',
   },
+  diamondContainer: {
+    // Height needed only by IE to get diamonds to line up properly
+    height: 36,
+  },
   pillContainer: {
-    // Vertical padding is so that this lines up with other bubbles
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingRight: 2
+    marginRight: 2,
+    // Height needed only by IE to get pill to line up properly
+    height: 37,
   }
 };
 
-const ProgressBubbleSet = React.createClass({
-  propTypes: {
-    levels: PropTypes.arrayOf(
-      PropTypes.shape({
-        level: PropTypes.string,
-        url: PropTypes.string
-      })
-    ).isRequired,
+class ProgressBubbleSet extends React.Component {
+  static propTypes = {
+    levels: PropTypes.arrayOf(levelType).isRequired,
     disabled: PropTypes.bool.isRequired,
     style: PropTypes.object,
-  },
+  };
 
   render() {
     const { levels, disabled, style } = this.props;
@@ -70,40 +74,30 @@ const ProgressBubbleSet = React.createClass({
             <div
               style={[
                 styles.background,
+                level.isConceptLevel && styles.backgroundDiamond,
+                level.isUnplugged && styles.backgroundPill,
                 index === 0 && styles.backgroundFirst,
                 index === levels.length - 1 && styles.backgroundLast
               ]}
             />
             <div
-              style={{
-                ...styles.container,
-                ...(level.isUnplugged && styles.pillContainer)
-              }}
+              style={[
+                styles.container,
+                level.isUnplugged && styles.pillContainer,
+                level.isConceptLevel && styles.diamondContainer,
+              ]}
             >
-              {level.isUnplugged &&
-                <ProgressPill
-                  url={level.url}
-                  status={level.status}
-                  text={i18n.unpluggedActivity()}
-                  fontSize={12}
-                />
-              }
-              {!level.isUnplugged &&
-                <ProgressBubble
-                  number={level.levelNumber}
-                  status={level.status}
-                  url={level.url}
-                  disabled={disabled}
-                  levelName={level.name || level.progression}
-                  levelIcon={getIconForLevel(level)}
-                />
-              }
+              <ProgressBubble
+                level={level}
+                disabled={disabled}
+                smallBubble={false}
+              />
             </div>
           </div>
         ))}
       </div>
     );
   }
-});
+}
 
 export default Radium(ProgressBubbleSet);

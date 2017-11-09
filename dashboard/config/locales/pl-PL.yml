@@ -14,11 +14,16 @@
     errors:
       messages:
         blank: jest wymagane
+        blank_plural: są wymagane
+        invalid_plural: są niepoprawne
     attributes:
       user:
         name: Wyświetl Nazwisko
-        name_example: Display Name<br/>(e.g. Cool Coder or Jane S.)
+        name_example: Wyświetlane Imię<br/>(np. Super Koder albo Ania S.)
         email: Email
+        parent_email: Adres e-mail rodzica/opiekuna
+        personal_email: Osobisty adres e-mail <a href="%{url}">(kliknij tutaj jeśli
+          nie masz adresu e-mail)</a>
         username: Nazwa użytkownika
         password: Hasło
         password_confirmation: Potwierdzenie hasła
@@ -45,9 +50,10 @@
   add_teacher_form:
     code:
       label: 'Dodaj nauczyciela:'
-      placeholder: Kod sekcja (ABCDEF)
+      placeholder: Kod sekcji (ABCDEF)
       instructions: Wprowadź kod, który udostępnił Ci Twój nauczyciel. Ten kod składa
         się z 6 liter, np. ABCDEF.
+      instructions_short: Wprowadź swój 6-literowy kod sekcji
     submit: Dodaj nauczyciela
   add_hint_form:
     placeholder: Wprowadź tutaj swoją wskazówkę
@@ -58,6 +64,9 @@
   puzzle: "Łamigłówka"
   trophies: Trofea
   courses: Kursy
+  courses_page:
+    title_student: Ucz się z Code Studio
+    title_teacher: Ucz z Code Studio
   unplugged_activity: Aktywność unplugged (bez komputera)
   of: z
   more: WIĘCEJ
@@ -72,7 +81,7 @@
   prize: nagroda
   more_info: Więcej informacji
   auth:
-    sign_in_with: Zaloguj się przy użyciu %{provider}
+    sign_in_with: Zaloguj się przez %{provider}
     signed_in: Zalogowany!
     signed_out: Wylogowałeś się z <a href="%{url}"> Code.org</a>.
     sign_out_of: Używałeś %{provider} do zalogowania się . <a href="%{url}"> Kliknij
@@ -83,11 +92,14 @@
     twitter: Twitter
     facebook: Facebooka
     windowslive: Konto Microsoft
+    clever: Konto Clever
     forgot_password: Nie pamiętasz swojego hasła?
     need_confirmation: Czy nie otrzymałeś instrukcji potwierdzającej?
     need_unlock: Czy nie otrzymałeś instrukcji, jak odblokować?
-    not_linked: Sorry, your Code.org account is not linked to your %{provider}. You'll
-      have to sign in by typing your password below.
+    not_linked: Przepraszamy, ale twoje konto Code.org nie jest połączone z Twoim
+      %{provider}. Będziesz musiał się zalogować, wpisując swoje hasło poniżej.
+    use_clever: Przepraszamy, twoje konto Code.org nie jest podłączone do twojego
+      %{provider}. Prosimy o zalogowanie się poprzez Portal Clever.
   signup_form:
     student_count: "%{count} uczniów już się zarejestrowało."
     teacher_count: "%{count} nauczycieli już się zarejestrowało."
@@ -102,12 +114,12 @@
       Jeśli spodobała Ci się Godzina Kodowania i chcesz kontynuować, możesz ustalić
       hasło i poniżej utworzyć konto na Code Studio, aby zapisać swoich uczniów na
       jakikolwiek nasz <a href="https://code.org/educate"> dłuższy kurs</a>.
-    hoc_already_signed_up_content_post_hoc: Thank you for hosting an Hour of Code.
-      To sign in to Code Studio, you’ll need to set up a password for your account.
-      This will let you save your progress and manage your classroom. You’ll be able
-      to assign courses to students and track their progress. <a href="%{studio_url}">You
-      can also continue to browse the various stages and puzzles</a> without creating
-      an account.
+    hoc_already_signed_up_content_post_hoc: Dziękujemy Ci za bycie gospodarzem Godziny
+      Kodowania. Aby zalogować się do Code Studio, będziesz musiał ustawić hasło dla
+      Twojego konta. Umożliwi Ci to zapisywanie postępów i zarządzanie klasą. Będziesz
+      w stanie przypisywać kursy do studentów i sprawdzać ich postępy. <a href="%{studio_url}">Możesz
+      także kontynuować przeglądanie różnorodnych poziomów i zagadek</a> bez tworzenia
+      konta.
     teacher_educator_guide: Patrz podręcznik nauczyciela
     title: Zarejestruj się na Code.org
     school_name: Nazwa szkoły (opcjonalnie)
@@ -142,31 +154,32 @@
     user_type_student: Uczeń
     field_is_required: jest wymagane
     accept_terms: Musisz wyrazić zgodę, aby utworzyć konto
+    error: Wystąpił błąd.
   school_info:
-    title: School Information (optional)
-    school_country: School Country
-    select_school_type: School Type
-    charter: Charter
-    private: Private
-    public: Public
-    homeschool: Homeschool
-    after_school: After School
+    title: Informacja o Szkole (opcjonalne)
+    school_country: Kraj
+    select_school_type: Typ Szkoły
+    charter: Czarter
+    private: Prywatna
+    public: Publiczna
+    homeschool: Edukacja domowa
+    after_school: Po szkole
     other: Inni/inne
-    state: State
-    district: District
-    other_district_not_listed: Other district not listed above
-    district_name: District Name
-    school: School
-    other_school_not_listed: Other school not listed above
-    school_name: School Name
-    school_zip: School Zip Code
-    school_address: School Address
-    school_organization_name: School/Organization Name
-    school_organization_zip: School/Organization Zip Code
+    state: Stan
+    district: Dystrykt
+    other_district_not_listed: Inny dystrykt nie wymieniony powyżej
+    district_name: Nazwa dystryktu
+    school: Szkoła
+    other_school_not_listed: Inna szkoła nie wymieniona powyżej
+    school_name: Nazwa szkoły
+    school_zip: Kod pocztowy szkoły
+    school_address: Adres szkoły
+    school_organization_name: Nazwa szkoły/organizacji
+    school_organization_zip: Kod pocztowy szkoły/organizacji
   signin_form:
     title: Masz już konto? Zaloguj się
     login: E-mail lub nazwa użytkownika
-    login_username: Email or Username
+    login_username: Adres e-mail lub nazwa użytkownika
     password: Hasło
     remember: Zapamiętaj mnie
     submit: Zaloguj się
@@ -182,8 +195,8 @@
     login: Zaloguj się
     invalid_login: Nieprawidłowy login, proszę spróbować ponownie
     pair_programming: Mam partnera przy moim komputerze
-    student_privacy: Learn more about why you're not seeing your full name <a href='%{student_privacy_blog}'
-      target='_blank'>here</a>.
+    student_privacy: Dowiedz się więcej o tym, dlaczego nie widzisz swojego pełnego
+      imienia <a href='%{student_privacy_blog}' target='_blank'>tutaj</a>.
   password:
     reset_form:
       title: Nie pamiętasz hasła?
@@ -191,6 +204,10 @@
         hasła.
       email: Adres e-mail
       submit: Wyślij
+    reset_errors:
+      invalid_email: Wygląda na to, że zarejestrowałeś się na niepoprawny adres e-mail.
+        Wyślij e-mail pod adres support@code.org, aby uzyskać link do odzyskiwania
+        hasła.
     change_form:
       title: Zmień swoje hasło
       new_password: Nowe hasło
@@ -206,14 +223,24 @@
       Kursy są zabawne, mają ładną oprawę graficzną i uczą podstawowych pojęć z dziedziny informatyki przy użyciu prostych gier z instrukcjami. Naucz się kodowania od Billa Gatesa, Marka Zuckerberga, Angry Birds i Plants vs. Zombies! :)
 
       %{name}
+  parent_mailer:
+    student_associated_subject: Informacje logowania Code.org
+  teacher_mailer:
+    new_teacher_subject: Witaj na Code.org!
   section:
     your_section:
-      one: 'Your section:'
-      other: 'Your sections:'
-    code_with_teacher: "%{section_code} with %{teacher_name}"
+      one: 'Twoja sekcja:'
+      other: 'Twoje sekcje:'
+    code_with_teacher: "%{section_code} z %{teacher_name}"
     confirm:
-      remove: Are you sure you want to leave this section?
-    remove: "(remove section)"
+      remove: Czy jesteś pewien, że chcesz opuścić tą sekcję?
+    remove: "(usuń sekcję)"
+    type:
+      picture: Hasło obrazkowe
+      word: Tajne słowa
+      email: Email
+      google_classroom: Klasa Google
+      clever: Clever
   follower:
     invite_sent: Zaproszenie wysłane
     added_teacher: "%{name} dodany jako Twój nauczyciel"
@@ -228,6 +255,9 @@
       blank_code: Wprowadź kod sekcji
       cant_join_own_section: Przepraszamy, ale nie możesz przyłączyć się do swojej
         własnej sekcji.
+      provider_managed_section: Ta sekcja jest zarządzana przez innego dostawcę i
+        nie można do niej dołączyć. Poproś swojego nauczyciela o dodanie Ciebie poprzez
+        %{provider} i ponowną synchronizację sekcji.
     mail:
       student_disassociated:
         subject: 'Powiadomienie Code.org: %{student_name} nie jest już powiązany z
@@ -235,89 +265,13 @@
   reports:
     error:
       access_denied: Nie masz dostępu do statystyk tej osoby
-  redeem_prizes:
-    title: 'Odbierz Nagrody: %{name}'
-    provider: 'Dostawca:'
-    code: 'Kod:'
-    redeem_header: 'Do pobrania:'
-    donorschoose_register: Zarejestruj się jako nauczyciel w DonorsChoose.org
-    donorschoose_project: Wyślij projekt
-    donorschoose_how_to: Jak wykorzystać Twój kod
-    success: Twoja nagroda została z powodzeniem odebrana, zobacz poniższy kod.
-    error: Twoja nagroda nie może być odebrana, spróbuj ponownie.
-    error_us_only: Oferta nagrody dotyczy tylko użytkowników w USA.
-    error_not_earned: Nie zdobyłeś jeszcze tej nagrody.
-    error_already_redeemed: Twoja nagroda została już odebrana.
-    no_prizes_available: Przykro nam, ale obecnie nie mamy żadnych nagród do zaoferowania.
-    teacher_info_required: 'Nagrody dla nauczycieli wymagają nazwy i adresu szkoły:'
-    teacher_email_required: 'Nagrody dla nauczycieli wymagają podania potwierdzonego
-      adresu e-mail:'
-    confirm:
-      title: Prosimy o potwierdzenie
-      'no': Nie
-      'yes': Tak
-      msg: Czy jesteś pewien, że chcesz pretendować do nagrody %{prize_name}?
-      msg_student: 'Uwaga: Możesz wybrać tylko jeden typ nagrody.'
-      msg_publicschool: Proszę potwierdzić, że jesteś nauczycielem szkoły publicznej
-        w USA.
-      msg_visit_website: Odwiedź naszą stronę
-    providers:
-      apple_itunes: 10$ iTunes Gift Card
-      donors_choose: Kredyt 750$ DonorsChoose.org
-      donors_choose_bonus: Kredyt 250$ DonorsChoose.org
-      dropbox: 10GB miejsca na Dropbox
-      valve: Portal 2 (do pobrania gry na PC lub Mac )
-      ea_bejeweled: Ozdobiony klejnotami 3 (gra do pobrania na PC)
-      ea_fifa: FIFA Soccer 13 (gra do pobrania na PC)
-      ea_simcity: SimCity 4 Deluxe Edition (gra do pobrania na PC)
-      ea_pvz: Plants vs. Zombies (gra do pobrania na PC)
-      skype: 10% na koncie Skype
-    msg:
-      choose: 'Wybierz nagrodę:'
-      choose_teacher: 'Kliknij na logo poniżej, aby odebrać nagrodę:'
-      earned: Zdobyłeś nagrodę! (Tylko dla uczniów z US)
-      not_earned_title: Zakończ kurs, weź nagrodę (tylko dla uczniów z USA)
-      not_earned: 'Poznaj wszystkie pojęcia informatyczne, zbierz wszystkie trofea
-        %{num_trophies} i odbierz prawdziwe nagrody. Możesz wybrać spośród 10GB wolnego
-        miejsca na Dropbox, 10$ kredytu Skype i darmowe gry do pobrania. Uwaga: oferta
-        ważna dla uczniów z USA i tylko do wyczerpania zapasów.'
-      teacher:
-        earned: 15 lub więcej uczniów zebrało wszystkie trofea %{num_trophies}. Wygrałeś
-          nagrodę nauczyciela (tylko dla nauczycieli z USA)
-        not_earned_title: Ucz klasę, by otrzymać do 1000$ kredytu <a target="_blank"
-          href="http://DonorsChoose.org"> DonorsChoose.org</a> (tylko dla nauczycieli
-          w USA)
-        not_earned: Aby nagrodzić nauczycieli, którzy po raz pierwszy uczą informatyki,
-          możesz otrzymać do 1000$ <a href="http://DonorsChoose.org"> DonorsChoose.org</a>
-          kredytów za pokierowanie klasą w czasie kursu wprowadzającego dla K-8. Aby
-          się zakwalifikować, musisz z powodzeniem przeprowadzić co najmniej 15 uczniów
-          przez cały kurs wprowadzający dla K-8, i wszystkich 15 (lub więcej) uczniów
-          musi ukończyć wszystkie samouczki i zdobyć wszystkie trofea %{num_trophies}.
-          Jeśli 7 lub więcej uczniów, którzy zdobyli wszystkie trofea, to dziewczęta,
-          Twoja nagroda wynosi 1000$ w kredytach <a target="_blank" href="http://DonorsChoose.org">
-          DonorsChoose.org</a>. W przeciwnym razie, Twoja nagroda wynosi 750$ w kredytach
-          <a target="_blank" href="http://DonorsChoose.org"> DonorsChoose.org</a>.
-          Kredyty <a target="_blank" href="http://DonorsChoose.org"> DonorsChoose.org</a>
-          mogą być wykorzystane tylko przez nauczycieli ze szkół publicznych w USA.
-        bonus:
-          not_earned_title: Nadal możesz otrzymać dodatkowe 250$ w kredytach <a target="_blank"
-            href="http://DonorsChoose.org"> DonorsChoose.org</a> (tylko dla nauczycieli
-            w USA)
-          earned: 7 lub więcej Twoich uczniów, którzy zebrali wszystkie trofea %{num_trophies},
-            to dziewczęta. Wygrałeś 250$ ekstra nagrodę! (Tylko dla nauczycieli z
-            USA)
-          not_earned: Jeśli wśród Twoich uczniów, którzy zebrali wszystkie trofea
-            %{num_trophies}, jest przynajmniej 7 dziewcząt, to Twoja nagroda jest
-            wyższa o 250$ w kredytach <a target="_blank" href="http://DonorsChoose.org">
-            DonorsChoose.org</a>. Kredyty <a target="_blank" href="http://DonorsChoose.org">
-            DonorsChoose.org</a> mogą być wykorzystane tylko przez nauczycieli ze
-            szkół publicznych w USA.
   crud:
     new_model: Nowy %{model}
     show: Pokaż
     edit: Edytuj
     edit_model: Edytuj %{model}
     update: Uaktualnij
+    submit: Wyślij
     destroy: Zniszcz
     back: Wstecz
     confirm: Czy jesteś pewien?
@@ -325,22 +279,70 @@
     updated: "%{model} został pomyślnie zaktualizowany."
     destroyed: "%{model} został pomyślnie usunięty."
     access_denied: Nie masz dostępu do tego %{model}.
+  devise:
+    registrations:
+      user:
+        user_type_change_email_mismatch: Adres e-mail, który podałeś, nie jest zgodny
+          z adresem e-mail tego konta
+        personal_login_created_email: Udało ci się utworzyć osobisty login. Teraz
+          możesz zalogować się do swojego konta używając swojego adresu e-mail i hasła
+        personal_login_created_username: Udało ci się utworzyć osobisty login. Teraz
+          możesz zalogować się do swojego konta używając swojej nazwy użytkownika
+          (%{username}) i hasła
   nav:
     header:
-      finished_hoc: Skończyłem moją Godzinę Kodowania (Hour of Code)
+      finished_hoc: Ukończyłem moją Godzinę Kodowania (Hour of Code)
       sign_in_to_save: Zaloguj się, by zapisać postępy
       free_play:
         playlab: Utwórz aplikację w Play Lab
         artist: Narysuj cokolwiek
-        calculate: Calculate Something
+        calculate: Obliczyć coś
         applab: Utwórz aplikację w App Lab
+        gamelab: Utwórz projekt w Game Lab
+        weblab: Wykonaj projekt Laboratorium Sieci (beta)
+      home: Strona główna
+      my_dashboard: Pulpit
+      courses: Kursy
+      course_catalog: Katalog Kursów
+      project_gallery: Galeria Projektów
+      sections: Sekcje
+      help_support: Pomoc i wsparcie
+      report_bug: Zgłoś błąd
+      teacher_community: Społeczność nauczycieli
+      professional_learning: Kształcenia Profesjonalne
+      documentation: Dokumentacja
+      tutorials: Samouczki
+      educate_overview: Przegląd edukatora
+      educate_elementary: Szkoła podstawowa
+      educate_middle: Gimnazjum
+      educate_high: Liceum
+      educate_hoc: Godzina Kodowania
+      educate_partner: Współpracuj z nami
+      educate_beyond: Poza Code.org
+      educate_inspire: Inspiruj ucznia
+      educate_community: Społeczność online
+      educate_tools: Narzędzia i filmy
+      about_us: O nas
+      about_leadership: Przywództwo
+      about_donors: Darczyńcy
+      about_partners: Partnerzy
+      about_team: Cały zespół
+      about_news: Aktualności
+      about_evaluation: Ocenianie
+      about_jobs: Praca
+      about_contact: Skontaktuj się z nami
+      about_faqs: Najczęściej zadawane pytania (FAQ)
+      learn: Ucz się
+      stats: Statystyki
+      help_us: Pomóż nam
+      teach: Ucz
+      about: O programie
     user:
       classroom: Domowa strona nauczyciela
       district_dashboard: Panel dzielnicy/okręgu
       label: Witaj %{username}
       stats: Studio Kodowania (Code Studio)
       settings: Moje konto
-      prizes: Nagrody
       logout: Wyloguj się
       signin: Zaloguj się
       signup: Załóż konto
@@ -400,9 +402,31 @@
       kont Twoich uczniów.'
     delete_confirm: Czy na pewno chcesz usunąć swoje konto?
     deleted_user: użytkownik usunięty
-    no_password_because_oauth: No password because you sign in with a third-party
-      provider.
-    no_password_because_sponsored: See your teacher to manage your password.
+    no_password_because_oauth: Bez hasła, ponieważ logujesz się przy pomocy innego
+      dostawcy.
+    no_password_because_sponsored: Udaj się do nauczyciela, aby zarządzać swoim hasłem.
+    create_personal_login: Utwórz osobisty login
+    create_personal_login_under_13_info: Jeśli chcesz nadal używać swojego konta Code.org,
+      nawet po zakończeniu roku szkolnego, poproś jednego z rodziców lub opiekunów
+      o pomoc przy tworzeniu twojego osobistego loginu poniżej.
+    create_personal_login_under_13_username: Nazwa użytkownika (nie używaj swojego
+      prawdziwego imienia ani nazwiska!)
+    create_personal_login_under_13_parent_email: Adres e-mail rodzica lub opiekuna
+    create_personal_login_info: Jeśli chcesz nadal używać swojego konta Code.org,
+      nawet po zakończeniu roku szkolnego, możesz utworzyć swój osobisty login poniżej.
+    create_personal_login_terms: Tworząc swój osobisty login, zobowiązuję się do przestrzegania
+      <a href='%{terms_of_service_url}', target='_blank'>regulaminu</a> Code.org.
+      Jeśli mam poniżej 13 lat, potwierdzam, że otrzymałem zgodę moich rodziców lub
+      prawnych opiekunów na korzystanie z usług Code.org nawet bez nadzoru nauczyciela.
+    create_personal_login_email_note: 'Uwaga: Adresy e-mail nie są przechowywane w
+      formie, która pozwalałaby nam kontaktować się z uczniami. Uczniowie nigdy nie
+      będą otrzymywać e-maili od Code.org, z wyjątkiem odzyskiwania hasła. Aby uzyskać
+      więcej informacji, zobacz naszą <a href=''%{privacy_policy_url}'', target=''_blank''>politykę
+      prywatności</a>.'
+    enter_new_login_info: Wprowadź swoje nowe dane logowania
+    confirm_secret_words: Potwierdź, że to ty, wprowadzając swoje aktualne sekretne
+      słowa
+    enter_parent_email: Wprowadź adres rodzica lub opiekunka (do odzyskiwania hasła)
   user_level:
     completed: Ukończono
     tried: Próbowano
@@ -470,11 +494,11 @@
       zachować niewykorzystany kod</a> w swojej roboczej przestrzeni, aby zachęcić
       ich do eksperymentowania! Sprawdź nasze nowe propozycje i daj nam znać, co o
       nich myślisz.
-    announcement_csp_widgets_message: Looking for some fun ways to teach your class
-      how the Internet works, how cryptography keeps data secure, and other concepts?
-      We’ve taken the best interactive tools from our Computer Science Principles
-      curriculum and released standalone widgets you can use at any time!
-    announcement_learn_more_button: Ucz się więcej
+    announcement_csp_widgets_message: Szukasz ciekawych sposobów, aby nauczyć klasę,
+      jak działa internet, jak kryptografia zabezpiecza dane oraz innych koncepcji?
+      Wzięliśmy najlepsze interaktywne narzędzia z naszego programu Zasad Informatyki
+      i wydaliśmy niezależne widżety, z których możesz korzystać w każdej chwili!
+    announcement_learn_more_button: Dowiedz się więcej
     announcement_try_now_button: Spróbuj teraz
     announcement_host_an_hour_button: Przeprowadź Godzinę Kodowania
     announcement_watch_video_button: Obejrzyj Film
@@ -484,8 +508,8 @@
       i dyrektorów największych firm w Ameryce we wspólnym liście otwartym zwróci
       się do Kongresu USA o sfinansowanie edukacji informatycznej w K-12.
     announcement_petition_button: Dodaj swoje imię
-    announcement_go_beyond_button: Go beyond
-    announcement_apply_now: Apply now
+    announcement_go_beyond_button: Idź o krok dalej
+    announcement_apply_now: Zaaplikuj
     announcement_all: Bądź na bieżąco z nowymi funkcjami i aktualizacjami na naszym
       blogu dla nauczycieli. <a href='%{teacher_blog_url}' target='_blank'>Zobacz
       poprzednie ogłoszenia.</a>
@@ -505,55 +529,80 @@
       wysokiej jakości programy nauczania i tony wspaniałych narzędzi dla wszystkich
       poziomów nauczania&mdash;wszystko, czego potrzebujesz, za darmo. Ciekaw jesteś,
       gdzie zacząć? Pobierz <a href='%{video_download_url}'>to wideo</a>!
-    announcement_go_beyond: Go beyond an Hour of Code and explore computer science
-      concepts with your students every week. Code.org offers curriculum, lesson plans,
-      high quality professional learning programs, and tons of great tools for all
-      grade levels&mdash;and it's all free. :) You don't need any experience to start
-      teaching computer science in your classroom. <b>Find the next step that's right
-      for your classroom.</b>
-    announcement_teacher_recruitment: Teachers like you are leading the computer science
-      education movement. You can participate in high-quality K-12th grade professional
-      learning programs <strong>at absolutely no cost to you or your school</strong>.
-      Take the lead on computer science in your school, and apply for professional
-      learning.
-    announcement_teacher_recruitment2: Teachers like you are leading the computer
-      science education movement. You can participate in high-quality K-12th grade
-      professional learning programs <strong>at absolutely no cost to you or your
-      school</strong>. Take the lead on computer science in your school, and apply
-      for professional learning. Middle and high school teachers, apply by March 17th.
-    announcement_csf_pilot: "<strong>Elementary school teachers:</strong> Be part
-      of updating our CS Fundamentals courses! We're looking for teachers to pilot
-      an updated CS Fundamentals curriculum during the winter and spring of 2017.
-      We're eager to hear your feedback before these updates go live in August 2017."
-    announcement_student_privacy: At Code.org, we take student privacy very seriously.
-      To protect your students’ privacy, we have made a change to your section’s login
-      page to avoid displaying full names. Even though this update should reduce privacy
-      concerns for the login page, we still encourage users to <i>not use full names
-      for students</i>.
-    announcement_apcsp_recruitment: '<strong>Computer Science Principles teachers:</strong>
-      Your students could be featured in Code.org''s next viral video encouraging
-      students to take the AP CS Principles exam this year. We''re inviting all CS
-      Principles students to submit a 10-20 second video clip on Twitter, Instagram,
-      or Facebook saying "I''m taking the #APCSP exam because..." The best submissions
-      will be featured in our video and the winning students will receive Code.org
-      swag!'
-    announcement_apcsp_recruitment2: This year's AP CS Principles exam is poised to
-      break records. Student participation in the exam could dramatically shift diversity
-      in AP Computer Science, but we need your help. Encourage every CS Principles
-      student to take the AP CSP exam and we'll <a href='%{gift_url}' target='_blank'>send
-      you a gift</a>. Students can also encourage peers across the country in our
-      <a href='%{challenge_url}' target='_blank'>#APCSP video challenge</a>.
-    announcement_apcsp_recruitment3: This year's AP CS Principles exam is poised to
-      break records. Student participation in the exam could dramatically shift diversity
-      in AP Computer Science, but we need your help. Encourage every CS Principles
-      student to take the AP CSP exam and you could win <a href='%{gift_url}' target='_blank'>a
-      gift card, laptop, or other cool prize</a>!  Share <a href='%{video_url}' target='_blank'>this
-      video</a> so your students can hear from their peers around the country who
-      are taking the exam.
-    announcement_csp_deadline: Final call for high school teachers! Take the lead
-      on computer science in your school and apply for our high-quality professional
-      learning programs <strong>at absolutely no cost to you or your school</strong>.
-      Applications close on April 14th.
+    announcement_go_beyond: Wykrocz poza Godzinę Kodowania i każdego tygodnia odkrywaj
+      ze swoimi uczniami pojęcia informatyki. Code.org oferuje programy nauczania,
+      harmonogramy lekcji, wysokiej jakości programy kształcenia zawodowego oraz mnóstwo
+      wspaniałych narzędzi dla wszystkich klas &mdash; i wszystko to za darmo. :)
+      Nie potrzebujesz żadnego doświadczenia, by zacząć uczyć informatyki w swojej
+      klasie. <b>Wybierz odpowiedni dla swojej klasy kolejny krok.</b>
+    announcement_teacher_recruitment: Nauczyciele tacy jak ty przewodzą w ruchu edukacji
+      informatycznej. Możesz wziąć udział w wysokiej jakości programach kształcenia
+      zawodowego dla nauczycieli wszystkich klas szkół podstawowych i średnich <strong>bez
+      ponoszenia jakichkolwiek kosztów przez twoją szkołę</strong>. Podejmij przewodnictwo
+      w nauce informatyki w twojej szkole i zgłoś się na kształcenie zawodowe.
+    announcement_teacher_recruitment2: Nauczyciele tacy jak ty przewodzą w ruchu edukacji
+      informatycznej. Możesz wziąć udział w wysokiej jakości programach kształcenia
+      zawodowego dla nauczycieli wszystkich klas szkół podstawowych i średnich <strong>bez
+      ponoszenia jakichkolwiek kosztów przez twoją szkołę</strong>. Podejmij przewodnictwo
+      w nauce informatyki w twojej szkole i zgłoś się na kształcenie zawodowe. Zgłoszenia
+      nauczycieli szkół średnich są przyjmowane do 17 marca.
+    announcement_csf_pilot: "<strong>Nauczyciele szkół podstawowych:</strong> Pomóż
+      nam aktualizować nasze kursy Podstaw Informatyki! Poszukujemy nauczycieli do
+      pilotażowego prowadzenia zaktualizowanego programu Podstaw Informatyki zimą
+      i wiosną 2017. Bardzo prosimy o komentarze i uwagi, zanim owe aktualizacje zostaną
+      opublikowane w sierpniu 2017."
+    announcement_student_privacy: W Code.org traktujemy prywatność uczniów bardzo
+      poważnie. Aby chronić prywatność twoich uczniów, wprowadziliśmy zmianę na stronie
+      logowania do twojej sekcji, tak, by uniknąć wyświetlania imion i nazwisk. Mimo
+      że ta aktualizacja powinna zredukować zastrzeżenia co do prywatności na stronie
+      logowania, nadal zachęcamy użytkowników, żeby <i>nie używali imion i nazwisk
+      uczniów</i>.
+    announcement_apcsp_recruitment: "<strong>Nauczyciele Zasad Informatyki:</strong>
+      Twoi uczniowie mają szansę wystąpić w kolejnym kultowym wideo Code.org, zachęcającym
+      uczniów do przystąpienia w tym roku do egzaminu z Zasad Informatyki w wersji
+      AP. Zapraszamy wszystkich uczniów Zasad Informatyki do zgłaszania za pośrednictwem
+      Twittera, Instragramu lub Facebooka 10-20-sekundowych filmików zawierających
+      zdanie &ldquor;Przystępuję do egzaminu #APCSP, ponieważ...&rdquo; Najlepsze
+      zgłoszenia zostaną wykorzystane w naszym wideo, a zwycięzcy otrzymają upominki
+      z logo Code.org!"
+    announcement_apcsp_recruitment2: 'Zapowiada się, że tegoroczny egzamin z Zasad
+      Informatyki AP pobije rekordy. Udział uczniów w tym egzaminie mógłby znacząco
+      poprawić różnorodność na Informatyce w wersji AP, jednakże potrzebujemy twojej
+      pomocy. Zachęć każdego ucznia i uczennicę Zasad Informatyki do przystąpienia
+      do egzaminu z Zasad Informatyki w wersji AP, a <a href=''%{gift_url}'' target=''_blank''>prześlemy
+      ci upominek</a>. Uczniowie mogą również zachęcić rówieśników w całym kraju,
+      biorąc udział w naszym <a href=''%{challenge_url}'' target=''_blank''>wyzwaniu
+      wideo #APCSP</a>.'
+    announcement_apcsp_recruitment3: Zapowiada się, że tegoroczny egzamin z Zasad
+      Informatyki AP pobije rekordy. Udział uczniów w tym egzaminie mógłby znacząco
+      poprawić różnorodność na Informatyce w wersji AP, jednakże potrzebujemy twojej
+      pomocy. Zachęć każdego ucznia i uczennicę Zasad Informatyki do przystąpienia
+      do egzaminu z Zasad Informatyki w wersji AP, aby mieć szansę wygrać <a href='%{gift_url}'
+      target='_blank'>kartę upominkową, laptopa lub inną ciekawą nagrodę</a>. Udostępnij
+      <a href='%{video_url}' target='_blank'>ten film</a>, aby twoi uczniowie mogli
+      posłuchać rówieśników z całego kraju, którzy przystępują do tego egzaminu.
+    announcement_csp_deadline: Ostatni dzwonek dla nauczycieli szkół średnich! Obejmij
+      przewodnictwo w informatyce w twojej szkole i zgłoś się na nasze wysokiej jakości
+      programy kształcenia zawodowego, <strong>całkowicie bezpłatne dla ciebie i twojej
+      szkoły</strong>. Przyjmowanie zgłoszeń kończy się 14 kwietnia.
+    announcement_applab_export: Laboratorium Aplikacji, nasze webowe środowisko programistyczne,
+      obsługuje obecnie eksportowanie twojego kodu! Możesz zacząć budować aplikacje
+      przeciągając i upuszczając bloki z JavaScript, a następnie eksportować kod,
+      by móc edytować go w dowolnym wybranym przez siebie profesjonalnym środowisku
+      deweloperskim.
+    announcement_csp_survey: "<b>Gratulacje dla nauczycieli Zasad Informatyki!</b><br/>
+      Twoi uczniowie Zasad Informatyki przystępujący do egzaminu z Informatyki w wersji
+      AP dołączą do ponad 50.000 innych uczniów w największej w historii inauguracji
+      egzaminu AP. A teraz, niech głosy twoich uczniów zostaną usłyszane - przypomnij
+      im, żeby wypełnili ankietę kończącą kurs! Będziesz mieć możliwość przejrzeć
+      odpowiedzi swoich uczniów, a my podzielimy się z tobą zagregowanym ogólnokrajowym
+      raportem."
+    announcement_navigation_redesign: "<b>Nadchodzące Zmiany w Nawigacji Strony</b><br/>Już
+      wkrótce tego lata będziemy ulepszać nawigację na całej stronie Code.org tak,
+      abyś zawsze miał dostęp do swoich najważniejszych zasobów z dowolnego miejsca
+      na stronie. Gdy tylko zalogujesz się do swojego konta nauczycielskiego, każda
+      strona będzie mieć nowy pasek nawigacyjny z linkami do twojej Strony Głównej,
+      Kursów, Galerii Projektów, Sekcji, jak również Kształcenia Zawodowego."
   move_students:
     new_section_dne: Przepraszamy, ale sekcja %{new_section_code} nie istnieje. Wprowadź
       kod innej sekcji.
@@ -630,6 +679,7 @@
     title: Czy potrzebujesz pomocy?
     subtitle: Zobacz te filmiki i wskazówki
     teacher: Zobacz rozwiązanie
+    teacher_no_solution: Przestań widzieć rozwiązanie
     auth_error: Nie masz uprawnienia, by zobaczyć rozwiązanie.
     submit: Zaktualizuj położenie postaci (artysty)
     direction: Kierunek początkowy (w stopniach)
@@ -639,25 +689,27 @@
     notes_coming_soon: Uwagi do tego wideo wkrótce.
     autoplay_option: Odtwarzaj filmy automatycznie
     download: Pobierz wideo
+    show_notes: Pokaż Notatki
+    show_video: Pokaż Wideo
   compatibility:
     upgrade:
       unsupported_message: Twoja przeglądarka nie jest obsługiwana. Prosimy uaktualnić
         przeglądarkę do <a href='%{supported_browsers_url}', target='_blank'>jednej
         z obsługiwanych przez nas przeglądarek</a>. Możesz wyświetlić stronę, ale
         może nie działać właściwie.
-      link: Ucz się więcej
-      applab_unsupported_tablet: App Lab works best on a desktop or laptop computer
-        with a mouse and keyboard. You may experience issues using this tool on your
-        current device.
-      gamelab_unsupported_tablet: Game Lab works best on a desktop or laptop computer
-        with a mouse and keyboard. You may experience issues using this tool on your
-        current device.
-      weblab_unsupported_browser: Unfortunately, we're currently experiencing issues
-        with loading Web Lab on this browser. You may want to use a different browser
-        until this is resolved. Sorry for the inconvenience.
-      weblab_unsupported_locale_storage: You may experience issues using Web Lab in
-        Private Browsing mode. Please reload your project in normal mode. Sorry for
-        the inconvenience.
+      link: Dowiedz się więcej
+      applab_unsupported_tablet: Laboratorium Aplikacji działa najlepiej na komputerze
+        stacjonarnym lub laptopie z myszką i klawiaturą. W przypadku korzystania z
+        tego narzędzia na obecnym urządzeniu, mogą wystąpić problemy.
+      gamelab_unsupported_tablet: Laboratorium Gier działa najlepiej na komputerze
+        stacjonarnym lub laptopie z myszką i klawiaturą. W przypadku korzystania z
+        tego narzędzia na obecnym urządzeniu, mogą wystąpić problemy.
+      weblab_unsupported_browser: Niestety obecnie występują problemy z ładowaniem
+        Laboratorium Sieci w tej przeglądarce. Proponujemy skorzystać z innej przeglądarki
+        dopóki problem nie zostanie rozwiązany. Przepraszamy za niedogodności.
+      weblab_unsupported_locale_storage: Mogą wystąpić problemy w czasie używania
+        Laboratorium Sieci w trybie prywatnego przeglądania. Prosimy o przeładowanie
+        projektu w zwykłym trybie przeglądarki. Przepraszamy za niedogodności.
   slow_loading: To trwa dłużej niż zwykle...
   try_reloading: Spróbuj odświeżyć stronę
   next_stage: Skończyłeś! Przejdź do następnego etapu
@@ -722,6 +774,20 @@
       title: Galeria
       body: Zobacz galerię aplikacji i artystycznych obrazów utworzonych przez naszych
         użytkowników
+    gamelab:
+      title: Laboratorium Gier (Game Lab)
+      body: Laboratorium Gier jest środowiskiem programistycznym, w którym można wykonać
+        proste animacje i gry używając obiektów i postaci, które współdziałają ze
+        sobą.
+      audience: Wiek 13+
+      cta: Zobacz instrukcję
+    weblab:
+      title: Laboratorium Sieci (beta)
+      body: Web Lab to środowisko programowania, w którym można tworzyć proste strony
+        www za pomocą HTML i CSS. Zaprojektuj swoją stronę www i udostępnij ją w kilka
+        sekund.
+      audience: Wiek 13+
+      cta: Zobacz instrukcję
     frozen:
       title: Frosen
     starwars:
@@ -737,6 +803,13 @@
       title: Minecraft
       body: Zaprogramuj zwierzęta i inne stworzenia Minecraftu we własnej wersji gry
         Minecraft.
+    sports:
+      title: Zawody
+      body: Stwórz grę w koszykówkę albo włąsną mieszankę różnych sportów.
+    text-compression:
+      title: Text Compression
+      body: W tej lekcji uczniowie użyją Widżetu Kompresji Tekstu, by skompresować
+        tekst, zastępując wzorce symbolami.
     unplugged:
       title: Lekcje nie wymagające komputera
       audience: Wiek 4+
@@ -746,6 +819,17 @@
         kursie lub jako dodatku w jakimkolwiek kursie.
       body_short: Jeżeli nie macie dostępu do komputerów, to wypróbujcie w klasie
         te lekcje bez komputerów.
+    unplugged_conditionals:
+      title: Warunkowe
+      body: Poznawaj algorytmy i wyrażenia warunkowe w tej aktywności "bez prądu",
+        przy użyciu talii kart.
+    widgets:
+      title: Widżety
+      body: Uczniowie mogą odkrywać pojęcia z naszego kursu Zasady Informatyki w praktyczny
+        sposób, za pomocą tych narzędzi cyfrowych. Użyj samych widżetów lub stwórz
+        jednowymiarową lekcję dla swojej klasy.
+      audience: Wiek 14+
+      cta: Zobacz instrukcję
   gallery:
     students_drew_these_with_code: Uczniowie narysowali to z pomocą kodu!
     students_made_these_with_code: Uczniowie wykonali to z pomocą kodu!
@@ -775,9 +859,9 @@
     support: Uzyskaj pomoc
     support_url: "//support.Code.org"
     help_resources: Pomoc i Zasoby
-    help_support: Help and Support
-    documentation: Documentation
-    tutorials: Tutorials
+    help_support: Pomoc i wsparcie
+    documentation: Dokumentacja
+    tutorials: Samouczki
   multi:
     wrong_title: Błędna odpowiedź
     wrong_body: Wprowadzona przez Ciebie odpowiedź nie jest poprawna. Spróbuj ponownie!
@@ -882,6 +966,13 @@
       nasze narzędzia do nauki języka JavaScript mogą być niedostępny dla Twoich uczniów
       przed zaakceptowaniem zaktualizowanych postanowień.
     review_terms: Wyświetl zaktualizowane Warunki korzystania
+  school_info_interstitial:
+    title: Chcemy przybliżyć Informatykę każdemu uczniowi - pomóż nam śledzić nasze
+      postępy!
+    message: Prosimy o wprowadzenie danych szkoły poniżej.
+    message_with_suggestion: Proszę sprawdzić czy następujące informacje są poprawne
+      i zaktualizować je, jeśli istnieje taka potrzeba.
+    save: Zapisz
   race_interstitial:
     title: 'Opcjonalnie: Pomóż nam śledzić nasze postępy na drodze do poprawy różnorodności
       w informatyce'
@@ -921,8 +1012,19 @@
     rename: Zmień nazwę
     save: Zapisz
     delete: Usuń
+    import: Importuj
+    share_link_import_bad_link_header: Link udostępniania nierozpoznany
+    share_link_import_bad_link_body: 'Nie mogliśmy zaimportować tego linku udostępniania.
+      Upewnij się, że używasz linku z łamigłówki Minecraft: Agent oraz że skopiowałeś
+      pełny link.'
+    share_link_import_error_header: Coś poszło nie tak.
+    share_link_import_error_body: Wystąpił problem podczas importowania tego linku
+      udostępniania. Proszę spróbować ponownie.
     exit: Powrót do Kursu
     my_projects: Moje Projekty
+    project_gallery: Projekty
+    publish: Opublikuj
+    unpublish: Cofnij publikację
     share: Udostępnij
     share_title: Udostępnij swój projekt
     share_copy_link: 'Skopiuj odnośnik/link:'
@@ -932,6 +1034,8 @@
       innym w swojej szkole.
     embed: Osadź
     advanced_share: Pokaż zaawansowane opcje
+    no_projects: Aktualnie nie masz żadnych projektów. Kliknij na jeden z powyższych
+      przycisków, aby rozpocząć projekt.
     close: Zamknij
     more: Więcej
     name: Imię/Nazwisko
@@ -941,6 +1045,9 @@
       poniżej, aby utworzyć nowy projekt! <br/>Możesz wrócić i pracować nad swoimi
       projektami w dowolnym momencie.
     need_help: Wypróbuj te kursy, by przygotować się do rozpoczęcia nowego projektu
+    thumbnail_help: Nie widzisz poprawnej miniatury dla twojego projektu? Uruchom
+      swoją aplikację, by wygenerować nową miniaturę. Weź pod uwagę, że odświeżenie
+      miniatury wszędzie może zająć kilka godzin.
     really_delete: Usunąć?
     delete_yes: Tak
     delete_no: Nie
@@ -955,6 +1062,10 @@
     remix: Remix
     click_to_remix: Kliknij 'Remix', aby utworzyć swoją własną wersję!
     edit_project: Edytuj projekt
+    sharing_disabled: Przepraszamy, udostępnienie tego projektu nie jest możliwe.
+      Jeżeli to jest twój projekt lub projekt jednego z twoich uczniów, prosimy o<a
+      href='https://studio.code.org/users/sign_in'>zalogowanie się</a> do twojego
+      konta w celu uzyskania dostępu do projektu.
     abuse:
       tos: Zgłoszono, że ten projekt narusza <a href='http://code.org/tos'> Warunki
         korzystania</a> z Code.org i nie może być udostępniony innym.
@@ -1009,20 +1120,6 @@
       moment, please check back soon
     review_submitted: Your peer review was submitted
     review_new_submission: Review a new submission
-  components:
-    icon_library:
-      search_placeholder_text: Szukaj ikony...
-      no_icons_found: Nie znaleziono ikon
-    playzone:
-      artist_description: Rysuj fajne obrazki i wzory z Artystą!
-      artist_title: Nowy Rysunek
-      continue_button: Przejdź do następnego etapu
-      playlab_description: Utwórz historyjkę lub grę z Play Lab!
-      playlab_title: Nowa aplikacja
-      primary_header: Gratulacje! Ukończyłeś etap %{stageName}!
-      projects_description: Odwiedź ponownie, jeden ze swoich projektów.
-      projects_title: Otwórz projekt
-      secondary_header: Zapytaj nauczyciela, co robić dalej
   flex_category:
     required: Streszczenie
     content: Treści
@@ -1031,8 +1128,38 @@
     ramp_up: Ramp-Up
     end_of_course_project: End of Course Project
     optional_stages: Optional Stages
-    main_course: Main Course
-    extra_course_content: Extra Course Content
+    main_course: Kurs Główny
+    extra_course_content: Dodatki do Kursu
+    csf_e_1: Przygotuj się do Kursu E (opcjonalnie)
+    csf_e_2: Zawartość Kursu E
+    csf_f_1: Przejdź do Kursu F (opcjonalnie)
+    csf_f_2: Zawartość Kursu F
+    csd1_1: 'Rozdział 1: Proces Rozwiązywania Problemów'
+    csd1_2: 'Rozdział 2: Komputery i Rozwiązywanie Problemów'
+    csd2_1: 'Rozdział 1: Zawartość Stron Internetowych i HTML'
+    csd2_2: 'Rozdział 2: Style i CSS'
+    csd3_1: 'Rozdział 1: Obrazy i Animacje'
+    csd3_2: 'Rozdział 2: Budowanie Gier'
+    csd4_1: 'Rozdział 1: Projektowanie Zorientowane na Użytkownika'
+    csd4_2: 'Rozdział 2: Prototypowanie aplikacji'
+    csd5_1: 'Rozdział 1: Reprezentowanie Informacji'
+    csd5_2: 'Rozdział 2: Rozwiązywanie Problemów z Danymi'
+    csd6_1: 'Rozdział 1: Wyjście Sprzętowe'
+    csd6_2: 'Rozdział 2: Wejście Sprzętowe'
+    csp1_1: 'Rozdział 1: Reprezentowanie i Przekazywanie Informacji'
+    csp1_2: 'Rozdział 2: Wynalezienie Internetu'
+    csp2_1: 'Rozdział 1: Kodowanie i Kompresja Złożonych Danych'
+    csp2_2: 'Rozdział 2: Manipulowanie i Wizualizacja Danych'
+    csp3_1: 'Rozdział 1: Języki Programowania i Algorytmy'
+    csp4_1: 'Rozdział 1: Świat Big Data i Szyfrowania'
+    csp5_1: 'Rozdział 1: Programowanie Sterowane Zdarzeniami'
+    csp5_2: 'Rozdział 2: Programowanie ze Strukturami Danych'
+    cspSurvey: Ankieta
+    cspAssessment: Ocena Rozdziału
+    csp_ap_1: 'Rozdział 1: AP Konfiguracja Techniczna'
+    csp_ap_2: 'Rozdział 2: AP Zbadaj Wydajność'
+    csp_ap_3: 'Rozdział 3: AP Utwórz Zadanie Wydajnościowe'
+    dlp: Wskazówki
   external_links:
     disclaimer: Uwaga
     leaving_domain: Opuszczasz tę domenę do witryny, która nie jest obsługiwana przez
@@ -1122,7 +1249,11 @@
     nad nim pracować lub by przejrzeć Twoje odpowiedzi.
   hidden_stage: Twój nauczyciel nie oczekiwał Ciebie tutaj. Zapytaj swojego nauczyciela,
     na której powinieneś być lekcji.
+  hidden_script: Twój nauczyciel nie oczekiwał ciebie tutaj. Zapytaj proszę nauczyciela,
+    na której jednostce powinieneś być.
+  return_unit_overview: Przejdź do przeglądu jednostek
   return_course_overview: Przejdź do omówienia jednostki
+  view_all_units: Zobacz wszystkie jednostki
   pd:
     survey:
       number_teachers: Number of attending teachers
@@ -1171,3 +1302,4 @@
         activities you did in this workshop?
       anything_else_s: Is there anything else you’d like to tell us about your experience
         at this workshop?
+  courses_category: Pełne Kursy

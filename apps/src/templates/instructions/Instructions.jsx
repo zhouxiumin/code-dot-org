@@ -1,9 +1,8 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import MarkdownInstructions from './MarkdownInstructions';
 import NonMarkdownInstructions from './NonMarkdownInstructions';
 import InputOutputTable from './InputOutputTable';
 import AniGifPreview from './AniGifPreview';
-import experiments from "../../util/experiments";
 
 const styles = {
   inTopPane: {
@@ -23,17 +22,17 @@ const styles = {
  */
 var Instructions = React.createClass({
   propTypes: {
-    puzzleTitle: React.PropTypes.string,
-    instructions: React.PropTypes.string,
-    instructions2: React.PropTypes.string,
-    renderedMarkdown: React.PropTypes.string,
-    aniGifURL: React.PropTypes.string,
-    authoredHints: React.PropTypes.element,
-    inputOutputTable: React.PropTypes.arrayOf(
-      React.PropTypes.arrayOf(React.PropTypes.number)
+    puzzleTitle: PropTypes.string,
+    instructions: PropTypes.string,
+    instructions2: PropTypes.string,
+    renderedMarkdown: PropTypes.string,
+    imgURL: PropTypes.string,
+    authoredHints: PropTypes.element,
+    inputOutputTable: PropTypes.arrayOf(
+      PropTypes.arrayOf(PropTypes.number)
     ),
-    inTopPane: React.PropTypes.bool,
-    onResize: React.PropTypes.func,
+    inTopPane: PropTypes.bool,
+    onResize: PropTypes.func,
   },
 
   render: function () {
@@ -49,7 +48,7 @@ var Instructions = React.createClass({
     // substituteInstructionImages
     return (
       <div style={this.props.inTopPane ? styles.inTopPane : styles.notInTopPane}>
-        {this.props.renderedMarkdown && !experiments.isEnabled('hideInstructions') &&
+        {this.props.renderedMarkdown &&
           <MarkdownInstructions
             ref="instructionsMarkdown"
             renderedMarkdown={this.props.renderedMarkdown}
@@ -59,7 +58,7 @@ var Instructions = React.createClass({
         }
         { /* Note: In this case props.instructions might be undefined, but we
           still want to render NonMarkdownInstructions to get the puzzle title */
-        !this.props.renderedMarkdown && !experiments.isEnabled('hideInstructions') &&
+        !this.props.renderedMarkdown &&
           <NonMarkdownInstructions
             puzzleTitle={this.props.puzzleTitle}
             instructions={this.props.instructions}
@@ -71,10 +70,10 @@ var Instructions = React.createClass({
           <InputOutputTable data={this.props.inputOutputTable}/>
         }
 
-        {this.props.aniGifURL && !this.props.inTopPane &&
-          <img className="aniGif example-image" src={this.props.aniGifURL}/>
+        {this.props.imgURL && !this.props.inTopPane &&
+          <img className="aniGif example-image" src={this.props.imgURL}/>
         }
-        {this.props.aniGifURL && this.props.inTopPane &&
+        {this.props.imgURL && this.props.inTopPane &&
           <AniGifPreview/>
         }
         {this.props.authoredHints}

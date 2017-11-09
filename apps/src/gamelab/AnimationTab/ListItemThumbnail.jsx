@@ -1,9 +1,9 @@
 /** Animation or Frame thumbnail */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import _ from 'lodash';
 import color from "../../util/color";
 import {PlayBehavior} from '../constants';
-import * as PropTypes from '../PropTypes';
+import * as shapes from '../shapes';
 import AnimationPreview from '../AnimationPicker/AnimationPreview';
 
 const staticStyles = {
@@ -42,34 +42,28 @@ const staticStyles = {
 /**
  * Animation or Frame thumbnail.
  */
-const ListItemThumbnail = React.createClass({
-  propTypes: {
-    animationProps: PropTypes.AnimationProps.isRequired,
-    singleFrameAnimation: React.PropTypes.bool.isRequired,
-    index: React.PropTypes.number,
-    isSelected: React.PropTypes.bool
-  },
+export default class ListItemThumbnail extends React.Component {
+  static propTypes = {
+    animationProps: shapes.AnimationProps.isRequired,
+    singleFrameAnimation: PropTypes.bool.isRequired,
+    index: PropTypes.number,
+    isSelected: PropTypes.bool
+  };
 
-  getInitialState() {
-    return {
-      previewSize: 0
-    };
-  },
+  state = {previewSize: 0};
 
   componentDidMount() {
     this.recalculatePreviewSize();
-  },
+  }
 
   /** @public */
-  forceResize() {
-    this.recalculatePreviewSize();
-  },
+  forceResize = () => this.recalculatePreviewSize();
 
   recalculatePreviewSize() {
     this.setState({
       previewSize: this.refs.wrapper.getBoundingClientRect().width
     });
-  },
+  }
 
   getIndexBubble() {
     if (typeof this.props.index === 'undefined') {
@@ -81,10 +75,10 @@ const ListItemThumbnail = React.createClass({
         <div style={staticStyles.indexBubbleText}>{this.props.index}</div>
       </div>
     );
-  },
+  }
 
   render() {
-    var styles = _.merge({}, staticStyles, {
+    const styles = _.merge({}, staticStyles, {
       root: {
         border: 'solid 2px ' + (this.props.isSelected ? color.purple : color.light_gray)
       }
@@ -111,5 +105,4 @@ const ListItemThumbnail = React.createClass({
       </div>
     );
   }
-});
-export default ListItemThumbnail;
+}

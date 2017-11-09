@@ -12,3 +12,8 @@ it:
           description_student: Alla Scoperta dell'Informatica è un corso di introduzione all'informatica che conduce gli studenti alla realizzazione di autentiche creazioni ed abitua all'uso dell'informatica come strumento per la creatività, la comunicazione, il problem-solving ed il divertimento.
           description_teacher: Alla Scoperta dell'Informatica è un corso di introduzione all'informatica che conduce gli studenti alla realizzazione di autentiche creazioni ed abitua all'uso dell'informatica come strumento per la creatività, la comunicazione, il problem-solving ed il divertimento.
           description_short: Corso di introduzione all'informatica che conduce gli studenti alla realizzazione di autentiche creazioni.
+        allthethingscourse:
+          title: allthethingscourse
+          description_short: Si tratta di un corso globale
+          description_student: Questo è un corso per globale e ha una corposa descrizione per gli studenti
+          description_teacher: Questo è un corso per globale e ha una corposa descrizione per gli insegnanti

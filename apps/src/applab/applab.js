@@ -18,7 +18,6 @@ import {
 import dom from '../dom';
 import * as utils from '../utils';
 import * as dropletConfig from './dropletConfig';
-import AppStorage from './appStorage';
 import { initFirebaseStorage } from '../storage/firebaseStorage';
 import { getColumnsRef, onColumnNames, addMissingColumns } from '../storage/firebaseMetadata';
 import { getDatabase } from '../storage/firebaseUtils';
@@ -65,6 +64,7 @@ import project from '../code-studio/initApp/project';
 import * as thumbnailUtils from '../util/thumbnail';
 import Sounds from '../Sounds';
 import {makeDisabledConfig} from '../dropletUtils';
+import {getRandomDonorTwitter} from '../util/twitterHelper';
 
 import {TestResults, ResultType} from '../constants';
 import i18n from '../code-studio/i18n';
@@ -87,13 +87,14 @@ var jsInterpreterLogger = null;
  * Eventually, I'd like to replace this with window events that the debugger
  * UI listens to, so that the Applab global is not involved.
  * @param {*} object
+ * @param {string} logLevel
  */
-Applab.log = function (object) {
+Applab.log = function (object, logLevel) {
   if (jsInterpreterLogger) {
     jsInterpreterLogger.log(object);
   }
 
-  getStore().dispatch(jsDebugger.appendLog(object));
+  getStore().dispatch(jsDebugger.appendLog(object, logLevel));
 };
 consoleApi.setLogMethod(Applab.log);
 
@@ -113,7 +114,7 @@ Applab.scale = {
 };
 
 var twitterOptions = {
-  text: applabMsg.shareApplabTwitter(),
+  text: applabMsg.shareApplabTwitterDonor({donor: getRandomDonorTwitter()}),
   hashtag: "ApplabCode"
 };
 
@@ -252,8 +253,8 @@ function queueOnTick() {
   window.setTimeout(Applab.onTick, getCurrentTickLength());
 }
 
-function handleExecutionError(err, lineNumber) {
-  outputError(String(err), lineNumber);
+function handleExecutionError(err, lineNumber, outputString) {
+  outputError(outputString, lineNumber);
   Applab.executionError = { err: err, lineNumber: lineNumber };
 
   // prevent further execution
@@ -364,14 +365,13 @@ Applab.init = function (config) {
       'You may need to sign in to your code studio account first.');
   }
   Applab.channelId = config.channel;
-  var useFirebase = window.dashboard.project.useFirebase() || false;
-  Applab.storage = useFirebase ? initFirebaseStorage({
+  Applab.storage = initFirebaseStorage({
     channelId: config.channel,
     firebaseName: config.firebaseName,
     firebaseAuthToken: config.firebaseAuthToken,
     firebaseChannelIdSuffix: config.firebaseChannelIdSuffix || '',
     showRateLimitAlert: studioApp().showRateLimitAlert
-  }) : AppStorage;
+  });
   // inlcude channel id in any new relic actions we generate
   logToCloud.setCustomAttribute('channelId', Applab.channelId);
 
@@ -529,6 +529,10 @@ Applab.init = function (config) {
   // to starting code by levelbuilders will be shown.
   config.ignoreLastAttempt = config.embed;
 
+  // Tell droplet to only allow dropping anonymous functions into known function
+  // call params when we have marked that param with allowFunctionDrop
+  config.lockFunctionDropIntoKnownParams = true;
+
   // Print any json parsing errors to the applab debug console and the browser debug
   // console. If a json parse error is thrown before the applab debug console
   // initializes, the error will be printed only to the browser debug console.
@@ -585,10 +589,9 @@ Applab.init = function (config) {
     channelId: config.channel,
     nonResponsiveVisualizationColumnWidth: applabConstants.APP_WIDTH,
     visualizationHasPadding: !config.noPadding,
-    hasDataMode: useFirebase && !config.level.hideViewDataButton,
+    hasDataMode: !config.level.hideViewDataButton,
     hasDesignMode: !config.level.hideDesignMode,
     isIframeEmbed: !!config.level.iframeEmbed,
-    isViewDataButtonHidden: !!config.level.hideViewDataButton,
     isProjectLevel: !!config.level.isProjectLevel,
     isSubmittable: !!config.level.submittable,
     isSubmitted: !!config.level.submitted,
@@ -915,7 +918,7 @@ Applab.runButtonClick = function () {
 
   if (studioApp().editor) {
     logToCloud.addPageAction(logToCloud.PageAction.RunButtonClick, {
-      usingBlocks: studioApp().editor.currentlyUsingBlocks,
+      usingBlocks: studioApp().editor.session.currentlyUsingBlocks,
       app: 'applab'
     }, 1/100);
   }
@@ -941,19 +944,20 @@ var displayFeedback = function () {
       feedbackImage: Applab.feedbackImage,
       twitter: twitterOptions,
       // allow users to save freeplay levels to their gallery (impressive non-freeplay levels are autosaved)
-      saveToGalleryUrl: level.freePlay && Applab.response && Applab.response.save_to_gallery_url,
+      saveToLegacyGalleryUrl: level.freePlay && Applab.response && Applab.response.save_to_gallery_url,
       message: Applab.message,
       appStrings: {
         reinfFeedbackMsg: applabMsg.reinfFeedbackMsg(),
         sharingText: applabMsg.shareGame()
-      }
+      },
+      hideXButton: true,
     });
   }
 };
 
 /**
  * Function to be called when the service report call is complete
- * @param {object} JSON response (if available)
+ * @param {MilestoneResponse} response - JSON response (if available)
  */
 Applab.onReportComplete = function (response) {
   Applab.response = response;
@@ -1229,7 +1233,7 @@ Applab.onPuzzleComplete = function (submit) {
 
     if (containedLevelResultsInfo) {
       // We already reported results when run was clicked. Make sure that call
-      // finished, then call onCompelte
+      // finished, then call onComplete.
       runAfterPostContainedLevel(onComplete);
     } else {
       studioApp().report({

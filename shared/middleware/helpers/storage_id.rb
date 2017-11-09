@@ -40,10 +40,8 @@ def storage_decrypt_channel_id(encrypted)
   raise ArgumentError, "`encrypted` must be a string" unless encrypted.is_a? String
   # pad to a multiple of 4 characters to make a valid base64 string.
   encrypted += '=' * ((4 - encrypted.length % 4) % 4)
-  storage_id, channel_id = storage_decrypt(Base64.urlsafe_decode64(encrypted)).split(':')
-  storage_id = storage_id.to_i
+  storage_id, channel_id = storage_decrypt(Base64.urlsafe_decode64(encrypted)).split(':').map(&:to_i)
   raise ArgumentError, "`storage_id` must be an integer > 0" unless storage_id > 0
-  channel_id = channel_id.to_i
   raise ArgumentError, "`channel_id` must be an integer > 0" unless channel_id > 0
   [storage_id, channel_id]
 end
@@ -82,7 +80,7 @@ end
 def storage_id(endpoint)
   return nil if endpoint == 'shared'
   raise ArgumentError, "Unknown endpoint: `#{endpoint}`" unless endpoint == 'user'
-  @user_storage_id ||= storage_id_for_user || storage_id_from_cookie || create_storage_id_cookie
+  @user_storage_id ||= storage_id_for_current_user || storage_id_from_cookie || create_storage_id_cookie
 end
 
 def storage_id_cookie_name
@@ -91,32 +89,57 @@ def storage_id_cookie_name
   name
 end
 
-def storage_id_for_user
-  return nil unless request.user_id
+def storage_id_for_user_id(user_id)
+  row = user_storage_ids_table.where(user_id: user_id).first
+  row[:id] if row
+end
+
+def user_id_for_storage_id(storage_id)
+  row = user_storage_ids_table.where(id: storage_id).first
+  row[:user_id] if row
+end
+
+def storage_id_for_current_user
+  user_id = request.user_id
+  return nil unless user_id
 
   # Return the user's storage-id, if it exists.
-  if row = user_storage_ids_table.where(user_id: request.user_id).first
-    return row[:id]
-  end
+  user_storage_id = storage_id_for_user_id(user_id)
+  return user_storage_id unless user_storage_id.nil?
 
+  user_storage_id = take_storage_id_ownership_from_cookie(user_id)
+  return user_storage_id unless user_storage_id.nil?
+
+  begin
+    # We don't have any existing storage id we can associate with this user, so create a new one
+    user_storage_ids_table.insert(user_id: user_id)
+  rescue Sequel::UniqueConstraintViolation
+    # We lost a race against someone performing the same operation. The row
+    # we're looking for should now be in the database.
+    user_storage_id = storage_id_for_user_id(user_id)
+    raise "no user storage id on second try" unless user_storage_id
+    user_storage_id
+  end
+end
+
+# @return {number} storage_id for user
+def take_storage_id_ownership_from_cookie(user_id)
   # Take ownership of cookie storage, if it exists.
-  if storage_id = storage_id_from_cookie
-    # Delete the cookie that was tracking this storage id
-    response.delete_cookie(storage_id_cookie_name)
+  storage_id = storage_id_from_cookie
+  return unless storage_id
 
-    # Only take ownership if the storage id doesn't already have an owner - it shouldn't but
-    # there is a race condition (addressed below)
-    rows_updated = user_storage_ids_table.where(id: storage_id, user_id: nil).update(user_id: request.user_id)
-    return storage_id if rows_updated > 0
+  # Delete the cookie that was tracking this storage id
+  response.delete_cookie(storage_id_cookie_name)
 
-    # We couldn't claim the storage. The most likely cause is that another request (by this
-    # user) beat us to the punch so we'll re-check to see if we own it. Otherwise the storage
-    # id is either invalid or it belongs to another user (both addressed below)
-    return storage_id if user_storage_ids_table.where(id: storage_id, user_id: request.user_id).first
-  end
+  # Only take ownership if the storage id doesn't already have an owner - it shouldn't but
+  # there is a race condition (addressed below)
+  rows_updated = user_storage_ids_table.where(id: storage_id, user_id: nil).update(user_id: user_id)
+  return storage_id if rows_updated > 0
 
-  # We don't have any existing storage id we can associate with this user, so create a new one
-  user_storage_ids_table.insert(user_id: request.user_id)
+  # We couldn't claim the storage. The most likely cause is that another request (by this
+  # user) beat us to the punch so we'll re-check to see if we own it. Otherwise the storage
+  # id is either invalid or it belongs to another user (both addressed below)
+  return storage_id if user_storage_ids_table.where(id: storage_id, user_id: user_id).first
 end
 
 def storage_id_from_cookie
@@ -128,7 +151,7 @@ def storage_id_from_cookie
 end
 
 def user_storage_ids_table
-  @user_storage_ids_table ||= PEGASUS_DB[:user_storage_ids]
+  PEGASUS_DB[:user_storage_ids]
 end
 
 def owns_channel?(encrypted_channel_id)

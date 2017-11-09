@@ -1,4 +1,5 @@
 /** @file Board controller for Adafruit Circuit Playground */
+/* global SerialPort */ // Maybe provided by the Code.org Browser
 import {EventEmitter} from 'events'; // provided by webpack's node-libs-browser
 import ChromeSerialPort from 'chrome-serialport';
 import five from '@code-dot-org/johnny-five';
@@ -15,6 +16,7 @@ import {
   J5_CONSTANTS
 } from './PlaygroundConstants';
 import Led from './Led';
+import {isNodeSerialAvailable} from './portScanning';
 
 // Polyfill node's process.hrtime for the browser, gets used by johnny-five.
 process.hrtime = require('browser-process-hrtime');
@@ -34,6 +36,9 @@ export default class CircuitPlaygroundBoard extends EventEmitter {
 
     /** @private {string} a port identifier, e.g. "/dev/ttyACM0" */
     this.portName_ = portName;
+
+    /** @private {SerialPort} serial port controller */
+    this.serialPort_ = null;
 
     /** @private {five.Board} A johnny-five board controller */
     this.fiveBoard_ = null;
@@ -68,6 +73,7 @@ export default class CircuitPlaygroundBoard extends EventEmitter {
       const playground = CircuitPlaygroundBoard.makePlaygroundTransport(serialPort);
       const board = new five.Board({io: playground, repl: false, debug: false});
       board.once('ready', () => {
+        this.serialPort_ = serialPort;
         this.fiveBoard_ = board;
         resolve();
       });
@@ -112,6 +118,7 @@ export default class CircuitPlaygroundBoard extends EventEmitter {
 
   /**
    * Disconnect and clean up the board controller and all components.
+   * @return {Promise}
    */
   destroy() {
     this.dynamicComponents_.forEach(component => {
@@ -142,6 +149,26 @@ export default class CircuitPlaygroundBoard extends EventEmitter {
       delete Firmata.SYSEX_RESPONSE[CP_COMMAND];
     }
     delete Playground.hasRegisteredSysexResponse;
+
+    return new Promise((resolve) => {
+      // It can take a moment for the reset() command to reach the board, so defer
+      // closing the serialport for a moment.
+      // TODO (Brad): Make changes to Firmata so we can be notified when writes
+      // succeed instead of making a 50ms guess, and make this a properly async
+      // method.
+      setTimeout(() => {
+        // Close the serialport, cleaning it up properly so we can open it again
+        // on the next run.
+        // Note: This doesn't seem to be necessary when using browser-serialport
+        // and the Chrome App connector, but it is required for native
+        // node serialport in the Maker Toolkit Browser.
+        if (this.serialPort_ && typeof this.serialPort_.close === 'function') {
+          this.serialPort_.close();
+        }
+        this.serialPort_ = null;
+        resolve();
+      }, 50);
+    });
   }
 
   /**
@@ -229,9 +256,20 @@ export default class CircuitPlaygroundBoard extends EventEmitter {
    * @return {SerialPort}
    */
   static openSerialPort(portName) {
-    return new ChromeSerialPort.SerialPort(portName, {
-      bitrate: SERIAL_BAUD
-    }, true);
+    // A gotcha here: These two types of SerialPort provide similar, but not
+    // exactly equivalent, interfaces.  When making changes to construction
+    // here maker sure to test both paths:
+    //
+    // Code.org Browser case: Native Node SerialPort 6 is available on window.
+    //
+    // Code.org connector app case: ChromeSerialPort bridges through the Chrome
+    // app, implements SerialPort 3's interface.
+    const SerialPortType = isNodeSerialAvailable() ?
+      SerialPort : ChromeSerialPort.SerialPort;
+
+    return new SerialPortType(portName, {
+      baudRate: SERIAL_BAUD
+    });
   }
 
   /**

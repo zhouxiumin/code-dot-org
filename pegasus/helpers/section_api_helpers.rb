@@ -22,33 +22,23 @@ class DashboardStudent
   def self.create(params)
     name = !params[:name].to_s.empty? ? params[:name].to_s : 'New Student'
     gender = valid_gender?(params[:gender]) ? params[:gender] : nil
-    provider = supported_provider?(params[:provider]) ? params[:provider] : 'sponsored'
     birthday = age_to_birthday(params[:age]) ?
       age_to_birthday(params[:age]) : params[:birthday]
 
     created_at = DateTime.now
 
-    data =
+    row = Dashboard.db[:users].insert(
       {
         name: name,
         user_type: 'student',
-        provider: provider,
+        provider: 'sponsored',
         gender: gender,
         birthday: birthday,
         created_at: created_at,
         updated_at: created_at,
         username: UserHelpers.generate_username(Dashboard.db[:users], name)
       }.merge(random_secrets)
-    if provider == 'sponsored'
-      row = Dashboard.db[:users].insert(data)
-    else
-      uid = params[:uid].to_s
-      data[:uid] = uid
-      row = Dashboard.db[:users].first(provider: provider, uid: uid)
-      if row.nil?
-        row = Dashboard.db[:users].insert(data)
-      end
-    end
+    )
     return nil unless row
 
     row
@@ -170,11 +160,6 @@ class DashboardStudent
     VALID_GENDERS.include?(gender)
   end
 
-  SUPPORTED_PROVIDERS = %w(google_oauth2)
-  def self.supported_provider?(provider)
-    SUPPORTED_PROVIDERS.include?(provider)
-  end
-
   def self.age_to_birthday(age)
     age = age.to_i
     return nil if age == 0
@@ -208,6 +193,57 @@ class DashboardStudent
   end
 end
 
+class DashboardCourseExperiments
+  # Fetches a list of all experiments pertaining to courses and caches the
+  # result.
+  # @return [Array[String] An array of experiment names.
+  @@course_experiments = nil
+  def self.course_experiments
+    @@course_experiments ||= Dashboard.db[:course_scripts].
+      exclude(experiment_name: nil).
+      all.
+      map {|cs| cs[:experiment_name]}
+  end
+
+  # Fetches course experiment data from the dashboard DB and returns
+  # a map such that map[user_id][experiment_name] is true if the user
+  # belongs to the specified experiment. Caches the map so that the
+  # database fetch is only done once per frontend.
+  # @return [Hash[Hash[Boolean]]] A 2-dimensional map from user id and
+  # experiment name to boolean.
+  @@course_experiment_map = nil
+  @@course_experiment_map_last_update = 0
+  MAX_COURSE_EXPERIMENT_CACHE_SEC = 60
+  def self.course_experiment_map
+    @@course_experiment_map = nil if Time.now > @@course_experiment_map_last_update + MAX_COURSE_EXPERIMENT_CACHE_SEC
+    @@course_experiment_map ||= {}.tap do |map|
+      @@course_experiment_map_last_update = Time.now
+      Dashboard.db[:experiments].
+        where(name: course_experiments, type: 'SingleUserExperiment').
+        all.
+        each do |row|
+        user_id = row[:min_user_id]
+        map[user_id] ||= {}
+        map[user_id][row[:name]] = true
+      end
+    end
+  end
+
+  def self.has_experiment?(user_id, experiment_name)
+    raise "experiment_name is required" unless experiment_name && !experiment_name.empty?
+    !!course_experiment_map[user_id] && course_experiment_map[user_id][experiment_name]
+  end
+
+  def self.has_any_experiment?(user_id)
+    !!course_experiment_map[user_id]
+  end
+
+  def self.clear_caches
+    @@course_experiments = nil
+    @@course_experiment_map = nil
+  end
+end
+
 class DashboardSection
   def initialize(row)
     @row = row
@@ -234,6 +270,8 @@ class DashboardSection
   def self.clear_caches
     @@script_cache = {}
     @@course_cache = {}
+    @@alternate_course_scripts = nil
+    DashboardCourseExperiments.clear_caches
   end
 
   # @typedef AssignableInfo Hash
@@ -247,28 +285,19 @@ class DashboardSection
   # @option [Number] :position
   # @option [Number] :category_priority
 
-  # Sections can be assigned to both courses and scripts. We want to make sure
-  # we give teacher dashboard the same information for both sets of assignables,
-  # which we accomplish via this shared method
+  # Get the info for our script/course, and translate strings if needed.
   # @param course_or_script [Course|Script] A row object from either our courses
   #   or scripts dashboard db tables.
   # @param hidden [Boolean] True if the passed in item is hidden
   # @return AssignableInfo
   def self.assignable_info(course_or_script, hidden=false)
-    name = ScriptConstants.teacher_dashboard_name(course_or_script[:name])
-    first_category = ScriptConstants.categories(course_or_script[:name])[0] || 'other'
-    position = ScriptConstants.position_in_category(name, first_category)
-    category_priority = ScriptConstants.category_priority(first_category)
-    name = I18n.t("#{name}_name", default: name)
-    name += " *" if hidden
-    {
-      id: course_or_script[:id],
-      name: name,
-      script_name: course_or_script[:name],
-      category: I18n.t("#{first_category}_category_name", default: first_category),
-      position: position,
-      category_priority: category_priority,
-    }
+    info = ScriptConstants.assignable_info(course_or_script)
+    info[:name] = I18n.t("#{info[:name]}_name", default: info[:name])
+    info[:name] += " *" if hidden
+
+    info[:category] = I18n.t("#{info[:category]}_category_name", default: info[:category])
+
+    info
   end
 
   @@script_cache = {}
@@ -278,46 +307,93 @@ class DashboardSection
   # @param user_id [Integer]
   # @return AssignableInfo[]
   def self.valid_scripts(user_id = nil)
+    has_any_experiment = DashboardCourseExperiments.has_any_experiment?(user_id)
+    # Users with course experiments enabled effectively lose their hidden
+    # script access permissions to avoid unnecessary complexity.
+    with_hidden = !has_any_experiment && user_id && Dashboard.hidden_script_access?(user_id)
+    scripts = valid_default_scripts(user_id, with_hidden)
+    return scripts unless has_any_experiment
+    scripts.map {|script| alternate_script_info(user_id, script)}
+  end
+
+  def self.valid_default_scripts(user_id, with_hidden)
     # some users can see all scripts, even those marked hidden
-    script_cache_key = I18n.locale.to_s +
-      ((user_id && Dashboard.hidden_script_access?(user_id)) ? "-all" : "-valid")
+    script_cache_key = I18n.locale.to_s + (with_hidden ? "-all" : "-valid")
 
     # only do this query once because in prod we only change scripts
     # when deploying (technically this isn't true since we are in
     # pegasus and scripts are owned by dashboard...)
-    return @@script_cache[script_cache_key] if @@script_cache.key?(script_cache_key)
+    if @@script_cache.key?(script_cache_key) && !rack_env?(:levelbuilder)
+      return @@script_cache[script_cache_key]
+    end
 
     # don't crash when loading environment before database has been created
     return {} unless (Dashboard.db[:scripts].count rescue nil)
 
-    where_clause = Dashboard.hidden_script_access?(user_id) ? "" : "hidden = 0"
+    where_clause = with_hidden ? "" : "hidden = 0"
 
     # cache result if we have to actually run the query
-    @@script_cache[script_cache_key] =
+    scripts =
       Dashboard.db[:scripts].
         where(where_clause).
         select(:id, :name, :hidden).
         all.
         map {|script| assignable_info(script, script[:hidden])}
+    @@script_cache[script_cache_key] = scripts unless rack_env?(:levelbuilder)
+    scripts
+  end
+
+  def self.alternate_script_info(user_id, script)
+    alternate_course_script = alternate_course_scripts.find do |cs|
+      cs[:default_script_id] == script[:id] &&
+        DashboardCourseExperiments.has_experiment?(user_id, cs[:experiment_name])
+    end
+    if alternate_course_script
+      alternate_script = Dashboard.db[:scripts].first(id: alternate_course_script[:script_id])
+      # create a defensive copy so that we don't change what's in the cache
+      return script.merge(
+        id: alternate_script[:id],
+        name: I18n.t("#{alternate_script[:name]}_name", default: alternate_script[:name]),
+        script_name: alternate_script[:name]
+      )
+    end
+    script
+  end
+
+  # Caches and returns the course script rows which have experiments enabled.
+  # Array[row]] Array of rows from the course_scripts table.
+  @@alternate_course_scripts = nil
+  def self.alternate_course_scripts
+    @@alternate_course_scripts ||= Dashboard.db[:course_scripts].
+      exclude(experiment_name: nil).
+      all
   end
 
   @@course_cache = {}
   # Mimic the behavior of valid_scripts, but return courses instead. Also simpler
   # in that we don't have to worry about hidden courses.
+  # This is now only used to check to see if we have a valid_course_id when assigning
+  # a course to a section. This code could be simplified, as all we really want
+  # now is a list of course_ids. However, because we'd ultimately like this to
+  # all live in dashboard, I'm leaving this in its unsimplified form for now.
   # @return AssignableInfo[]
   def self.valid_courses
     course_cache_key = I18n.locale.to_s
 
-    return @@course_cache[course_cache_key] if @@course_cache.key?(course_cache_key)
+    if @@course_cache.key?(course_cache_key) && !rack_env?(:levelbuilder)
+      return @@course_cache[course_cache_key]
+    end
 
     return {} unless (Dashboard.db[:courses].count rescue nil)
 
-    @@course_cache[course_cache_key] = Dashboard.db[:courses].
+    courses = Dashboard.db[:courses].
       select(:id, :name).
       all.
       # Only return courses we've whitelisted in ScriptConstants
       select {|course| ScriptConstants.script_in_category?(:full_course, course[:name])}.
       map {|course| assignable_info(course)}
+    @@course_cache[course_cache_key] = courses unless rack_env?(:levelbuilder)
+    courses
   end
 
   # Gets a list of valid scripts in which progress tracking has been disabled via
@@ -330,15 +406,17 @@ class DashboardSection
   end
 
   # @param script_id [String] id of the script we're checking the validity of
-  # @return [Script|nil] The valid script if we have one, otherwise nil
-  def self.valid_script_id?(script_id)
-    valid_scripts.find {|script| script[:id] == script_id.to_i}
+  # @param user_id [Integer] id of the user we are checking for, in case they
+  #   are in any course experiments, which would give them different valid scripts
+  # @return [Boolean] Whether or not script_id is a valid script ID.
+  def self.valid_script_id?(script_id, user_id = nil)
+    valid_scripts(user_id).any? {|script| script[:id] == script_id.to_i}
   end
 
   # @param script_id [String] id of the course we're checking the validity of
-  # @return [Course|nil] The valid course if we have one, otherwise nil
+  # @return [Boolean] Wheter or not the course_id is a valid course ID.
   def self.valid_course_id?(course_id)
-    valid_courses.find {|course| course[:id] == course_id.to_i}
+    valid_courses.any? {|course| course[:id] == course_id.to_i}
   end
 
   def self.create(params)
@@ -349,7 +427,7 @@ class DashboardSection
       params[:login_type].to_s == 'none' ? 'email' : params[:login_type].to_s
     login_type = 'word' unless valid_login_type?(login_type)
     grade = valid_grade?(params[:grade].to_s) ? params[:grade].to_s : nil
-    script_id = params[:script] && valid_script_id?(params[:script][:id]) ?
+    script_id = params[:script] && valid_script_id?(params[:script][:id], params[:user][:id]) ?
       params[:script][:id].to_i : params[:script_id]
     course_id = params[:course_id] && valid_course_id?(params[:course_id]) ?
       params[:course_id].to_i : nil
@@ -371,6 +449,7 @@ class DashboardSection
           code: CodeGeneration.random_unique_code(length: 6),
           stage_extras: stage_extras,
           pairing_allowed: pairing_allowed,
+          hidden: false,
           created_at: created_at,
           updated_at: created_at,
         }
@@ -381,7 +460,7 @@ class DashboardSection
       raise
     end
 
-    if params[:script] && valid_script_id?(params[:script][:id])
+    if params[:script] && valid_script_id?(params[:script][:id], params[:user][:id])
       DashboardUserScript.assign_script_to_user(params[:script][:id].to_i, params[:user][:id])
     end
 
@@ -567,7 +646,8 @@ class DashboardSection
       script: script,
       course_id: @row[:course_id],
       teachers: teachers,
-      students: students
+      students: students,
+      studentCount: students.count,
     )
   end
 
@@ -581,6 +661,7 @@ class DashboardSection
       code: @row[:code],
       stage_extras: @row[:stage_extras],
       pairing_allowed: @row[:pairing_allowed],
+      hidden: @row[:hidden],
     }
   end
 
@@ -595,6 +676,7 @@ class DashboardSection
     fields[:grade] = params[:grade] if valid_grade?(params[:grade])
     fields[:stage_extras] = params[:stage_extras]
     fields[:pairing_allowed] = params[:pairing_allowed]
+    fields[:hidden] = params[:hidden] unless params[:hidden].nil?
 
     if params[:course_id] && valid_course_id?(params[:course_id])
       fields[:course_id] = params[:course_id].to_i
@@ -606,10 +688,14 @@ class DashboardSection
       fields[:course_id] = nil
     end
 
-    if params[:script] && valid_script_id?(params[:script][:id])
+    if params[:script] && valid_script_id?(params[:script][:id], user_id)
       fields[:script_id] = params[:script][:id].to_i
       DashboardUserScript.assign_script_to_section(fields[:script_id], section_id)
       DashboardUserScript.assign_script_to_user(fields[:script_id], user_id)
+    elsif !params[:course_id] && !params[:script_id]
+      # If a null course (no choice or decide later) is chosen, then update the course and script to be nil
+      fields[:course_id] = nil
+      fields[:script_id] = nil
     end
 
     rows_updated = Dashboard.db[:sections].
@@ -628,6 +714,8 @@ class DashboardSection
       :sections__stage_extras___stage_extras,
       :sections__pairing_allowed___pairing_allowed,
       :sections__login_type___login_type,
+      :sections__sharing_disabled___sharing_disabled,
+      :sections__hidden___hidden,
       :sections__grade___grade,
       :sections__script_id___script_id,
       :sections__course_id___course_id,

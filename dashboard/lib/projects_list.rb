@@ -4,13 +4,17 @@ module ProjectsList
   # Maximum number of projects of each type that can be requested.
   MAX_LIMIT = 100
 
-  # List of valid project types, excluding 'all' which is also valid.
-  PUBLISHED_PROJECT_TYPES = %w(
-    applab
-    gamelab
-    playlab
-    artist
-  ).freeze
+  # A hash map from project group name to a list of publishable project types in
+  # that group.
+  PUBLISHED_PROJECT_TYPE_GROUPS = {
+    applab: ['applab'],
+    gamelab: ['gamelab'],
+    playlab: ['playlab', 'gumball', 'infinity', 'iceage'],
+    artist: ['artist', 'frozen'],
+    minecraft: ['minecraft_adventurer', 'minecraft_designer'],
+    events: %w(starwars starwarsblocks starwarsblocks_hour flappy bounce sports basketball),
+    k1: ['artist_k1', 'playlab_k1'],
+  }.freeze
 
   class << self
     # Look up every project of every student in the section which is not hidden or deleted.
@@ -18,14 +22,17 @@ module ProjectsList
     # @param section [Section]
     # @return [Array<Hash>] An array with each entry representing a project.
     def fetch_section_projects(section)
+      section_students = section.students
       [].tap do |projects_list_data|
-        section.students.each do |student|
-          student_storage_id = PEGASUS_DB[:user_storage_ids].where(user_id: student.id).first
-          next unless student_storage_id
-          PEGASUS_DB[:storage_apps].where(storage_id: student_storage_id[:id], state: 'active').each do |project|
+        student_storage_ids = PEGASUS_DB[:user_storage_ids].
+          where(user_id: section_students.pluck(:id)).
+          select_hash(:user_id, :id)
+        section_students.each do |student|
+          next unless student_storage_id = student_storage_ids[student.id]
+          PEGASUS_DB[:storage_apps].where(storage_id: student_storage_id, state: 'active').each do |project|
             # The channel id stored in the project's value field may not be reliable
             # when apps are remixed, so recompute the channel id.
-            channel_id = storage_encrypt_channel_id(student_storage_id[:id], project[:id])
+            channel_id = storage_encrypt_channel_id(student_storage_id, project[:id])
             project_data = get_project_row_data(student, project, channel_id)
             projects_list_data << project_data if project_data
           end
@@ -37,7 +44,7 @@ module ProjectsList
     #   {
     #     applab: [{...}, {...}, {...}]
     #   }
-    # when a single project type is requested, or the following when all types
+    # when a single project group is requested, or the following when all types
     # are requested:
     #   {
     #     applab: [{...}, {...}, {...}]
@@ -45,24 +52,24 @@ module ProjectsList
     #     playlab: [{...}, {...}, {...}]
     #     artist: [{...}, {...}, {...}]
     #   }
-    # @param project_type [String] Type of project to retrieve listed in
-    # PUBLISHED_PROJECT_TYPES, or 'all' to retrieve a list of each project type.
-    # @param limit [Integer] Maximum number of projects to retrieve of each type.
+    # @param project_group [String] Project group to retrieve. Must be one of
+    # PUBLISHED_PROJECT_TYPE_GROUPS.keys, or 'all' to retrieve all project groups.
+    # @param limit [Integer] Maximum number of projects to retrieve from each group.
     #   Must be between 1 and MAX_LIMIT, inclusive.
     # @param published_before [string] String representing a DateTime before
     #   which to search for the requested projects. Must not be specified
     #   when requesting all project types. Optional.
     # @return [Hash<Array<Hash>>] A hash of lists of published projects.
-    def fetch_published_projects(project_type, limit:, published_before:)
+    def fetch_published_projects(project_group, limit:, published_before:)
       unless limit && limit.to_i >= 1 && limit.to_i <= MAX_LIMIT
         raise ArgumentError, "limit must be between 1 and #{MAX_LIMIT}"
       end
-      if project_type == 'all'
+      if project_group == 'all'
         raise ArgumentError, 'Cannot specify published_before when requesting all project types' if published_before
-        return fetch_published_project_types(PUBLISHED_PROJECT_TYPES, limit: limit)
+        return fetch_published_project_types(PUBLISHED_PROJECT_TYPE_GROUPS.keys, limit: limit)
       end
-      raise ArgumentError, "invalid project type: #{project_type}" unless PUBLISHED_PROJECT_TYPES.include?(project_type)
-      fetch_published_project_types([project_type], limit: limit, published_before: published_before)
+      raise ArgumentError, "invalid project type: #{project_group}" unless PUBLISHED_PROJECT_TYPE_GROUPS.keys.include?(project_group.to_sym)
+      fetch_published_project_types([project_group.to_s], limit: limit, published_before: published_before)
     end
 
     private
@@ -88,53 +95,55 @@ module ProjectsList
       }.with_indifferent_access
     end
 
-    def fetch_published_project_types(project_types, limit:, published_before: nil)
+    def project_and_user_fields
+      [
+        :storage_apps__id___id,
+        :storage_apps__storage_id___storage_id,
+        :storage_apps__value___value,
+        :storage_apps__project_type___project_type,
+        :storage_apps__published_at___published_at,
+        :users__name___name,
+        :users__birthday___birthday,
+        :users__properties___properties,
+      ]
+    end
+
+    def fetch_published_project_types(project_groups, limit:, published_before: nil)
       users = "dashboard_#{CDO.rack_env}__users".to_sym
       {}.tap do |projects|
-        project_types.map do |type|
-          projects[type] = PEGASUS_DB[:storage_apps].
-            select_append(Sequel[:storage_apps][:id].as(:channel_id)).
+        project_groups.map do |project_group|
+          project_types = PUBLISHED_PROJECT_TYPE_GROUPS[project_group]
+          projects[project_group] = PEGASUS_DB[:storage_apps].
+            select(*project_and_user_fields).
             join(:user_storage_ids, id: :storage_id).
             join(users, id: :user_id).
-            where(state: 'active', project_type: type, abuse_score: 0).
+            where(state: 'active', project_type: project_types, abuse_score: 0).
             where {published_before.nil? || published_at < DateTime.parse(published_before)}.
             exclude(published_at: nil).
             order(Sequel.desc(:published_at)).
             limit(limit).
-            map {|project| get_published_project_data project}
+            map {|project_and_user| get_published_project_and_user_data project_and_user}.compact
         end
       end
     end
 
-    def get_published_project_data(project)
-      project_value = project[:value] ? JSON.parse(project[:value]) : {}
-      channel_id = storage_encrypt_channel_id(project[:storage_id], project[:channel_id])
-      {
-        channel: channel_id,
-        name: project_value['name'],
-        thumbnailUrl: make_cacheable(project_value['thumbnailUrl']),
-        # Note that we are using the new :project_type field rather than extracting
-        # it from :value. :project_type might not be present in unpublished projects.
-        type: project[:project_type],
-        publishedAt: project[:published_at],
-        # For privacy reasons, include only the first initial of the student's name.
-        studentName: User.initial(project[:name]),
-        studentAgeRange: student_age_range(project),
-      }.with_indifferent_access
-    end
-
-    def make_cacheable(url)
-      url.sub('/v3/files/', '/v3/files-public/') if url
-    end
-
-    AGE_CUTOFFS = [18, 13, 8, 4].freeze
-
-    # Return the highest age range applicable to the student, e.g.
-    # 18+, 13+, 8+ or 4+
-    def student_age_range(project)
-      age = UserHelpers.age_from_birthday(project[:birthday])
-      age_cutoff = AGE_CUTOFFS.find {|cutoff| cutoff <= age}
-      age_cutoff ? "#{age_cutoff}+" : nil
+    # Extracts published project data from a row that is a join of the
+    # storage_apps and user tables.
+    #
+    # @param [hash] the join of storage_apps and user tables for a published project.
+    #  See project_and_user_fields for which fields it contains.
+    # @returns [hash, nil] containing feilds relevant to the published project or
+    #  nil when the user has sharing_disabled = true
+    def get_published_project_and_user_data(project_and_user)
+      return nil if get_sharing_disabled_from_properties(project_and_user[:properties])
+      channel_id = storage_encrypt_channel_id(project_and_user[:storage_id], project_and_user[:id])
+      StorageApps.get_published_project_data(project_and_user, channel_id).merge(
+        {
+          # For privacy reasons, include only the first initial of the student's name.
+          studentName: UserHelpers.initial(project_and_user[:name]),
+          studentAgeRange: UserHelpers.age_range_from_birthday(project_and_user[:birthday]),
+        }
+      ).with_indifferent_access
     end
   end
 end

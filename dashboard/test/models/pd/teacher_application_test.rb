@@ -299,13 +299,13 @@ class Pd::TeacherApplicationTest < ActiveSupport::TestCase
     application = create :pd_teacher_application
     accepted_program = create :pd_accepted_program, teacher_application: application
 
-    assert_difference 'Pd::AcceptedProgram.count', -1 do
+    assert_destroys(Pd::AcceptedProgram) do
       application.update!(accepted_workshop: nil)
     end
     refute Pd::AcceptedProgram.exists?(accepted_program.id)
 
     # idempotence
-    assert_no_difference 'Pd::AcceptedProgram.count' do
+    assert_does_not_destroy(Pd::AcceptedProgram) do
       application.update!(accepted_workshop: nil)
     end
   end
@@ -480,6 +480,83 @@ class Pd::TeacherApplicationTest < ActiveSupport::TestCase
     application.reload
     application.secondary_email = 'another@email.com'
     assert application.valid?
+  end
+
+  test 'emails are downcased before validation' do
+    application = build(
+      :pd_teacher_application,
+      primary_email: 'MixedCase@Example.Net',
+      secondary_email: 'AlsoMixed@Example.Net'
+    )
+
+    application.validate
+    assert_equal 'mixedcase@example.net', application.primary_email
+    assert_equal 'alsomixed@example.net', application.secondary_email
+  end
+
+  test 'move_to_user by email' do
+    application = create :pd_teacher_application
+    new_teacher = create :teacher
+
+    assert application.update move_to_user: new_teacher.email, primary_email: new_teacher.email
+    assert_equal new_teacher, application.user
+  end
+
+  test 'move_to_user by id' do
+    application = create :pd_teacher_application
+    new_teacher = create :teacher
+
+    assert application.update move_to_user: new_teacher.id, primary_email: new_teacher.email
+    assert_equal new_teacher, application.user
+  end
+
+  test 'move_to_user must be a real user' do
+    application = create :pd_teacher_application
+
+    application.move_to_user = 'nonexistent'
+    refute application.valid?
+    assert_equal 1, application.errors.count
+    assert_equal 'Move to user not found', application.errors.full_messages.first
+  end
+
+  test 'move_to_user must have an email that matches the primary_email' do
+    application = create :pd_teacher_application
+    new_user = create :teacher
+    application.move_to_user = new_user.email
+
+    refute application.valid?
+    assert_equal 1, application.errors.count
+    assert_equal(
+      'Move to user must match primary email. If you intend to move to this user, '\
+        "also update the primary_email to #{new_user.email}",
+      application.errors.full_messages.first
+    )
+  end
+
+  test 'move_to_user email must not have a conflicting teacher application' do
+    teacher = create :teacher
+    new_teacher = create :teacher
+    conflicting_application = create :pd_teacher_application, user: new_teacher
+    application = create :pd_teacher_application, user: teacher
+
+    application.move_to_user = new_teacher.email
+    application.primary_email = new_teacher.email
+
+    refute application.valid?
+    assert_equal 1, application.errors.count
+    assert_equal(
+      "Move to user already has a teacher application, id: #{conflicting_application.id}",
+      application.errors.full_messages.first
+    )
+  end
+
+  test 'application is valid for deleted owner after clear_data' do
+    application = create :pd_teacher_application
+    application.user.destroy!
+
+    application.clear_data
+
+    assert application.reload.valid?, application.errors.messages
   end
 
   private

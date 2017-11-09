@@ -20,6 +20,8 @@ require 'cdo/cron'
 
 # Branch off existing AMI for adhoc.
 image_id = rack_env?(:adhoc) ? adhoc_image_id : IMAGE_ID
+
+self.log_resource_filter.push %w(FrontendLaunchConfig ASGCount)
 -%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
@@ -135,7 +137,7 @@ Resources:
         SuspendProcesses: [ScheduledActions]
         WaitOnResourceSignals: true
     Properties:
-      VPCZoneIdentifier: <%= subnets.first(2).to_json %>
+      VPCZoneIdentifier: <%= subnets.to_json %>
       LaunchConfigurationName: !Ref FrontendLaunchConfig
       MinSize: !GetAtt [ASGCount, MinSize]
       MaxSize: !GetAtt [ASGCount, MaxSize]
@@ -340,14 +342,16 @@ Resources:
     Properties:
       DistributionConfig: <%= AWS::CloudFront.distribution_config(
         app.downcase.to_sym,
-        "origin-#{subdomain}",
+        subdomain('origin'),
         app == 'Dashboard' ?
-          [studio_subdomain] :
-          [subdomain] + (['i18n'] + CDO.partners).map{|x| "#{cname}-#{x}.#{domain}"},
+          # TODO: Set prod_stack_name: false after production cutover to CloudFormation-managed CloudFront distribution,
+          # to update CloudFront aliases to the production CNAME entries.
+          [studio_subdomain(prod_stack_name: true)] :
+          [subdomain(prod_stack_name: true)] + (['i18n'] + CDO.partners).map{|x| subdomain(nil, x, prod_stack_name: true)},
         {
           AcmCertificateArn: certificate_arn,
           MinimumProtocolVersion: 'TLSv1',
-          SslSupportMethod: 'sni-only'
+          SslSupportMethod: domain == 'code.org' ? 'vip' : 'sni-only'
         }
       )%>
 <%   end -%>
@@ -358,7 +362,7 @@ Resources:
     Properties:
       HostedZoneName: <%=domain%>.
       RecordSets:
-        - Name: "origin-<%=subdomain%>"
+        - Name: "<%=subdomain('origin')%>"
           Type: A
           AliasTarget:
             HostedZoneId: !GetAtt [LoadBalancer, CanonicalHostedZoneNameID]

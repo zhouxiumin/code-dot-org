@@ -11,18 +11,30 @@
 #  flex_category     :string(255)
 #  lockable          :boolean          default(FALSE), not null
 #  relative_position :integer          not null
+#  properties        :text(65535)
 #
 # Indexes
 #
 #  index_stages_on_script_id  (script_id)
 #
 
+require 'cdo/shared_constants'
+
 # Ordered partitioning of script levels within a script
 # (Intended to replace most of the functionality in Game, due to the need for multiple app types within a single Game/Stage)
 class Stage < ActiveRecord::Base
+  include LevelsHelper
+  include SharedConstants
+  include Rails.application.routes.url_helpers
+  include SerializedProperties
+
   has_many :script_levels, -> {order('position ASC')}, inverse_of: :stage
   has_one :plc_learning_module, class_name: 'Plc::LearningModule', inverse_of: :stage, dependent: :destroy
   belongs_to :script, inverse_of: :stages
+
+  serialized_attrs %w(
+    stage_extras_disabled
+  )
 
   # A stage has an absolute position and a relative position. The difference between the two is that relative_position
   # only accounts for other stages that have the same lockable setting, so if we have two lockable stages followed
@@ -138,6 +150,10 @@ class Stage < ActiveRecord::Base
         stage_data[:finishText] = I18n.t('nav.header.finished_hoc')
       end
 
+      if !unplugged? && !stage_extras_disabled
+        stage_data[:stage_extras_level_url] = script_stage_extras_url(script.name, stage_position: relative_position)
+      end
+
       stage_data
     end
     stage_summary.freeze
@@ -166,14 +182,21 @@ class Stage < ActiveRecord::Base
     }
   end
 
+  # For a given set of students, determine when the given stage is locked for
+  # each student.
+  # The design of a lockable stage is that there is (optionally) some number of
+  # non-LevelGroup levels, followed by a single LevelGroup. This last one is the
+  # only one which is truly locked/unlocked. The stage is considered locked if
+  # and only ifthe final assessment level is locked. When in this state, the UI
+  # will show the entire stage as being locked, but if you know the URL of the other
+  # levels, you're still able to go to them and submit answers.
   def lockable_state(students)
     return unless lockable?
 
-    # assumption that lockable selfs have a single (assessment) level
-    if script_levels.length > 1
-      raise 'Expect lockable stages to have a single script_level'
+    script_level = script_levels.last
+    unless script_level.assessment?
+      raise 'Expect lockable stages to have an assessment as their last level'
     end
-    script_level = script_levels[0]
     return students.map do |student|
       user_level = student.last_attempt_for_any script_level.levels, script_id: script.id
       # user_level_data is provided so that we can get back to our user_level when updating. in some cases we
@@ -197,5 +220,15 @@ class Stage < ActiveRecord::Base
     return script_levels unless Script.should_cache?
 
     script_levels.map {|sl| Script.cache_find_script_level(sl.id)}
+  end
+
+  def last_progression_script_level
+    script_levels.reverse.find(&:valid_progression_level?)
+  end
+
+  def next_level_path_for_stage_extras(user)
+    level_to_follow = script_levels.last.next_level
+    level_to_follow = level_to_follow.next_level while level_to_follow.try(:locked_or_hidden?, user)
+    level_to_follow ? build_script_level_path(level_to_follow) : script_completion_redirect(script)
   end
 end

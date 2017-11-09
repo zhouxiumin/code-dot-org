@@ -5,7 +5,9 @@ import trackEvent from '../../util/trackEvent';
 var studioApp = require('../../StudioApp').singleton;
 var craftMsg = require('./locale');
 import CustomMarshalingInterpreter from '../../lib/tools/jsinterpreter/CustomMarshalingInterpreter';
-var GameController = require('./game/GameController');
+import GameController from '@code-dot-org/craft/src/js/game/GameController';
+import EventType from '@code-dot-org/craft/src/js/game/Event/EventType';
+import {convertActionPlaneEntitiesToConfig} from '@code-dot-org/craft/src/js/game/LevelMVC/Utils';
 var dom = require('../../dom');
 var houseLevels = require('./houseLevels');
 var levelbuilderOverrides = require('./levelbuilderOverrides');
@@ -15,8 +17,10 @@ var AppView = require('../../templates/AppView');
 var CraftVisualizationColumn = require('./CraftVisualizationColumn');
 import {getStore} from '../../redux';
 import Sounds from '../../Sounds';
+import experiments from '../../util/experiments';
 
 import {TestResults} from '../../constants';
+import {captureThumbnailFromCanvas} from '../../util/thumbnail';
 
 var MEDIA_URL = '/blockly/media/craft/';
 
@@ -247,6 +251,7 @@ Craft.init = function (config) {
       },
       loadAudio: function () {},
       afterInject: function () {
+        // NaN if not set
         var slowMotionURLParam = parseFloat((location.search.split('customSlowMotion=')[1] || '').split('&')[0]);
         Craft.gameController = new GameController({
           Phaser: window.Phaser,
@@ -257,7 +262,7 @@ Craft.init = function (config) {
             play: studioApp().playAudio.bind(studioApp())
           },
           debug: false,
-          customSlowMotion: slowMotionURLParam, // NaN if not set
+          customSlowMotion: config.level.isTestLevel ? 0.5 : slowMotionURLParam,
           /**
            * First asset packs to load while video playing, etc.
            * Won't matter for levels without delayed level initialization
@@ -430,6 +435,8 @@ Craft.onHouseSelected = function (houseType) {
 };
 
 Craft.initializeAppLevel = function (levelConfig) {
+  convertActionPlaneEntitiesToConfig(levelConfig);
+
   var houseBlocks = JSON.parse(window.localStorage.getItem('craftHouseBlocks'));
   Craft.foldInCustomHouseBlocks(houseBlocks, levelConfig);
 
@@ -450,6 +457,7 @@ Craft.initializeAppLevel = function (levelConfig) {
     groundDecorationPlane: levelConfig.groundDecorationPlane,
     actionPlane: levelConfig.actionPlane,
     fluffPlane: fluffPlane,
+    entities: levelConfig.entities,
     playerStartPosition: levelConfig.playerStartPosition,
     playerStartDirection: levelConfig.playerStartDirection,
     playerName: Craft.getCurrentCharacter(),
@@ -472,13 +480,13 @@ Craft.minAssetsForLevelWithCharacter = function (levelNumber) {
 Craft.minAssetsForLevelNumber = function (levelNumber) {
   switch (levelNumber) {
     case 1:
-      return ['levelOneAssets'];
+      return ['adventurerLevelOneAssets'];
     case 2:
-      return ['levelTwoAssets'];
+      return ['adventurerLevelTwoAssets'];
     case 3:
-      return ['levelThreeAssets'];
+      return ['adventurerLevelThreeAssets'];
     default:
-      return ['allAssetsMinusPlayer'];
+      return ['adventurerAllAssetsMinusPlayer'];
   }
 };
 
@@ -492,7 +500,7 @@ Craft.afterLoadAssetsForLevel = function (levelNumber) {
       return Craft.minAssetsForLevelNumber(3);
     default:
       // May want to push this to occur on level with video
-      return ['allAssetsMinusPlayer'];
+      return ['adventurerAllAssetsMinusPlayer'];
   }
 };
 
@@ -510,16 +518,7 @@ Craft.niceToHaveAssetsForLevel = function (levelNumber) {
     case 1:
       return ['playerSteve', 'playerAlex'];
     default:
-      return ['allAssetsMinusPlayer'];
-  }
-};
-
-/** Folds array B on top of array A */
-Craft.foldInArray = function (arrayA, arrayB) {
-  for (var i = 0; i < arrayA.length; i++) {
-    if (arrayB[i] !== '') {
-      arrayA[i] = arrayB[i];
-    }
+      return ['adventurerAllAssetsMinusPlayer'];
   }
 };
 
@@ -544,6 +543,7 @@ Craft.reset = function (first) {
   if (first) {
     return;
   }
+  captureThumbnailFromCanvas($('#minecraft-frame canvas')[0]);
   Craft.gameController.codeOrgAPI.resetAttempt();
 };
 
@@ -610,6 +610,16 @@ Craft.executeUserCode = function () {
 
   var appCodeOrgAPI = Craft.gameController.codeOrgAPI;
   appCodeOrgAPI.startCommandCollection();
+  appCodeOrgAPI.registerEventCallback(null, event => {
+    if (event.eventType === EventType.WhenUsed && event.targetType === 'sheep') {
+      appCodeOrgAPI.drop(null, 'wool', event.targetIdentifier);
+    }
+    if (event.eventType === EventType.WhenTouched && event.targetType === 'creeper') {
+      appCodeOrgAPI.flashEntity(null, event.targetIdentifier);
+      appCodeOrgAPI.explodeEntity(null, event.targetIdentifier);
+    }
+  });
+
   // Run user generated code, calling appCodeOrgAPI
   var code = '';
   let codeBlocks = Blockly.mainBlockSpace.getTopBlocks(true);
@@ -620,61 +630,69 @@ Craft.executeUserCode = function () {
   code = Blockly.Generator.blocksToCode('JavaScript', codeBlocks);
   CustomMarshalingInterpreter.evalWith(code, {
     moveForward: function (blockID) {
-      appCodeOrgAPI.moveForward(studioApp().highlight.bind(studioApp(), blockID));
+      appCodeOrgAPI.moveForward(studioApp().highlight.bind(studioApp(), blockID), 'Player');
     },
     turnLeft: function (blockID) {
-      appCodeOrgAPI.turn(studioApp().highlight.bind(studioApp(), blockID), "left");
+      appCodeOrgAPI.turnLeft(studioApp().highlight.bind(studioApp(), blockID), 'Player');
     },
     turnRight: function (blockID) {
-      appCodeOrgAPI.turn(studioApp().highlight.bind(studioApp(), blockID), "right");
+      appCodeOrgAPI.turnRight(studioApp().highlight.bind(studioApp(), blockID), 'Player');
     },
     destroyBlock: function (blockID) {
-      appCodeOrgAPI.destroyBlock(studioApp().highlight.bind(studioApp(), blockID));
+      appCodeOrgAPI.destroyBlock(studioApp().highlight.bind(studioApp(), blockID), 'Player');
     },
     shear: function (blockID) {
-      appCodeOrgAPI.destroyBlock(studioApp().highlight.bind(studioApp(), blockID));
+      appCodeOrgAPI.use(studioApp().highlight.bind(studioApp(), blockID), 'Player');
     },
     tillSoil: function (blockID) {
-      appCodeOrgAPI.tillSoil(studioApp().highlight.bind(studioApp(), blockID));
+      appCodeOrgAPI.tillSoil(studioApp().highlight.bind(studioApp(), blockID), 'Player');
     },
     whilePathAhead: function (blockID, callback) {
       // if resurrected, move blockID be last parameter to fix "Show Code"
       appCodeOrgAPI.whilePathAhead(studioApp().highlight.bind(studioApp(), blockID),
           '',
+          'Player',
           callback);
     },
     whileBlockAhead: function (blockID, blockType, callback) {
       // if resurrected, move blockID be last parameter to fix "Show Code"
       appCodeOrgAPI.whilePathAhead(studioApp().highlight.bind(studioApp(), blockID),
           blockType,
+          'Player',
           callback);
     },
     ifLavaAhead: function (callback, blockID) {
       // if resurrected, move blockID be last parameter to fix "Show Code"
       appCodeOrgAPI.ifBlockAhead(studioApp().highlight.bind(studioApp(), blockID),
           "lava",
+          'Player',
           callback);
     },
     ifBlockAhead: function (blockType, callback, blockID) {
       appCodeOrgAPI.ifBlockAhead(studioApp().highlight.bind(studioApp(), blockID),
           blockType,
+          'Player',
           callback);
     },
     placeBlock: function (blockType, blockID) {
       appCodeOrgAPI.placeBlock(studioApp().highlight.bind(studioApp(), blockID),
-        blockType);
+        blockType,
+        'Player');
     },
     plantCrop: function (blockID) {
       appCodeOrgAPI.placeBlock(studioApp().highlight.bind(studioApp(), blockID),
-        "cropWheat");
+        "cropWheat",
+        'Player');
     },
     placeTorch: function (blockID) {
       appCodeOrgAPI.placeBlock(studioApp().highlight.bind(studioApp(), blockID),
-        "torch");
+        "torch",
+        'Player');
     },
     placeBlockAhead: function (blockType, blockID) {
       appCodeOrgAPI.placeInFront(studioApp().highlight.bind(studioApp(), blockID),
-        blockType);
+        blockType,
+        'Player');
     }
   }, {legacy: true});
   appCodeOrgAPI.startAttempt(function (success, levelModel) {
@@ -726,6 +744,7 @@ Craft.reportResult = function (success) {
       Craft.gameController.getScreenshot() : null;
   // Grab the encoded image, stripping out the metadata, e.g. `data:image/png;base64,`
   const encodedImage = image ? encodeURIComponent(image.split(',')[1]) : null;
+  const saveToProjectGallery = experiments.isEnabled('publishMoreProjects');
 
   studioApp().report({
     app: 'craft',
@@ -756,7 +775,8 @@ Craft.reportResult = function (success) {
           generatedCodeDescription: craftMsg.generatedCodeDescription()
         },
         feedbackImage: image,
-        showingSharing: Craft.initialConfig.level.freePlay
+        showingSharing: Craft.initialConfig.level.freePlay,
+        saveToProjectGallery,
       });
     }
   });

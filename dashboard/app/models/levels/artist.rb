@@ -35,6 +35,7 @@ class Artist < Blockly
     discard_background
     shapeways_url
     disable_sharing
+    solution_image_url
   )
 
   def xml_blocks
@@ -233,6 +234,9 @@ class Artist < Blockly
     <category name="Variables" custom="VARIABLE"></category>
     <category name="Picker">
       <block type="pick_one"></block>
+    </category>
+    <category name="Comment">
+      <block type="comment" />
     </category>
     XML
   end

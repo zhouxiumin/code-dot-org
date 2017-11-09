@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import React from 'react';
+import React, {PropTypes} from 'react';
 var Radium = require('radium');
 var connect = require('react-redux').connect;
 var ProtectedStatefulDiv = require('./ProtectedStatefulDiv');
@@ -13,6 +13,7 @@ import {shouldUseRunModeIndicators} from '../redux/selectors';
 import SettingsCog from '../lib/ui/SettingsCog';
 import ShowCodeToggle from './ShowCodeToggle';
 import {singleton as studioApp} from '../StudioApp';
+import ProjectTemplateWorkspaceIcon from './ProjectTemplateWorkspaceIcon';
 
 var styles = {
   headerIcon: {
@@ -31,16 +32,17 @@ var styles = {
 
 var CodeWorkspace = React.createClass({
   propTypes: {
-    isRtl: React.PropTypes.bool.isRequired,
-    editCode: React.PropTypes.bool.isRequired,
-    readonlyWorkspace: React.PropTypes.bool.isRequired,
-    showDebugger: React.PropTypes.bool.isRequired,
-    style: React.PropTypes.bool,
-    isRunning: React.PropTypes.bool.isRequired,
-    pinWorkspaceToBottom: React.PropTypes.bool.isRequired,
-    isMinecraft: React.PropTypes.bool.isRequired,
-    runModeIndicators: React.PropTypes.bool.isRequired,
-    withSettingsCog: React.PropTypes.bool,
+    isRtl: PropTypes.bool.isRequired,
+    editCode: PropTypes.bool.isRequired,
+    readonlyWorkspace: PropTypes.bool.isRequired,
+    showDebugger: PropTypes.bool.isRequired,
+    style: PropTypes.bool,
+    isRunning: PropTypes.bool.isRequired,
+    pinWorkspaceToBottom: PropTypes.bool.isRequired,
+    showProjectTemplateWorkspaceIcon: PropTypes.bool.isRequired,
+    isMinecraft: PropTypes.bool.isRequired,
+    runModeIndicators: PropTypes.bool.isRequired,
+    withSettingsCog: PropTypes.bool,
   },
 
   shouldComponentUpdate: function (nextProps) {
@@ -186,6 +188,7 @@ var CodeWorkspace = React.createClass({
               isMinecraft={props.isMinecraft}
             />
             <PaneSection id="workspace-header">
+              {props.showProjectTemplateWorkspaceIcon && <ProjectTemplateWorkspaceIcon/>}
               <span id="workspace-header-span">
                 {props.readonlyWorkspace ? msg.readonlyWorkspaceHeader() : msg.workspaceHeaderShort()}
               </span>
@@ -223,6 +226,7 @@ module.exports = connect(state => ({
   isRunning: !!state.runState.isRunning,
   showDebugger: !!(state.pageConstants.showDebugButtons || state.pageConstants.showDebugConsole),
   pinWorkspaceToBottom: state.pageConstants.pinWorkspaceToBottom,
+  showProjectTemplateWorkspaceIcon: !!state.pageConstants.showProjectTemplateWorkspaceIcon,
   isMinecraft: !!state.pageConstants.isMinecraft,
   runModeIndicators: shouldUseRunModeIndicators(state),
 }))(Radium(CodeWorkspace));

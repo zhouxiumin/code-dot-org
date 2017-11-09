@@ -49,7 +49,6 @@ p,pre,span {
 }
 
 body {
-  @include unselectable;
   -webkit-tap-highlight-color: transparent;
   padding: 0;
   font-style: normal;
@@ -86,6 +85,10 @@ h3 {
 hr {
   border-color: $teal;
   border-bottom: none;
+}
+
+#classroom-sections hr {
+  border-color: $gray;
 }
 
 th {
@@ -250,7 +253,7 @@ img.video_thumbnail {
   }
 
   padding-top: 0;
-  min-height: 85px;
+  min-height: 60px;
   position: relative;
 
   .header {
@@ -403,6 +406,8 @@ img.video_thumbnail {
 
   .user_menu {
     margin-top: 6px;
+    height: 38px;
+    user-select: none;
 
     .user_name {
       max-width: 120px;
@@ -413,10 +418,28 @@ img.video_thumbnail {
       white-space: nowrap;
     }
 
-    .user_menu_glyph {
-      display: inline-block;
-      float: left;
-      padding-left: 5px;
+    .user_menu_arrow_down,
+    .user_menu_arrow_up {
+      font-size: 30px;
+    }
+
+    .user_options {
+      position: absolute;
+      top: 55px;
+      right: 55px;
+    }
+
+    .user_menu_arrow_down,
+    .user_menu_arrow_up {
+      font-size: 25px;
+    }
+
+    .user_menu_arrow_up {
+      margin-top: -3px;
+    }
+
+    .user_menu_arrow_down {
+      margin-top: -2px;
     }
   }
 
@@ -431,12 +454,6 @@ img.video_thumbnail {
   #hamburger {
     padding-top: 4px;
     padding-left: 20px;
-  }
-
-  .user_menu {
-    .user_options {
-      top: 37px;
-    }
   }
 
   #signin_button .header_button {
@@ -460,8 +477,16 @@ img.video_thumbnail {
   width: 100%;
   height: 320px;
   z-index: -1000;
-  background-position: 80% 50%;
+  background-position: 90% 10%;
   background-size: cover;
+
+  &.header-banner-short {
+    height: 180px;
+  }
+
+  &.header-banner-courses {
+    background-position: 75% 10%;
+  }
 }
 
 .sign_in.show_only_on_mobile {
@@ -635,6 +660,25 @@ $small-footer-standard-width: 400px;
   }
 }
 
+.responsive-content-mobile-footer {
+  position: relative;
+
+  @media screen and (min-width: 970px) {
+    & {
+      display: none;
+    }
+  }
+}
+
+.responsive-content-desktop-footer {
+  @media screen and (max-width: 969px) {
+    & {
+      display: none;
+    }
+  }
+}
+
+
 #more-menu {
   display: none;
   position: absolute;
@@ -745,6 +789,9 @@ body.embedded_iframe {
   }
 }
 
+.responsive_full_container {
+  padding: 0 10px 10px 10px;
+}
 
 
 $default-modal-width: 640px;
@@ -836,6 +883,11 @@ $default-modal-width: 640px;
   .ui-tabs {
     height: 100%;
     width: 100%;
+
+    video {
+      width: 100%;
+      max-height: 100%;
+    }
   }
 }
 
@@ -958,7 +1010,9 @@ $default-modal-width: 640px;
 }
 
 .header_level_container {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .header_level {
@@ -976,8 +1030,7 @@ $default-modal-width: 640px;
 
 .header_right {
   position: absolute;
-  float: left;
-  right: 25px;
+  right: 16px;
 }
 
 .freeplay_links {
@@ -1097,7 +1150,7 @@ input.header_input {
 
 #codeApp.pin_bottom {
   position: absolute;
-  top: 85px;
+  top: 60px;
   left: $codeApp-left-margin;
   right: 25px;
   bottom: 10px;
@@ -1155,6 +1208,7 @@ input.header_input {
       font-size: 20px;
       line-height: 24px;
       padding-right: 30px;
+      display: table-cell;
     }
     img {
       float: left;
@@ -1551,7 +1605,6 @@ a.download-video {
   }
   .sidebar {
     padding-left: 20px;
-    border-left: 1px solid $dark_charcoal;
   }
 }
 
@@ -1689,6 +1742,10 @@ a.download-video {
     padding-left: 10px;
     vertical-align: middle;
   }
+  .error {
+    color: $red;
+    margin-bottom: 8px;
+  }
   select {
     width: 234px;
   }
@@ -1711,7 +1768,31 @@ a.download-video {
   .devise_links {
     padding-left: 20px;
     margin-top: 20px;
-    border-left: 1px solid $black;
+  }
+}
+
+.devise_link_section {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  .or_break {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+    margin-left: -20px;
+    .vertical_bar {
+      width: 2px;
+      height: 100%;
+      background-color: $light_gray;
+    }
+    p {
+      font-size: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      color: $teal;
+      font-weight: bolder;
+    }
   }
 }
 

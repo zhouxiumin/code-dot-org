@@ -2,14 +2,14 @@
  * Fires an event when page visibility changes.
  * Wrap a component in this to listen for page visibility.
  */
-import React from 'react';
+import React, {PropTypes} from 'react';
 
-const VisibilitySensor = React.createClass({
-  propTypes: {
-    onVisible: React.PropTypes.func,
-    onHidden: React.PropTypes.func,
-    children: React.PropTypes.element
-  },
+export default class VisibilitySensor extends React.Component {
+  static propTypes = {
+    onVisible: PropTypes.func,
+    onHidden: PropTypes.func,
+    children: PropTypes.element
+  };
 
   componentDidMount() {
     // Adapted from https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API#Example
@@ -28,15 +28,15 @@ const VisibilitySensor = React.createClass({
       // Handle page visibility change
       document.addEventListener(this.visibilityChange, this.handleVisibilityChange, false);
     }
-  },
+  }
 
   componentWillUnmount() {
     if (this.visibilityChange) {
       document.removeEventListener(this.visibilityChange, this.handleVisibilityChange);
     }
-  },
+  }
 
-  handleVisibilityChange() {
+  handleVisibilityChange = () => {
     if (document[this.hidden]) {
       if (this.props.onHidden) {
         this.props.onHidden();
@@ -46,7 +46,7 @@ const VisibilitySensor = React.createClass({
         this.props.onVisible();
       }
     }
-  },
+  };
 
   render() {
     if (this.props.children) {
@@ -55,6 +55,5 @@ const VisibilitySensor = React.createClass({
       return null;
     }
   }
-});
-export default VisibilitySensor;
+}
 

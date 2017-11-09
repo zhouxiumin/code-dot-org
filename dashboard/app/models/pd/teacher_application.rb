@@ -74,10 +74,10 @@ class Pd::TeacherApplication < ActiveRecord::Base
   has_one :accepted_program, class_name: 'Pd::AcceptedProgram', foreign_key: :teacher_application_id, dependent: :destroy
   accepts_nested_attributes_for :accepted_program, allow_destroy: true
 
-  validates_presence_of :user
+  validates_presence_of :user, unless: :owner_deleted?
   validates_presence_of :application
-  validates_presence_of :primary_email
-  validates_presence_of :secondary_email
+  validates_presence_of :primary_email, unless: :owner_deleted?
+  validates_presence_of :secondary_email, unless: :owner_deleted?
   validates_email_format_of :primary_email, allow_blank: true
   validates_email_format_of :secondary_email, allow_blank: true
   validates_email_format_of :principal_email, allow_blank: true
@@ -95,9 +95,15 @@ class Pd::TeacherApplication < ActiveRecord::Base
     end
   end
 
-  validate :primary_email_must_match_user_email, if: -> {primary_email_changed? || user_id_changed?}
+  before_validation :downcase_emails
+  def downcase_emails
+    primary_email.try :downcase!
+    secondary_email.try :downcase!
+  end
+
+  validate :primary_email_must_match_user_email, if: -> {!owner_deleted? && (primary_email_changed? || user_id_changed?)}
   def primary_email_must_match_user_email
-    return unless user
+    return unless user && move_to_user.blank?
     unless primary_email_matches_user_email?
       message = (
         if admin_managed
@@ -115,7 +121,7 @@ class Pd::TeacherApplication < ActiveRecord::Base
   attr_accessor :admin_managed, :move_to_user
 
   def primary_email_matches_user_email?
-    user && user.hashed_email == Digest::MD5.hexdigest(primary_email)
+    user && user.hashed_email == User.hash_email(primary_email)
   end
 
   def primary_email=(email)
@@ -389,20 +395,40 @@ class Pd::TeacherApplication < ActiveRecord::Base
     end
   end
 
-  validate :move_to_user_is_a_user
-  def move_to_user_is_a_user
-    if move_to_user.present? && lookup_move_to_user.nil?
-      errors.add :move_to_user, 'not found'
+  validate :validate_move_to_user
+  # The move_to_user must be a real user,
+  # whose email must match the primary_email,
+  # and must not have a conflicting teacher application
+  def validate_move_to_user
+    return unless move_to_user.present?
+    found_user = lookup_move_to_user
+
+    # must be a real user
+    return errors.add :move_to_user, 'not found' if found_user.nil?
+
+    # user's email must match the primary_email
+    unless found_user.email == primary_email
+      errors.add :move_to_user, 'must match primary email. '\
+        "If you intend to move to this user, also update the primary_email to #{found_user.email}"
+    end
+
+    # must not have a conflicting teacher application (which can't be saved due to the unique index on user_id)
+    duplicate_teacher_application = Pd::TeacherApplication.find_by user: found_user
+    if duplicate_teacher_application
+      errors.add :move_to_user, "already has a teacher application, id: #{duplicate_teacher_application.id}"
     end
   end
 
-  before_validation :save_move_to_user
+  before_save :save_move_to_user
   def save_move_to_user
-    found_user = lookup_move_to_user
-    return unless found_user
+    return unless move_to_user.present?
+    # We know this is a valid user from validate_move_to_user
+    self.user = lookup_move_to_user
+  end
 
-    self.user = found_user
-    accepted_program.update!(user: found_user) if accepted_program
+  before_save :update_accepted_program_user
+  def update_accepted_program_user
+    accepted_program.update!(user: user) if accepted_program && user_id_changed?
   end
 
   def lookup_move_to_user
@@ -413,6 +439,17 @@ class Pd::TeacherApplication < ActiveRecord::Base
     else
       User.find_by_email_or_hashed_email move_to_user
     end
+  end
+
+  # Returns whether the owner of the application, determined by `user_id` is soft-deleted. Returns
+  # false if the user does not exist.
+  # @return [Boolean] Whether the owner of the application is soft-deleted.
+  def owner_deleted?
+    !!User.with_deleted.find_by_id(user_id).try(:deleted?)
+  end
+
+  def clear_data
+    update!(primary_email: '', secondary_email: '')
   end
 
   private

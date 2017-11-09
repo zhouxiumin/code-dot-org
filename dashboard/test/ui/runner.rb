@@ -35,6 +35,7 @@ ENV['BUILD'] = `git rev-parse --short HEAD`
 
 GIT_BRANCH = GitUtils.current_branch
 COMMIT_HASH = RakeUtils.git_revision
+LOCAL_LOG_DIRECTORY = 'log'
 S3_LOGS_BUCKET = 'cucumber-logs'
 S3_LOGS_PREFIX = ENV['CI'] ? "circle/#{ENV['CIRCLE_BUILD_NUM']}" : "#{Socket.gethostname}/#{GIT_BRANCH}"
 LOG_UPLOADER = AWS::S3::LogUploader.new(S3_LOGS_BUCKET, S3_LOGS_PREFIX, true)
@@ -90,9 +91,9 @@ def parse_options
     options.pegasus_domain = 'test.code.org'
     options.dashboard_domain = 'test-studio.code.org'
     options.hourofcode_domain = 'test.hourofcode.com'
+    options.csedweek_domain = 'test.csedweek.org'
     options.local = nil
     options.html = nil
-    options.out = nil
     options.maximize = nil
     options.auto_retry = false
     options.magic_retry = false
@@ -128,6 +129,7 @@ def parse_options
         options.pegasus_domain = 'localhost.code.org:3000'
         options.dashboard_domain = 'localhost-studio.code.org:3000'
         options.hourofcode_domain = 'localhost.hourofcode.com:3000'
+        options.csedweek_domain = 'localhost.csedweek.org:3000'
       end
       opts.on("-p", "--pegasus Domain", String, "Specify an override domain for code.org, e.g. localhost.code.org:3000") do |p|
         if p == 'localhost:3000'
@@ -146,6 +148,9 @@ def parse_options
       opts.on("--hourofcode Domain", String, "Specify an override domain for hourofcode.com, e.g. localhost.hourofcode.com:3000") do |d|
         options.hourofcode = d
       end
+      opts.on("--csedweek Domain", String, "Specify an override domain for csedweek.org, e.g. localhost.csedweek.org:3000") do |d|
+        options.csedweek = d
+      end
       opts.on("-r", "--real_mobile_browser", "Use real mobile browser, not emulator") do
         options.realmobile = 'true'
       end
@@ -157,9 +162,6 @@ def parse_options
       end
       opts.on("--html", "Use html reporter") do
         options.html = true
-      end
-      opts.on("--out filename", String, "Output filename") do |f|
-        options.out = f
       end
       opts.on("-e", "--eyes", "Run only Applitools eyes tests") do
         options.run_eyes_tests = true
@@ -223,11 +225,15 @@ def parse_options
       options.pegasus_db_access = true if options.pegasus_domain =~ /test/
       options.dashboard_db_access = true if options.dashboard_domain =~ /test/
     end
+
+    if options.config
+      options.local = false
+    end
   end
 end
 
 def select_browser_configs(options)
-  if options.local && !options.config
+  if options.local
     SeleniumBrowser.ensure_chromedriver_running
     return [{
       'browser': 'local',
@@ -269,9 +275,10 @@ def prefix_string(msg, prefix)
 end
 
 def open_log_files
-  $success_log = File.open('success.log', 'w')
-  $error_log = File.open('error.log', 'w')
-  $errorbrowsers_log = File.open('errorbrowsers.log', 'w')
+  FileUtils.mkdir_p(LOCAL_LOG_DIRECTORY)
+  $success_log = File.open("#{LOCAL_LOG_DIRECTORY}/success.log", 'w')
+  $error_log = File.open("#{LOCAL_LOG_DIRECTORY}/error.log", 'w')
+  $errorbrowsers_log = File.open("#{LOCAL_LOG_DIRECTORY}/errorbrowsers.log", 'w')
 end
 
 def close_log_files
@@ -537,12 +544,8 @@ def how_many_reruns?(test_run_string)
       return 1
     else
       flakiness_message = "#{test_run_string} is #{flakiness} flaky. "
-      recommended_reruns = (1 / Math.log(flakiness, 0.05)).ceil - 1 # reruns = runs - 1
-      max_reruns = [1, [recommended_reruns, 5].min].max # Clamp rerun count to range 1-5
-
-      confidence = (1.0 - flakiness**(max_reruns + 1)).round(3)
+      max_reruns, confidence = TestFlakiness.recommend_reruns(flakiness)
       flakiness_message += "we should rerun #{max_reruns} times for #{confidence} confidence"
-
       if max_reruns < 2
         $lock.synchronize {puts flakiness_message.green}
       elsif max_reruns < 3
@@ -559,12 +562,12 @@ end
 
 def html_output_filename(test_run_string, options)
   if options.html
-    options.out || "#{test_run_string}_output.html"
+    "#{LOCAL_LOG_DIRECTORY}/#{test_run_string}_output.html"
   end
 end
 
 def rerun_filename(test_run_string)
-  "#{test_run_string}.rerun"
+  "#{LOCAL_LOG_DIRECTORY}/#{test_run_string}.rerun"
 end
 
 def cucumber_arguments_for_browser(browser, options)
@@ -578,6 +581,7 @@ def cucumber_arguments_for_browser(browser, options)
   arguments += ' -t ~@no_circle' if options.is_circle
   arguments += ' -t ~@no_ie' if browser['browserName'] == 'Internet Explorer'
   arguments += ' -t ~@chrome' if browser['browserName'] != 'chrome' && !options.local
+  arguments += ' -t ~@chrome_before_62' if browser['browserName'] != 'chrome' || browser['version'].to_i == 0 || browser['version'].to_i >= 62
   arguments += ' -t ~@no_safari' if browser['browserName'] == 'Safari'
   arguments += ' -t ~@no_firefox' if browser['browserName'] == 'firefox'
   arguments += ' -t ~@webpurify' unless CDO.webpurify_key
@@ -638,6 +642,7 @@ def run_feature(browser, feature, options)
   run_environment['PEGASUS_TEST_DOMAIN'] = options.pegasus_domain if options.pegasus_domain
   run_environment['DASHBOARD_TEST_DOMAIN'] = options.dashboard_domain if options.dashboard_domain
   run_environment['HOUROFCODE_TEST_DOMAIN'] = options.hourofcode_domain if options.hourofcode_domain
+  run_environment['CSEDWEEK_TEST_DOMAIN'] = options.csedweek_domain if options.csedweek_domain
   run_environment['TEST_LOCAL'] = options.local ? "true" : "false"
   run_environment['MAXIMIZE_LOCAL'] = options.maximize ? "true" : "false"
   run_environment['MOBILE'] = browser['mobile'] ? "true" : "false"

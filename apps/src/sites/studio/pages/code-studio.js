@@ -10,6 +10,9 @@ import $ from 'jquery';
 
 import { getStore } from '@cdo/apps/code-studio/redux';
 import { setRtlFromDOM } from '@cdo/apps/code-studio/isRtlRedux';
+import initSigninState from '@cdo/apps/code-studio/initSigninState';
+import initResponsive from '@cdo/apps/code-studio/responsive';
+
 const store = getStore();
 store.dispatch(setRtlFromDOM());
 
@@ -43,7 +46,7 @@ if ($.fn.modal) {
 
 window.dashboard = window.dashboard || {};
 window.dashboard.clientState = require('@cdo/apps/code-studio/clientState');
-window.dashboard.createCallouts = require('@cdo/apps/code-studio/callouts');
+window.dashboard.createCallouts = require('@cdo/apps/code-studio/callouts').default;
 window.dashboard.hashEmail = require('@cdo/apps/code-studio/hashEmail');
 window.dashboard.levelCompletions = require('@cdo/apps/code-studio/levelCompletions');
 window.dashboard.popupWindow = require('@cdo/apps/code-studio/popup-window');
@@ -105,3 +108,5 @@ window.CDOSounds = Sounds.getSingleton();
 
 checkForUnsupportedBrowsersOnLoad();
 initHamburger();
+initSigninState();
+initResponsive();

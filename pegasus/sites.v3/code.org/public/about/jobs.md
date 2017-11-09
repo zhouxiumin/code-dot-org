@@ -10,7 +10,7 @@ theme: responsive
 <div class="col-50" style="padding-right: 10px">
 
 <% facebook = {:u=>'https://youtu.be/mTGSiB4kB18'} %>
-<% twitter = {:url=>'https://youtu.be/mTGSiB4kB18', :related=>'codeorg', :text=>'Meet the team at @codeorg and see how much they’ve done in just a few years!'} %>
+<% twitter = {:url=>'https://youtu.be/mTGSiB4kB18', :related=>'codeorg', :text=>"Meet the team at @codeorg and see how much they’ve done! (Thanks #{get_random_donor_twitter} for supporting @codeorg)"} %>
 
 <%=view :display_video_thumbnail, id: "codeorg_recruiting", video_code: "mTGSiB4kB18", play_button: 'center', facebook: facebook, twitter: twitter, letterbox: "false", download_path: "http://videos.code.org/social/about-codeorg.mp4" %>
 
@@ -27,259 +27,92 @@ Launched in 2013, Code.org&reg; is a non-profit dedicated to expanding access to
 
 **We are currently hiring for:**
 
-- **Education**
- 	- [Program Associate](#education)
-- **Marketing**
-	- [Marketing Coordinator](#markcoordinator)
-- **Outreach**
-	- [International Outreach Manager](#intl)
-	- [Regional Manager](#regional)
-- **Product and Engineering**
-	- [Data Engineer](#data)
-	- [Senior Software Engineer](#senior)
-	- [Software Engineer](#eng)
+- **Administration**
+	- [Director of Finance & Accounting](#accounting)
+	
+- **Internships**
+	- [Education Team intern (Chicago, IL)](#edintern)
 
 **Don't see a good fit, but have passion for our mission? Send a resume and drop us a line to let us know why you want to work for us and what you would bring to our team.**
 
 To apply, email resume, cover letter, portfolio, and/or LinkedIn profile to <a href="mailto:jobs@code.org">jobs@code.org</a>.
 
-## <a name="education"href="#education">Program Associate, Education Team (Seattle, WA)</a>
+
+## <a name="accounting"href="#accounting">Director of Accounting & Finance (Seattle, WA)</a>
+
 **Job Summary:**
 
-We are looking for a detail and customer-service oriented Program Associate to join Code.org’s Education team. The Education team is responsible for the creation of Code.org’s K-12 computer science courses and the success of Code.org professional development across the U.S. The Education team supports a network of roughly 400 computer science facilitators in their delivery of these professional development workshops, which have reached over 50,000 teachers in the past 3 years.
-
-This is a full time, exempt position based in our Seattle office. Under the direction of the Education Program Manager for the middle and high school programs, the Program Associate provides operational and administrative assistance. This role will work collaboratively with the other team members supporting teachers and facilitators.
+Code.org is looking for an experienced Director of Accounting & Finance to oversee all finance and accounting workflows, including regulatory and financial reporting, budget and forecast preparation, contract administration, and the development of internal control policies and procedures.
 
 Responsibilities of the position include:
 
-- Communicating through our customer service system to respond to professional development questions from teachers and facilitators in a timely manner
-- Communicating via email and other channels to send reminders, requests for information, and other updates to facilitators
-- Tracking and managing the teacher recruitment numbers and application status for Code.org’s year-long Professional Learning Program
-- Coordinating and scheduling the interview and onboarding process for new facilitators
-- Updating and ensuring the accuracy of our teacher and facilitator lists
-- Documenting common workflows and processes for internal use
-For teacher and facilitator related in-person events, supporting the Events Manager with upfront and onsite logistics
-- As new programs are developed to support teachers and facilitators, this position will support the operational aspects of these programs 
+- Management of a small accounting and finance team 
+- Monitoring all aspects of the company’s accounting and financial operations, ensuring quality control over financial transactions and reporting.
+- Supervising the month and year-end close procedures, including review of journal entries, account reconciliations, and analysis of results
+- Overseeing the preparation and distribution of timely internal financial statements
+- Supervising the external audit of the company’s financial statements and preparation of annual tax return 
+- Collaborate with Controller on annual budgeting and monthly re-forecasting
+- Reviewing all payables and receivables 
+- Cash flow planning and cash management
+- Contract administration: prepare and/or negotiate standard contracts (partnerships, licensing, grants, contractors, vendors)
+- Providing data modeling and analysis, as needed
+- Supporting the Fundraising team through the development of grant budgets, including government grants
+- Developing and documenting finance and accounting processes and policies to maintain and strengthen internal controls
 
 **Experience and Qualifications:**
 
-We are looking for a customer-service oriented self-starter who is skilled in successfully delivering projects, enjoys multi-tasking, cheerfully excels under pressure, and works independently with a geographically dispersed team. Must be extremely detail-oriented, possess exceptional writing and communications ability, and be tech-savvy. Candidate should be flexible and willing to work in a fast-paced, start-up environment. 
- 
-The ideal candidate has the following qualifications:
+The ideal candidate has at least a Bachelor’s degree in Accounting, Finance, or related field and possesses the following skills:
 
-- Passion for Code.org’s mission, with experience in education preferred
-- Tech-savvy (Computer science experience/degree not required, but proficiency in working with Microsoft Office and Google Docs a must). A successful candidate will have advanced knowledge and experience with Excel and/or Google Sheets. 
-- 2-3 years experience in a customer support role
-- Has a bachelors degree (Computer science background/experience not required)
-- Ability and willingness to travel up to 15% time 
-
-
-To apply, please email resume, cover letter, and/or LinkedIn profile to <a href="mailto:jobs@code.org">jobs@code.org</a>.
-
-## <a name="markcoordinator"href="#markcoordinator">Marketing Coordinator (Seattle, WA)</a>
-
-**Job Summary:**
-
-We are looking for a Marketing Coordinator to support communications, marketing, and public relations efforts at Code.org. The Marketing Coordinator will collaborate with members of our marketing team and across the organization to make sure projects get the resources and attention they need to be successful. The Marketing Coordinator will be instrumental in ensuring the smooth execution of a multitude of activities during the annual Hour of Code campaign. The Hour of Code initiative encourages students to try computer science during Computer Science Education Week in December.
-
-Other responsibilities of the position may include:
-
-- Work with marketing team to coordinate day-to-day activities that lead to the completion of projects and tasks
-- Managing programs or projects that support our overall efforts and strategy for  social media, public relations, media coverage, and events
-- Working with our advocacy team on grassroots lobbying campaigns across the country
-- Writing, sourcing or editing compelling stories for our blog or external press
-- Producing and updating website content on code.org, csedweek.org, and hourofcode.com
-
-**Experience and Qualifications:**
-
-We are looking for a self-starter, experienced in communications, who can multi-task, excel under pressure, and work independently with a geographically dispersed team. Must be extremely detail-oriented, tech-savvy, and able to swiftly prioritize duties as needed on multiple ongoing projects. Candidate should be flexible and willing to work in a fast-paced, start-up environment.
-
-The ideal candidate has the following qualifications:
-
-- Excellent written and verbal communication skills
-- Strong copywriting and content development experience 
-- Knowledge and understanding of current trends in social media 
-- Passion for digital media and devices, an “early adopter” of digital trends
-- Familiar with methodologies of website and media tracking tools 
-- Proven ability to work effectively across a wide range of internal teams, and produce on deadline in a fast-paced environment
-- Proficient in using Google suite of applications, presentation and layout skills 
-- 2+ years of relevant experience in communications and technology
-- Bachelor’s degree in communications, public relations, related field or equivalent work experience
-- Familiarity or background in educational communications preferred, no background in Computer Science needed
-
-To apply, please email resume, cover letter, and writing sample and/or social media accounts to <a href="mailto:jobs@code.org">jobs@code.org</a>.
-
-## <a name="intl"href="#intl">International Outreach Manager (Seattle, WA preferred)</a>
-
-**Job Summary:**
-
-Code.org is looking for an International Outreach Manager to support Code.org’s outreach efforts through the development and management of our international partnerships. We are looking for an experienced program manager with passion for Computer Science education, and strengths in partnership management and communication.	
-
-Responsibilities of this position will include:
-
-- Implementing strategy, developing guidelines and roadmap for international partner engagement, and defining metrics for program success
-- Vetting and onboarding new partners 
-- Managing existing international relationships
-- Hosting partner events domestically to share the CS community’s approach to best practices for K-12 CS, and educate partners on Code.org’s approach to curriculum, professional learning, scaling CS, localization, and policy development
-- Developing collateral to support international partners using existing Code.org materials 
-- Collaborating across teams to meet the needs of our international partners; working with product, education and marketing to develop or customize products 
-
-**Experience and Qualifications:**
-
-- Passion for equity in computer science and K-12 education
-- 2+ years of developing and managing international programs; experience and aptitude for managing complex projects and relationships
-- Advanced organizational, problem solving, and project management skills
-- Bachelor’s degree required; education background prefered
-- Bilingual a plus  
-
-Candidates must be extremely detail-oriented, possess exceptional written and interpersonal communication abilities, and be tech-savvy. Must also be a self-starter, able to multi-task, excel under pressure, and work independently with a geographically dispersed team. Proficiency in working with Microsoft Office and Google Docs a must.
-
-Ability and willingness to travel (domestically) up to 25% of the time is required.
-
-To apply, please email resume, cover letter, and/or LinkedIn profile to <a href="mailto:jobs@code.org">jobs@code.org</a>.
-
-
-## <a name="regional"href="#regional">Regional Manager, Northwest (Seattle, WA preferred)</a>
-
-**Job Summary:**
-
-Code.org is looking for a Regional Manager to support our education efforts through the development, implementation, and maintenance of Code.org’s partnership model with Regional Partners. This position is highly on focused on developing relationships and building sustainability of Computer Science in a region.
-
-Responsibilities of the position include:
-
-- Outreach
-	- Recruit Regional Partners to partner with Code.org and recruit school districts to teach Computer Science in K-12 schools.
-	- Present Code.org partnership model
-	- Track partnership status
-	- Market and support the program in the region
-- Manage and support implementation for all partners in region at K-12 grade levels
-	- Evaluate and support regional partners in becoming a sustainable CS Hub in their area
-	- Develop working relationship with partners to implement partnership model, and collaborate with partners roadmap development, including metrics and oversight of partner goals
-	- Assist regional partners in district, school, and teacher recruitment/selection/retention
-	- Troubleshoot regional partnership issues
-	- Work with Education team to coordinate regional professional learning workshops for teachers
-- Collaborate with partners to market the programs in partner regions
-Represent Code.org and present the partnership model at conferences and other venues, as needed
-- Contribute to the Code.org’s and the Outreach Team’s mission and needs through collateral development, professional development, including operational support and other assigned duties.
-
-**Experience and Qualifications:**
-
-The ideal candidate has at least a Bachelor’s degree, experience collaborating with the K-12 public school system, and possesses the following skills:
-
-- Demonstrated ability to pitch the Code.org regional partner model to potential partners
-- Experience and aptitude for managing complex projects and relationships to realize successful project outcomes throughout the pitching and implementation life cycle, including potential mediation between different parties involved in partnership
-- Advanced organizational and problem solving skills
-- Understanding of and passion for equity in computer science and K-12 education
-
-Additional desired strengths include:
-
-- Experience working with schools districts or STEM education based organizations in a project implementation capacity
-- Desire to be in a collaborative, team-based work enviroment
-- Recent computer science teaching experience in a K-12 school setting
-- Strong existing connections to the computer science community 
-
-Candidates must be extremely detail-oriented, team-focused, possess exceptional written and interpersonal communication ability in English, and be tech-savvy. Must also be a self-starter, able to multi-task, excel under pressure, and work independently with a geographically dispersed team. Proficiency in working with Microsoft Office and Google Docs a must.
-
-
-To apply, please email resume, cover letter, and/or LinkedIn profile to <a href="mailto:jobs@code.org">jobs@code.org</a>.
-
-## <a name="senior"href="#senior">Senior Software Engineer (Seattle, WA)</a>
-
-**Job Summary:**
-
-Code.org is transforming computer science education and changing the world. Working at Code.org, you’ll be playing an active role in getting computer science education into all schools for all students and building the competitive workforce of the future.
-
-As a Senior Software Engineer at Code.org, you’ll be a key contributor in delivering features in Code Studio, used by tens of millions students and teachers in K-12 classrooms around the world. You’ll be part of an agile, fast-moving team where you get to deliver features to customers quickly and frequently. You’ll get to work on hard computer science problems and use some of the latest web technologies.
-
-**Experience and Qualifications:**
-
-The ideal candidate has the following qualifications:
-
-- Passion for our mission of #CSForAll
-- Bachelor’s degree with a major in Computer Science
-- 5+ years as a software engineer
-- Ability to make senior level engineering contributions including a high level of output, tackling the hardest problems, and being a guiding voice on the team 
-- Experience shipping significant features in commercial software products 
-- Expertise in some of these technologies preferred: 
-	- JavaScript
-	- React
-	- Ruby / Rails
-	- SQL/Databases/MySQL
-
-In addition, candidates:
-
+- 3+ years experience in an accounting management role, plus additional experience in an accountant role
+- 2+ years experience in contract administration  
+- Strong knowledge of GAAP and financial reporting requirements as well as financial audits
+- Experience with Quickbooks Online
+- Advanced or expert user of spreadsheets
+- Experience and aptitude for managing complex projects and reports 
+- Advanced analytical, organizational and problem solving skills
+- Be highly comfortable working in a fast-paced, ambiguous, informal work environment
+- Fund accounting experience a plus
+- Experience with government grant programs preferred
+- CPA preferred
 - Must be a U.S. Citizen or Permanent Resident
 - Must pass a pre-employment background check
 
+Candidates must be extremely detail-oriented, possess exceptional written and interpersonal communication ability in English, and be tech-savvy. Must also be a self-starter, able to multi-task, excel under pressure. Proficiency in working with Microsoft Office and Google Docs a must.
 
-To apply, please email resume, cover letter, and/or LinkedIn profile to <a href="mailto:jobs@code.org">jobs@code.org</a>.
+To apply, please email resume and cover letter to <a href="mailto:jobs@code.org">jobs@code.org</a>.
 
-## <a name="data"href="#data">Data Engineer (Seattle, WA)</a>
+## <a name="edintern"href="#edintern">Education Team Intern (Chicago, IL strongly preferred)</a>
 
-**Job Summary:**
+**Internship Summary:**
 
-Code.org is transforming computer science education and changing the world. Working at Code.org, you’ll be playing an active role in getting computer science education into all schools for all students and building the competitive workforce of the future.
+Code.org is looking for an intern to work with and support the goals of Code.org’s Education team through the development of computer science curriculum. This person will work with a variety of program leaders across multiple projects, simultaneously performing a wide range of tasks. We need someone who has quick turnaround, is responsive, and can effectively organize their priorities and task list.
 
-As Data Engineer at Code.org, you are on the front line of turning our enormous set of educational data, in many respects the world’s largest, into actionable intelligence to improve computer science education worldwide for millions of students. This is a fantastic opportunity to use your data engineering skills to have positive impact in the world.
+Responsibilities of the position include: 
 
-You’ll also be responsible for Code.org’s data engineering and be a key part of our data mission. You’ll own our data BI pipeline and warehouse, build features for BI and analysis, and ensure that our data process operates seamlessly. You’ll collaborate with our data scientist and other stakeholders to ensure we obtain the data we need, perform analysis, and turn that analysis into action. You’ll also be a privacy advocate and ensure that we continue to protect the data privacy of our millions of students.
-
-You will be working in SQL to build recurring or ad-hoc analysis. You’ll be writing back end scripts in Ruby or shell script to automate processes. You may help build back end infrastructure and APIs related to the data mission. You’ll be involved with and may help implement or change the production data schema. You’ll be working with AWS infrastructure including Redshift, DMS, and Kinesis Firehose for data warehousing and delivering data into Tableau.
-
-
-**Experience and Qualifications:**
-
-The ideal candidate has the following qualifications:
-
-- Passion for our mission of increasing access to computer science education
-- Bachelor’s degree with a major in Computer Science or related field
-- 5+ years professional experience in data or software engineering
-- Experience with any of the following:
-	- SQL and relational databases
-	- Data warehousing and BI
-	- server-side programming 
-	- building data-related infrastructure and automation
-- Experience with these specific technologies is helpful but not required:
-	- MySQL
-	- Redshift
-	- Ruby/Rails
-
-	
-In addition, candidates:
-
-- Must be a U.S. Citizen or Permanent Resident
-- Must pass a pre-employment background check
-
-To apply, please email resume, cover letter, and/or LinkedIn profile to <a href="mailto:jobs@code.org">jobs@code.org</a>.
-
-## <a name="eng"href="#eng">Software Engineer (Seattle, WA)</a>
-
-**Job Summary:**
-
-Code.org is transforming computer science education and changing the world. Working at Code.org, you’ll be playing an active role in getting computer science education into all schools for all students and building the competitive workforce of the future.
-
-As a Software Engineer at Code.org, you’ll be delivering features in Code Studio, used by tens of millions of students and teachers in K-12 classrooms around the world. You’ll be part of an agile, fast-moving team where you get to deliver features to customers quickly and frequently. You’ll get to work on hard computer science problems and use some of the latest web technologies.
+- working closely with the Education team to assist in designing, developing, and writing original curricular materials:
+	- lesson plans
+	- formative/summative assessments
+	- videos
+	- answer keys
+	- project exemplars
+	- using in-house content management tools to structure resources
 
 **Experience and Qualifications:**
 
-The ideal candidate has the following qualifications:
+The ideal candidate has experience in computer science and a background in education; has strong writing and communications skills; is a tech-savvy self-starter who is able to multi-task and excel under pressure. 
 
-- Passion for our mission of #CSForAll
-- Bachelor’s degree with a major in Computer Science
-- 3+ years as a software engineer 
-- Expertise in some of these technologies preferred: 
-	- JavaScript
-	- React
-	- Ruby / Rails
-	- SQL/Databases/MySQL
+The candidate should also have: 
 
-In addition, candidates:
+- Basic to comprehensive knowledge of computer science (required) 
+- Prior curriculum writing experience / activity design (required)
+- Proficiency in working with Microsoft Office and Google Docs (required) 
+- a Bachelor’s degree or higher in Education or Computer Science (preferred)
 
-- Must be a U.S. Citizen or Permanent Resident
-- Must pass a pre-employment background check
+Interested candidates should email a resume and cover letter, outlining how your skills and experience meet the qualifications of the position, to <a href="mailto:jobs@code.org">jobs@code.org</a>.
 
+Please include lesson plan samples that are your original work, and highlight relevant experience designing, developing, or writing implement curricular materials. 
 
-To apply, please email resume, cover letter, and/or LinkedIn profile to <a href="mailto:jobs@code.org">jobs@code.org</a>.
+You may also choose to include a LinkedIn or related online profile.
 
 
 

@@ -13,9 +13,10 @@ import {
 import {createHistory} from 'history';
 import NewWorkshop from './new_workshop';
 import Workshop from './workshop';
-import Header from './header';
+import Header from '../components/header';
 import SurveyResults from './survey_results.jsx';
 import OrganizerSurveyResults from './organizer_survey_results.jsx';
+import LocalSummerWorkshopSurveyResults from './local_summer_workshop_survey_results';
 import WorkshopIndex from './workshop_index';
 import WorkshopFilter from './workshop_filter';
 import WorkshopAttendance from './attendance/workshop_attendance';
@@ -26,9 +27,16 @@ const browserHistory = useRouterHistory(createHistory)({
   basename: ROOT_PATH
 });
 
+const WorkshopDashboardHeader = (props) => (
+  <Header
+    baseName="Workshop Dashboard"
+    {...props}
+  />
+);
+
 const WorkshopDashboard = (
   <Router history={browserHistory} >
-    <Route path="/" component={Header}>
+    <Route path="/" component={WorkshopDashboardHeader}>
       <IndexRedirect to="/workshops"/>
       <Route
         path="reports"
@@ -54,6 +62,11 @@ const WorkshopDashboard = (
         path="organizer_survey_results(/:workshopId)"
         breadcrumbs="Organizer Survey Results"
         component={OrganizerSurveyResults}
+      />
+      <Route
+        path="local_summer_workshop_survey_results(/:workshopId)"
+        breadcrumbs="Local Summer Workshop Survey Results"
+        component={LocalSummerWorkshopSurveyResults}
       />
       <Route
         path="workshops/new"

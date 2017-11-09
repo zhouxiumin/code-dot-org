@@ -40,9 +40,22 @@ class SlackTest < Minitest::Test
     assert Slack.update_topic(FAKE_CHANNEL, FAKE_TOPIC)
   end
 
+  def test_join_room
+    Slack.expects(:open).returns(stub(read: {'ok' => true}.to_json))
+    assert Slack.join_room(FAKE_CHANNEL)
+  end
+
   def test_update_topic_with_error_response
     Slack.expects(:open).returns(stub(read: {'ok' => false}.to_json))
     refute Slack.update_topic(FAKE_CHANNEL, FAKE_TOPIC)
+  end
+
+  def test_replace_user_links
+    Slack.stubs(:get_display_name).returns('elsa')
+    assert_equal 'DOTD: @elsa; DTS: yes',
+      Slack.replace_user_links('DOTD: <@SLACKID99>; DTS: yes')
+    assert_equal 'DOTD: @elsa; DTS: no (ask @elsa)',
+      Slack.replace_user_links('DOTD: <@SLACKID99>; DTS: no (ask <@SLACKID99>)')
   end
 
   def test_message

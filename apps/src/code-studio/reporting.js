@@ -3,39 +3,13 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import { TestResults } from '@cdo/apps/constants';
+import { PostMilestoneMode } from '@cdo/apps/util/sharedConstants';
 import experiments from '../util/experiments';
 var clientState = require('./clientState');
 
 var lastAjaxRequest;
 var lastServerResponse = {};
 
-/**
- * Notify the progression system of level attempt or completion.
- * Provides a response to a callback, which can provide a video to play
- * and next/previous level URLs.
- *
- * The client posts the progress JSON to the URL specified by
- * report.callback (e.g. /milestone). In the event of a failure or timeout,
- * the client relies on report.fallbackResponse (if specified) to allow
- * the user to progress.
- *
- * @param {Object} report
- * @param {string} report.callback - The url where the report should be sent.
- *        For studioApp-based levels, this is provided on initialization as
- *        appOptions.report.callback.
- * @param {Object} report.fallbackResponse - ??? I'm not sure ???
- *        For studioApp-based levels, this is provided on initialization as
- *        appOptions.report.fallback_response
- * @param {string} report.app - The app name, as defined by its model.
- * @param {string} report.level - The level name or number.  Maybe deprecated?
- * @param {number|boolean} report.result - Whether the attempt succeeded or failed.
- * @param {number} report.testResult - Additional detail on the outcome of the
- *        attempt. Standard responses seem to be zero for failures or one
- *        hundred for success.
- * @param {function} report.onComplete - Callback invoked when reporting is
- *        completed.  Is passed a single 'response' argument which contains
- *        information about what to do / where to go next.
- */
 var reporting = module.exports;
 
 reporting.getLastServerResponse = function () {
@@ -68,6 +42,7 @@ function validateType(key, value, type) {
  * This is meant in part to serve as documentation of the existing behavior. In
  * cases where I believe the behavior should potentially be different going
  * forward, I've made notes.
+ * @param {MilestoneReport} report
  */
 function validateReport(report) {
   for (var key in report) {
@@ -191,6 +166,47 @@ function validateReport(report) {
   }
 }
 
+/**
+ * @typedef  {Object} MilestoneReport
+ * @property {string} callback - The url where the report should be sent.
+ *           For studioApp-based levels, this is provided on initialization as
+ *           appOptions.report.callback.
+ * @property {?} program - contents of submitted program.
+ * @property {string} app - The app name, as defined by its model.
+ * @property {string} level - The level name or number.  Maybe deprecated?
+ * @property {number|boolean} result - Whether the attempt succeeded or failed.
+ * @property {TestResult} testResult - Additional detail on the outcome of the attempt.
+ * @property {onComplete} onComplete - Callback invoked when reporting is completed.
+ * @property {boolean} allowMultipleSends - ??
+ * @property {number} lines - number of lines of code written.
+ * @property {number} serverLevelId - ??
+ * @property {?} submitted - ??
+ * @property {?} time - ??
+ * @property {?} save_to_gallery - ??
+ * @property {?} attempt - ??
+ * @property {?} image - ??
+ * @property {boolean} pass - true if the attempt is passing.
+ * @property {boolean} gamification_enabled - true if experiment is enabled.
+ */
+
+/**
+ * @callback onComplete
+ * @param {LiveMilestoneResponse} response
+ */
+
+/**
+ * Notify the progression system of level attempt or completion.
+ *
+ * Provides a response to a callback, which can provide a video to play
+ * and next/previous level URLs.
+ *
+ * The client posts the progress JSON to the URL specified by
+ * {@link MilestoneReport.callback} (e.g. /milestone).
+ * In the event of a failure or timeout, the client relies on
+ * report.fallbackResponse (if specified) to allow the user to progress.
+ *
+ * @param {MilestoneReport} report
+ */
 reporting.sendReport = function (report) {
   // The list of report fields we want to send to the server
   const serverFields = [
@@ -229,9 +245,26 @@ reporting.sendReport = function (report) {
   // Post milestone iff the server tells us.
   // Check a second switch if we passed the last level of the script.
   // Keep this logic in sync with ActivitiesController#milestone on the server.
-  if (appOptions.postMilestone ||
-    (appOptions.postFinalMilestone && report.pass && appOptions.level.final_level)) {
+  const postMilestoneMode = appOptions.postMilestoneMode || PostMilestoneMode.all;
+  let postMilestone;
 
+  switch (postMilestoneMode) {
+    case PostMilestoneMode.all:
+      postMilestone = true;
+      break;
+    case PostMilestoneMode.successful_runs_and_final_level_only:
+      postMilestone = report.pass || appOptions.level.final_level;
+      break;
+    case PostMilestoneMode.final_level_only:
+      postMilestone = appOptions.level.final_level;
+      break;
+    default:
+      console.error("Unexpected postMilestoneMode " + postMilestoneMode);
+      postMilestone = true;
+      break;
+  }
+
+  if (postMilestone) {
     var thisAjax = $.ajax({
       type: 'POST',
       url: report.callback,

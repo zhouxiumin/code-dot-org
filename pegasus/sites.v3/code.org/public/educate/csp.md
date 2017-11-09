@@ -1,42 +1,43 @@
 ---
 title: Computer Science Principles
-nav: educate_nav
 video_player: true
 theme: responsive
+style_min: true
 ---
+
+<link href="/shared/css/course-blocks.css", type="text/css", rel="stylesheet"></link>
 
 # Computer Science Principles
 
 ## <a name="whatis"></a>What is CS Principles?
 
-[col-50]
-
 In fall 2016, the College Board launched its newest AP&reg; course, AP Computer Science Principles. The course introduces students to the foundational concepts of computer science and challenges them to explore how computing and technology can impact the world. The AP Program designed AP Computer Science Principles with the goal of creating leaders in computer science fields and attracting and engaging those who are traditionally underrepresented with essential computing tools and multidisciplinary opportunities. 
 
 For more information, visit [http://collegeboard.org/APCSP](http://collegeboard.org/APCSP).
 
-[/col-50]
+<div class="col-50" style="padding-right: 20px;">
+
+<%=view :display_video_thumbnail, id: "intro_csp", video_code: "jQm0z894CG0", play_button: 'center', letterbox: 'false' %>
+
+</div>
 
 [col-50]
 
-<div style="margin-left: 20px;">
-
-<%=view :display_video_thumbnail, id: "intro_csp", video_code: "jQm0z894CG0", play_button: 'center' %>
-
-</div>
+<%= view :course_wide_block, cta_link: CDO.studio_url('/courses/csp'), cta_text: 'View course', lesson_plans: 'https://curriculum.code.org/csp', img: CDO.code_org_url('/shared/images/banners/small-purple-icons.png'), title: 'Computer Science Principles', ages: 'Recommended for Grades 9-12', description: 'Computer Science Principles is a course designed to prepare students (and teachers) who are new to computer science for the AP CS Principles exam. The course covers many topics including the Internet, Big Data and Privacy, and Programming and Algorithms.'%>
 
 [/col-50]
 
 <div style="clear: both;"></div>
 
-## <a name="what"></a>Apply for Professional Learning
+## <a name="what"></a>Professional Learning
 
- **General applications for the 2017-18 CS Principles Professional Learning Program have closed.** However, all of our curriculum is available at no cost for anyone, anywhere to teach even if you have not attended our workshops. You can use the full curriculum or specific lessons.
- 
-We still have a few seats available at TeacherCon Phoenix, our five-day workshop for CS Principles, July 16 - 21. If you are available for those dates, please apply now!
+Our middle and high school programs offer year-round support. The program kicks off with a 5-day summer workshop where you'll have an opportunity to work hands-on with the curriculum and meet other teachers from your area. Throughout the year, we offer online support for upcoming units, forum support, and 1-day quarterly workshops. You don't need any prior computer science experience to get started. And teachers love it! 90% rank it the best professional development ever.
 
-[<button>Apply now!</button>](/educate/professional-learning/cs-principles-apply)
+**General applications for the 2018-19 CS Principles Professional Learning Program will open in January, 2018.** 
 
+If you are interested in joining in 2018-19, sign up below to be added to our contact list. 
+
+[<button>Tell me when applications open!</button>](https://studio.code.org/pd/regional_partner_contact/new) [<button>Learn more</button>](/educate/professional-learning/cs-principles)
 
 ## Code.org's AP CS Principles Curriculum
 
@@ -45,11 +46,11 @@ We still have a few seats available at TeacherCon Phoenix, our five-day workshop
  * [Code.org 2017-18 AP CS Principles Endorsed Syllabus](/files/CSPSyllabusMay2017.pdf)
  * [Instructions: How to add our authorized syllabus to your AP Course Audit](https://drive.google.com/open?id=0B21d4g64Z62YSVptX3JKcWdiVWlKWVc5MWlXQldkUmVxLXFZ)
 
-&nbsp; &nbsp; &nbsp; [<button>View Lesson Plans</button>](https://curriculum.code.org/csp) &nbsp; &nbsp; <a href="<%= CDO.studio_url('/courses/csp')%>" name="CS Principles Course"><button>View Course on Code.org</button></a>
+<div style="clear:both"></div>
 
 ## <a name="overview"></a>Curriculum Resources and Features
 
-- [One-pager](/files/programs/CSP_1-pager_final.pdf) describing the course
+- [One-pager](/files/CSPrinciples_1-pager.pdf) describing the course
 - [2017 AP Endorsed Syllabus and Overview](/files/CSPSyllabusMay2017.pdf)
 - [Curriculum Guide](/files/CSP_CurriculumGuide_2017_forWeb.pdf) for teachers
 - [Course Materials List](#materials)
@@ -59,7 +60,7 @@ We still have a few seats available at TeacherCon Phoenix, our five-day workshop
 
 
 <center><img src="/images/animated-examples/lessonplans.png" width="90%""></center>
-<div style="margin-top: 5px;"><a href="https://curriculum.code.org/csp">curriuclum.code.org</a> has daily lesson plans that come with detailed instructions, activity guides, assessments, standards mappings, and more</div>
+<div style="margin-top: 5px;"><a href="https://curriculum.code.org/csp">curriculum.code.org</a> has daily lesson plans that come with detailed instructions, activity guides, assessments, standards mappings, and more</div>
 
 
 [/col-33]
@@ -189,7 +190,8 @@ Yes, please! Our desire is that the curriculum will be a living document and not
 
 #### How/Where can I get professional development for this course?
 We have an in-person professional learning program...
-[here](/educate/professional-learning/cs-principles-apply)
+[click here](/educate/professional-learning/cs-principles) to learn more! 
+<p> Already interested? [Join our contact list](https://docs.google.com/a/code.org/forms/d/e/1FAIpQLSd-fZMKFQNioPK98aGJ4dCt1tMWTEb6yvy_Qie4YTo-hp7q4w/viewform?c=0&w=1) and we'll be in touch when applications are open.
 
 <br />
 

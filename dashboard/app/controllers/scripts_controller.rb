@@ -107,10 +107,19 @@ class ScriptsController < ApplicationController
       :professional_learning_course,
       :peer_reviews_to_complete,
       :wrapup_video,
-      :student_detail_progress_view
+      :student_detail_progress_view,
+      :project_widget_visible,
+      :exclude_csf_column_in_legend,
+      :stage_extras_available,
+      :has_verified_resources,
+      :script_announcements,
+      resourceTypes: [],
+      resourceLinks: [],
+      project_widget_types: [],
     ).to_h
     h[:peer_reviews_to_complete] = h[:peer_reviews_to_complete].to_i
     h[:hidden] = !h[:visible_to_teachers]
+    h[:script_announcements] = JSON.parse(h[:script_announcements]) if h[:script_announcements]
     h.delete(:visible_to_teachers)
     h
   end

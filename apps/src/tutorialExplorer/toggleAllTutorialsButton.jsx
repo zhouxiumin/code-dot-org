@@ -2,8 +2,8 @@
  * to show/hide the set of all tutorials and filters for all languages.
  */
 
-import React from 'react';
-import i18n from './locale';
+import React, {PropTypes} from 'react';
+import i18n from '@cdo/tutorialExplorer/locale';
 
 const styles = {
   toggleAllTutorialsBlock: {
@@ -15,12 +15,12 @@ const styles = {
   }
 };
 
-const ToggleAllTutorialsButton = React.createClass({
-  propTypes: {
-    showAllTutorials: React.PropTypes.func.isRequired,
-    hideAllTutorials: React.PropTypes.func.isRequired,
-    showingAllTutorials: React.PropTypes.bool
-  },
+export default class ToggleAllTutorialsButton extends React.Component {
+  static propTypes = {
+    showAllTutorials: PropTypes.func.isRequired,
+    hideAllTutorials: PropTypes.func.isRequired,
+    showingAllTutorials: PropTypes.bool
+  };
 
   render() {
     return (
@@ -43,6 +43,4 @@ const ToggleAllTutorialsButton = React.createClass({
       </div>
     );
   }
-});
-
-export default ToggleAllTutorialsButton;
+}

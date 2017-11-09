@@ -130,8 +130,8 @@ class ChannelsTest < Minitest::Test
   end
 
   def test_publish_and_unpublish_channel
-    ChannelsApi.any_instance.stubs(:current_user).returns({birthday: 14.years.ago.to_datetime})
-
+    stub_user = {name: ' xavier', birthday: 14.years.ago.to_datetime}
+    ChannelsApi.any_instance.stubs(:current_user).returns(stub_user)
     start = DateTime.now - 1
     post '/v3/channels', {abc: 123}.to_json, 'CONTENT_TYPE' => 'application/json;charset=utf-8'
     channel_id = last_response.location.split('/').last
@@ -191,7 +191,8 @@ class ChannelsTest < Minitest::Test
 
   def test_publish_permissions
     # only whitelisted project types can be published
-    ChannelsApi.any_instance.stubs(:current_user).returns({birthday: 14.years.ago.to_datetime})
+    stub_user = {name: ' xavier', birthday: 14.years.ago.to_datetime}
+    ChannelsApi.any_instance.stubs(:current_user).returns(stub_user)
     assert_can_publish('applab')
     assert_can_publish('gamelab')
     assert_can_publish('artist')
@@ -208,7 +209,8 @@ class ChannelsTest < Minitest::Test
 
     # users under age 13 cannot publish applab, gamelab or weblab projects,
     # but can publish artist or playlab projects.
-    ChannelsApi.any_instance.stubs(:current_user).returns({birthday: 12.years.ago.to_datetime})
+    stub_user = {name: ' xavier', birthday: 12.years.ago.to_datetime}
+    ChannelsApi.any_instance.stubs(:current_user).returns(stub_user)
     assert_cannot_publish('applab')
     assert_cannot_publish('gamelab')
     assert_can_publish('artist')
@@ -237,6 +239,32 @@ class ChannelsTest < Minitest::Test
 
     # Ideally we would also test that deleting abuse works when we're an admin
     # but don't currently have a way to simulate admin from tests
+  end
+
+  def test_sharing_disabled
+    post '/v3/channels', {}.to_json, 'CONTENT_TYPE' => 'application/json;charset=utf-8'
+    channel_id = last_response.location.split('/').last
+
+    # sharing_disabled for a channel owned by current user should always be false
+    get "/v3/channels/#{channel_id}/sharing_disabled"
+    assert last_response.ok?
+    assert_equal false, JSON.parse(last_response.body)['sharing_disabled']
+
+    # User is not the owner, should return owner sharing_disabled
+    ChannelsApi.any_instance.stubs(:current_user_id).returns(123)
+    # Stub sharing_disabled to false for user.
+    StorageApps.any_instance.stubs(:get_user_sharing_disabled).returns(false)
+    get "/v3/channels/#{channel_id}/sharing_disabled"
+    assert last_response.ok?
+    assert_equal false, JSON.parse(last_response.body)['sharing_disabled']
+    StorageApps.any_instance.unstub(:get_user_sharing_disabled)
+
+    # Stub sharing_disabled to true for user.
+    StorageApps.any_instance.stubs(:get_user_sharing_disabled).returns(true)
+    get "/v3/channels/#{channel_id}/sharing_disabled"
+    assert last_response.ok?
+    assert_equal true, JSON.parse(last_response.body)['sharing_disabled']
+    StorageApps.any_instance.unstub(:get_user_sharing_disabled)
   end
 
   def test_abuse_frozen

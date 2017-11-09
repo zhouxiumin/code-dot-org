@@ -1,4 +1,5 @@
 class HomeController < ApplicationController
+  include UsersHelper
   before_action :authenticate_user!, only: :gallery_activities
 
   # Don't require an authenticity token on set_locale because we post to that
@@ -34,23 +35,30 @@ class HomeController < ApplicationController
 
   GALLERY_PER_PAGE = 5
 
+  # Signed in student, with an assigned course/script: redirect to course overview page
+  # Note: the student will be redirected to the course or script in which they
+  # most recently made progress, which may not be an assigned course or script.
+  # Signed in student or teacher, without an assigned course/script: redirect to /home
+  # Signed out: redirect to /courses
   def index
-    redirect_to '/courses'
+    if current_user
+      if current_user.student? && current_user.assigned_course_or_script? && !session['clever_link_flag'] && current_user.primary_script
+        redirect_to script_path(current_user.primary_script)
+      else
+        redirect_to '/home'
+      end
+    else
+      clear_clever_session_variables
+      redirect_to '/courses'
+    end
   end
 
-  # Show /home for teachers.
-  # Signed out: redirect to code.org
-  # Signed in student: redirect to studio.code.org/courses
-  # Signed in teacher: render this page
+  # Signed in: render home page
+  # Signed out: redirect to sign in
   def home
-    if !current_user
-      redirect_to CDO.code_org_url
-    elsif current_user.student?
-      redirect_to '/courses'
-    else
-      init_homepage
-      render 'home/index'
-    end
+    authenticate_user!
+    init_homepage
+    render 'home/index'
   end
 
   def gallery_activities
@@ -84,11 +92,29 @@ class HomeController < ApplicationController
         current_user.gallery_activities.order(id: :desc).page(params[:page]).per(GALLERY_PER_PAGE)
       @force_race_interstitial = params[:forceRaceInterstitial]
       @force_school_info_interstitial = params[:forceSchoolInfoInterstitial]
-      @recent_courses = current_user.recent_courses_and_scripts.slice(0, 2)
+      @sections = current_user.sections.map(&:summarize)
+      @student_sections = current_user.sections_as_student.map(&:summarize)
 
-      if current_user.teacher?
-        @sections = current_user.sections.map(&:summarize)
+      # Students and teachers will receive a @top_course for their primary
+      # script, so we don't want to include that script (if it exists) in the
+      # regular lists of recent scripts.
+      exclude_primary_script = true
+      @recent_courses = current_user.recent_courses_and_scripts(exclude_primary_script)
+
+      script = current_user.primary_script
+      if script
+        script_level = current_user.next_unpassed_progression_level(script)
       end
+
+      if script && script_level
+        @top_course = {
+          assignableName: data_t_suffix('script.name', script[:name], 'title'),
+          lessonName: script_level.stage.localized_title,
+          linkToOverview: script_path(script),
+          linkToLesson: script_next_path(script, 'next')
+        }
+      end
+
     end
   end
 end

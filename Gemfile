@@ -31,17 +31,17 @@ gem 'seamless_database_pool', github: 'wjordan/seamless_database_pool', ref: 'cd
 gem 'dalli' # memcached
 gem 'dalli-elasticache' # ElastiCache Auto Discovery memcached nodes
 gem 'google_drive'
+gem 'jumphash'
 gem 'le', '~> 2.2'
 gem 'os'
 gem 'parallel'
 gem 'redis', '~> 3.3.3'
-# Using commit ref on fork until maintainer publishes a new version
+# Using commit ref on fork until maintainer publishes a new version.
 gem 'redis-slave-read', require: false, github: 'code-dot-org/redis-slave-read', ref: 'cfe1bd0f5cf65eee5b52560139cab133f22cb880'
+gem 'xxhash'
 
 gem 'google-api-client'
 gem 'launchy' # Peer dependency of Google::APIClient::InstalledAppFlow
-
-gem 'crowdin-cli'
 
 # CSRF protection for Sinatra.
 gem 'rack_csrf'
@@ -111,6 +111,7 @@ gem 'factory_girl_rails', group: [:development, :staging, :test, :adhoc]
 # For pegasus PDF generation.
 gem 'open_uri_redirections', require: false, group: [:development, :staging, :test]
 
+gem 'gctools'
 gem 'unicorn', '~> 5.1.0'
 
 gem 'chronic', '~> 0.10.2'
@@ -195,6 +196,7 @@ gem 'sequel', '~> 4.30'
 gem 'user_agent_parser'
 
 gem 'paranoia'
+gem 'petit', github: 'code-dot-org/petit'  # For URL shortening
 
 # JSON model serializer for REST APIs.
 gem 'active_model_serializers', github: 'rails-api/active_model_serializers', ref: '2962f3f64e7c672bfb5a13a8f739b5db073e5473'
@@ -225,8 +227,6 @@ gem 'net-ssh'
 gem 'oj'
 
 gem 'rest-client', '~> 2.0'
-
-gem 'rack-attack', '~> 4.4'
 
 # Generate SSL certificates.
 gem 'acmesmith'
@@ -262,3 +262,6 @@ gem 'image_size', require: false
 
 # Auto strip model attributes before validation (opt in)
 gem 'auto_strip_attributes', '~> 2.1'
+
+# Used to sort UTF8 strings properly
+gem 'sort_alphabetical', github: 'grosser/sort_alphabetical'

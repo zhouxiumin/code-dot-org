@@ -265,8 +265,15 @@ class Level < ActiveRecord::Base
     end
   end
 
+  # Overriden in subclasses, provides a summary for rendering thumbnails on the
+  # stage extras page
+  def summarize_as_bonus
+    {}
+  end
+
   TYPES_WITHOUT_IDEAL_LEVEL_SOURCE = [
     'Applab', # freeplay
+    'Bounce', # no ideal solution
     'ContractMatch', # dsl defined, covered in dsl
     'CurriculumReference', # no user submitted content
     'DSLDefined', # dsl defined, covered in dsl
@@ -287,6 +294,7 @@ class Level < ActiveRecord::Base
     'Odometer', # widget
     'Pixelation', # widget
     'PublicKeyCryptography', # widget
+    'Scratch', # no ideal solution
     'ScriptCompletion', # unknown
     'StandaloneVideo', # no user submitted content
     'TextCompression', # widget
@@ -349,7 +357,7 @@ class Level < ActiveRecord::Base
   def channel_backed?
     return false if try(:is_project_level)
     free_response_upload = is_a?(FreeResponse) && allow_user_uploads
-    project_template_level || game == Game.applab || game == Game.gamelab || game == Game.weblab || game == Game.pixelation || free_response_upload
+    project_template_level || free_response_upload || game.channel_backed?
   end
 
   def key
@@ -419,6 +427,17 @@ class Level < ActiveRecord::Base
   end
 
   def icon
+  end
+
+  # Level are either activity levels (default) or concept levels
+  # An activity level is a one where a student has to complete an activity / puzzle.
+  # - This includes programming levels, widget levels, unplugged activities, assessment levels, etc.
+  # - These get circular progress bubbles
+  # A concept level is one that introduces or discusses a concept.
+  # - This includes video levels, external HTML levels, and map levels.
+  # - These get diamond progress bubbles
+  def concept_level?
+    false
   end
 
   # Returns an array of all the contained levels

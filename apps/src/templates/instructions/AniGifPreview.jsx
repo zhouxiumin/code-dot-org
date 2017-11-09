@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import Radium from 'radium';
 import { connect } from 'react-redux';
 import { openDialog } from '../../redux/instructionsDialog';
@@ -20,12 +20,12 @@ const styles = {
   }
 };
 
-const AniGifPreview = React.createClass({
-  propTypes: {
-    url: React.PropTypes.string.isRequired,
-    showInstructionsDialog: React.PropTypes.func.isRequired,
-    noVisualization: React.PropTypes.bool.isRequired,
-  },
+class ImagePreviewUnwrapped extends React.Component {
+  static propTypes = {
+    url: PropTypes.string.isRequired,
+    showInstructionsDialog: PropTypes.func.isRequired,
+    noVisualization: PropTypes.bool.isRequired,
+  };
 
   render() {
     return (
@@ -44,8 +44,9 @@ const AniGifPreview = React.createClass({
       </div>
     );
   }
-});
+}
 
+export const ImagePreview = Radium(ImagePreviewUnwrapped);
 export default connect(state => ({
   url: state.pageConstants.aniGifURL,
   noVisualization: state.pageConstants.noVisualization,
@@ -53,8 +54,8 @@ export default connect(state => ({
   showInstructionsDialog() {
     dispatch(openDialog({
       autoClose: false,
-      aniGifOnly: true,
-      hintsOnly: false
+      imgOnly: true,
+      hintsOnly: false,
     }));
   }
-}))(Radium(AniGifPreview));
+}))(ImagePreview);

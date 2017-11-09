@@ -1,5 +1,5 @@
 /** Body of the animation picker dialog */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import Radium from 'radium';
 import color from "../../util/color";
 import {AnimationCategories} from '../constants';
@@ -37,38 +37,36 @@ const animationPickerStyles = {
   }
 };
 
-const AnimationPickerBody = React.createClass({
-  propTypes: {
-    is13Plus: React.PropTypes.bool,
-    onDrawYourOwnClick: React.PropTypes.func.isRequired,
-    onPickLibraryAnimation: React.PropTypes.func.isRequired,
-    onUploadClick: React.PropTypes.func.isRequired,
-    playAnimations: React.PropTypes.bool.isRequired
-  },
+class AnimationPickerBody extends React.Component {
+  static propTypes = {
+    is13Plus: PropTypes.bool,
+    onDrawYourOwnClick: PropTypes.func.isRequired,
+    onPickLibraryAnimation: PropTypes.func.isRequired,
+    onUploadClick: PropTypes.func.isRequired,
+    playAnimations: PropTypes.bool.isRequired
+  };
 
-  getInitialState() {
-    return {
-      searchQuery: '',
-      categoryQuery: '',
-      currentPage: 0
-    };
-  },
+  state = {
+    searchQuery: '',
+    categoryQuery: '',
+    currentPage: 0
+  };
 
-  onSearchQueryChange(value) {
+  onSearchQueryChange = (value) => {
     this.setState({searchQuery: value, currentPage: 0});
-  },
+  };
 
-  onCategoryChange(event) {
+  onCategoryChange = (event) => {
     this.setState({categoryQuery: event.target.className, currentPage: 0});
-  },
+  };
 
-  onClearCategories() {
+  onClearCategories = () => {
     this.setState({categoryQuery: '', searchQuery: '', currentPage: 0});
-  },
+  };
 
-  onChangePageNumber(number) {
+  onChangePageNumber = (number) => {
     this.setState({currentPage: number - 1});
-  },
+  };
 
   animationCategoriesRendering() {
     return Object.keys(AnimationCategories).map(category =>
@@ -79,7 +77,7 @@ const AnimationPickerBody = React.createClass({
         onClick={this.onCategoryChange}
       />
     );
-  },
+  }
 
   animationItemsRendering(animations) {
     return animations.map(animationProps =>
@@ -90,7 +88,7 @@ const AnimationPickerBody = React.createClass({
         onClick={this.props.onPickLibraryAnimation.bind(this, animationProps)}
         playAnimations={this.props.playAnimations}
       />);
-  },
+  }
 
   render() {
     let {results, pageCount} = searchAssets(this.state.searchQuery, this.state.categoryQuery, animationLibrary, this.state.currentPage, MAX_SEARCH_RESULTS);
@@ -151,7 +149,8 @@ const AnimationPickerBody = React.createClass({
       </div>
     );
   }
-});
+}
+
 export default Radium(AnimationPickerBody);
 
 export const WarningLabel = ({children}) => (
@@ -160,5 +159,5 @@ export const WarningLabel = ({children}) => (
     </span>
 );
 WarningLabel.propTypes = {
-  children: React.PropTypes.node
+  children: PropTypes.node
 };

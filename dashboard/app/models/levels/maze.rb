@@ -45,6 +45,12 @@ class Maze < Grid
     [['Run Button Only', 0], ['Run and Step', 1], ['Step Button Only', 2]]
   end
 
+  def summarize_as_bonus
+    summary = super
+    summary[:start_direction] = start_direction.to_i
+    summary
+  end
+
   def common_blocks(type)
     <<-XML.chomp
 #{k1_blocks}
@@ -96,6 +102,9 @@ class Maze < Grid
 <category name="Logic">
   <block type="maze_if"></block>
   <block type="maze_ifElse"></block>
+</category>
+<category name="Comment">
+  <block type="comment" />
 </category>
     XML
   end

@@ -1,7 +1,7 @@
 ---
 title: Community and Support
-nav: educate_nav
 theme: responsive
+style_min: true
 ---
 <!-- Twitter button -->
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
@@ -34,8 +34,8 @@ Join the conversation with other teachers using Code Studio on our forum.
 
 
 ## Leadership Opportunities
-### Become a Code.org Professional Learning Partner
-Code.org [Professional Learning Partners](http://code.org/educate/professional-learning-partner) help increase the sustainability of our Computer Science programs at the local level. Code.org is partnering with organizations who can host local workshops for teachers new to computer science and build and sustain a community of computer science educators.
+### Become a Code.org Regional Partner
+Code.org [Regional Partners](http://code.org/educate/regional-partner) help increase the sustainability of our Computer Science programs at the local level. Code.org is partnering with organizations who can host local workshops for teachers new to computer science and build and sustain a community of computer science educators.
 
 ### Become a Code.org Facilitator
 Code.org is interested in partnering with experienced [computer science educators](/educate/facilitator) to host local workshops for teachers enrolled in our Professional Learning Program.

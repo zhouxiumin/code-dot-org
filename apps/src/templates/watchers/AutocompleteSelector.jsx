@@ -1,5 +1,5 @@
 import onClickOutside from 'react-onclickoutside';
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 const PANEL_MIN_WIDTH = 163;
 
@@ -26,10 +26,19 @@ const styles = {
   },
 };
 
-const AutocompleteSelector = onClickOutside(React.createClass({
+export default onClickOutside(class AutocompleteSelector extends React.Component {
+  static propTypes = {
+    currentIndex: PropTypes.number.isRequired,
+    options: PropTypes.arrayOf(PropTypes.string).isRequired,
+    onOptionClicked: PropTypes.func.isRequired,
+    onOptionHovered: PropTypes.func.isRequired,
+    onClickOutside: PropTypes.func.isRequired
+  };
+
+  // Called by react-onclickoutside wrapper.
   handleClickOutside() {
     this.props.onClickOutside();
-  },
+  }
 
   render() {
     // If we ever want to highlight range of matches:
@@ -63,15 +72,5 @@ const AutocompleteSelector = onClickOutside(React.createClass({
         })}
       </div>
     );
-  },
-
-  propTypes: {
-    currentIndex: React.PropTypes.number.isRequired,
-    options: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-    onOptionClicked: React.PropTypes.func.isRequired,
-    onOptionHovered: React.PropTypes.func.isRequired,
-    onClickOutside: React.PropTypes.func.isRequired
   }
-}));
-
-export default AutocompleteSelector;
+});

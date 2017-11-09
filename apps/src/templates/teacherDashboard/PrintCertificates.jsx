@@ -1,32 +1,52 @@
-import React, { Component, PropTypes } from 'react';
-import ProgressButton from '@cdo/apps/templates/progress/ProgressButton';
-import { sectionShape } from './shapes';
+import React, {Component, PropTypes} from 'react';
+import Button from '@cdo/apps/templates/Button';
 import i18n from '@cdo/locale';
+import $ from 'jquery';
+import {pegasus} from '@cdo/apps/lib/util/urlHelpers';
+
+const styles = {
+  main: {
+    margin: 0
+  }
+};
 
 export default class PrintCertificates extends Component {
   static propTypes = {
-    section: sectionShape.isRequired,
-    assignmentName: PropTypes.string
+    sectionId: PropTypes.number.isRequired,
+    assignmentName: PropTypes.string,
   };
 
-  onClickPrintCerts = () => this.certForm.submit();
+  state = {
+    names: [],
+  };
+
+  onClickPrintCerts = () => {
+    $.ajax(`/v2/sections/${this.props.sectionId}/students`).done(result => {
+      const names = result.map(student => student.name);
+      this.setState({names}, this.submitForm);
+    });
+  };
+
+  submitForm = () => {
+    this.certForm.submit();
+  };
 
   render() {
-    const { section, assignmentName } = this.props;
     return (
       <form
+        style={styles.main}
         ref={element => this.certForm = element}
-        action="/certificates"
+        action={pegasus('/certificates')}
         method="POST"
       >
-        <input type="hidden" name="script" value={assignmentName}/>
-        {section.studentNames.map((name, index) => (
+        <input type="hidden" name="script" defaultValue={this.props.assignmentName}/>
+        {this.state.names.map((name, index) => (
           <input key={index} type="hidden" name="names[]" value={name}/>
         ))}
-        <ProgressButton
+        <Button
           text={i18n.printCertificates()}
           onClick={this.onClickPrintCerts}
-          color={ProgressButton.ButtonColor.gray}
+          color={Button.ButtonColor.gray}
         />
       </form>
     );

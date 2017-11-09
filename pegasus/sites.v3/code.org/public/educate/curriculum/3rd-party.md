@@ -1,7 +1,7 @@
 ---
 title: 3rd Party Educator Resources
-nav: educate_nav
 theme: responsive
+style_min: true
 ---
 
 [](If you update the resources here, don't forget to also update /educate/curriculum/xx-school for ES, MS, and HS)
@@ -30,6 +30,7 @@ theme: responsive
 | [Bootstrap](http://www.bootstrapworld.org/) | Teach algebra through video-game programming, with a 20-hr module to go alongside or inside a math class | 3-day workshops for schools and districts. Fees range |
 | [CodeHS](https://codehs.com) | 6th-12th grade CS pathway. Intro CS JavaScript, Intro CS Python, Computing Ideas, Web Design and more, FREE. Pro plans for schools start at $2500. | Online PD for Teaching Intro CS, Teaching AP Java, and Teaching AP CS Principles, 30-40 hour course, $1500/teacher | Online PD for Teaching Intro CS 1, Teaching Intro CS 2, 30-40 hour course, $1500/teacher |
 | [Code.org](/educate) | Semester or year-long CS Discoveries intro course is under development to be launched Summer 2017, FREE  | In-person and online workshops available to partner districts, FREE |
+| [Code Monkey](https://www.playcodemonkey.com/) | Over 300 story modes & skill mode challenges. Can be taught full year, 1/2 year, or quarterly. $10/student | Free online course, $250/webinar, $3500/onsite PD |
 | [Codesters](https://www.codesters.com/) |  5-lesson intro and project platform, FREE, 2 40-hr Intro to Python courses and 20-hr Intro to Game Design course, $20/student or a la carte pricing | Half day, 1-day, and 3-day workshops available, $500-$2,000 per teacher depending on length and location. |
 | [Globaloria](http://globaloria.com/intro) | 6 game design courses, $75/student | 3-day, in-person training and ongoing online PD, fee included in student price|
 | [Project Lead The Way](https://www.pltw.org/our-programs/pltw-gateway-curriculum) | 2 intro courses, $750/school | Online, in-person PD at 60 universities, average $1200/teacher |
@@ -123,15 +124,43 @@ Check out one-hour, teacher-led lesson and activity plans designed for different
 - AskATeacher's [Hour of Code suggestions by grade level](http://askatechteacher.com/2015/11/09/hour-of-code-3/)
 - [LeadCS.org](http://www.leadcs.org) - a list of many resources for schools to embrace CS
 
-## How were resources chosen for listing on this page?
-To decide which resources to list here, we used a rubric that looked for:
+## Frequently Asked Questions
 
- * Full-service partnerships
-      * This page is primarily focused on full curriculum + professional development partners that a school or school district can use to provide a full, in-school offering for their students.
- * High quality of curriculum
- * Proven scale + support (in use in at least 100 schools)
- * Professional development & support for teachers included
- * Affordable
+<details>
+  <summary style="margin-bottom: 15px">**How were resources chosen for listing on this page?**</summary>
+  <div>
+    <p>
+        Our goal with the third party recommendations is to help teachers find great curriculum and professional development providers that a school or school district can access to provide an in-school offering for their students. All submissions are reviewed by an independent committee of elementary, middle, and high school teachers. Each curriculum and professional development offering listed had to meet the following minimum criteria:
+    </p>
+    <p>Curriculum</p>
+    <ul>
+        <li>Includes K-12 CS Framework Concepts</li>
+        <li>Includes K-12 CS Framework Practices</li>
+        <li>Emphasizes active and authentic learning experiences</li>
+        <li>Offers resources or suggestions to address equity issues</li>
+        <li>Provides opportunities for social and/or cultural relevance</li>
+        <li>Aligned to standards</li>
+        <li>Includes a variety of resources</li>
+    </ul>
+    <p>Professional Development</p>
+    <ul>
+        <li>Supported by survey/evaluation results and testimonials</li>
+        <li>Features hands-on, concrete experiences</li>
+        <li>Emphasizes equity-based practices</li>
+        <li>Accommodates teachers new to computer science</li>
+        <li>Models a variety of pedagogical strategies</li>
+        <li>Teacher supports</li>
+        <li>Multiple PD locations</li>
+    </ul>
+  </div>
+</details>
 
-There was a degree of subjective editorial choices involved, because what's most important to us is to showcase a short list of resources that we believe will provide the best experience
-for educators visiting our site. If you would like your course to be considered for the Fall 2017 review process, which will utilize external reviewers, [please fill out this form](https://docs.google.com/forms/d/e/1FAIpQLScfsDH3-7PmtO48KCVKHg8vQ8r8uAHDPuoyAuLCXtNqyXPfxg/viewform?usp=send_form).
+<details>
+  <summary style="margin-bottom: 15px">**How can I submit my curriculum and professional development resource for consideration?**</summary>
+  <p>
+    There are two reviews a year, one in the Fall (submissions due October 25) and one in the Summer (submissions due June 25). If you would like your course to be considered for the next review process, <a href="https://goo.gl/forms/zzSBBLOus0XigsFi1">please fill out this form</a>. Here is <a href="http://bit.ly/3rdpartyrubricform">a document containing all of the questions in the submission form</a> as well as the minimum criteria used to evaluate your submission.
+  </p>
+  <p>
+    Code.org reserves the right to take down any third party listing at our discretion. In particular, we remove recommendations where we receive significant negative feedback from teachers using the course, the submission form answers do not match what is listed on the website or teacher experiences with the service/product, or there is deceptive/misleading information on the website or submission form.
+  </p>
+</details>

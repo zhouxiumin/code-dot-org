@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import $ from 'jquery';
 import {
   Button,
@@ -36,6 +36,7 @@ export default class FormController extends React.Component {
     this.state = {
       data: {},
       errors: [],
+      errorMessages: {},
       errorHeader: null,
       globalError: false,
       currentPage: 0,
@@ -46,6 +47,13 @@ export default class FormController extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.nextPage = this.nextPage.bind(this);
     this.prevPage = this.prevPage.bind(this);
+  }
+
+  componentWillMount() {
+    if (this.constructor.sessionStorageKey && sessionStorage[this.constructor.sessionStorageKey]) {
+      const reloadedState = JSON.parse(sessionStorage[this.constructor.sessionStorageKey]);
+      this.setState(reloadedState);
+    }
   }
 
   /**
@@ -113,7 +121,32 @@ export default class FormController extends React.Component {
       data,
       errors
     });
+
+    this.saveToSessionStorage({data});
   }
+
+  /**
+   * Override in derived classes with a key name (e.g. the class name)
+   * to save session storage in that key. Otherwise, no session storage will be saved.
+   */
+  static sessionStorageKey = null;
+
+  /**
+   * Save currentPage and form data to the session storage, if a sessionStorageKey is specified on this class
+   * @param {Object} newState - data and/or currentPage to override the value in this.state
+   */
+  saveToSessionStorage = (newState) => {
+    if (this.constructor.sessionStorageKey) {
+      const mergedData = {
+        ...{
+          currentPage: this.state.currentPage,
+          data: this.state.data
+        },
+        ...newState
+      };
+      sessionStorage.setItem(this.constructor.sessionStorageKey, JSON.stringify(mergedData));
+    }
+  };
 
   /**
    * Assemble all data to be submitted
@@ -140,6 +173,11 @@ export default class FormController extends React.Component {
    * @param {Event} event
    */
   handleSubmit(event) {
+    event.preventDefault();
+    if (!this.validateCurrentPageRequiredFields()) {
+      return;
+    }
+
     // clear errors so we can more clearly detect "new" errors and toggle
     // submitting flag so we can prevent duplicate submission
     this.setState({
@@ -155,18 +193,27 @@ export default class FormController extends React.Component {
       contentType: "application/json",
       dataType: "json",
       data: JSON.stringify(this.serializeFormData())
-    }).done(() => {
-      this.onSuccessfulSubmit();
+    }).done(data => {
+      sessionStorage.removeItem(this.constructor.sessionStorageKey);
+      this.onSuccessfulSubmit(data);
     }).fail(data => {
       if (data.responseJSON &&
           data.responseJSON.errors &&
           data.responseJSON.errors.form_data) {
-        // if the failure was a result of an invalid form, highlight the errors
-        // and display the generic error header
-        this.setState({
-          errors: data.responseJSON.errors.form_data,
-          errorHeader: "Please correct the errors below."
-        });
+        if (data.responseJSON.general_error) {
+          this.setState({
+            errors: data.responseJSON.errors.form_data,
+            errorHeader: data.responseJSON.general_error,
+            globalError: true
+          });
+        } else {
+          // if the failure was a result of an invalid form, highlight the errors
+          // and display the generic error header
+          this.setState({
+            errors: data.responseJSON.errors.form_data,
+            errorHeader: "Please correct the errors below."
+          });
+        }
       } else {
         // Otherwise, something unknown went wrong on the server
         this.setState({
@@ -174,7 +221,6 @@ export default class FormController extends React.Component {
           errorHeader: "Something went wrong on our end; please try again later."
         });
       }
-    }).always(() => {
       this.setState({
         submitting: false
       });
@@ -239,6 +285,7 @@ export default class FormController extends React.Component {
       options: this.props.options,
       onChange: this.handleChange,
       errors: this.state.errors,
+      errorMessages: this.state.errorMessages,
       data: this.state.data
     };
   }
@@ -261,7 +308,9 @@ export default class FormController extends React.Component {
    * @returns {String[]}
    */
   getRequiredFields() {
-    return this.props.requiredFields;
+    const requiredFields = [...this.props.requiredFields];
+    const pageRequiredFields = this.getPageComponents().map(page => page.getDynamicallyRequiredFields(this.state.data));
+    return pageRequiredFields.reduce((flattened, subArray) => flattened.concat(subArray), requiredFields);
   }
 
   /**
@@ -274,15 +323,41 @@ export default class FormController extends React.Component {
    *         are missing
    */
   validateCurrentPageRequiredFields() {
+    const currentPage = this.getCurrentPageComponent();
     const requiredFields = this.getRequiredFields();
-    const pageFields = this.getCurrentPageComponent().associatedFields;
-    const pageRequiredFields = pageFields.filter(f => requiredFields.includes(f));
-    const missingRequiredFields = pageRequiredFields.filter(f => !this.state.data[f]);
+    const pageFields = currentPage.associatedFields;
 
-    if (missingRequiredFields.length) {
+    // Trim string values on page, and set empty strings to null
+    let pageData = {};
+    pageFields.forEach(field => {
+      let value = this.state.data[field];
+      if (typeof value === "string") {
+        const trimmedValue = value.trim();
+        pageData[field] = trimmedValue.length > 0 ? trimmedValue : null;
+      } else {
+        pageData[field] = value;
+      }
+    });
+
+    pageData = Object.assign(pageData, currentPage.processPageData(pageData));
+    this.setState({
+      data: {
+        ...this.state.data,
+        ...pageData
+      }
+    });
+
+    const pageRequiredFields = pageFields.filter(f => requiredFields.includes(f));
+    const missingRequiredFields = pageRequiredFields.filter(f => !pageData[f]);
+    const formatErrors = currentPage.getErrorMessages(pageData);
+
+    if (missingRequiredFields.length || Object.keys(formatErrors).length) {
       this.setState({
-        errors: missingRequiredFields,
-        errorHeader: "Please fill out all required fields"
+        errors: [...missingRequiredFields, ...Object.keys(formatErrors)],
+        errorMessages: formatErrors,
+        errorHeader:
+          "Please fill out all required fields. You must completely fill out this section before moving \
+          on to the next section or going back to edit a previous section."
       });
 
       return false;
@@ -319,6 +394,8 @@ export default class FormController extends React.Component {
       this.setState({
         currentPage: newPage
       });
+
+      this.saveToSessionStorage({currentPage: newPage});
     }
   }
 
@@ -328,6 +405,7 @@ export default class FormController extends React.Component {
   shouldShowSubmit() {
     return this.state.currentPage === this.getPageComponents().length - 1;
   }
+  static submitButtonText = "Submit";
 
   /**
    * @returns {Element}
@@ -362,7 +440,7 @@ export default class FormController extends React.Component {
           key="submit"
           type="submit"
         >
-          Submit
+          {this.constructor.submitButtonText}
         </Button>
       );
     }
@@ -404,9 +482,9 @@ export default class FormController extends React.Component {
 }
 
 FormController.propTypes = {
-  apiEndpoint: React.PropTypes.string.isRequired,
-  options: React.PropTypes.object.isRequired,
-  requiredFields: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+  apiEndpoint: PropTypes.string.isRequired,
+  options: PropTypes.object.isRequired,
+  requiredFields: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 
 FormController.defaultProps = {

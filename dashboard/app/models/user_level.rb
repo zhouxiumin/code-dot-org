@@ -87,7 +87,7 @@ class UserLevel < ActiveRecord::Base
     return nil unless most_recent
 
     most_recent_user = most_recent.user || DeletedUser.instance
-    return most_recent_user.name, most_recent.level_source_id
+    return most_recent_user.name, most_recent.level_source_id, most_recent_user
   end
 
   def paired?
@@ -97,6 +97,11 @@ class UserLevel < ActiveRecord::Base
   def handle_unsubmit
     if submitted_changed? from: true, to: false
       self.best_result = ActivityConstants::UNSUBMITTED_RESULT
+    end
+
+    # Destroy any existing peer reviews
+    if Script.cache_find_level(level_id).try(:peer_reviewable?)
+      PeerReview.where(submitter: user.id, reviewer: nil, level: level).destroy_all
     end
   end
 
@@ -109,6 +114,13 @@ class UserLevel < ActiveRecord::Base
     return false unless stage.lockable?
     return false if user.authorized_teacher?
     submitted? && !readonly_answers? || has_autolocked?(stage)
+  end
+
+  # First ScriptLevel in this Script containing this Level.
+  # Cached equivalent to `level.script_levels.where(script_id: script.id).first`.
+  def script_level
+    s = Script.get_from_cache(script_id)
+    s.script_levels.detect {|sl| sl.level_ids.include? level_id}
   end
 
   def self.update_lockable_state(user_id, level_id, script_id, locked, readonly_answers)
@@ -128,5 +140,12 @@ class UserLevel < ActiveRecord::Base
       # level_group, which is the only levels that we lock, always sets best_result to 100 when complete
       best_result: (locked || readonly_answers) ? ActivityConstants::BEST_PASS_RESULT : user_level.best_result
     )
+  end
+
+  # Get number of passed levels per user for the given set of user IDs
+  # @param [Array<Integer>] user_ids
+  # @return [Hash<Integer, Integer>] user_id => passed_level_count
+  def self.count_passed_levels_for_users(user_ids)
+    where(user_id: user_ids).passing.group(:user_id).count
   end
 end

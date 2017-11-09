@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {connect} from 'react-redux';
 import Dialog, {Body} from '../templates/Dialog';
 import {hideAnimationJson} from './actions';
@@ -10,12 +10,12 @@ const style = {
   }
 };
 
-const AnimationJsonViewer = React.createClass({
-  propTypes: {
-    isOpen: React.PropTypes.bool.isRequired,
-    content: React.PropTypes.string,
-    handleClose: React.PropTypes.func.isRequired
-  },
+class AnimationJsonViewer extends React.Component {
+  static propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    content: PropTypes.string,
+    handleClose: PropTypes.func.isRequired
+  };
 
   render() {
     return (
@@ -28,7 +28,7 @@ const AnimationJsonViewer = React.createClass({
       </Dialog>
     );
   }
-});
+}
 export default connect(
   state => state.animationJsonViewer,
   dispatch => ({

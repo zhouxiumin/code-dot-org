@@ -1,5 +1,5 @@
 /** @file Dropdown with positive integer options, used in crypto widget */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import VirtualizedSelect from 'react-virtualized-select';
 import classNames from 'classnames';
 import {LINE_HEIGHT} from './style';
@@ -7,19 +7,17 @@ import 'react-virtualized/styles.css';
 import 'react-select/dist/react-select.css';
 import 'react-virtualized-select/styles.css';
 
-const IntegerDropdown = React.createClass({
-  propTypes: {
-    className: React.PropTypes.string,
-    value: React.PropTypes.number,
-    options: React.PropTypes.arrayOf(React.PropTypes.number).isRequired,
-    style: React.PropTypes.object,
-    disabled: React.PropTypes.bool,
-    onChange: React.PropTypes.func.isRequired
-  },
+export default class IntegerDropdown extends React.Component {
+  static propTypes = {
+    className: PropTypes.string,
+    value: PropTypes.number,
+    options: PropTypes.arrayOf(PropTypes.number).isRequired,
+    style: PropTypes.object,
+    disabled: PropTypes.bool,
+    onChange: PropTypes.func.isRequired
+  };
 
-  onChange(selected) {
-    this.props.onChange(selected ? selected.value : null);
-  },
+  onChange = (selected) => this.props.onChange(selected ? selected.value : null);
 
   render() {
     let {className, value, options, style, disabled} = this.props;
@@ -34,7 +32,7 @@ const IntegerDropdown = React.createClass({
         style={style}
         disabled={disabled}
         onChange={this.onChange}
-      />);
+      />
+    );
   }
-});
-export default IntegerDropdown;
+}

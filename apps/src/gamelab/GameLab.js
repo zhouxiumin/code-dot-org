@@ -35,7 +35,7 @@ import {
   saveAnimations,
   withAbsoluteSourceUrls
 } from './animationListModule';
-import {getSerializedAnimationList} from './PropTypes';
+import {getSerializedAnimationList} from './shapes';
 import {add as addWatcher} from '../redux/watchedExpressions';
 var reducers = require('./reducers');
 var GameLabView = require('./GameLabView');
@@ -127,10 +127,11 @@ module.exports = GameLab;
 /**
  * Forward a log message to both logger objects.
  * @param {?} object
+ * @param {string} logLevel
  */
-GameLab.prototype.log = function (object) {
+GameLab.prototype.log = function (object, logLevel) {
   this.consoleLogger_.log(object);
-  getStore().dispatch(jsDebugger.appendLog(object));
+  getStore().dispatch(jsDebugger.appendLog(object, logLevel));
 };
 
 /**
@@ -310,8 +311,10 @@ GameLab.prototype.init = function (config) {
     getStore().dispatch(changeInterfaceMode(GameLabInterfaceMode.ANIMATION));
   }
 
-  // Push project-sourced animation metadata into store
-  const initialAnimationList = config.initialAnimationList || this.startAnimations;
+  // Push project-sourced animation metadata into store. Always use the
+  // animations specified by the level definition for embed levels.
+  const initialAnimationList = (config.initialAnimationList && !config.embed) ?
+      config.initialAnimationList : this.startAnimations;
   getStore().dispatch(setInitialAnimationList(initialAnimationList));
 
   ReactDOM.render((
@@ -575,7 +578,7 @@ GameLab.prototype.onPuzzleComplete = function (submit ) {
 
 /**
  * Function to be called when the service report call is complete
- * @param {object} JSON response (if available)
+ * @param {MilestoneResponse} response - JSON response (if available)
  */
 GameLab.prototype.onReportComplete = function (response) {
   this.response = response;
@@ -1078,8 +1081,8 @@ GameLab.prototype.completeRedrawIfDrawComplete = function () {
   }
 };
 
-GameLab.prototype.handleExecutionError = function (err, lineNumber) {
-  outputError(String(err), lineNumber);
+GameLab.prototype.handleExecutionError = function (err, lineNumber, outputString) {
+  outputError(outputString, lineNumber);
   this.executionError = { err: err, lineNumber: lineNumber };
   this.haltExecution_();
 };
@@ -1115,11 +1118,12 @@ GameLab.prototype.displayFeedback_ = function () {
     // impressive levels are already saved
     // alreadySaved: level.impressive,
     // allow users to save freeplay levels to their gallery (impressive non-freeplay levels are autosaved)
-    saveToGalleryUrl: level.freePlay && this.response && this.response.save_to_gallery_url,
+    saveToLegacyGalleryUrl: level.freePlay && this.response && this.response.save_to_gallery_url,
     appStrings: {
       reinfFeedbackMsg: msg.reinfFeedbackMsg(),
       sharingText: msg.shareGame()
-    }
+    },
+    hideXButton: true,
   });
 };
 

@@ -1,7 +1,7 @@
 /* A single tutorial shown in TutorialExplorer.  Displays a thumbnail image, name, and some extra information.
  */
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import shapes from './shapes';
 import { getTutorialDetailString } from './util';
 import { getResponsiveValue } from './responsive';
@@ -53,11 +53,11 @@ const styles = {
   }
 };
 
-const Tutorial = React.createClass({
-  propTypes: {
+export default class Tutorial extends React.Component {
+  static propTypes = {
     item: shapes.tutorial.isRequired,
-    tutorialClicked: React.PropTypes.func.isRequired
-  },
+    tutorialClicked: PropTypes.func.isRequired
+  };
 
   render() {
     const tutorialOuterStyle = {
@@ -90,6 +90,4 @@ const Tutorial = React.createClass({
       </div>
     );
   }
-});
-
-export default Tutorial;
+}

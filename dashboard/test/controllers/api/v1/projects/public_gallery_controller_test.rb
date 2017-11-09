@@ -5,7 +5,7 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
   setup do
     published_applab_project = {
       storage_id: 22,
-      channel_id: 33,
+      id: 33,
       published_at: '2017-03-03T00:00:00.000-08:00',
       project_type: 'applab',
       value: {
@@ -89,14 +89,16 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
   )
 
   test 'project details are correct listing published applab projects' do
+    Rails.stubs(:env).returns(ActiveSupport::StringInquirer.new('production'))
     get :index, params: {project_type: 'applab', limit: 1}
+
     assert_response :success
-    assert_equal "max-age=60, public", @response.headers["Cache-Control"]
+    assert_equal "max-age=5, public", @response.headers["Cache-Control"]
     categories_list = JSON.parse(@response.body)
     assert_equal 1, categories_list.length
     project_row = categories_list['applab'].first
     assert_equal 'Charlies App', project_row['name']
-    assert_equal 'STUB_CHANNEL_ID-22-33', project_row['channel']
+    assert_equal storage_encrypt_channel_id(22, 33), project_row['channel']
     assert_equal '/v3/files-public/charlies_thumbnail.png', project_row['thumbnailUrl']
     assert_equal 'applab', project_row['type']
     assert_equal '2017-03-03T00:00:00.000-08:00', project_row['publishedAt']
@@ -116,12 +118,14 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
   end
 
   test 'project details are correct listing all published projects' do
+    Rails.stubs(:env).returns(ActiveSupport::StringInquirer.new('production'))
     get :index, params: {project_type: 'all', limit: 1}
+
     assert_response :success
-    assert_equal "max-age=60, public", @response.headers["Cache-Control"]
+    assert_equal "max-age=5, public", @response.headers["Cache-Control"]
     categories_list = JSON.parse(@response.body)
 
-    assert_equal ProjectsList::PUBLISHED_PROJECT_TYPES.sort, categories_list.keys.sort
+    assert_equal ProjectsList::PUBLISHED_PROJECT_TYPE_GROUPS.keys.map(&:to_s).sort, categories_list.keys.sort
     assert_equal 1, categories_list['applab'].length
     assert_empty categories_list['gamelab']
     assert_empty categories_list['playlab']
@@ -129,7 +133,7 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
 
     project_row = categories_list['applab'].first
     assert_equal 'Charlies App', project_row['name']
-    assert_equal 'STUB_CHANNEL_ID-22-33', project_row['channel']
+    assert_equal storage_encrypt_channel_id(22, 33), project_row['channel']
     assert_equal '/v3/files-public/charlies_thumbnail.png', project_row['thumbnailUrl']
     assert_equal 'applab', project_row['type']
     assert_equal '2017-03-03T00:00:00.000-08:00', project_row['publishedAt']
@@ -140,6 +144,6 @@ class Api::V1::Projects::PublicGalleryControllerTest < ActionController::TestCas
   private
 
   def db_result(result)
-    stub(select_append: stub(join: stub(join: stub(where: stub(where: stub(exclude: stub(order: stub(limit: result))))))))
+    stub(select: stub(join: stub(join: stub(where: stub(where: stub(exclude: stub(order: stub(limit: result))))))))
   end
 end

@@ -1,4 +1,5 @@
 require 'active_support/core_ext/string/indent'
+require 'honeybadger'
 
 def page_title_with_tagline
   title = @header['title'] || @config[:page_default_title].to_s
@@ -47,18 +48,6 @@ def inline_css(css)
   HTML
 end
 
-def use_min_stylesheet?
-  pages_verified = {'Anyone can learn' => '/', 'About Us' => '/about', 'Donors' => '/about/donors',
-    'Leadership' => '/about/leadership', 'Partners' => '/about/partners', 'Educator Overview' => '/educate',
-    'Community and Support' => '/educate/community', 'Computer Science Principles' => '/educate/csp',
-    'CS Fundamentals for grades K-5' => '/educate/curriculum/elementary-school',
-    '3rd Party Educator Resources' => '/educate/curriculum/3rd-party', 'Tools and videos' => '/educate/resources/videos',
-    'How to help' => '/help', 'Teacher Resources-Star Wars' => '/hourofcode/starwars',
-    'Teacher Resources-MINECRAFT' => '/hourofcode/mc', 'Learn' => '/learn', 'Promote Computer Science' => '/promote',
-    'Minecraft' => '/minecraft', 'Star Wars' => '/starwars', 'Student Overview' => '/student', 'Help Translate' => '/translate'}
-  pages_verified.value?(request.path_info)
-end
-
 # Returns a CSS Media Query string matching devices with 'retina' displays.
 # Ref: https://www.w3.org/blog/CSS/2012/06/14/unprefix-webkit-device-pixel-ratio/
 # Setting `is_retina` to `false` matches non-retina displays.
@@ -67,10 +56,11 @@ def css_retina?(is_retina = true)
   css_query_parts.map {|q| "#{!is_retina ? 'not all and ' : ''}(#{q})"}.join(', ')
 end
 
-# Returns a concatenated, minified CSS string from all CSS files in the given path.
-def combine_css(path)
+# Returns a concatenated, minified CSS string from all CSS files in the given paths.
+def combine_css(*paths)
+  files = paths.map {|path| Dir.glob(pegasus_dir('sites.v3', request.site, path, '*.css'))}.flatten
   css_last_modified = Time.at(0)
-  css = Dir.glob(pegasus_dir('sites.v3', request.site, path, '*.css')).sort.map do |i|
+  css = files.sort_by(&File.method(:basename)).map do |i|
     css_last_modified = [css_last_modified, File.mtime(i)].max
     IO.read(i)
   end.join("\n\n")
@@ -79,4 +69,19 @@ def combine_css(path)
     style: :compressed
   ).render
   [css_min, css_last_modified]
+end
+
+# Returns a random donor's twitter handle.
+def get_random_donor_twitter
+  weight = SecureRandom.random_number
+  donor = DB[:cdo_donors].where('((twitter_weight_f - ?) >= 0)', weight).first
+  if donor && donor[:twitter_s]
+    return donor[:twitter_s]
+  else
+    Honeybadger.notify(
+      error_class: "Failed to pull a random donor twitter handle",
+      error_message: donor ? "Donor returned nil for weight #{weight}" : "Twitter handle was nil for donor #{donor}"
+    )
+    return '@microsoft'
+  end
 end

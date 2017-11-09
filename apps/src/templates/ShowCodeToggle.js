@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from 'react';
 import logToCloud from '../logToCloud';
+import trackEvent from '../util/trackEvent';
 import {singleton as studioApp} from '../StudioApp';
 import {PaneButton} from './PaneHeader';
 import msg from '@cdo/locale';
 import UserPreferences from '../lib/util/UserPreferences';
-import experiments from '../util/experiments';
 import project from '../code-studio/initApp/project';
 
 const BLOCKS_GLYPH_LIGHT = "data:image/gif;base64,R0lGODlhEAAQAIAAAP///////yH+GkNyZWF0ZWQgd2l0aCBHSU1QIG9uIGEgTWFjACH5BAEKAAEALAAAAAAQABAAAAIdjI+py40AowRp2molznBzB3LTIWpGGZEoda7gCxYAOw==";
@@ -52,6 +52,11 @@ class ShowCodeButton extends Component {
     showCodeLabel: msg.showCodeHeader(),
   };
 
+  onClick() {
+    trackEvent('showCode', 'click', 'header');
+    this.props.onClick();
+  }
+
   render() {
     const blocksGlyphImage = (
       <img
@@ -72,7 +77,7 @@ class ShowCodeButton extends Component {
         isRtl={!!this.props.isRtl}
         isMinecraft={!!this.props.isMinecraft}
         headerHasFocus={!!this.props.hasFocus}
-        onClick={this.props.onClick}
+        onClick={this.onClick.bind(this)}
         style={this.props.hidden ? {display: 'none'} : {display: 'inline-block'}}
       />
     );
@@ -99,7 +104,7 @@ class DropletCodeToggle extends Component {
 
   toggle = () => {
     // are we trying to toggle from blocks to text (or the opposite)
-    let fromBlocks = studioApp().editor.currentlyUsingBlocks;
+    let fromBlocks = studioApp().currentlyUsingBlocks();
 
     let result;
     try {
@@ -116,21 +121,19 @@ class DropletCodeToggle extends Component {
     } else {
       studioApp().onDropletToggle();
       this.forceUpdate();
-      this.props.onToggle(studioApp().editor.currentlyUsingBlocks);
+      this.props.onToggle(studioApp().currentlyUsingBlocks());
     }
   }
 
   onClick = () => {
     this.toggle();
-    if (experiments.isEnabled('saveBlockMode')) {
-      new UserPreferences().setUsingTextMode(
-        !studioApp().editor.currentlyUsingBlocks,
-        {
-          project_id: project.getCurrentId(),
-          level_id: studioApp().config.level.id,
-        }
-      );
-    }
+    new UserPreferences().setUsingTextMode(
+      !studioApp().currentlyUsingBlocks(),
+      {
+        project_id: project.getCurrentId(),
+        level_id: studioApp().config.level.id,
+      }
+    );
   }
 
   render() {
@@ -141,7 +144,7 @@ class DropletCodeToggle extends Component {
         isMinecraft={this.props.isMinecraft}
         onClick={this.onClick}
         hidden={!studioApp().enableShowCode}
-        showingBlocks={studioApp().editor && studioApp().editor.currentlyUsingBlocks}
+        showingBlocks={studioApp().currentlyUsingBlocks()}
         showCodeLabel={msg.showTextHeader()}
       />
     );

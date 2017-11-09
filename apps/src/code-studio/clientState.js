@@ -100,7 +100,7 @@ clientState.levelProgress = function (scriptName, levelId) {
  * reserved for server-dependent changes and can't be cached locally.
  * @param {boolean} result - Whether the user's solution is successful
  * @param {number} lines - Number of lines of code user wrote in this solution
- * @param {number} testResult - Indicates pass, fail, perfect
+ * @param {TestResult} testResult - Indicates pass, fail, perfect
  * @param {string} scriptName - Which script this is for
  * @param {number} levelId - Which level this is for
  */
@@ -141,7 +141,6 @@ clientState.batchTrackProgress = function (scriptName, progress) {
  * @param {string} scriptName The script name
  * @param {number} levelId The level
  * @param {number} progress Indicates pass, fail, perfect
- * @returns {number}
  */
 function setLevelProgress(scriptName, levelId, progress) {
   var progressMap = clientState.allLevelsProgress();
@@ -253,28 +252,6 @@ function recordVisualElementSeen(visualElementType, visualElementId) {
     trySetSessionStorage(visualElementType, JSON.stringify(elementSeen));
   }
 }
-
-/**
- * Cache the user sign-in state into sessionStorage
- * @param {boolean} isSignedIn
- */
-clientState.cacheUserSignedIn = function (isSignedIn) {
-  trySetSessionStorage('isSignedIn', isSignedIn);
-};
-
-/**
- * Get the cached user sign-in state from sessionStorage
- * @returns {boolean} True if the user is signed in (null if we don't know).
- */
-clientState.getUserSignedIn = function () {
-  let isSignedIn;
-  try {
-    isSignedIn = JSON.parse(sessionStorage.getItem('isSignedIn'));
-  } catch (e) {
-    isSignedIn = null;
-  }
-  return isSignedIn;
-};
 
 /**
  * Cache whether the user is a teacher, so that we can appropriately update the

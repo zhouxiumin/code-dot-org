@@ -2,6 +2,7 @@ require 'cdo/date'
 require 'dynamic_config/dcdo'
 require 'dynamic_config/gatekeeper'
 require 'dynamic_config/page_mode'
+require 'cdo/shared_constants'
 
 class ApplicationController < ActionController::Base
   include LocaleHelper
@@ -56,6 +57,7 @@ class ApplicationController < ActionController::Base
 
   def reset_session_endpoint
     client_state.reset
+    sign_out if current_user
     reset_session
     render text: 'OK <script>sessionStorage.clear()</script>'
   end
@@ -201,7 +203,6 @@ class ApplicationController < ActionController::Base
       # which levels are worth saving)
       if options[:level_source].try(:id) &&
           options[:solved?] &&
-          options[:activity] &&
           options[:level_source_image]
         response[:save_to_gallery_url] = gallery_activities_path(
           gallery_activity: {

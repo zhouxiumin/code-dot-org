@@ -69,7 +69,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     Timecop.travel Time.local(2013, 9, 1, 12, 0, 0) do
       @default_params.delete(:email)
       params_with_hashed_email = @default_params.merge(
-        {hashed_email: Digest::MD5.hexdigest('an@email.address')}
+        {hashed_email: User.hash_email('an@email.address')}
       )
 
       assert_creates(User) do
@@ -84,7 +84,7 @@ class RegistrationsControllerTest < ActionController::TestCase
       assert_nil assigns(:user).provider
       assert_equal User::TYPE_STUDENT, assigns(:user).user_type
       assert_equal '', assigns(:user).email
-      assert_equal Digest::MD5.hexdigest('an@email.address'), assigns(:user).hashed_email
+      assert_equal User.hash_email('an@email.address'), assigns(:user).hashed_email
     end
   end
 
@@ -141,6 +141,41 @@ class RegistrationsControllerTest < ActionController::TestCase
     end
 
     assert_equal ["Age is required"], assigns(:user).errors.full_messages
+  end
+
+  test "create new teacher with us ip sends email with us content" do
+    teacher_params = @default_params.update(user_type: 'teacher')
+    Geocoder.stubs(:search).returns([OpenStruct.new(country_code: 'US')])
+    assert_creates(User) do
+      post :create, params: {user: teacher_params}
+    end
+
+    mail = ActionMailer::Base.deliveries.first
+    assert_equal 'Welcome to Code.org!', mail.subject
+    assert mail.body.to_s =~ /Hadi Partovi/
+    assert mail.body.to_s =~ /New to teaching computer science/
+  end
+
+  test "create new teacher with non-us ip sends email without us content" do
+    teacher_params = @default_params.update(user_type: 'teacher')
+    Geocoder.stubs(:search).returns([OpenStruct.new(country_code: 'CA')])
+    assert_creates(User) do
+      post :create, params: {user: teacher_params}
+    end
+
+    mail = ActionMailer::Base.deliveries.first
+    assert_equal 'Welcome to Code.org!', mail.subject
+    assert mail.body.to_s =~ /Hadi Partovi/
+    refute mail.body.to_s =~ /New to teaching computer science/
+  end
+
+  test "create new student does not send email" do
+    student_params = @default_params
+
+    assert_creates(User) do
+      post :create, params: {user: student_params}
+    end
+    assert ActionMailer::Base.deliveries.empty?
   end
 
   test "create as student requires email" do
@@ -268,7 +303,7 @@ class RegistrationsControllerTest < ActionController::TestCase
       user: {
         age: '9',
         email: '',
-        hashed_email: Digest::MD5.hexdigest('hidden@email.com'),
+        hashed_email: User.hash_email('hidden@email.com'),
         current_password: 'whatev' # need this to change email
       }
     }
@@ -276,7 +311,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     assert_redirected_to '/'
 
     assert_equal '', assigns(:user).email
-    assert_equal Digest::MD5.hexdigest('hidden@email.com'), assigns(:user).hashed_email
+    assert_equal User.hash_email('hidden@email.com'), assigns(:user).hashed_email
   end
 
   test "update over 13 student with plaintext email" do
@@ -294,7 +329,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     assert_redirected_to '/'
 
     assert_equal '', assigns(:user).email
-    assert_equal Digest::MD5.hexdigest('hashed@email.com'), assigns(:user).hashed_email
+    assert_equal User.hash_email('hashed@email.com'), assigns(:user).hashed_email
   end
 
   test 'update rejects unwanted parameters' do
@@ -325,6 +360,88 @@ class RegistrationsControllerTest < ActionController::TestCase
       assigns(:user).errors.full_messages
   end
 
+  test 'upgrade word student to password without secret words fails' do
+    student_without_password = create(:student_in_word_section)
+    sign_in student_without_password
+
+    user_params = {
+      email: 'upgraded@code.org',
+      password: '1234567',
+      password_confirmation: '1234567'
+    }
+
+    post :upgrade, params: {
+      user: user_params
+    }
+
+    student_without_password.reload
+    assert student_without_password.teacher_managed_account?
+    refute student_without_password.provider.nil?
+  end
+
+  test 'upgrade word student to password with secret words succeeds' do
+    student_without_password = create(:student_in_word_section)
+    sign_in student_without_password
+
+    user_params = {
+      email: 'upgraded@code.org',
+      password: '1234567',
+      password_confirmation: '1234567',
+      secret_words: student_without_password.secret_words
+    }
+    post :upgrade, params: {
+      user: user_params
+    }
+
+    student_without_password.reload
+    refute student_without_password.teacher_managed_account?
+    assert student_without_password.provider.nil?
+  end
+
+  test 'upgrade picture student to password succeeds' do
+    student_without_password = create(:student_in_picture_section)
+    sign_in student_without_password
+
+    user_params = {
+      email: 'upgraded@code.org',
+      password: '1234567',
+      password_confirmation: '1234567',
+    }
+    post :upgrade, params: {
+      user: user_params
+    }
+
+    student_without_password.reload
+    refute student_without_password.teacher_managed_account?
+    assert student_without_password.provider.nil?
+  end
+
+  test 'upgrade student to password account with parent email succeeds and sends email' do
+    student_without_password = create(:student_in_picture_section)
+    sign_in student_without_password
+
+    parent_email = 'upgraded_parent@code.org'
+
+    user_params = {
+      parent_email: parent_email,
+      username: 'upgrade_username',
+      password: '1234567',
+      password_confirmation: '1234567',
+    }
+    post :upgrade, params: {
+      user: user_params
+    }
+
+    student_without_password.reload
+    refute student_without_password.teacher_managed_account?
+    assert student_without_password.provider.nil?
+
+    mail = ActionMailer::Base.deliveries.first
+    assert_equal [parent_email], mail.to
+    assert_equal 'Login information for Code.org', mail.subject
+    assert mail.body.to_s =~ /Your child/
+  end
+
   test 'deleting sets deleted at on a user' do
     user = create :user
     sign_in user
@@ -338,6 +455,11 @@ class RegistrationsControllerTest < ActionController::TestCase
   # The next several tests explore profile changes for users with or without
   # passwords.  Examples of users without passwords are users that authenticate
   # via oauth (a third-party account), or students with a picture password.
+
+  # Tech debt note:
+  # These tests make multiple controller calls per-test, which is not fully supported as per http://api.rubyonrails.org/v4.2/classes/ActionController/TestCase.html
+  # Currently this is worked around by calling current_user.reload in registrations_controller.rb, but ideally
+  # these tests should be fixed up to avoid this issue.
 
   test "editing password of student-without-password is not allowed" do
     student_without_password = create :student
@@ -440,6 +562,33 @@ class RegistrationsControllerTest < ActionController::TestCase
     refute can_edit_hashed_email_with_password teacher_with_password, 'wrongpassword'
     # Can't even do this, because cleartext email is required for teachers
     refute can_edit_hashed_email_with_password teacher_with_password, 'oldpassword'
+  end
+
+  test "display name edit field absent for picture account" do
+    picture_student = create(:student_in_picture_section)
+    sign_in picture_student
+
+    get :edit
+    assert_response :success
+    assert_select '#user_name', false, 'This page should not contain an editable display name field'
+  end
+
+  test "display name edit field present for word account" do
+    word_student = create(:student_in_word_section)
+    sign_in word_student
+
+    get :edit
+    assert_response :success
+    assert_select '#user_name', 1
+  end
+
+  test "display name edit field present for password account" do
+    student = create(:student)
+    sign_in student
+
+    get :edit
+    assert_response :success
+    assert_select '#user_name', 1
   end
 
   def can_edit_password_without_password(user)

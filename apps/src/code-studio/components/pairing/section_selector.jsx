@@ -1,23 +1,19 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { studentsShape } from './types';
 
 /**
  * Section selector component, for students in multiple sections.
  */
-const SectionSelector = React.createClass({
-  propTypes: {
-    sections: React.PropTypes.arrayOf(React.PropTypes.shape({
-      id: React.PropTypes.number,
-      name: React.PropTypes.string,
+export default class SectionSelector extends React.Component {
+  static propTypes = {
+    sections: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
       students: studentsShape
     })),
-    selectedSectionId: React.PropTypes.number,
-    handleChange: React.PropTypes.func.isRequired,
-  },
-
-  handleChange(event) {
-    this.props.handleChange(event);
-  },
+    selectedSectionId: PropTypes.number,
+    handleChange: PropTypes.func.isRequired,
+  };
 
   render() {
     if (this.props.sections.length === 0 || this.props.sections.length === 1) {
@@ -28,7 +24,7 @@ const SectionSelector = React.createClass({
       <select
         name="sectionId"
         value={this.props.selectedSectionId}
-        onChange={this.handleChange}
+        onChange={this.props.handleChange}
       >
         <option key="blank" value="">Choose your section</option>
         {this.props.sections.map(section =>
@@ -37,5 +33,4 @@ const SectionSelector = React.createClass({
       </select>
     );
   }
-});
-export default SectionSelector;
+}

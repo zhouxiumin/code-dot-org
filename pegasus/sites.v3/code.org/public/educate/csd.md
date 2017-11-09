@@ -1,25 +1,38 @@
 ---
 title: CS Discoveries
-nav: educate_nav
 video_player: true
 theme: responsive
 ---
 
-# Our newest course: CS Discoveries &nbsp;&nbsp; <a href="<%= CDO.studio_url('/courses/csd')%>" name="CS Discoveries Course"><button style="margin-top: 0">View course</button></a>
+<link href="/shared/css/course-blocks.css", type="text/css", rel="stylesheet"></link>
+
+# Our newest course: CS Discoveries
 
 ## <a name="what"></a>What is CS Discoveries?
 
-Computer Science Discoveries (CS Discoveries) is an introductory computer science course that empowers students to create authentic artifacts and engage with computer science as a medium for creativity, communication, problem solving, and fun. 
+Computer Science Discoveries (CS Discoveries) is an introductory computer science course that empowers students to create authentic artifacts and engage with computer science as a medium for creativity, communication, problem solving, and fun.
 
-<div style="float:right; margin:20px 0px 20px 20px;">
+<div class="col-50" style="padding-right: 20px">
 
-<%=view :display_video_thumbnail, id: "intro_csp", video_code: "2-QpgNHknds", play_button: 'center' %>
-
+<%=view :display_video_thumbnail, id: "intro_csp", video_code: "2-QpgNHknds", play_button: 'center', letterbox: 'false' %>
 <i>Need a video you can use for student recruitment for the course? <a href="https://youtu.be/g4qfsH8bc8s" target="_blank">Click here</a></i>
 
 </div>
 
+[col-50]
 
+<%= view :course_wide_block, cta_link: CDO.studio_url('/courses/csd'), cta_text: 'View course', lesson_plans: 'https://curriculum.code.org/csd', img: CDO.code_org_url('/shared/images/banners/small-purple-icons.png'), title: 'Computer Science Discoveries', ages: 'Recommended for Grades 6-10', description: 'Computer Science Discoveries (CS Discoveries) is an introductory computer science course that empowers students to create authentic artifacts and engage with computer science as a medium for creativity, communication, problem solving, and fun.'%>
+
+[/col-50]
+
+<div style="clear:both"></div>
+
+## Professional learning program
+Our middle and high school programs offer year-round support. The program kicks off with a five-day summer workshop where you'll have an opportunity to work hands-on with the curriculum and meet other teachers from your area. Throughout the year, we offer online support for upcoming units, forum support, and 1-day quarterly workshops. You don't need any prior computer science experience to get started. And teachers love it! 90% rank it the best professional development ever.
+
+[<button>Learn more</button>](https://code.org/educate/professional-learning/cs-discoveries) [<button>Tell me when applications open!</button>](https://studio.code.org/pd/regional_partner_contact/new)
+
+## Course Design
 ### <a name="equity"></a>Designed with equity in mind
 
 CS Discoveries is designed from the ground up to be an accessible and engaging course for all students, regardless of background or prior experience. It provides students opportunities to engage with culturally and personally relevant topics in a wide variety of contexts and aims to show all students that CS is for them.
@@ -38,7 +51,7 @@ CS Discoveries is specifically designed to support new-to-CS teachers. The curri
 
 ### <a name="flexible"></a>Flexible Implementation
 
-CS Discoveries was specifically designed for 7th to 9th grade classrooms and can be used in either middle school or high school. The two semesters build on each other, allowing the course to be taught as a single semester, two sequential semesters, a full-year course, or even integrated into existing technology classes.
+CS Discoveries is appropriate for 6th - 10th grade classrooms and can be used in either middle school or early high school. The two semesters build on each other, allowing the course to be taught as a single semester, two sequential semesters, a full-year course, or even integrated into existing technology classes.
 
 ### <a name="tools"></a>Powerful tools with a high ceiling
 
@@ -76,7 +89,7 @@ CS Discoveries introduces students to tools and programming languages that are a
 
 ## <a name="content"></a>Course Overview
 
-[**Printable course overview PDF**](https://curriculum.code.org/media/uploads/CSD_1-pager_final.pdf)
+[**One-pager**](/files/CSDiscoveries_1-pager.pdf) describing the course
 
 Computer Science encompasses far more than just coding, and CS Discoveries will provide students with opportunities to explore the many facets of CS, both in terms of how they are personally relevant as well as how they impact society.
 
@@ -204,21 +217,20 @@ details on the classroom and student practices that flow throughout the course, 
 
 ## <a name="faq"></a>Frequently Asked Questions
 
-### <a name="relationship"></a>What is the relationship between CS Discoveries and Exploring Computer Science?
-
-The CS Discoveries course is deeply inspired by the philosophy of ECS, based on our experience teaching ECS, scaling it to thousands of classrooms nationwide, and evaluation of feedback from the teachers. This course teaches similar core concepts as ECS, and has a shared _**inquiry-based philosophy**_ and _**teacher-learner-observer PD model**_. It also shares the same emphasis on _**equity**_ which has pervaded Code.org's curriculum in other grade levels.
-
-[Learn more](/educate/csd/ecs_and_csd) about Code.org's transition to CS Discoveries from Exploring Computer Science. 
-
-
 ### <a name="timeline"></a>What is the timeline for CS Discoveries?
 
-We will pilot the new course materials during the spring of 2016-17 with a group of 45 teachers across the US. The course will roll out formally in Summer 2017. Check back to
+All units are released at this time and can be used by teachers and classrooms. Throughout Fall 2017, we will be releasing revised versions of Units 4 - 6 to incorporate feedback from our Spring 2017 pilot.
 this website frequently as we release drafted lesson plans!
 
 ### <a name="standards"></a>Will CS Discoveries be mapped to standards?
 
-CS Discoveries was written using both the K-12 Framework for Computer Science and the draft CSTA standards as guidance. Because the revised CSTA standards have not been finalized as of May 2017, we are holding off on publishing formal standards mapping documents to ensure that we have an opportunity to address any changes that may appear in the final draft. Once the CSTA standards have been finalized and published, we will complete a full pass to articulate, on a unit and lesson level, our mapping to not only the the CSTA standards, but also select ISTE, Common Core Math, Common Core ELA, and NGSS standards. Once this mapping has been completed, it will be available in lesson plans and at code.org/csd/standards
+CS Discoveries was written using both the K-12 Framework for Computer Science and the newly revised 2017 CSTA standards as guidance. Currently, every lesson in CS Discoveries contains mappings to the relevant 2017 CSTA standards.
+ The summary of of all CSTA 2017 mappings can be found at [curriculum.code.org/csd/standards](https://curriculum.code.org/csd/standards)
+
+###  <a name="implementation"></a>I’m teaching CS Discoveries but have less than one semester with my students. What would you recommend?
+CS Discoveries consists of two semesters that build on each other.  Schools can choose to teach a single semester, two sequential semesters, or a single, year-long course.  For courses that meet fewer than three hours a week or last for less than a trimester, we recommend [CS Fundamentals Express](/educate/curriculum/express-course), a 30+ hour course that covers the foundational concepts of programming.
+
+Some schools may want to use parts of the CS Discoveries curriculum without running an entire semester of the course.  We always suggest starting with at least the first chapter of Unit 1 to build the classroom culture and problem solving skills the rest of the course depends on.  Afterwards, students can move on to any of Units 2 - 5, either completing the entire unit or stopping at the end of the Chapter 1 project.  Because of the programming knowledge required for Unit 6, students should only attempt it after completing Unit 3.
 
 ### <a name="supplies"></a>What materials and supplies are required for CS Discoveries?
 
@@ -231,6 +243,12 @@ CS Discoveries was written using both the K-12 Framework for Computer Science an
 * [Adafruit's Circuit Playground Boards](/circuitplayground) and Micro USB cables. The curriculum is designed for a ratio of 2 students to 1 board & 1 usb cable***
 
 \*** For teachers participating in our 2017-18 Professional Learning Program who are implementing the full-year version of the course, we will be subsidizing or partially subsidizing one classroom kit of Adafruit Circuit Playground Boards. This kit contains 15 boards and accessories and supports a classroom of 30 students, assuming a 2:1 ratio of students to boards. To learn more about the classroom kit, software requirements, and the details of the subsidy visit [code.org/circuitplayground](/circuitplayground)  \***
+
+### <a name="relationship"></a>What is the relationship between CS Discoveries and Exploring Computer Science?
+
+The CS Discoveries course is deeply inspired by the philosophy of ECS, based on our experience teaching ECS, scaling it to thousands of classrooms nationwide, and evaluation of feedback from the teachers. This course teaches similar core concepts as ECS, and has a shared _**inquiry-based philosophy**_ and _**teacher-learner-observer PD model**_. It also shares the same emphasis on _**equity**_ which has pervaded Code.org's curriculum in other grade levels.
+
+[Learn more](/educate/csd/ecs_and_csd) about Code.org's transition to CS Discoveries from Exploring Computer Science. 
 
 <!--
 #### Can I pilot the new course?

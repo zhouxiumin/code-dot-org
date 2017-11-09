@@ -15,20 +15,23 @@ module.exports = function (grunt) {
 
   process.env.mocha_entry = grunt.option('entry') || '';
   if (process.env.mocha_entry) {
-    // create an entry-tests.js file with the right require statement
-    // so that karma + webpack can do their thing. For some reason, you
-    // can't just point the test runner to the file itself as it won't
-    // get compiled.
-    let file = "require('babel-polyfill');\n" +
-      "require('"+path.resolve(process.env.mocha_entry)+"');\n";
-
-    if (fs.lstatSync(path.resolve(process.env.mocha_entry)).isDirectory()) {
-      file = `
+    const isDirectory = fs.lstatSync(path.resolve(process.env.mocha_entry)).isDirectory();
+    const loadContext = isDirectory ?
+      `let testsContext = require.context(${JSON.stringify(path.resolve(process.env.mocha_entry))}, true, /\\.jsx?$/);` :
+      '';
+    const runTests = isDirectory ?
+      'testsContext.keys().forEach(testsContext);' :
+      `require('${path.resolve(process.env.mocha_entry)}');`;
+    const file = `// Auto-generated
 import 'babel-polyfill';
-var testsContext = require.context(${JSON.stringify(path.resolve(process.env.mocha_entry))}, true, /\.js$/);
-testsContext.keys().forEach(testsContext);
+import { throwOnConsoleErrorsEverywhere, throwOnConsoleWarningsEverywhere } from './util/testUtils';
+${loadContext}
+describe('entry tests', () => {
+  throwOnConsoleErrorsEverywhere();
+  throwOnConsoleWarningsEverywhere();
+  ${runTests}
+});
 `;
-    }
     fs.writeFileSync(
       'test/entry-tests.js',
       file
@@ -63,6 +66,7 @@ testsContext.keys().forEach(testsContext);
     'netsim',
     'studio',
     'turtle',
+    'scratch',
     'weblab'
   ];
 
@@ -133,6 +137,18 @@ testsContext.keys().forEach(testsContext);
           src: ['**'],
           //TODO: Would be preferrable to separate Blockly media.
           dest: 'build/package/media'
+        },
+        {
+          expand: true,
+          cwd: 'node_modules/@code-dot-org/craft/src/assets',
+          src: ['**'],
+          dest: 'build/package/media/skins/craft',
+        },
+        {
+          expand: true,
+          cwd: 'node_modules/scratch-blocks/media',
+          src: ['**'],
+          dest: 'build/package/media/scratch-blocks',
         },
         // We have to do some weird stuff to get our fallback video player working.
         // video.js expects some of its own files to be served by the application, so
@@ -314,6 +330,7 @@ testsContext.keys().forEach(testsContext);
       files: [
         {pattern: 'test/audio/**/*', watched: false, included: false, nocache: true},
         {pattern: 'test/integration/**/*', watched: false, included: false, nocache: true},
+        {pattern: 'test/scratch/**/*', watched: false, included: false, nocache: true},
         {pattern: 'test/storybook/**/*', watched: false, included: false, nocache: true},
         {pattern: 'test/unit/**/*', watched: false, included: false, nocache: true},
         {pattern: 'test/util/**/*', watched: false, included: false, nocache: true},
@@ -358,6 +375,21 @@ testsContext.keys().forEach(testsContext);
         {src: ['test/integration-tests.js'], watched: false},
       ],
     },
+    scratch: {
+      coverageReporter: {
+        dir: 'coverage/scratch',
+        reporters: [
+          { type: 'html' },
+          { type: 'lcovonly' }
+        ]
+      },
+      junitReporter: Object.assign({}, junitReporterBaseConfig, {
+        outputFile: 'scratch.xml',
+      }),
+      files: [
+        {src: ['test/scratch-tests.js'], watched: false},
+      ],
+    },
     storybook: {
       coverageReporter: {
         dir: 'coverage/storybook',
@@ -371,11 +403,6 @@ testsContext.keys().forEach(testsContext);
       }),
       files: [
         {src: ['test/storybook-tests.js'], watched: false},
-      ],
-    },
-    all: {
-      files: [
-        {src: ['test/index.js'], watched: false},
       ],
     },
     entry: {
@@ -403,19 +430,21 @@ testsContext.keys().forEach(testsContext);
     'code-studio':                  './src/sites/studio/pages/code-studio.js',
     'levelbuilder':                 './src/sites/studio/pages/levelbuilder.js',
     'levelbuilder_applab':          './src/sites/studio/pages/levelbuilder_applab.js',
+    'levelbuilder_craft':          './src/sites/studio/pages/levelbuilder_craft.js',
     'levelbuilder_edit_script':     './src/sites/studio/pages/levelbuilder_edit_script.js',
     'levelbuilder_gamelab':         './src/sites/studio/pages/levelbuilder_gamelab.js',
     'levelbuilder_studio':          './src/sites/studio/pages/levelbuilder_studio.js',
     'levelbuilder_pixelation':      './src/sites/studio/pages/levelbuilder_pixelation.js',
     'levels/contract_match':        './src/sites/studio/pages/levels/contract_match.jsx',
     'levels/_curriculum_reference': './src/sites/studio/pages/levels/_curriculum_reference.js',
-    'levels/submissionHelper':      './src/sites/studio/pages/levels/submissionHelper.js',
+    'levels/_dialog':               './src/sites/studio/pages/levels/_dialog.js',
     'levels/_standalone_video':     './src/sites/studio/pages/levels/_standalone_video.js',
     'levels/external':              './src/sites/studio/pages/levels/external.js',
-    'levels/levelGroup':            './src/sites/studio/pages/levels/levelGroup.js',
+    'levels/_level_group':          './src/sites/studio/pages/levels/_level_group.js',
     'levels/multi':                 './src/sites/studio/pages/levels/multi.js',
     'levels/textMatch':             './src/sites/studio/pages/levels/textMatch.js',
     'levels/widget':                './src/sites/studio/pages/levels/widget.js',
+    'levels/_external_link':        './src/sites/studio/pages/levels/_external_link.js',
     'levels/editors/_blockly':      './src/sites/studio/pages/levels/editors/_blockly.js',
     'levels/editors/_all':          './src/sites/studio/pages/levels/editors/_all.js',
     'levels/editors/_dsl':          './src/sites/studio/pages/levels/editors/_dsl.js',
@@ -428,11 +457,14 @@ testsContext.keys().forEach(testsContext);
     'raceInterstitial':             './src/sites/studio/pages/raceInterstitial.js',
     'layouts/_terms_interstitial':  './src/sites/studio/pages/layouts/_terms_interstitial.js',
     'maker/setup':                  './src/sites/studio/pages/maker/setup.js',
+    'maker/discountcode':           './src/sites/studio/pages/maker/discountcode.js',
     'scriptOverview':               './src/sites/studio/pages/scriptOverview.js',
     'home/_homepage':               './src/sites/studio/pages/home/_homepage.js',
+    'congrats/index':               './src/sites/studio/pages/congrats/index.js',
     'courses/index':                './src/sites/studio/pages/courses/index.js',
     'courses/show':                 './src/sites/studio/pages/courses/show.js',
-    'courses/edit':                 './src/sites/studio/pages/courses/edit.js'
+    'courses/edit':                 './src/sites/studio/pages/courses/edit.js',
+    'devise/registrations/edit':    './src/sites/studio/pages/devise/registrations/edit.js',
   };
 
   var otherEntries = {
@@ -464,9 +496,15 @@ testsContext.keys().forEach(testsContext);
     'pd/facilitator_program_registration/new': './src/sites/studio/pages/pd/facilitator_program_registration/new.js',
     'pd/regional_partner_program_registration/new': './src/sites/studio/pages/pd/regional_partner_program_registration/new.js',
     'pd/workshop_survey/new': './src/sites/studio/pages/pd/workshop_survey/new.js',
+    'pd/pre_workshop_survey/new': './src/sites/studio/pages/pd/pre_workshop_survey/new.js',
     'pd/teachercon_survey/new': './src/sites/studio/pages/pd/teachercon_survey/new.js',
+    'pd/application_dashboard/index': './src/sites/studio/pages/pd/application_dashboard/index.js',
+    'pd/application/facilitator_application/new': './src/sites/studio/pages/pd/application/facilitator_application/new.js',
 
     'pd/professional_learning_landing/index': './src/sites/studio/pages/pd/professional_learning_landing/index.js',
+    'pd/regional_partner_contact/new': './src/sites/studio/pages/pd/regional_partner_contact/new.js',
+
+    'peer_reviews/dashboard': './src/sites/studio/pages/peer_reviews/dashboard.js',
 
     'code.org/public/teacher-dashboard/index': './src/sites/code.org/pages/public/teacher-dashboard/index.js',
     'code.org/public/pd-workshop-survey/splat': './src/sites/code.org/pages/public/pd-workshop-survey/splat.js',
@@ -480,7 +518,10 @@ testsContext.keys().forEach(testsContext);
     'shared/_check_admin': './src/sites/studio/pages/shared/_check_admin.js',
 
     'code.org/public/educate/curriculum/courses': './src/sites/code.org/pages/public/educate/curriculum/courses.js',
-    'code.org/views/workshop_search' : './src/sites/code.org/pages/views/workshop_search.js'
+    'code.org/views/workshop_search' : './src/sites/code.org/pages/views/workshop_search.js',
+
+    'code.org/public/yourschool': './src/sites/code.org/pages/public/yourschool.js',
+    'hourofcode.com/public/index': './src/sites/hourofcode.com/pages/public/index.js'
   };
 
   // Create a config for each of our bundles
@@ -498,7 +539,7 @@ testsContext.keys().forEach(testsContext);
           otherEntries
         ),
         function (val) {
-          return ['./src/util/idempotent-babel-polyfill'].concat(val);
+          return ['./src/util/idempotent-babel-polyfill', 'whatwg-fetch'].concat(val);
         }
       ),
       externals: [
@@ -521,6 +562,7 @@ testsContext.keys().forEach(testsContext);
           name: 'essential',
           minChunks: 2,
           chunks: [
+            'peer_reviews',
             'plc',
             'pd',
             'code-studio-common',
@@ -798,11 +840,11 @@ testsContext.keys().forEach(testsContext);
     'karma:integration'
   ]);
 
-  // Note: Be sure if you add additional test types, you also up date test-low-memory.sh
-  grunt.registerTask('test', [
+  // Run Scratch tests in a separate target so `window.Blockly` doesn't collide.
+  grunt.registerTask('scratchTest', [
     'preconcat',
     'concat',
-    'karma:all'
+    'karma:scratch',
   ]);
 
   grunt.registerTask('logBuildTimes', function () {

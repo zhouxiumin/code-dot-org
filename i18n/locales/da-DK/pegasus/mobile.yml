@@ -69,6 +69,12 @@
   congratulations_on_completing_course2: "Tillykke med at du fuldførte Kursus 2"
   congratulations_on_completing_course3: "Tillykke med at du fuldførte Kursus 3"
   congratulations_on_completing_course4: "Tillykke med at du fuldførte Kursus 4"
+  congratulations_on_completing_coursea: "Congratulations on completing Course A"
+  congratulations_on_completing_courseb: "Congratulations on completing Course B"
+  congratulations_on_completing_coursec: "Congratulations on completing Course C"
+  congratulations_on_completing_coursed: "Congratulations on completing Course D"
+  congratulations_on_completing_coursee: "Congratulations on completing Course E"
+  congratulations_on_completing_coursef: "Congratulations on completing Course F"
   congratulations_on_completing_accelerated: "Tillykke med at du fuldførte Lynkurset"
   congrats_next_tutorials_title: "Prøv dissse øvelser nu"
   congrats_next_tutorials_desc: "Prøv disse kortere, 1 times øvelser eller prøv en <a href=\"%{current_path}/next\">partner-øvelse</a>."
@@ -189,12 +195,30 @@
   learn_classes: "Find lokale klasser"
   learn_back_to_minecraft: "Keep learning with Minecraft"
   hoc_is_here: 'The #HourOfCode is coming again December 5-11. https://youtu.be/KsOIlDT145A.'
-  just_did_hoc: 'Jeg har lige taget en #HourOfCode - tjek det ud! @codeorg'
+  just_did_hoc: 'Jeg fuldførte lige #HourOfCode - tjek det ud! @codeorg'
   just_did_course1: "I just finished Course 1 - check it out! @codeorg"
   just_did_course2: "I just finished Course 2 - check it out! @codeorg"
   just_did_course3: "I just finished Course 3 - check it out! @codeorg"
   just_did_course4: "I just finished Course 4 - check it out! @codeorg"
+  just_did_coursea: "I just finished Course A - check it out! @codeorg"
+  just_did_courseb: "I just finished Course B - check it out! @codeorg"
+  just_did_coursec: "I just finished Course C - check it out! @codeorg"
+  just_did_coursed: "I just finished Course D - check it out! @codeorg"
+  just_did_coursee: "I just finished Course E - check it out! @codeorg"
+  just_did_coursef: "I just finished Course F - check it out! @codeorg"
   just_did_accelerated: "I just finished the Accelerated Course - check it out! @codeorg"
+  just_did_hoc_donor: 'I just did the #HourOfCode - check it out! (Thanks %{donor_twitter} for supporting @codeorg)'
+  just_did_course1_donor: "I just finished Course 1 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course2_donor: "I just finished Course 2 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course3_donor: "I just finished Course 3 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course4_donor: "I just finished Course 4 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursea_donor: "I just finished Course A - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_courseb_donor: "I just finished Course B - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursec_donor: "I just finished Course C - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursed_donor: "I just finished Course D - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursee_donor: "I just finished Course E - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursef_donor: "I just finished Course F - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_accelerated_donor: "I just finished the Accelerated Course - check it out! Thanks %{donor_twitter} for supporting @codeorg"
   twitter_teach_cs: "9 ud af 10 mennesker er enige om, skoler bør undervise datalogi. http://youtu.be/nKIu9yen5nc. Besøg https://code.org/."
   twitter_cs_foundational: "Computer science is foundational for every student to learn. https://youtu.be/QvyTEx1wyOY."
   learn_hoc: "Lær Hour of Code"
@@ -207,6 +231,7 @@
   lines_of_code: "OVER <b># LINJER KODE</b> SKREVET TIL DATO."
   lines_of_code_alt: "<b>#</b> LINJER AF KODE SKREVET AF ELEVER"
   who_has_done_hoc: 'Hvem har lavet #HourOfCode @codeorg'
+  who_has_done_hoc_donor: 'Who has done the #HourOfCode? (Thanks %{donor_twitter} for supporting @codeorg)'
   hoc_leaderboards: "Rangelisten for Hour Of Code"
   students_and_lines: "%{students} elever har gennemført Hour of Code og skrevet %{lines} linjer kode."
   start_hoc: "Start Hour of Code nu"
@@ -243,6 +268,10 @@
   homepage_hero_text_satya: |-
     &ldquo;Programmering kan åbne for de bedste muligheder i verden.&rdquo;
     Satya, CEO Microsoft
+  homepage_hero_text_satya_new: |-
+    &ldquo;Computer science empowers
+    students to create the world of tomorrow.&rdquo;
+    Satya, CEO of Microsoft
   homepage_hero_text_bosh: |-
     &ldquo;Hvis du kan kode, kan du selv vælge retningen på dit liv.&rdquo;
     Chris Bosh
@@ -326,6 +355,7 @@
   homepage_slot_text_link_buy: "Deltag"
   homepage_slot_text_link_donate: "Giv et bidrag"
   homepage_slot_text_link_shop: "T-shirts, hatte og mere"
+  homepage_slot_text_link_administrators: "Bring to your school or district"
   homepage_header_codestudio: "Elevprodukter fra Code Studio"
   homepage_header_donors: "Code.org takker sine støtter"
   homepage_donors_seall: "Se alle"
@@ -514,6 +544,8 @@
   volunteer_engineer_submission_type_task_remote: "Jeg ønsker du at Skyper til min klasse for at give inspiration til børnene"
   volunteer_engineer_submission_type_task_mentor: "Jeg leder efter en mentor til at lære mig kodning med mine elever"
   petition_age: "Alder"
+  dashboard_announce_hoc_scaling_progress: "Yikes! We are experiencing high Hour of Code traffic. We are unable to save any progress this week, but progress from before this week is still safe."
+  dashboard_announce_learn_more_button: "Lær mere"
   dashboard_landing_title: "Lærerens startside"
   dashboard_landing_welcome: "Velkommen til den nye og forbedrede startside for undervisere."
   dashboard_landing_video: "Se denne video"
@@ -650,6 +682,7 @@
   dashboard_students_add_student: "Tilføj elev"
   dashboard_students_add_students: "Tilføj flere elever"
   dashboard_students_add_multiple: 'Skriv eller indsæt navnene på dine elever, en per linje:'
+  dashboard_students_new_google_classroom_section: "To add students, use <a href='http://classroom.google.com' target='_blank'>Google Classroom</a> and then click the <b>Sync students from Google Classroom</b> button above."
   dashboard_students_new_section: "Du har oprettet et nyt hold! Tilføj nu dine elever ved hjælp af knapperne <b>Tilføj elev</b> og <b>Tilføje flere elever</b> ovenfor."
   dashboard_students_placeholder_name: "Elevens navn"
   dashboard_students_name: "Navn"
@@ -692,6 +725,12 @@
   dashboard_course2: 'Kursus 2:'
   dashboard_course3: 'Kursus 3:'
   dashboard_course4: 'Kursus 4 (beta): '
+  dashboard_coursea: 'Course A: '
+  dashboard_courseb: 'Course B: '
+  dashboard_coursec: 'Course C: '
+  dashboard_coursed: 'Course D: '
+  dashboard_coursee: 'Course E: '
+  dashboard_coursef: 'Course F: '
   dashboard_unplugged: "If you don't have computers, <a href='%{unplugged_url}'>try these unplugged lessons</a> in your classroom."
   dashboard_curriculum: "Læseplan"
   dashboard_curriculum_overview: "Indskoling og mellemtrin (0.-5. klasse)"
@@ -778,7 +817,7 @@
   carousel_heading_international: "Vejledninger på dit sprog"
   carousel_heading_domestic: "Tutorials på engelsk"
   carousel_heading_beginners: "Tutorials for begyndere"
-  carousel_heading_beyond_beginners: "Tutorials for begyndere"
+  carousel_heading_beyond_beginners: Tutorials for begyndere
   carousel_heading_javascript: "Øvelser, hvor du lærer Javascript"
   carousel_heading_beyond_javascript: "Tutorials hvor du lærer Javascript"
   carousel_heading_unplugged: "Ingen enhed eller internettet? Prøv \"unplugged\" kodning"
@@ -791,12 +830,18 @@
   carousel_heading_webpages: "Lær at lave web-sider"
   carousel_heading_robots: "Lære at programmere med robotter"
   carousel_heading_ide: "Platforme populære blandt lærere"
+  carousel_heading_desktop: "Learn to code on a computer"
+  carousel_heading_mobtabelem: "For phones and tablets"
+  carousel_heading_prereader: "For pre-readers"
+  carousel_heading_beyondblocks: "Go beyond blocks - learn a programming language"
+  carousel_heading_nointernet: "Poor internet? Install these apps on your computer"
   educator_notes: "Lærervejledning"
   teach_led_lesson_plans: "Lærerstyret Hour of Code lektions planer"
   learn_footer_all_tutorials: "Se denne <a href=\"https://code.org/educate/allhourofcode\"> omfattende liste med Hour of Code tutorials</a>. Se vores kriterier og retningslinjer for indsendelse til Hour of Code tutorials, <a href=\"https://hourofcode.com/tutorial-guidelines\"> Klik her.</a>"
   how_to_teach_hoc: "Sådan undervises i Én Times Kode"
   more_resources_educators: "Flere ressourcer til lærere og undervisere"
   beyond_submission: "Ønsker du at indsende en tutorial til Beyond an Hour? Se kriterierne og indsendelseformularen."
+  third_party_submission: "Want to submit a tutorial to be listed here? <a href=\"%{submission_url}\">See the criteria and submission form.</a>"
   participants: "deltagerne"
   teachers_notes: "Lærerens noter"
   teachers_notes_hoc: 'Lærere: Læs vigtigte noter til undervisningen her'
@@ -860,12 +905,20 @@
   course3_name: "Kursus 3"
   course4_name: "Kursus 4"
   coursea-draft_name: Course A
+  coursea_name: "Course A"
   courseb-draft_name: Course B
+  courseb_name: "Course B"
   coursec-draft_name: Course C
+  coursec_name: "Course C"
   coursed-draft_name: Course D
+  coursed_name: "Course D"
   coursee-draft_name: Course E
+  coursee_name: "Course E"
   coursef-draft_name: Course F
+  coursef_name: "Course F"
   accelerated_name: "Accelereret kursus"
+  express_name: "Express Course"
+  pre-express_name: Pre-reader Express Course
   cspunit1_name: '(old) Unit 1: Digital Information'
   cspunit2_name: '(old) Unit 2: The Internet'
   cspunit3_name: '(old) Unit 3: Programming'
@@ -881,9 +934,12 @@
   csp1_name: 'Unit 1: The Internet'
   csp2_name: 'Unit 2: Digital Information'
   csp3_name: 'Unit 3: Algorithms and Programming'
+  csp3-a_name: 'Unit 3: Intro Programming (version A)'
+  csp3-research-mxghyt_name: 'Unit 3: Intro Programming (Subgoals)'
   csp4_name: 'Unit 4: Big Data and Privacy'
   csp5_name: 'Unit 5: Building Apps'
   csp6_name: 'Unit 6: AP Performance Tasks'
+  csp-ap_name: AP Performance Tasks
   csppostap_name: 'Post AP: Databases in Apps'
   cspassessment_name: "Full Test - 50 questions"
   cspexam1-mWU7ilDYM9_name: Test Part 1 - 25 questions
@@ -906,10 +962,11 @@
   math_category_name: "Matematik"
   hoc_category_name: "Hour of Code"
   csf_category_name: "CS Fundamentals"
+  csf_international_category_name: "CS Fundamentals International"
   csf2_draft_category_name: 'Under Development: Courses A - F'
   csd_category_name: "CS Discoveries"
   csp_category_name: "'15-'16 CS Principles"
-  csp17_category_name: "'16-'17 CS Principles"
+  csp17_category_name: "CS Principles"
   cspexams_category_name: "CS Principles Practice Test"
   research_studies_category_name: "Research Studies"
   applab_name: "App Lab"
@@ -971,6 +1028,12 @@
   course2_gradelevel: "Fra 6 år (læsning nødvendigt)"
   course3_gradelevel: "Fra 8 år (efter kursus 2)"
   course4_gradelevel: "Fra 10 år (efter kursus 3)"
+  coursea_gradelevel: "Grade 5+"
+  courseb_gradelevel: "Grade 6+"
+  coursec_gradelevel: "Grade 7+"
+  coursed_gradelevel: "8. klasse+"
+  coursee_gradelevel: "Grade 9+"
+  coursef_gradelevel: "Grade 10+"
   accelerated_gradelevel: "Fra 10 år (efter kursus 3)"
   codeorg_platformtext: "Moderne browsere, smartphones, tabletter"
   codeintl_platformtext: "Moderne browsere, smartphones, tabletter"
@@ -1073,6 +1136,12 @@
   course2_shortdescription_congrats: "For students with basic reading skills, this course builds on Course 1. Students will create programs to solve problems and develop interactive games or stories they can share. Recommended for grades 2-5."
   course3_shortdescription_congrats: "Ready for the next level? Students will delve deeper into programming topics introduced in previous courses to find flexible solutions to more complex problems. By the end of this course, students create interactive stories and games they can share with anyone. Recommended for grades 4-5."
   course4_shortdescription_congrats: "Ready to go further? Students will delve deeper into programming topics introduced in previous courses to find flexible solutions to more complex problems. By the end of this course, students create interactive stories and games they can share with anyone. Recommended for grades 4-8."
+  coursea_shortdescription_congrats: ""
+  courseb_shortdescription_congrats: ""
+  coursec_shortdescription_congrats: ""
+  coursed_shortdescription_congrats: ""
+  coursee_shortdescription_congrats: ""
+  coursef_shortdescription_congrats: ""
   codeorg_longdescription: "Lær de grundlæggende begreber i computer videnskab med træk og slip-programmering. Dette er et spil-lignende, selvstyret opgaveforløb med stjernespækket video foredrag af Bill Gates, Mark Zuckerberg, Angry Birds og Plants vs Zombier. Lære gentag-løkker, betingede og grundlæggende algoritmer. Tilgængelige i 34 sprog."
   codeintl_longdescription: "Lær de grundlæggende begreber i computer videnskab med træk og slip-programmering. Dette er et spil-lignende, selvstyret opgaveforløb med stjernespækket video foredrag af Bill Gates, Mark Zuckerberg, Angry Birds og Plants vs Zombier. Lære gentag-løkker, betingede og grundlæggende algoritmer. Tilgængelige i 34 sprog."
   thinkersmithspanish_longdescription: "Mediante el uso de un \"Vocabulario Robot\" predefinido, los estudiantes descubrir&aacute;n como guiarse de modo tal de llevar a cabo tareas espec&iacute;ficas sin ser estas discutidas previamente. Este segmento ense&ntilde;a a los estudiantes la conexi&oacute;n entre s&iacute;mbolos y acciones as&iacute; como la valiosa habilidad de depuraci&oacute;n."
@@ -1317,8 +1386,10 @@
   playlab_shortcode: "lab"
   artist_shortcode: "art"
   header_home: "Hjem"
+  header_my_dashboard: "My Dashboard"
   header_courses: "kurser"
-  header_project_gallery: "Project Gallery"
+  header_course_catalog: "Course Catalog"
+  header_project_gallery: "Projekter"
   header_sections: "Sections"
   header_professional_learning: "Professional Learning"
   header_educate_overview: "Oversigt for undervisere"
@@ -1354,3 +1425,34 @@
   csp_name: "CS Principles"
   csd_name: "CS Discoveries"
   full_course_category_name: "Full Courses"
+  user_header_label: "Hej %{username}"
+  user_header_settings: "Min konto"
+  user_header_logout: "Log ud"
+  user_header_signin: "Log ind"
+  view_all_sections: "View All Sections"
+  view_section: "View Section"
+  view_named_section: "View %{section_name}"
+  privacy_doc_explanation: "Click here for our privacy document that can be shared or printed for your students."
+  signing_in: "Signing In"
+  sign_in_overview: 'Your students can sign in to their Code.org accounts by following these steps:'
+  sign_in_instruct_website: "Go to %{code_org_url}."
+  sign_in_instruct_code: 'Type in their section code: %{section_code}.'
+  sign_in_instruct_name: "Choose their display name."
+  sign_in_instruct_secret: "Choose their secret %{secret}."
+  sign_in_instruct_button: "Click the “Sign in” button."
+  sign_in_overview_cards: "Students can find all of this information, including their secret %{secret}, in the login cards below."
+  reset_student_password: "Resetting student passwords"
+  reset_student_password_instructions: "You can reset the secret <word/picture> for any of your students by going to the “Manage Students” tab for the section, clicking the “Show secret” button under the “Password” column, and clicking the “Reset secret” button."
+  login_cards: "Login Cards"
+  print_login_cards: "Print login cards"
+  joining_section: "Joining your section (one-time only)"
+  joining_section_overview: "If a student has not already joined your section, please ask them to do the following steps. Note that they only need to do this once. By joining your section, students will be able see the course assigned to them and you will be able to track the progress of the work they complete while they are signed in."
+  joining_section_instruct_website: 'Create a Code.org account if they haven’t already done so. They can do this at https://studio.code.org/users/sign_up. Note that they can either sign up with an email address and password, or sign up through Google, Facebook, or Microsoft by clicking on one of these buttons:'
+  joining_section_instruct_account: "Sign in to their Code.org account."
+  joining_section_instruct_code: 'Navigate to %{code_org_url} and type in their section code: %{section_code}.'
+  joining_section_instruct_button: "Once they press the “Go” button, they should be added to your section."
+  signing_in_single_instruct: "Your students can sign in to their Code.org accounts by going to https://code.org/ and clicking on the “Sign in” button on the top right corner."
+  reset_student_password_email: "If your student created a Code.org account by using their email address and password (instead of signing in through their Google, Facebook, Microsoft, or Clever account), you can reset their password by going to the “Manage Students” tab for the section, and clicking the “Reset password” button under the “Password” column."
+  syncing_students: "Syncing your students"
+  syncing_students_instructions: 'If your Code.org section is ever out of date with your list of students in Google Classroom, click on the “Sync students from Google Classroom” button on the “Manage students” tab:'
+  google_sign_in_instruct: 'From there, they should choose the “Sign in with Google Account” option:'

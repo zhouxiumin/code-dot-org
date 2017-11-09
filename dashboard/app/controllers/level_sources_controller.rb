@@ -1,3 +1,4 @@
+require 'base64'
 require 'image_lib'
 
 class LevelSourcesController < ApplicationController
@@ -26,6 +27,11 @@ class LevelSourcesController < ApplicationController
       level_view_options(@level_source.level_id, hide_source: true)
       view_options(no_header: true, no_footer: true, code_studio_logo: true)
       @is_legacy_share = true
+    end
+
+    respond_to do |format|
+      format.html
+      format.json {render json: {data: @level_source.data}}
     end
   end
 
@@ -74,11 +80,25 @@ class LevelSourcesController < ApplicationController
   protected
 
   def set_level_source
-    if current_user && current_user.admin?
-      @level_source = LevelSource.find(params[:id])
-    else
-      @level_source = LevelSource.where(hidden: false).find(params[:id])
-    end
+    reset_abuse_user = current_user && current_user.permission?(UserPermission::RESET_ABUSE)
+    # Depending on the url route, one of params[:level_source_id_and_user_id] (for /r/ links) or
+    # params[:id] (for /c/ links) is set. For the former, deobfuscate the level_source_id.
+    level_source_id =
+      if params[:level_source_id_and_user_id]
+        LevelSource.decrypt_level_source_id(
+          params[:level_source_id_and_user_id],
+          ignore_missing_user: reset_abuse_user
+        )
+      else
+        params[:id]
+      end
+    raise ActiveRecord::RecordNotFound if level_source_id.nil?
+    @level_source =
+      if reset_abuse_user
+        LevelSource.find(level_source_id)
+      else
+        LevelSource.where(hidden: false).find(level_source_id)
+      end
     @level = Level.cache_find(@level_source.level_id)
     @game = @level.game
     view_options(

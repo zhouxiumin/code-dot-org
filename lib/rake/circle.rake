@@ -25,8 +25,14 @@ RUN_APPS_TESTS_TAG = 'test apps'.freeze
 # Don't run any UI or Eyes tests.
 SKIP_UI_TESTS_TAG = 'skip ui'.freeze
 
+# Don't run any unit tests.
+SKIP_UNIT_TESTS_TAG = 'skip unit'.freeze
+
 # Run UI tests against ChromeLatestWin7
 SKIP_CHROME_TAG = 'skip chrome'.freeze
+
+# Run UI tests against Chrome44Win7
+TEST_CHROME_44_TAG = 'test chrome 44'.freeze
 
 # Run UI tests against Firefox45Win7
 TEST_FIREFOX_TAG = 'test firefox'.freeze
@@ -57,13 +63,15 @@ namespace :circle do
       ChatClient.log "Commit message: '#{CircleUtils.circle_commit_message}' contains [#{RUN_APPS_TESTS_TAG}], force-running apps tests."
       RakeUtils.rake_stream_output 'test:apps'
       RakeUtils.rake_stream_output 'test:changed:all_but_apps'
+    elsif CircleUtils.tagged?(SKIP_UNIT_TESTS_TAG)
+      ChatClient.log "Commit message: '#{CircleUtils.circle_commit_message}' contains [#{SKIP_UNIT_TESTS_TAG}], skipping unit tests."
     else
       RakeUtils.rake_stream_output 'test:changed'
     end
   end
 
   desc 'Runs UI tests only if the tag specified is present in the most recent commit message.'
-  task :run_ui_tests do
+  task run_ui_tests: [:recompile_assets] do
     if CircleUtils.tagged?(SKIP_UI_TESTS_TAG)
       ChatClient.log "Commit message: '#{CircleUtils.circle_commit_message}' contains [#{SKIP_UI_TESTS_TAG}], skipping UI tests for this run."
       next
@@ -83,7 +91,7 @@ namespace :circle do
     end
     RakeUtils.system_stream_output 'until $(curl --output /dev/null --silent --head --fail http://localhost-studio.code.org:3000); do sleep 5; done'
     Dir.chdir('dashboard/test/ui') do
-      container_features = `find ./features -name '*.feature' | sort | awk "NR % (${CIRCLE_NODE_TOTAL} - 1) == (${CIRCLE_NODE_INDEX} - 1)"`.split("\n").map {|f| f[2..-1]}
+      container_features = `find ./features -name '*.feature' | sort`.split("\n").map {|f| f[2..-1]}
       eyes_features = `grep -lr '@eyes' features`.split("\n")
       container_eyes_features = container_features & eyes_features
       RakeUtils.system_stream_output "bundle exec ./runner.rb" \
@@ -118,10 +126,42 @@ namespace :circle do
   task :check_for_unexpected_apps_changes do
     # Changes to yarn.lock is a particularly common case; catch it early and
     # provide a helpful error message.
-    raise 'Unexpected change to apps/yarn.lock; if you changed package.json you should also have committed an updated yarn.lock file.' if RakeUtils.git_staged_changes? apps_dir 'yarn.lock'
+    if RakeUtils.git_staged_changes? apps_dir 'yarn.lock'
+      Dir.chdir(apps_dir) do
+        RakeUtils.system_stream_output('git diff yarn.lock | cat')
+      end
+      raise 'Unexpected change to apps/yarn.lock; if you changed package.json you should also have committed an updated yarn.lock file.'
+    end
 
     # More generally, we shouldn't have _any_ staged changes in the apps directory.
-    raise "Unexpected staged changes in apps directory." if RakeUtils.git_staged_changes? apps_dir
+    if RakeUtils.git_staged_changes? apps_dir
+      RakeUtils.system_stream_output("git status --porcelain #{apps_dir}")
+      raise "Unexpected staged changes in apps directory."
+    end
+  end
+
+  task :seed_ui_test do
+    if CircleUtils.tagged?(SKIP_UI_TESTS_TAG)
+      ChatClient.log "Commit message: '#{CircleUtils.circle_commit_message}' contains [#{SKIP_UI_TESTS_TAG}], skipping UI tests for this run."
+      next
+    end
+
+    Dir.chdir('dashboard') do
+      RakeUtils.rake_stream_output 'seed:cached_ui_test'
+    end
+  end
+
+  desc 'Rebuild dashboard assets with updated locals.yml settings before running UI tests'
+  task :recompile_assets do
+    if CircleUtils.tagged?(SKIP_UI_TESTS_TAG)
+      ChatClient.log "Commit message: '#{CircleUtils.circle_commit_message}' contains [#{SKIP_UI_TESTS_TAG}], skipping UI tests for this run."
+      next
+    end
+
+    system 'rm', '-rf', dashboard_dir('tmp', 'cache', 'assets')
+    Dir.chdir(dashboard_dir) do
+      RakeUtils.rake 'assets:precompile'
+    end
   end
 end
 
@@ -129,6 +169,7 @@ end
 def browsers_to_run
   browsers = []
   browsers << 'ChromeLatestWin7' unless CircleUtils.tagged?(SKIP_CHROME_TAG)
+  browsers << 'Chrome44Win7' if CircleUtils.tagged?(TEST_CHROME_44_TAG)
   browsers << 'Firefox45Win7' if CircleUtils.tagged?(TEST_FIREFOX_TAG)
   browsers << 'IE11Win10' if CircleUtils.tagged?(TEST_IE_TAG) || CircleUtils.tagged?(TEST_IE_VERBOSE_TAG)
   browsers << 'SafariYosemite' if CircleUtils.tagged?(TEST_SAFARI_TAG)

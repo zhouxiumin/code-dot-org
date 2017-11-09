@@ -40,6 +40,7 @@ Controlling tests:
 * CI can be skipped for a given commit by including the text `[ci skip]` in the commit message
 * By default, tests are only run for sub-projects which have been changed in your given branch. You can force-run all tests for a given commit by including the text `[test all]` in your commit message.
 * UI tests are run automatically. They can be disabled for a given run by including `[skip ui]` in your commit message
+* There are several other options for which tests are run on circle, which are documented here: https://github.com/code-dot-org/code-dot-org/blob/003a3e89e7eca48873827b53de8c69ab8808ec0d/lib/rake/circle.rake#L16-L51
 * Tests can be re-run with the "Rebuild" button on CircleCI.
 * Tests can be debugged by running "Rebuild with SSH", which enables SSH for the duration of the test and keeps it open for 30 minutes after tests are complete.
 
@@ -75,21 +76,21 @@ To debug tests in Chrome, prepend `BROWSER=Chrome WATCH=1` to any test command.
 See [the apps readme](./apps/README.md) for more details.
 
 ### Dashboard Tests
-`cd dashboard && bundle exec rails test` will run all of our dashboard Ruby tests. This can take about 15 minutes to run.
+`cd dashboard && RAILS_ENV=test bundle exec rails test` will run all of our dashboard Ruby tests. This can take about 15 minutes to run.
 
 If you get a bunch of complaints about database, like missing tables or how some tables haven't been seeded, here are some things you can try in order from least to most drastic before running your tests again:
 
 1. `rake seed:secret_pictures seed:secret_words` to seed the missing data, or
 
-2. `RAILS_ENV=test rake db:reset db:setup_or_migrate seed:secret_pictures seed:secret_words` to recreate your local dashboard test db and reseed the data.
+2. `RAILS_ENV=test rake db:reset db:test:prepare` to recreate your local dashboard test db and reseed the data.
 
 If you just want to run a single file of tests, you can run
-`bundle exec ruby -Itest ./path/to/your/test.rb`
+`bundle exec spring testunit ./path/to/your/test.rb`
 or
-`bundle exec rails test ./path/to/your/test.rb`
+`RAILS_ENV=test bundle exec spring testunit ./path/to/your/test.rb`
 
 To run a specific unit test, you can run
-`bundle exec ruby -Itest ./path/to/your/test.rb --name your_amazing_test_name`
+`bundle exec spring testunit ./path/to/your/test.rb --name your_amazing_test_name`
 
 ### UI Tests and Eyes Tests
 We have a set of integration tests, divided into "UI tests" (Selenium+Cucumber) and "Eyes tests" (Selenium+Cucumber+Applitools).  These tests live in [dashboard/test/ui](dashboard/test/ui) - for information on setting up and running these tests, see [the README in that directory](dashboard/test/ui) and our [guide to adding an eyes test](docs/testing-with-applitools-eyes.md).
@@ -104,12 +105,12 @@ Pegasus tests depend on the `pegasus_test` database.  If you have database-relat
 
 Pegasus tests also depend on some local utilities being installed.  See [SETUP.md](SETUP.md) and make sure you have `pdftk` and `enscript` installed.
 
-###Dealing with test failures (non-Eyes)
+### Dealing with test failures (non-Eyes)
 Our tests are pretty reliable, but not entirely reliable. If you see a test failure, you should investigate it and not immediately assume it is spurious.
 
 Take a look at the Saucelabs replay. You can view a list of recently run tests on Saucelabs and find your error - alternatively, you can run tests with the --html or --verbose option and see a URL. Saucelabs should have a video replay of what the test looked like. If you see something like a certificate error (common when testing on localhost) or a complete CSS breakdown (sometimes specific to IE9) then this is probably because of a flakey test and its safe to ignore. Most other failures do need to be addressed.
 
-###Dealing with test failures (eyes)
+### Dealing with test failures (eyes)
 If you've made a change that caused an eyes failiure, log into Applitools and check out the replay. You can see highlighted areas indicating what parts are different. If you've done something that changes the layout, images, or text, that may cause an eyes failure. Confirm with another team member that this is okay, and you can accept the new appearance as the baseline for future tests.
 
 ## See Also

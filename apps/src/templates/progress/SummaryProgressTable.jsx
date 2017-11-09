@@ -5,7 +5,7 @@ import { levelType, lessonType } from './progressTypes';
 import SummaryProgressRow, { styles as rowStyles } from './SummaryProgressRow';
 import { connect } from 'react-redux';
 import { lessonIsVisible, lessonIsLockedForAllStudents } from './progressHelpers';
-import { ViewType } from '@cdo/apps/code-studio/stageLockRedux';
+import { ViewType } from '@cdo/apps/code-studio/viewAsRedux';
 
 const styles = {
   table: {
@@ -21,8 +21,8 @@ const styles = {
   }
 };
 
-const SummaryProgressTable = React.createClass({
-  propTypes: {
+class SummaryProgressTable extends React.Component {
+  static propTypes = {
     lessons: PropTypes.arrayOf(lessonType).isRequired,
     levelsByLesson: PropTypes.arrayOf(
       PropTypes.arrayOf(levelType)
@@ -32,7 +32,7 @@ const SummaryProgressTable = React.createClass({
     viewAs: PropTypes.oneOf(Object.keys(ViewType)),
     lessonLockedForSection: PropTypes.func.isRequired,
     lessonIsVisible: PropTypes.func.isRequired
-  },
+  };
 
   render() {
     const { lessons, levelsByLesson, viewAs } = this.props;
@@ -77,13 +77,11 @@ const SummaryProgressTable = React.createClass({
       </table>
     );
   }
-});
+}
 
-// Provide non-connected version for testing
 export const UnconnectedSummaryProgressTable = SummaryProgressTable;
-
 export default connect(state => ({
-  viewAs: state.stageLock.viewAs,
+  viewAs: state.viewAs,
   lessonLockedForSection: lessonId => lessonIsLockedForAllStudents(lessonId, state),
   lessonIsVisible: (lesson, viewAs) => lessonIsVisible(lesson, state, viewAs)
 }))(SummaryProgressTable);

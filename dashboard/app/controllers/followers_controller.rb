@@ -5,7 +5,7 @@
 
 class FollowersController < ApplicationController
   before_action :authenticate_user!, except: [:student_user_new, :student_register]
-  before_action :load_section, only: [:create, :student_user_new, :student_register]
+  before_action :load_section, only: [:create, :create_sync, :student_user_new, :student_register]
 
   # join a section as a logged in student
   def create
@@ -59,8 +59,9 @@ class FollowersController < ApplicationController
       return
     end
 
-    if @section && @section.workshop_section?
-      redirect_to controller: 'pd/workshop_enrollment', action: 'join_section', section_code: @section.code
+    if @section && @section.provider_managed?
+      provider = I18n.t(@section.login_type, scope: 'section.type')
+      redirect_to root_path, alert: I18n.t('follower.error.provider_managed_section', provider: provider)
       return
     end
 

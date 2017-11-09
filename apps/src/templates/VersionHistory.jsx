@@ -1,5 +1,5 @@
 /* global dashboard */
-var React = require('react');
+import React, {PropTypes} from 'react';
 var VersionRow = require('./VersionRow');
 var sourcesApi = require('../clientApi').sources;
 var filesApi = require('../clientApi').files;
@@ -9,8 +9,8 @@ var filesApi = require('../clientApi').files;
  */
 var VersionHistory = React.createClass({
   propTypes: {
-    handleClearPuzzle: React.PropTypes.func.isRequired,
-    useFilesApi: React.PropTypes.bool.isRequired
+    handleClearPuzzle: PropTypes.func.isRequired,
+    useFilesApi: PropTypes.bool.isRequired
   },
 
   /**
@@ -69,8 +69,7 @@ var VersionHistory = React.createClass({
     if (this.props.useFilesApi) {
       filesApi.restorePreviousVersion(versionId, this.onRestoreSuccess, this.onAjaxFailure);
     } else {
-      // TODO: Use Dave's client api when it's finished.
-      sourcesApi.ajax('PUT', 'main.json/restore?version=' + versionId, this.onRestoreSuccess, this.onAjaxFailure);
+      sourcesApi.restorePreviousFileVersion('main.json', versionId, this.onRestoreSuccess, this.onAjaxFailure);
     }
 
     // Show the spinner.
@@ -87,11 +86,9 @@ var VersionHistory = React.createClass({
 
   onClearPuzzle: function () {
     this.setState({showSpinner: true});
-    this.props.handleClearPuzzle().then(() => {
-      dashboard.project.save(function () {
-        location.reload();
-      }, true);
-    });
+    this.props.handleClearPuzzle()
+      .then(() => dashboard.project.save(true))
+      .then(() => location.reload());
   },
 
   render: function () {
@@ -135,7 +132,7 @@ var VersionHistory = React.createClass({
                   </td>
                   <td width="250" style={{textAlign: 'right'}}>
                   <button className="btn-danger" onClick={this.onConfirmClearPuzzle} style={{float: 'right'}}>
-                    Delete Progress
+                    Start over
                   </button>
                   </td>
                 </tr>

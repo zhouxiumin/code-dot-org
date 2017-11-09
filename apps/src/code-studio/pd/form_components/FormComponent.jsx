@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {ButtonList} from '../form_components/button_list.jsx';
 import FieldGroup from '../form_components/FieldGroup';
+import UsPhoneNumberInput from "../form_components/UsPhoneNumberInput";
 
 /**
  * Helper class for dashboard forms. Provides helper methods for easily
@@ -47,7 +48,7 @@ export default class FormComponent extends React.Component {
    * this.props
    *
    * @param {String} name - the name of the input. Should match a key in
-   *        this.props
+   *        this.props.options
    * @param {String} label
    * @param {String} [placeholder] - if specified, will add a valueless option
    *        with the specified placeholder text
@@ -56,17 +57,33 @@ export default class FormComponent extends React.Component {
    * @returns {FieldGroup}
    */
   buildSelectFieldGroupFromOptions({name, label, placeholder, required, ...props}) {
-    // options for a select can be specified as either an array (in which case
-    // the values and display name will be the same) or an object(in which case
-    // we'll use the keys for the values and the values for the display names)
-    let options;
-    if (Array.isArray(this.props.options[name])) {
-      options = this.props.options[name].map(value => (
+    const options = this.props.options[name];
+    return this.buildSelectFieldGroup({name, label, placeholder, required, options, ...props});
+  }
+
+  /**
+   * Construct a controlled Select dropdown with supplied options
+   *
+   * @param {String} name - the name of the input. Should match a key in options
+   * @param {String} label
+   * @param {String} [placeholder] - if specified, will add a valueless option
+   *        with the specified placeholder text
+   * @param {boolean} [required=false]
+   * @param {String[]|Object} options - can be specified as either an array (in which case
+   *        the values and display name will be the same) or an object (in which case
+   *        we'll use the keys for the values and the values for the display names)
+   *
+   * @returns {FieldGroup}
+   */
+  buildSelectFieldGroup({name, label, placeholder, required, options, ...props}) {
+    let renderedOptions;
+    if (Array.isArray(options)) {
+      renderedOptions = options.map(value => (
         <option key={value} value={value}>{value}</option>
       ));
     } else {
-      options = Object.keys(this.props.options[name]).map(key => (
-        <option key={key} value={key}>{this.props.options[name][key]}</option>
+      renderedOptions = Object.keys(options).map(key => (
+        <option key={key} value={key}>{options[key]}</option>
       ));
     }
 
@@ -77,12 +94,14 @@ export default class FormComponent extends React.Component {
         componentClass="select"
         label={label}
         validationState={this.getValidationState(name)}
+        errorMessage={this.props.errorMessages[name]}
         onChange={this.handleChange}
         value={this.props.data[name] || ''}
         required={required}
+        {...props}
       >
         {placeholder && <option key="placeholder">{placeholder}</option>}
-        {options}
+        {renderedOptions}
       </FieldGroup>
     );
   }
@@ -105,9 +124,34 @@ export default class FormComponent extends React.Component {
         type={type}
         label={label}
         validationState={this.getValidationState(name)}
+        errorMessage={this.props.errorMessages[name]}
         onChange={this.handleChange}
         value={this.props.data[name] || ''}
         required={required}
+        {...props}
+      />
+    );
+  }
+
+  /**
+   * Construct a controlled US phone number input
+   *
+   * @param {String} name
+   * @param {String} label
+   * @param {boolean} [required=false]
+   *
+   * @returns {UsPhoneNumberInput}
+   */
+   buildUsPhoneNumberInput({name, label, required, ...props}) {
+    return (
+      <UsPhoneNumberInput
+        name={name}
+        label={label}
+        required={required}
+        validationState={this.getValidationState(name)}
+        errorMessage={this.props.errorMessages[name]}
+        onChange={this.handleChange}
+        value={this.props.data[name]}
         {...props}
       />
     );
@@ -118,26 +162,83 @@ export default class FormComponent extends React.Component {
    * in this.props
    *
    * @param {String} name - the name of the input. Should match a key in
-   *        this.props
+   *        this.props.options
    * @param {String} label
    * @param {String} type - should be one of 'radio' or 'check'
    * @param {boolean} [required=true]
    *
    * @returns {ButtonList}
    */
-  buildButtonsFromOptions({name, label, type, required}) {
-    if (required === undefined) {
-      required = true;
-    }
-
+  buildButtonsFromOptions({name, label, type, required, ...props}) {
     if (!this.props.options[name] || this.props.options[name].length === 0) {
       throw `Cannot create buttons for ${name} without options`;
+    }
+
+    const answers = this.props.options[name];
+    return this.buildButtons({name, label, type, required, answers, ...props});
+  }
+
+  /**
+   * Construct a controlled radio or checkbox input from the options specified
+   * in this.props with additional text fields on certain answers
+   *
+   * @param {String} name - the name of the input. Should match a key in
+   *        this.props.options
+   * @param {String} label
+   * @param {String} type - should be one of 'radio' or 'check'
+   * @param {boolean} [required=true]
+   * @param {Object} textFieldMap - map specifying which answers should be followed by a text field
+   *        Each key is an answer text from options.
+   *        Each value is the suffix (appended to `${name}_`) which will become the name of the new text field
+   *
+   *        For example, {"Other" : "other"} will add a text field called `${name}_other` after the "Other" option.
+   *
+   * @returns {ButtonList}
+   */
+  buildButtonsWithAdditionalTextFieldsFromOptions({name, label, type, required, textFieldMap, ...props}) {
+    if (!this.props.options[name] || this.props.options[name].length === 0) {
+      throw `Cannot create buttons for ${name} without options`;
+    }
+
+    const answers = this.props.options[name].map(answer => {
+      if (!(answer in textFieldMap)) {
+        return answer;
+      }
+
+      const textFieldName = `${name}_${textFieldMap[answer]}`;
+      return {
+        answerText: answer,
+        inputValue: this.props.data[textFieldName],
+        onInputChange: newValue => this.handleChange({[textFieldName]: newValue})
+      };
+    });
+
+    return this.buildButtons({name, label, type, required, answers, ...props});
+  }
+
+  /**
+   * Construct a controlled radio or checkbox input from the provided options
+   *
+   * @param {String} name - the name of the input. Should match a key in
+   *        this.props.options
+   * @param {String} label
+   * @param {String} type - should be one of 'radio' or 'check'
+   * @param {boolean} [required=true]
+   * @param {Array<String|Object>} answers - list of available answers for the ButtonList.
+   *        These can be strings, or objects which will generate an additional text field.
+   *        See #ButtonList for more details.
+   *
+   * @returns {ButtonList}
+   */
+  buildButtons({name, label, type, required, answers, ...props}) {
+    if (required === undefined) {
+      required = true;
     }
 
     return (
       <ButtonList
         key={name}
-        answers={this.props.options[name]}
+        answers={answers}
         groupName={name}
         label={label}
         onChange={this.handleChange}
@@ -148,11 +249,41 @@ export default class FormComponent extends React.Component {
       />
     );
   }
+
+  /**
+   * Override in derived classes
+   * @param {Object} data - form data
+   * @returns {String[]} - list of dynamic required fields based on other responses in this page
+   */
+  static getDynamicallyRequiredFields(data) {
+    return [];
+  }
+
+  /**
+   * Override in derived classes
+   * @param {Object} data - form data for this page
+   * @returns {Object} - custom error messages per field
+   */
+  static getErrorMessages(data) {
+    return {};
+  }
+
+  /**
+   * Override in derived classes
+   * Process and transform this page's form data before validation,
+   * for example to remove answers to questions that are no longer relevant based on other selections.
+   * @param {Object} data - form data for this page, as entered
+   * @returns {Object} - fields to update with new values, or undefined to clear
+   */
+  static processPageData(data) {
+    return {};
+  }
 }
 
 FormComponent.propTypes = {
-  options: React.PropTypes.object.isRequired,
-  errors: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-  data: React.PropTypes.object.isRequired,
-  onChange: React.PropTypes.func.isRequired
+  options: PropTypes.object.isRequired,
+  errors: PropTypes.arrayOf(PropTypes.string).isRequired,
+  errorMessages: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes, Component } from 'react';
 import color from "../../util/color";
 import FontAwesome from '../FontAwesome';
 import i18n from "@cdo/locale";
@@ -6,19 +6,21 @@ import i18n from "@cdo/locale";
 const styles = {
   card: {
     overflow: 'hidden',
-    border: '1px solid gray',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: color.border_gray,
     position: 'relative',
     height: 245,
-    width: 458,
+    width: 473,
     float: 'left',
     marginBottom: 20
   },
   image: {
     position: 'absolute',
-    width: 458,
+    width: 473,
     height: 130
   },
-  name: {
+  title: {
     paddingTop: 10,
     paddingBottom: 5,
     marginTop: 15,
@@ -31,7 +33,7 @@ const styles = {
     paddingLeft: 25,
     paddingRight: 10,
   },
-  nameRtl: {
+  titleRtl: {
     paddingTop: 10,
     paddingBottom: 5,
     marginTop: 15,
@@ -94,23 +96,23 @@ const styles = {
  * A card used on the homepage to display information about a particular course
  * or script for a user.
  */
-const CourseCard = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    description: React.PropTypes.string.isRequired,
-    link: React.PropTypes.string.isRequired,
-    isRtl: React.PropTypes.bool.isRequired
-  },
+export default class CourseCard extends Component {
+  static propTypes = {
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    link: PropTypes.string.isRequired,
+    isRtl: PropTypes.bool.isRequired
+  };
 
   render() {
-    const { name, description, link, isRtl } = this.props;
+    const { title, description, link, isRtl } = this.props;
     const icon = isRtl ? "chevron-left" : "chevron-right";
 
     return (
       <a href={link} style={styles.card}>
         <img src={require('@cdo/static/small_purple_icons.png')} style={styles.image}/>
-        <div style={isRtl? styles.nameRtl : styles.name}>
-          {name}
+        <div style={isRtl? styles.titleRtl : styles.title}>
+          {title}
         </div>
         <div style={styles.description}>
           {description}
@@ -127,6 +129,4 @@ const CourseCard = React.createClass({
       </a>
     );
   }
-});
-
-export default CourseCard;
+}

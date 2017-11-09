@@ -17,11 +17,15 @@
     errors:
       messages:
         blank: est obligatoire
+        blank_plural: are required
+        invalid_plural: are invalid
     attributes:
       user:
         name: Nom à afficher
         name_example: Afficher nom <br/> (par ex. SuperCodeur ou Jeanne S.)
         email: E-mail
+        parent_email: Parent/guardian email
+        personal_email: Personal email address
         username: nom d'utilisateur
         password: mot de passe
         password_confirmation: Confirmation du mot de passe
@@ -51,6 +55,7 @@
       placeholder: Code de la section (ABCDEF)
       instructions: Saisir le code que t’a donné ton professeur. Il s'agit d'un code
         à 6 lettres comme « ABCDEF ».
+      instructions_short: Enter your 6 letter section code
     submit: Ajouter un enseignant
   add_hint_form:
     placeholder: "Écrire un indice ici"
@@ -61,6 +66,9 @@
   puzzle: Puzzle
   trophies: trophées
   courses: Cours
+  courses_page:
+    title_student: Apprends avec Code Studio
+    title_teacher: Teach with Code Studio
   unplugged_activity: Activité manuelle
   of: de
   more: PLUS
@@ -87,11 +95,14 @@
     twitter: Twitter
     facebook: Facebook
     windowslive: Compte Microsoft
+    clever: Clever Account
     forgot_password: Mot de passe oublié?
     need_confirmation: Pas reçu les instructions de confirmation ?
     need_unlock: Pas reçu les instructions de déverrouillage?
     not_linked: Désolé, ton compte Code.org n'est pas lié à ton %{provider}. Tu dois
       t'identifier en tapant ton mot de passe ci-dessous.
+    use_clever: Sorry, your Code.org account is not linked to your %{provider}. Please
+      sign in through your Clever Portal instead.
   signup_form:
     student_count: "%{count} élèves se sont déjà inscrits."
     teacher_count: "%{count} enseignants se sont déjà inscrits."
@@ -150,6 +161,7 @@
     user_type_student: "Élève"
     field_is_required: est obligatoire
     accept_terms: Vous devez accepter les conditions d'utilisation pour créer un compte
+    error: An error occurred.
   school_info:
     title: Informations de l’école (facultatif)
     school_country: Pays de l’école
@@ -218,6 +230,10 @@
       Les tutoriels sont amusants, visuellement attirants et enseignent les concepts de base de l'informatique à l'aide d'une expérience guidée qui reste ludique et simple. Apprends à coder avec Bill Gates, Mark Zuckerberg, Angry Birds et Plants vs. Zombies ! :-)
 
       %{name}
+  parent_mailer:
+    student_associated_subject: Login information for Code.org
+  teacher_mailer:
+    new_teacher_subject: Welcome to Code.org!
   section:
     your_section:
       one: 'Ta section:'
@@ -226,6 +242,12 @@
     confirm:
       remove: "Êtes-vous sûr de vouloir quitter cette section ?"
     remove: "(supprimer la section)"
+    type:
+      picture: Picture Password
+      word: Secret Words
+      email: E-mail
+      google_classroom: Google Classroom
+      clever: Clever
   follower:
     invite_sent: Invitation envoyée
     added_teacher: "%{name} ajouté en tant que ton enseignant"
@@ -239,6 +261,9 @@
       section_not_found: Impossible de trouver une section avec le code «%{section_code}».
       blank_code: Saisis un code de section.
       cant_join_own_section: Désolé, tu ne peux pas te joindre à ta propre section.
+      provider_managed_section: This section is managed by another provider and cannot
+        be joined. Please ask your teacher to add you via %{provider} and re-sync
+        their section.
     mail:
       student_disassociated:
         subject: 'Notification de Code.org: %{student_name} n''est plus considéré
@@ -252,6 +277,7 @@
     edit: Modifier
     edit_model: Modifier %{model}
     update: Mise à jour
+    submit: Envoyer
     destroy: Détruire
     back: Retour
     confirm: Es-tu certain ?
@@ -259,6 +285,15 @@
     updated: "%{model} a été mis à jour avec succès."
     destroyed: "%{model} a été supprimé avec succès."
     access_denied: Tu n’as pas accès à ce %{model}.
+  devise:
+    registrations:
+      user:
+        user_type_change_email_mismatch: The email address you provided doesn't match
+          the email address for this account
+        personal_login_created_email: You created a personal login successfully. You
+          can now log into Code.org with your email and password
+        personal_login_created_username: You created a personal login successfully.
+          You can now log into Code.org with your username and password
   nav:
     header:
       finished_hoc: J'ai fini mon Heure de Code.
@@ -269,9 +304,12 @@
         calculate: Calculer quelque chose
         applab: Crée une application
         gamelab: Make a Game Lab project
+        weblab: Make a Web Lab (beta) project
       home: Accueil
+      my_dashboard: My Dashboard
       courses: Cours
-      project_gallery: Galerie de projets
+      course_catalog: Course Catalog
+      project_gallery: Projets
       sections: Sections
       help_support: Aide et Support
       report_bug: Report bug
@@ -374,6 +412,27 @@
     no_password_because_oauth: Aucun mot de passe parce que vous vous connectez avec
       un fournisseur tiers.
     no_password_because_sponsored: Consulte ton professeur pour gérer ton mot de passe.
+    create_personal_login: Create a personal login
+    create_personal_login_under_13_info: If you want to keep using your Code.org account
+      even after the end of the school year, ask your parent/guardian to help you
+      create your own personal login below.
+    create_personal_login_under_13_username: Username (don't use your real name!)
+    create_personal_login_under_13_parent_email: Parent/guardian email address (to
+      recover your password)
+    create_personal_login_info: If you want to keep using your Code.org account even
+      after the end of the school year, you can create your own login below.
+    create_personal_login_terms: By creating a personal login, I agree to be bound
+      by the Code.org <a href='%{terms_of_service_url}', target='_blank'>terms of
+      service</a>. If I am under 13 years of age, I confirm that I have my parent
+      or legal guardian's permission to use the Code.org services even without a teacher.
+    create_personal_login_email_note: 'Note: Email addresses are not stored in a form
+      that allows us to contact students. Students will never receive emails from
+      Code.org except for password recovery. See our <a href=''%{privacy_policy_url}'',
+      target=''_blank''>privacy policy</a> for more information.'
+    enter_new_login_info: Enter your new login information
+    confirm_secret_words: Confirm that it is you by entering your current secret words
+    enter_parent_email: Enter your parent or guardian's email address (for password
+      recovery)
   user_level:
     completed: Terminé
     tried: A essayé
@@ -628,6 +687,7 @@
     title: Besoin d'aide ?
     subtitle: Regarder les vidéos et les indices
     teacher: Voir la solution
+    teacher_no_solution: Stop seeing solution
     auth_error: Tu n’es pas autorisé à voir la solution.
     submit: Mettre à jour la localisation de l'artiste
     direction: Direction au départ (en degrés)
@@ -637,6 +697,8 @@
     notes_coming_soon: Il y aura bientôt des notes pour cette vidéo.
     autoplay_option: Lire les vidéos automatiquement
     download: Télécharger la vidéo
+    show_notes: Show Notes
+    show_video: Show Video
   compatibility:
     upgrade:
       unsupported_message: Votre navigateur n'est pas supporté. Merci de mettre à
@@ -730,6 +792,12 @@
         and games with objects and characters that interact with each other.
       audience: "Âge recommandé: 13 ans et plus"
       cta: Apprendre comment
+    weblab:
+      title: Web Lab (beta)
+      body: Web Lab is a programming environment where you can make simple web pages
+        using HTML and CSS. Design your web pages and share your site in seconds.
+      audience: "Âge recommandé: 13 ans et plus"
+      cta: Apprendre comment
     frozen:
       title: La Reine des neiges
     starwars:
@@ -745,6 +813,13 @@
       title: Minecraft
       body: Programmez des animaux et d'autres créatures Minecraft dans votre propre
         version de Minecraft.
+    sports:
+      title: Sports
+      body: Make a basketball game or mix and match across sports.
+    text-compression:
+      title: Text Compression
+      body: In this lesson, students will use the Text Compression Widget to compress
+        text by substituting patterns with symbols.
     unplugged:
       title: Leçons en mode "déconnecté"
       audience: "Âge recommandé: 4 ans et plus"
@@ -952,9 +1027,17 @@
     rename: Renommer
     save: Sauvegarder
     delete: Supprimer
+    import: Import
+    share_link_import_bad_link_header: Share link not recognized
+    share_link_import_bad_link_body: 'We couldn''t import that share link. Make sure
+      you are using a link from a Minecraft: Agent puzzle, and that you have copied
+      the full link.'
+    share_link_import_error_header: Something went wrong.
+    share_link_import_error_body: There was a problem importing that share link. Please
+      try again.
     exit: Retourner au cours
     my_projects: Mes projets
-    project_gallery: Galerie de projets
+    project_gallery: Projets
     publish: Publier
     unpublish: Dépublier
     share: Partager
@@ -994,6 +1077,9 @@
     remix: Remix
     click_to_remix: Clique sur «Remix» pour créer ta propre version!
     edit_project: Modifier le projet
+    sharing_disabled: Sorry, this project is not available for sharing. If this is
+      your project or the project of one of your students, please <a href='https://studio.code.org/users/sign_in'>sign
+      in</a> to your account to view the project.
     abuse:
       tos: Ce projet a été signalé comme ne respectant pas les <a href='http://code.org/tos'>Conditions
         générales d'utilisation</a> de Code.org, et ne peut donc pas être partagé
@@ -1055,10 +1141,6 @@
       moment, please check back soon
     review_submitted: Your peer review was submitted
     review_new_submission: Review a new submission
-  components:
-    icon_library:
-      search_placeholder_text: Recherche d'une icône...
-      no_icons_found: Aucune icône trouvée
   flex_category:
     required: Aperçu
     content: Contenu
@@ -1069,6 +1151,10 @@
     optional_stages: Optional Stages
     main_course: Cours Principal
     extra_course_content: Contenu de Cours Supplémentaire
+    csf_e_1: Ramp Up to Course E (Optional)
+    csf_e_2: Course E Content
+    csf_f_1: Ramp Up to Course F (Optional)
+    csf_f_2: Course F Content
     csd1_1: 'Chapitre 1 : Résolution de problèmes'
     csd1_2: 'Chapitre 2 : Ordinateurs et résolution de problèmes'
     csd2_1: 'Chapitre 1 : Contenu Web et HTML'
@@ -1094,6 +1180,7 @@
     csp_ap_1: 'Chapter 1: AP Tech Setup'
     csp_ap_2: 'Chapter 2: AP Explore Performance Task'
     csp_ap_3: 'Chapter 3: AP Create Performance Task'
+    dlp: Reflection Prompts
   external_links:
     disclaimer: Clause de non-responsabilité
     leaving_domain: Vous quittez maintenant ce domaine pour un site qui n’est pas
@@ -1184,6 +1271,9 @@
     dessus ou pour consulter tes réponses.
   hidden_stage: Ton professeur n'avait pas prévu que tu travailles ici. Demande lui
     quelle leçon tu dois suivre.
+  hidden_script: Your teacher didn't expect you to be here. Please ask your teacher
+    which unit you should be on.
+  return_unit_overview: Go to unit overview
   return_course_overview: Accéder à la vue d'ensemble de l'unité
   view_all_units: View all units
   pd:
@@ -1234,3 +1324,4 @@
         activities you did in this workshop?
       anything_else_s: Is there anything else you’d like to tell us about your experience
         at this workshop?
+  courses_category: Cours complets

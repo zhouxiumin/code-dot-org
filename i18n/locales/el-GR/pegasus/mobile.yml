@@ -69,6 +69,12 @@
   congratulations_on_completing_course2: "Συγχαρητήρια για την ολοκλήρωση του Μαθήματος 2"
   congratulations_on_completing_course3: "Συγχαρητήρια για την ολοκλήρωση του Μαθήματος 3"
   congratulations_on_completing_course4: "Συγχαρητήρια για την ολοκλήρωση του Μαθήματος 4"
+  congratulations_on_completing_coursea: "Congratulations on completing Course A"
+  congratulations_on_completing_courseb: "Congratulations on completing Course B"
+  congratulations_on_completing_coursec: "Congratulations on completing Course C"
+  congratulations_on_completing_coursed: "Congratulations on completing Course D"
+  congratulations_on_completing_coursee: "Congratulations on completing Course E"
+  congratulations_on_completing_coursef: "Congratulations on completing Course F"
   congratulations_on_completing_accelerated: "Συγχαρητήρια για την ολοκλήρωση του Εντατικού Μαθήματος"
   congrats_next_tutorials_title: "Δοκιμάστε στη συνέχεια αυτά τα σεμινάρια"
   congrats_next_tutorials_desc: "Δοκιμάστε αυτά τα μικρότερα, σεμινάρια 1 ώρας ή δοκιμάστε ένα <a href=\"%{current_path}/next\">σεμινάριο συνεργάτη</a>."
@@ -194,7 +200,25 @@
   just_did_course2: "Μόλις τελειώσα το Μάθημα 2 - Ελεγξέ το! @codeorg"
   just_did_course3: "Μόλις τελειώσα το Μάθημα 3 - Ελεγξέ το! @codeorg"
   just_did_course4: "Μόλις τελείωσα το Μάθημα 4 - Ελεγξέ το! @codeorg"
+  just_did_coursea: "I just finished Course A - check it out! @codeorg"
+  just_did_courseb: "I just finished Course B - check it out! @codeorg"
+  just_did_coursec: "I just finished Course C - check it out! @codeorg"
+  just_did_coursed: "I just finished Course D - check it out! @codeorg"
+  just_did_coursee: "I just finished Course E - check it out! @codeorg"
+  just_did_coursef: "I just finished Course F - check it out! @codeorg"
   just_did_accelerated: "Μόλις τελείωσα το Εντατικό Μάθημα - έλεγξέ το! @codeorg"
+  just_did_hoc_donor: 'I just did the #HourOfCode - check it out! (Thanks %{donor_twitter} for supporting @codeorg)'
+  just_did_course1_donor: "I just finished Course 1 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course2_donor: "I just finished Course 2 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course3_donor: "I just finished Course 3 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_course4_donor: "I just finished Course 4 - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursea_donor: "I just finished Course A - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_courseb_donor: "I just finished Course B - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursec_donor: "I just finished Course C - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursed_donor: "I just finished Course D - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursee_donor: "I just finished Course E - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_coursef_donor: "I just finished Course F - check it out! Thanks %{donor_twitter} for supporting @codeorg"
+  just_did_accelerated_donor: "I just finished the Accelerated Course - check it out! Thanks %{donor_twitter} for supporting @codeorg"
   twitter_teach_cs: "9 στους 10 ανθρώπους συμφωνούν ότι τα σχολεία πρέπει να διδάσκουν Πληροφορική. http://youtu.be/nKIu9yen5nc. Επισκεφθείτε https://code.org/."
   twitter_cs_foundational: "H Πληροφορική είναι θεμελιώδης μάθηση για κάθε μαθητή. https://youtu.be/QvyTEx1wyOY."
   learn_hoc: "Μάθε μία Ώρα του Κώδικα"
@@ -207,6 +231,7 @@
   lines_of_code: "ΠΑΝΩ ΑΠΟ <b># ΓΡΑΜΜΕΣ ΚΩΔΙΚΑ</b> ΕΧΟΥΝ ΓΡΑΦΤΕΙ ΜΕΧΡΙ ΣΗΜΕΡΑ."
   lines_of_code_alt: "<b>#</b> ΓΡΑΜΜΕΣ ΚΩΔΙΚΑ ΓΡΑΜΜΕΝΕΣ ΑΠΟ ΜΑΘΗΤΕΣ"
   who_has_done_hoc: 'Ποιος έχει ολοκληρώσει την Ώρα του Κώδικα #HourOfCode; @codeorg'
+  who_has_done_hoc_donor: 'Who has done the #HourOfCode? (Thanks %{donor_twitter} for supporting @codeorg)'
   hoc_leaderboards: "Οι Πίνακες Κατάταξης της Ώρας του Κώδικα"
   students_and_lines: "%{students} μαθητές έχουν ολοκληρώσει την Ώρα του Κώδικα και έχουν γράψει %{lines} γραμμές κώδικα."
   start_hoc: "Ξεκινήστε την Ώρα του Κώδικα τώρα"
@@ -239,6 +264,10 @@
     &ldquo;Τα παιδιά μας &mdash; συμπεριλαμβανομένων και των κοριτσιών μας &mdash; χρειάζονται την ευκαιρία να μάθουν την Πληροφορική.&rdquo; Sheryl, COO του Facebook
   homepage_hero_text_satya: |-
     &ldquo;Η Πληροφορική μπορεί να ξεκλειδώσει τις καλύτερες ευκαιρίες στον κόσμο.&rdquo; Satya, Διευθύνων Σύμβουλος της Microsoft
+  homepage_hero_text_satya_new: |-
+    &ldquo;Computer science empowers
+    students to create the world of tomorrow.&rdquo;
+    Satya, CEO of Microsoft
   homepage_hero_text_bosh: |-
     &ldquo;Αν μπορείτε να γράψετε κώδικα, μπορείτε να επιλέξετε την πορεία της ζωής σας.&rdquo; Κρις Μπος
   homepage_hero_text_student1: |-
@@ -317,6 +346,7 @@
   homepage_slot_text_link_buy: "Εμπλακείτε"
   homepage_slot_text_link_donate: "Κάντε μια δωρεά"
   homepage_slot_text_link_shop: "Μπλουζάκια, καπέλα, & περισσότερα"
+  homepage_slot_text_link_administrators: "Bring to your school or district"
   homepage_header_codestudio: "Studio Κώδικα δημιουργίες σπουδαστών"
   homepage_header_donors: "Το Code.org ευχαριστεί τους υποστηρικτές του"
   homepage_donors_seall: "Εμφάνιση όλων"
@@ -505,6 +535,8 @@
   volunteer_engineer_submission_type_task_remote: "Θέλω να συνδεθείτε μέσω Skype με την τάξη μου για να πείτε λίγα λόγια έμπνευσης στα παιδιά"
   volunteer_engineer_submission_type_task_mentor: "Ψάχνω για έναν σύμβουλο για να με βοηθήσει να προετοιμαστώ για την κωδικοποίηση με τους μαθητές μου"
   petition_age: "Ηλικία"
+  dashboard_announce_hoc_scaling_progress: "Yikes! We are experiencing high Hour of Code traffic. We are unable to save any progress this week, but progress from before this week is still safe."
+  dashboard_announce_learn_more_button: "Μάθετε περισσότερα"
   dashboard_landing_title: "Αρχική Σελίδα Εκπαιδευτή"
   dashboard_landing_welcome: "Καλώς ήλθατε στο νέο και βελτιωμένο πίνακα εκπαιδευτικού."
   dashboard_landing_video: "Παρακολουθήστε αυτό το βίντεο"
@@ -633,7 +665,7 @@
   dashboard_sections_yes_both: "Ναι, θέλω να αντιγραφούν οι μαθητές σε αυτό το τρέχον τμήμα ΚΑΙ στο νέο τμήμα"
   dashboard_sections_no_move: "Όχι, θέλω να μεταφέρω τους μαθητές μόνο στο νέο τμήμα."
   dashboard_sections_move_students: "Μετακίνησε τους μαθητές"
-  dashboard_sections_assign_hoc_script_desc: "Participating in the Hour of Code?"
+  dashboard_sections_assign_hoc_script_desc: "Συμμετοχή στην Ωρα του Κώδικα;"
   dashboard_sections_assign_hoc_script_msg: "Please note that we will not be able to save progress in this course from December 3 - 11 due to the amount of traffic our site will receive for the Hour of Code.  Everything else in this tutorial will continue to work as expected.  You may still assign the course and give all students certificates for participating.  (Most teachers <a href='%{certificate_url}'>print these in advance</a>.)  We will save and report student progress for every other week of the year."
   dashboard_sections_assign_activity: "Assign Course"
   dashboard_error_none_selected: "Δεν επιλέξατε κανένα μαθητή για να μετακινήσετε. Παρακαλώ επιλέξτε τουλάχιστον ενα μαθητή."
@@ -641,6 +673,7 @@
   dashboard_students_add_student: "Προσθήκη μαθητή"
   dashboard_students_add_students: "Προσθήκη πολλών μαθητών"
   dashboard_students_add_multiple: 'Πληκτρολογήστε ή επικολλήστε τα ονόματα των μαθητών σας, ένα ανά γραμμή:'
+  dashboard_students_new_google_classroom_section: "To add students, use <a href='http://classroom.google.com' target='_blank'>Google Classroom</a> and then click the <b>Sync students from Google Classroom</b> button above."
   dashboard_students_new_section: "Έχετε δημιουργήσει μια νέα ενότητα! Τώρα προσθέστε τους μαθητές σας, χρησιμοποιώντας τα ανωτέρω πλήκτρα <b>Προσθήκη μαθητή</b> και <b>Προσθήκη πολλών μαθητών</b>."
   dashboard_students_placeholder_name: "Όνομα μαθητή"
   dashboard_students_name: "Όνομα"
@@ -683,6 +716,12 @@
   dashboard_course2: 'Μάθημα 2:'
   dashboard_course3: 'Μάθημα 3:'
   dashboard_course4: 'Μάθημα 4 (beta): '
+  dashboard_coursea: 'Course A: '
+  dashboard_courseb: 'Course B: '
+  dashboard_coursec: 'Course C: '
+  dashboard_coursed: 'Course D: '
+  dashboard_coursee: 'Course E: '
+  dashboard_coursef: 'Course F: '
   dashboard_unplugged: "If you don't have computers, <a href='%{unplugged_url}'>try these unplugged lessons</a> in your classroom."
   dashboard_curriculum: "Πρόγραμμα σπουδών"
   dashboard_curriculum_overview: "Επισκόπηση Πρόγραμμα Εκπαίδευσης Νηπιαγωγείο έως Ε΄ Δημοτικού"
@@ -769,7 +808,7 @@
   carousel_heading_international: "Σεμινάρια στη γλώσσα σας"
   carousel_heading_domestic: "Βοηθήματα εκμάθησης που είναι διαθέσιμα στα αγγλικά"
   carousel_heading_beginners: "Βοηθήματα εκμάθησης για αρχάριους"
-  carousel_heading_beyond_beginners: "Βοηθήματα εκμάθησης για αρχάριους"
+  carousel_heading_beyond_beginners: Βοηθήματα εκμάθησης για αρχάριους
   carousel_heading_javascript: "Μαθήματα που διδάσκουν JavaScript"
   carousel_heading_beyond_javascript: "Οδηγοί που διδάσκουν JavaScript"
   carousel_heading_unplugged: "Δεν διαθέτετε ψηφιακή συσκευή ή πρόσβαση στο Διαδίκτυο; Δοκιμάστε την 'unplugged' Πληροφορική"
@@ -782,12 +821,18 @@
   carousel_heading_webpages: "Μάθετε να δημιουργείτε ιστοσελίδες"
   carousel_heading_robots: "Μάθετε να προγραμματίζετε με ρομπότ"
   carousel_heading_ide: "Δημοφιλείς ψηφιακές πλατφόρμες μεταξύ των εκπαιδευτικών"
+  carousel_heading_desktop: "Learn to code on a computer"
+  carousel_heading_mobtabelem: "For phones and tablets"
+  carousel_heading_prereader: "For pre-readers"
+  carousel_heading_beyondblocks: "Go beyond blocks - learn a programming language"
+  carousel_heading_nointernet: "Poor internet? Install these apps on your computer"
   educator_notes: "Σημειώσεις επιμορφωτή"
   teach_led_lesson_plans: "Σχέδια Μαθήματος για την Ώρα Κώδικα από το Teacher Led"
   learn_footer_all_tutorials: "Δείτε τον <a href=\"https://code.org/educate/allhourofcode\">ολοκληρωμένο κατάλογο οδηγών της Ώρας του Κώδικα</a>. Για να δείτε τα κριτήρια και τις οδηγίες υποβολής για τους οδηγούς της Ώρας του Κώδικα, <a href=\"https://hourofcode.com/tutorial-guidelines\">πατήστε εδώ.</a>"
   how_to_teach_hoc: "Πώς να διδάξετε μια ώρα του κώδικα"
   more_resources_educators: "Περισσότεροι πόροι για τους εκπαιδευτικούς και τους επιμορφωτές"
   beyond_submission: "Θέλετε να υποβάλετε ένα σεμινάριο για την ενότητα Πέρα από μια Ώρα; Δείτε τα κριτήρια και την φόρμα υποβολής."
+  third_party_submission: "Want to submit a tutorial to be listed here? <a href=\"%{submission_url}\">See the criteria and submission form.</a>"
   participants: "συμμετέχοντες"
   teachers_notes: "Σημειώσεις εκπαιδευτικού"
   teachers_notes_hoc: 'Δάσκαλοι: Δείτε εδώ σημαντικές σημειώσεις για εκπαιδευτικούς'
@@ -851,12 +896,20 @@
   course3_name: "Μάθημα 3"
   course4_name: "Μάθημα 4"
   coursea-draft_name: Course A
+  coursea_name: "Course A"
   courseb-draft_name: Course B
+  courseb_name: "Course B"
   coursec-draft_name: Course C
+  coursec_name: "Course C"
   coursed-draft_name: Course D
+  coursed_name: "Course D"
   coursee-draft_name: Course E
+  coursee_name: "Course E"
   coursef-draft_name: Course F
+  coursef_name: "Course F"
   accelerated_name: "Επιταχυνόμενη πορεία μάθησης"
+  express_name: "Express Course"
+  pre-express_name: Pre-reader Express Course
   cspunit1_name: '(old) Unit 1: Digital Information'
   cspunit2_name: '(old) Unit 2: The Internet'
   cspunit3_name: Αρχές CS - Ενότητα 3
@@ -872,19 +925,22 @@
   csp1_name: 'Unit 1: The Internet'
   csp2_name: 'Unit 2: Digital Information'
   csp3_name: 'Unit 3: Algorithms and Programming'
+  csp3-a_name: 'Unit 3: Intro Programming (version A)'
+  csp3-research-mxghyt_name: 'Unit 3: Intro Programming (Subgoals)'
   csp4_name: 'Unit 4: Big Data and Privacy'
   csp5_name: 'Unit 5: Building Apps'
   csp6_name: 'Unit 6: AP Performance Tasks'
+  csp-ap_name: AP Performance Tasks
   csppostap_name: 'Post AP: Databases in Apps'
-  cspassessment_name: "Full Test - 50 questions"
-  cspexam1-mWU7ilDYM9_name: Test Part 1 - 25 questions
-  cspexam2-AKwgAh1ac5_name: Test Part 2 - 25 questions
+  cspassessment_name: "Πλήρης εξέταση - 50 ερωτήσεις"
+  cspexam1-mWU7ilDYM9_name: Εξέταση Μέρος 1 -25 ερωτήσεις
+  cspexam2-AKwgAh1ac5_name: Εξέταση Μέρος 2 -25 ερωτήσεις
   cspunit3_gradelevel: "Τάξεις Γ΄ Γυμνασίου - Γ΄ Λυκείου"
   cspunit3_shortdescription_congrats: "This unit introduces the foundational concepts of computer programming, which unlocks the ability to make rich, interactive apps. This course uses JavaScript as the programming language, and App Lab as the programming environment to build apps, but the concepts learned in these lessons span all programming languages and tools."
   20-hour_name: Επιταχυνόμενη πορεία μάθησης
-  algebra_name: "CS in Algebra"
-  AlgebraA_name: "CS in Algebra Course A"
-  AlgebraB_name: "CS in Algebra Course B"
+  algebra_name: "Επιστήμη Υπολογιστών στην Αλγεβρα"
+  AlgebraA_name: "Επιστήμη Υπολογιστών στην Αλγεβρα - Μάθημα Α"
+  AlgebraB_name: "Επιστήμη Υπολογιστών στην Αλγεβρα - Μάθημα Β"
   gumball_name: "Gumball"
   classicmaze_name: "Κλασικός λαβύρινθος"
   iceage_name: "Εποχή των Παγετώνων"
@@ -897,6 +953,7 @@
   math_category_name: "Μαθηματικά"
   hoc_category_name: "Ώρα του Κώδικα"
   csf_category_name: "Βασικές αρχές της Επιστήμης των Υπολογιστών"
+  csf_international_category_name: "Διεθνείς Βασικές Αρχές Επιστήμης Υπολογιστών"
   csf2_draft_category_name: 'Υπό ανάπτυξη: Μαθήματα A - F'
   csd_category_name: "CS Discoveries"
   csp_category_name: "Αρχές της Επιστήμης των Υπολογιστών ' 15-'16"
@@ -962,6 +1019,12 @@
   course2_gradelevel: "Ηλικίες 6+ (απαιτείται ανάγνωση)"
   course3_gradelevel: "Ηλικίες 8+ (μετά το Μάθημα 2)"
   course4_gradelevel: "Ηλικίες 10+ (μετά το Μάθημα 3)"
+  coursea_gradelevel: "Τάξεις Ε' Δημοτικού +"
+  courseb_gradelevel: "Grade 6+"
+  coursec_gradelevel: "Τάξεις Α' Γυμνασίου +"
+  coursed_gradelevel: "Τάξεις Β' Γυμνασίου +"
+  coursee_gradelevel: "Τάξεις Γ' Γυμνασίου +"
+  coursef_gradelevel: "Τάξεις Α' Λυκείου +"
   accelerated_gradelevel: "Ηλικίες 10+ (μετά το Μάθημα 3)"
   codeorg_platformtext: "Σύγχρονα προγράμματα περιήγησης, έξυπνα τηλέφωνα, tablet"
   codeintl_platformtext: "Σύγχρονα προγράμματα περιήγησης, έξυπνα τηλέφωνα, tablet"
@@ -1064,6 +1127,12 @@
   course2_shortdescription_congrats: "Για τους μαθητές με βασική δεξιότητα ανάγνωσης, αυτό το μάθημα βασίζεται στο Μάθημα 1. Οι μαθητές θα δημιουργήσουν προγράμματα για να λύσουν προβλήματα και να δημιουργήσουν διαδραστικά παιχνίδια ή ιστορίες που μπορούν να μοιραστούν. Συνιστάται για τάξεις Β' Δημοτικού έως Ε' Δημοτικού."
   course3_shortdescription_congrats: "Ετοιμος για το επόμενο επίπεδο; Οι μαθητές θα εμβαθύνουν σε θέματα προγραμματισμού που εσήχθησαν σε προηγούμενα μαθήματα και να βρούν ευέλικτες λύσεις σε πιό σύνθετα προβλήματα. Με το τέλος αυτού του Μαθήματος οι μαθητές δημιουργούν διαδραστικές ιστορίες και παιχνίδια που μπορούν να μοιραστούν με οποιονδήποτε. Συνιστάται για τάξεις Δ' Δημοτικού έως Ε' Δημοτικού."
   course4_shortdescription_congrats: "Ετοιμος για το επόμενο επίπεδο; Οι μαθητές θα εμβαθύνουν σε θέματα προγραμματισμού που εσήχθησαν σε προηγούμενα μαθήματα και θα βρούν ευέλικτες λύσεις σε πιό σύνθετα προβλήματα. Με το τέλος αυτού του Μαθήματος οι μαθητές δημιουργούν διαδραστικές ιστορίες και παιχνίδια που μπορούν να μοιραστούν με οποιονδήποτε. Συνιστάται για τάξεις Δ' Δημοτικού έως Ε' Δημοτικού."
+  coursea_shortdescription_congrats: ""
+  courseb_shortdescription_congrats: ""
+  coursec_shortdescription_congrats: ""
+  coursed_shortdescription_congrats: ""
+  coursee_shortdescription_congrats: ""
+  coursef_shortdescription_congrats: ""
   codeorg_longdescription: "Μάθετε τις βασικές έννοιες της Επιστήμης των Υπολογιστών με προγραμματισμό drag and drop. Αυτό είναι ένα παιγνιώδες, αυτοκαθοδηγούμενο μάθημα με πρωταγωνιστές σε βιντεοδιαλέξεις τους Bill Gates, Mark Zuckerberg, τα Αngry Birds και τα Φυτά  εναντίον Ζόμπι. Μάθετε επαναληπτικούς βρόχους, συνθήκες και βασικούς αλγορίθμους. Διαθέσιμο σε 34 γλώσσες."
   codeintl_longdescription: "Μάθετε τις βασικές έννοιες της Επιστήμης των Υπολογιστών με προγραμματισμό drag and drop. Αυτό είναι ένα παιγνιώδες, αυτοκαθοδηγούμενο μάθημα με πρωταγωνιστές σε βιντεοδιαλέξεις τους Bill Gates, Mark Zuckerberg, τα Αngry Birds και τα Φυτά  εναντίον Ζόμπι. Μάθετε επαναληπτικούς βρόχους, συνθήκες και βασικούς αλγορίθμους. Διαθέσιμο σε 34 γλώσσες."
   thinkersmithspanish_longdescription: "Οι μαθητές χρησιμοποιώντας ένα προκαθορισμένο \"Λεξικό του Ρομπότ\" θα ανακαλύψουν τρόπους  να  κατευθύνουν ο ένας τον άλλο ώστε να τελειώσουν συγκεκριμένες εργασίες για τις οποίες δεν έχουν συζητήσει προηγουμένως.  Με αυτό το μάθημα τα παιδιά μαθαίνουν την σύνδεση ανάμεσα στα σύμβολα και τις ενέργειες, όπως επίσης και την ανεκτίμητη δεξιότητα του εντοπισμού σφαλμάτων."
@@ -1308,8 +1377,10 @@
   playlab_shortcode: "lab"
   artist_shortcode: "art"
   header_home: "Home"
+  header_my_dashboard: "My Dashboard"
   header_courses: "Τες"
-  header_project_gallery: "Project Gallery"
+  header_course_catalog: "Course Catalog"
+  header_project_gallery: "Έργα"
   header_sections: "Sections"
   header_professional_learning: "Professional Learning"
   header_educate_overview: "Educator Overview"
@@ -1338,10 +1409,41 @@
   header_help_us: "Help Us"
   header_about: "About"
   header_teacher_community: "Teacher community"
-  header_help_support: 'Help and support '
+  header_help_support: 'Βοήθεια και υποστήριξη '
   header_report_bug: "Report bug"
   header_tutorials: "Tutorials"
   header_documentation: "Documentation"
-  csp_name: "CS Principles"
+  csp_name: "Βασικές Αρχές της Επιστήμης των Υπολογιστών ' 16-'17"
   csd_name: "CS Discoveries"
   full_course_category_name: "Full Courses"
+  user_header_label: "Γεια σου %{username}"
+  user_header_settings: "Ο λογαριασμός μου"
+  user_header_logout: "Αποσύνδεση"
+  user_header_signin: "Σύνδεση"
+  view_all_sections: "View All Sections"
+  view_section: "View Section"
+  view_named_section: "View %{section_name}"
+  privacy_doc_explanation: "Click here for our privacy document that can be shared or printed for your students."
+  signing_in: "Signing In"
+  sign_in_overview: 'Your students can sign in to their Code.org accounts by following these steps:'
+  sign_in_instruct_website: "Go to %{code_org_url}."
+  sign_in_instruct_code: 'Type in their section code: %{section_code}.'
+  sign_in_instruct_name: "Choose their display name."
+  sign_in_instruct_secret: "Choose their secret %{secret}."
+  sign_in_instruct_button: "Click the “Sign in” button."
+  sign_in_overview_cards: "Students can find all of this information, including their secret %{secret}, in the login cards below."
+  reset_student_password: "Resetting student passwords"
+  reset_student_password_instructions: "You can reset the secret <word/picture> for any of your students by going to the “Manage Students” tab for the section, clicking the “Show secret” button under the “Password” column, and clicking the “Reset secret” button."
+  login_cards: "Login Cards"
+  print_login_cards: "Print login cards"
+  joining_section: "Joining your section (one-time only)"
+  joining_section_overview: "If a student has not already joined your section, please ask them to do the following steps. Note that they only need to do this once. By joining your section, students will be able see the course assigned to them and you will be able to track the progress of the work they complete while they are signed in."
+  joining_section_instruct_website: 'Create a Code.org account if they haven’t already done so. They can do this at https://studio.code.org/users/sign_up. Note that they can either sign up with an email address and password, or sign up through Google, Facebook, or Microsoft by clicking on one of these buttons:'
+  joining_section_instruct_account: "Sign in to their Code.org account."
+  joining_section_instruct_code: 'Navigate to %{code_org_url} and type in their section code: %{section_code}.'
+  joining_section_instruct_button: "Once they press the “Go” button, they should be added to your section."
+  signing_in_single_instruct: "Your students can sign in to their Code.org accounts by going to https://code.org/ and clicking on the “Sign in” button on the top right corner."
+  reset_student_password_email: "If your student created a Code.org account by using their email address and password (instead of signing in through their Google, Facebook, Microsoft, or Clever account), you can reset their password by going to the “Manage Students” tab for the section, and clicking the “Reset password” button under the “Password” column."
+  syncing_students: "Syncing your students"
+  syncing_students_instructions: 'If your Code.org section is ever out of date with your list of students in Google Classroom, click on the “Sync students from Google Classroom” button on the “Manage students” tab:'
+  google_sign_in_instruct: 'From there, they should choose the “Sign in with Google Account” option:'

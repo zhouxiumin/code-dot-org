@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
 
 import TopInstructionsCSF from './TopInstructionsCSF';
@@ -9,14 +9,14 @@ import TopInstructionsCSP from './TopInstructionsCSP';
  * Simple class allowing us to have differences between CSF and CSP top
  * instructions. Ultimately those might be combined back into one.
  */
-const TopInstructions = React.createClass({
-  propTypes: {
-    hidden: React.PropTypes.bool.isRequired,
-    noInstructionsWhenCollapsed: React.PropTypes.bool.isRequired,
-    hasContainedLevels: React.PropTypes.bool,
-    shortInstructions: React.PropTypes.string,
-    longInstructions: React.PropTypes.string,
-  },
+class TopInstructions extends React.Component {
+  static propTypes = {
+    hidden: PropTypes.bool.isRequired,
+    noInstructionsWhenCollapsed: PropTypes.bool.isRequired,
+    hasContainedLevels: PropTypes.bool,
+    shortInstructions: PropTypes.string,
+    longInstructions: PropTypes.string,
+  };
 
   render() {
     const {
@@ -36,8 +36,9 @@ const TopInstructions = React.createClass({
 
     return noInstructionsWhenCollapsed ? <TopInstructionsCSP/> : <TopInstructionsCSF/>;
   }
-});
+}
 
+export const UnconnectedTopInstructions = TopInstructions;
 export default connect(state => ({
   hidden: state.pageConstants.isShareView,
   noInstructionsWhenCollapsed: state.instructions.noInstructionsWhenCollapsed,

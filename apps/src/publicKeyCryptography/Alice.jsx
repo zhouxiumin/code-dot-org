@@ -1,5 +1,5 @@
 /** @file The Alice character panel from the crypto widget */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import CharacterPanel from './CharacterPanel';
 import NumberedSteps, {Step} from './NumberedSteps';
 import IntegerField from './IntegerField';
@@ -17,59 +17,57 @@ import {
 import {computePublicKey} from './cryptographyMath';
 import {COLORS} from './style';
 
-const Alice = React.createClass({
-  propTypes: {
-    disabled: React.PropTypes.bool,
-    setPublicModulus: React.PropTypes.func.isRequired,
-    setPublicKey: React.PropTypes.func.isRequired,
-    runModuloClock: React.PropTypes.func.isRequired
-  },
+const INITIAL_STATE = {
+  publicModulus: null,
+  privateKey: null,
+  publicNumber: null,
+  secretNumber: null
+};
 
-  getInitialState() {
-    return {
-      publicModulus: null,
-      privateKey: null,
-      publicNumber: null,
-      secretNumber: null
-    };
-  },
+export default class Alice extends React.Component {
+  static propTypes = {
+    disabled: PropTypes.bool,
+    setPublicModulus: PropTypes.func.isRequired,
+    setPublicKey: PropTypes.func.isRequired,
+    runModuloClock: PropTypes.func.isRequired
+  };
 
-  startOver() {
-    this.setState(this.getInitialState());
-  },
+  state = {...INITIAL_STATE};
+
+  startOver = () => this.setState(INITIAL_STATE);
 
   setPublicModulus(publicModulus) {
     this.setState({publicModulus});
     this.setPrivateKey(null);
     this.clearSecretNumber();
-  },
+  }
 
-  onPublicModulusChange(publicModulus) {
+  onPublicModulusChange = (publicModulus) => {
     this.setPublicModulus(publicModulus);
     this.props.setPublicModulus(publicModulus);
-  },
+  };
 
   setPrivateKey(privateKey) {
     this.setState({privateKey});
     this.clearSecretNumber();
-  },
+  }
 
-  onPrivateKeyChange(privateKey) {
+  onPrivateKeyChange = (privateKey) => {
     const {publicModulus} = this.state;
     this.setPrivateKey(privateKey);
     this.props.setPublicKey(this.getPublicKey({privateKey, publicModulus}));
-  },
+  };
 
-  setPublicNumber(publicNumber) {
+  setPublicNumber = (publicNumber) => {
     this.setState({publicNumber});
     this.clearSecretNumber();
-  },
+  };
 
   getPublicKey({privateKey, publicModulus}) {
     return privateKey && publicModulus ? computePublicKey(privateKey, publicModulus) : null;
-  },
+  }
 
-  computeSecretNumber() {
+  computeSecretNumber = () => {
     const {runModuloClock} = this.props;
     const {publicModulus, privateKey, publicNumber} = this.state;
     if ([publicModulus, privateKey, publicNumber].every(Number.isInteger)) {
@@ -83,11 +81,11 @@ const Alice = React.createClass({
     } else {
       this.clearSecretNumber();
     }
-  },
+  };
 
   clearSecretNumber() {
     this.setState({secretNumber: null});
-  },
+  }
 
   render() {
     const {disabled} = this.props;
@@ -160,5 +158,4 @@ const Alice = React.createClass({
         </NumberedSteps>
       </CharacterPanel>);
   }
-});
-export default Alice;
+}

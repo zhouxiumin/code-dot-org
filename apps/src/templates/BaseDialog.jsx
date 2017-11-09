@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 /**
  * BaseDialog
@@ -8,16 +8,20 @@ import React from 'react';
  */
 var BaseDialog = React.createClass({
   propTypes: {
-    isOpen: React.PropTypes.bool,
-    handleClose: React.PropTypes.func,
-    uncloseable: React.PropTypes.bool,
-    handleKeyDown: React.PropTypes.func,
-    hideBackdrop: React.PropTypes.bool,
-    fullWidth: React.PropTypes.bool,
-    useUpdatedStyles: React.PropTypes.bool,
-    useDeprecatedGlobalStyles: React.PropTypes.bool,
-    children: React.PropTypes.node,
-    assetUrl: React.PropTypes.func,
+    isOpen: PropTypes.bool,
+    handleClose: PropTypes.func,
+    uncloseable: PropTypes.bool,
+    hideCloseButton: PropTypes.bool,
+    handleKeyDown: PropTypes.func,
+    hideBackdrop: PropTypes.bool,
+    fullWidth: PropTypes.bool,
+    useUpdatedStyles: PropTypes.bool,
+    useDeprecatedGlobalStyles: PropTypes.bool,
+    children: PropTypes.node,
+    assetUrl: PropTypes.func,
+    fixedWidth: PropTypes.number,
+    fixedHeight: PropTypes.number,
+    style: PropTypes.object,
   },
 
   componentDidMount: function () {
@@ -85,13 +89,15 @@ var BaseDialog = React.createClass({
       modalBodyClassNames = "";
       modalBodyStyle = {
         background: `#fff top center url(${this.props.assetUrl('media/dialog/achievement_background.png')}) no-repeat`,
-        height: 480,
-        overflow: 'hidden',
+        height: this.props.fixedHeight,
+        maxHeight: !this.props.fixedHeight && '80vh',
+        overflowX: 'hidden',
+        overflowY: this.props.fixedHeight ? 'hidden' : 'auto',
         borderRadius: 4,
       };
       bodyStyle = Object.assign({}, bodyStyle, {
-        width: 700,
-        marginLeft: -350,
+        width: this.props.fixedWidth || 700,
+        marginLeft: (-this.props.fixedWidth / 2) || -350,
       });
       xCloseStyle = {
         position: 'absolute',
@@ -107,6 +113,7 @@ var BaseDialog = React.createClass({
       modalBodyClassNames = "modal-body dash_modal_body";
       modalBackdropClassNames = "modal-backdrop in";
     }
+    bodyStyle = { ...bodyStyle, ...this.props.style };
     let body = (
       <div
         style={bodyStyle}
@@ -116,7 +123,7 @@ var BaseDialog = React.createClass({
         onKeyDown={this.handleKeyDown}
       >
         <div style={modalBodyStyle} className={modalBodyClassNames}>
-          {!this.props.uncloseable && (this.props.useUpdatedStyles ?
+          {!this.props.uncloseable && !this.props.hideCloseButton && (this.props.useUpdatedStyles ?
             <i className="fa fa-times" style={xCloseStyle} onClick={this.closeDialog}/> :
             <div id="x-close" className="x-close" onClick={this.closeDialog}></div>
           )}

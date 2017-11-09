@@ -25,6 +25,8 @@ require 'sass/plugin'
 
 if rack_env?(:production)
   require 'newrelic_rpm'
+  # Enable GC profiler for New Relic instrumentation.
+  GC::Profiler.enable
   NewRelic::Agent.after_fork(force_reconnect: true)
 end
 
@@ -176,15 +178,7 @@ class Documents < Sinatra::Base
 
   get '/style.css' do
     content_type :css
-    css, css_last_modified = combine_css 'styles'
-    last_modified(css_last_modified) if css_last_modified > Time.at(0)
-    cache :static
-    css
-  end
-
-  get '/style-min.css' do
-    content_type :css
-    css, css_last_modified = combine_css 'styles_min'
+    css, css_last_modified = combine_css 'styles', 'styles_min'
     last_modified(css_last_modified) if css_last_modified > Time.at(0)
     cache :static
     css

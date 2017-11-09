@@ -6,7 +6,7 @@ import { makeEnum } from '../utils';
 import { mergeActivityResult, activityCssClass } from './activityUtils';
 import { LevelStatus, LevelKind } from '@cdo/apps/util/sharedConstants';
 import { TestResults } from '@cdo/apps/constants';
-import { ViewType, SET_VIEW_TYPE } from './stageLockRedux';
+import { ViewType, SET_VIEW_TYPE } from './viewAsRedux';
 
 // Action types
 export const INIT_PROGRESS = 'progress/INIT_PROGRESS';
@@ -17,9 +17,12 @@ const SHOW_TEACHER_INFO = 'progress/SHOW_TEACHER_INFO';
 const DISABLE_POST_MILESTONE = 'progress/DISABLE_POST_MILESTONE';
 const SET_USER_SIGNED_IN = 'progress/SET_USER_SIGNED_IN';
 const SET_IS_HOC_SCRIPT = 'progress/SET_IS_HOC_SCRIPT';
+const SET_IS_AGE_13_REQUIRED = 'progress/SET_IS_AGE_13_REQUIRED';
 const SET_IS_SUMMARY_VIEW = 'progress/SET_IS_SUMMARY_VIEW';
 const SET_STUDENT_DEFAULTS_SUMMARY_VIEW = 'progress/SET_STUDENT_DEFAULTS_SUMMARY_VIEW';
 const SET_CURRENT_STAGE_ID = 'progress/SET_CURRENT_STAGE_ID';
+const SET_SCRIPT_COMPLETED = 'progress/SET_SCRIPT_COMPLETED';
+const SET_STAGE_EXTRAS_ENABLED = 'progress/SET_STAGE_EXTRAS_ENABLED';
 
 export const SignInState = makeEnum('Unknown', 'SignedIn', 'SignedOut');
 const PEER_REVIEW_ID = -1;
@@ -32,6 +35,10 @@ const initialState = {
   // used on multi-page assessments
   saveAnswersBeforeNavigation: null,
   stages: null,
+  scriptId: null,
+  scriptName: null,
+  scriptTitle: null,
+  courseId: null,
 
   // The remaining fields do change after initialization
   // a mapping of level id to result
@@ -43,10 +50,12 @@ const initialState = {
   signInState: SignInState.Unknown,
   postMilestoneDisabled: false,
   isHocScript: null,
+  isAge13Required: false,
   // Do students see summary view by default?
   studentDefaultsSummaryView: true,
   isSummaryView: true,
-  hasFullProgress: false
+  hasFullProgress: false,
+  stageExtrasEnabled: false,
 };
 
 /**
@@ -66,7 +75,10 @@ export default function reducer(state = initialState, action) {
       saveAnswersBeforeNavigation: action.saveAnswersBeforeNavigation,
       stages: processedStages(stages, action.professionalLearningCourse),
       peerReviewStage: action.peerReviewStage,
+      scriptId: action.scriptId,
       scriptName: action.scriptName,
+      scriptTitle: action.scriptTitle,
+      courseId: action.courseId,
       currentStageId,
       hasFullProgress: action.isFullProgress
     };
@@ -138,6 +150,13 @@ export default function reducer(state = initialState, action) {
     };
   }
 
+  if (action.type === SET_IS_AGE_13_REQUIRED) {
+    return {
+      ...state,
+      isAge13Required: action.isAge13Required
+    };
+  }
+
   if (action.type === SET_IS_SUMMARY_VIEW) {
     return {
       ...state,
@@ -153,10 +172,10 @@ export default function reducer(state = initialState, action) {
   }
 
   if (action.type === SET_VIEW_TYPE) {
-    const { viewAs } = action;
+    const { viewType } = action;
     return {
       ...state,
-      isSummaryView: viewAs === ViewType.Student && state.studentDefaultsSummaryView
+      isSummaryView: viewType === ViewType.Student && state.studentDefaultsSummaryView
     };
   }
 
@@ -171,6 +190,20 @@ export default function reducer(state = initialState, action) {
     return {
       ...state,
       currentStageId: action.stageId
+    };
+  }
+
+  if (action.type === SET_SCRIPT_COMPLETED) {
+    return {
+      ...state,
+      scriptCompleted: true,
+    };
+  }
+
+  if (action.type === SET_STAGE_EXTRAS_ENABLED) {
+    return {
+      ...state,
+      stageExtrasEnabled: action.stageExtrasEnabled
     };
   }
 
@@ -230,19 +263,21 @@ export function processedStages(stages, isPlc) {
   });
 }
 
-
 // Action creators
 export const initProgress = ({currentLevelId, professionalLearningCourse,
-    saveAnswersBeforeNavigation, stages, peerReviewStage, scriptName,
-    isFullProgress}) => ({
+    saveAnswersBeforeNavigation, stages, peerReviewStage, scriptId, scriptName,
+    scriptTitle, courseId, isFullProgress}) => ({
   type: INIT_PROGRESS,
   currentLevelId,
   professionalLearningCourse,
   saveAnswersBeforeNavigation,
   stages,
   peerReviewStage,
+  scriptId,
   scriptName,
-  isFullProgress
+  scriptTitle,
+  courseId,
+  isFullProgress,
 });
 
 export const mergeProgress = levelProgress => ({
@@ -266,10 +301,14 @@ export const showTeacherInfo = () => ({ type: SHOW_TEACHER_INFO });
 export const disablePostMilestone = () => ({ type: DISABLE_POST_MILESTONE });
 export const setUserSignedIn = isSignedIn => ({ type: SET_USER_SIGNED_IN, isSignedIn });
 export const setIsHocScript = isHocScript => ({ type: SET_IS_HOC_SCRIPT, isHocScript });
+export const setIsAge13Required = isAge13Required => ({ type: SET_IS_AGE_13_REQUIRED, isAge13Required });
 export const setIsSummaryView = isSummaryView => ({ type: SET_IS_SUMMARY_VIEW, isSummaryView });
 export const setStudentDefaultsSummaryView = studentDefaultsSummaryView => (
   { type: SET_STUDENT_DEFAULTS_SUMMARY_VIEW, studentDefaultsSummaryView });
 export const setCurrentStageId = stageId => ({ type: SET_CURRENT_STAGE_ID, stageId });
+export const setScriptCompleted = () => ({type: SET_SCRIPT_COMPLETED });
+export const setStageExtrasEnabled = stageExtrasEnabled => (
+  { type: SET_STAGE_EXTRAS_ENABLED, stageExtrasEnabled });
 
 // Selectors
 
@@ -328,30 +367,70 @@ const peerReviewLevels = state => state.peerReviewStage.levels.map((level, index
 }));
 
 /**
+ * Determine whether the passed in level is our current level (i.e. in the dots
+ * in our header
+ * @returns {boolean}
+ */
+const isCurrentLevel = (state, level) => {
+  const currentLevelId = state.currentLevelId;
+  return !!currentLevelId &&
+    ((level.ids && level.ids.map(id => id.toString()).indexOf(currentLevelId) !== -1) ||
+    level.uid === currentLevelId);
+};
+
+/**
  * The level object passed down to use via the server (and stored in stage.stages.levels)
  * contains more data than we need. This (a) filters to the parts our views care
  * about and (b) determines current status based on the current state of
  * state.levelProgress
  */
+const levelWithStatus = (state, level) => {
+  if (level.kind !== LevelKind.unplugged) {
+    if (!level.title || typeof(level.title) !== 'number') {
+      throw new Error('Expect all non-unplugged levels to have a numerical title');
+    }
+  }
+  return {
+    status: statusForLevel(level, state.levelProgress),
+    url: level.url,
+    name: level.name,
+    progression: level.progression,
+    kind: level.kind,
+    icon: level.icon,
+    isUnplugged: level.kind === LevelKind.unplugged,
+    levelNumber: level.kind === LevelKind.unplugged ? undefined : level.title,
+    isCurrentLevel: isCurrentLevel(state, level),
+    isConceptLevel: level.is_concept_level,
+  };
+};
+
+/**
+ * Get level data for all lessons/stages
+ */
 export const levelsByLesson = state => (
   state.stages.map(stage => (
-    stage.levels.map(level => {
-      if (level.kind !== LevelKind.unplugged) {
-        if (!level.title || typeof(level.title) !== 'number') {
-          throw new Error('Expect all non-unplugged levels to have a numerical title');
-        }
-      }
-      return {
-        status: statusForLevel(level, state.levelProgress),
-        url: level.url,
-        name: level.name,
-        progression: level.progression,
-        icon: level.icon,
-        isUnplugged: level.kind === LevelKind.unplugged,
-        levelNumber: level.kind === LevelKind.unplugged ? undefined : level.title
-      };
-    })
+    stage.levels.map(level => levelWithStatus(state, level))
   ))
+);
+
+/**
+ * Get data for a particular lesson/stage
+ */
+export const levelsForLessonId = (state, lessonId) => (
+  state.stages.find(stage => stage.id === lessonId).levels.map(
+    level => levelWithStatus(state, level)
+  )
+);
+
+export const stageExtrasUrl = (state, stageId) => (
+  state.stageExtrasEnabled
+    ? state.stages.find(stage => stage.id === stageId).stage_extras_level_url
+    : ''
+);
+
+export const isPerfect = (state, levelId) => (
+  !!state.levelProgress &&
+    state.levelProgress[levelId] >= TestResults.MINIMUM_OPTIMAL_RESULT
 );
 
 /**

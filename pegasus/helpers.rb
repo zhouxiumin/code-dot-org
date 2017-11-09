@@ -99,4 +99,24 @@ def csrf_tag
   Rack::Csrf.csrf_tag(env)
 end
 
+def language_dir_class(locale=request.locale)
+  # This list of RTL languages matches those in dashboard/config/locales.yml
+  if ["ar-SA", "fa-IR", "he-IL", "ur-PK"].include? locale
+    "rtl"
+  else
+    "ltr"
+  end
+end
+
+def verify_signature(token)
+  request.body.rewind
+  payload_body = request.body.read
+  signature = 'sha1=' + OpenSSL::HMAC.hexdigest(
+    OpenSSL::Digest.new('sha1'),
+    token,
+    payload_body
+  )
+  Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
+end
+
 Dir.glob(pegasus_dir('helpers/*.rb')).sort.each {|path| require path}

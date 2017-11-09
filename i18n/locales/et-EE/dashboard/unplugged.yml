@@ -174,7 +174,7 @@ et:
         desc: In this lesson, you will 'program' your friends!
       courseB_unplugged_loopyMRF:
         title: Lahutatud tegevus
-        desc: Just like in 'My Robotic Friends', you will be 'programming' your friends, but this time with loops!
+        desc: Just like in "My Robotic Friends", you will be "programming" your friends, but this time with loops!
       courseC_Unplugged_ScreenOutTheMean:
         title: Lahutatud tegevus
         desc: Today you will learn about what to do if someone is being mean online.
@@ -182,8 +182,86 @@ et:
         title: Lahutatud tegevus
         desc: Today you will learn what it means to be a Digital Citizen.
       courseE_unplugged_privateInformation:
-        title: Lahutatud tegevus
+        title: 'Common Sense Education: Private and Personal Information '
         desc: Today you will learn the difference between private and personal information!
       courseF_unplugged_powerOfWords:
         title: Lahutatud tegevus
         desc: Today you will learn about what to do if someone is being mean online.
+      deeper learning description:
+        title: ''
+        desc: 'translation missing: en-US.data.unplugged.desc'
+      courseAB_unplugged_plantASeed:
+        title: 'Päris elu algoritmid: Seemenda'
+        desc: Selles õppetunnis näidatakse seemendamise näitel seda, kuidas kasutame algoritme igapäevases elus. Lisaks käsitletakse selles arvutiteadust üldisemalt ja algoritmide suurt tähtsust.
+      courseA_unplugged_happyMaps:
+        title: Happy Maps
+        desc: Õpilased loovad lihtsaid algoritme (juhendite komplekte), et liigutada tegelast läbi labürindi kasutades ainult üht käsku.
+      courseA_unplugged_goingPlacesSafely:
+        title: Läheb asukohta turvaliselt
+        desc: Internet on võimas, kuid vahest ka ohtlik koht. Õpetajad õpetavad, kuidas end Internetis surfates kaitsta.
+      courseABC_unplugged_bigEvent:
+        title: Suursündmus
+        desc: Õpilastele õpetatakse programmeerimismõistet "sündmused", need on tegevused, mida arvuti pidevalt jälgib. Õpetaja vajutab nuppe paberist kaugjuhtimispuldil ja õpilased reageerivad vastavalt sellele, millist nuppu vajutati.
+      courseB_unplugged_digitalFootprint:
+        title: Sinu digitaalne jalajälg
+        desc: Õpetajad selgitavad õpilastele ideed, et enda kohta teabe jätmine Internetti jätab digitaalse jalajälje või "jälje", millel on tagajärjed.
+      courseC_unplugged_buildingAFoundation:
+        title: Vundamendi ehitus
+        desc: Õpilased panevad kokku struktuuri ainult käepärastest vahenditest. Struktuurid peavad täitma ülesande (ulatuma teatud kõrgusesse või kandma teatud raskust) ja kui asjad lähevad keeruliseks, arutavad õpilased püsivuse ideed.
+      courseC_unplugged_paperPlanes:
+        title: 'Päris elu algoritmid: paberlennukid'
+        desc: Selles õppetunnis näidatakse paberlennukite tegemise näitel seda, kuidas kasutame algoritme igapäevases elus. Lisaks käsitletakse selles arvutiteadust üldisemalt ja algoritmide suurt tähtsust.
+      courseC_unplugged_gettingLoopy:
+        title: Muutub tsükliliseks
+        desc: Selles õppetunnis õpetatakse tantsu teel tsüklite (korduvate juhiste) programmeerimismõistet. Õpilased õpivad ära lihtsa koreograafia, mida nad peavad siis kordama.
+      courseC_unplugged_binaryBracelets:
+        title: Binaarsed käevõrud
+        desc: Õpilased teevad käevõrud, mis kujutavad nende nime esitähte binaarkujul. Õpilased õpivad, et andmeid saab salvestada mitmel kujul.
+      courseD_unplugged_graphPaperProgramming:
+        title: Millimeetripaberi programmeerimine
+        desc: Õpilased kirjutavad eelmääratletud käskude komplekti kasutades algoritmi (komplekti juhiseid), mis juhendab klassikaaslasi, kuidas joonistust kopeerida.
+      courseD_unplugged_relayProgramming:
+        title: Relee Programmeerimine
+        desc: Õpilased teevad releeralli, kus nad jooksevad üle õue, et kirjutada "Millimeetripaberi programmeerimise" pildi põhjal algoritm. Nad saavad kirjutada korraga ainult ühe juhise ja kui kuskil tekib viga, peavad nad kustutama kõik kuni selle punktini.
+      courseD_unplugged_conditionalsCards:
+        title: Tingimuslaused kaartidel
+        desc: 'Tingimuslausete kohta õppimiseks mängivad õpilased kaardimängu ja loovad reegleid nagu: "Kui tõmban kaardi, saan mina punkti" ja "Kui tõmban musta kaardi, saad sina punkti."'
+      courseD_unplugged_binaryImages:
+        title: Binaarsed pildid
+        desc: Kuigi paljude inimeste jaoks on binaarandmed kõigest nullid ja ühed, õppisid õpilased eelmistel kursustel, et teavet saab esitada mitmel binaarsel kujul. Selles õppetunnis astutakse selles teemas samm edasi ja näidatakse, kiuidas arvuti salvestab binaarandmetena veelgi komplekssemat teavet (näiteks pilte ja värve).
+      courseE_unplugged_diceRace:
+        title: 'Real-Life Algorithms: Dice Race'
+        desc: Selles õppetunnis tuuakse näiteid sellest, kuidas kasutame algoritme oma igapäevases elus. Õppetunnis õpilased tuvastavad ja kirjutavad üles algoritmi täringuralli mängu jaoks.
+      courseE_unplugged_songwritingParameters:
+        title: Laulukirjutamine parameetritega
+        desc: Õpilased kasutavad laulu refrääni põhimõtet, et õppida parameetrite edastust (mis kohandab funktsiooni ilma, et oleks vaja kogu funktsioon ümber kirjutada).
+      courseE_unplugged_internet:
+        title: Internet
+        desc: Õpilased saadavad paberitükkidel sõnumeid, mis kujutavad erinevaid Internetiedastuse meetodeid.
+      courseE_unplugged_crowdsourcing:
+        title: Ühistegevused
+        desc: Õpilased kasutavad ühisloomet, mis on arvutiteaduses levinud võte probleemide lahendamiseks, et täita ülesanne kogu klassiga palju tõhusamalt kui üks õpilane seda ise suudaks.
+      courseE_unplugged_songwriting:
+        title: Laulukirjutamine parameetritega
+        desc: Õpilased kasutavad laulu refrääni põhimõtet, et õppida parameetrite edastust (mis kohandab funktsiooni ilma, et oleks vaja kogu funktsioon ümber kirjutada).
+      courseF_unplugged_tangrams:
+        title: Tangrami algoritmid
+        desc: 'See õppetund õpetab ühte olulist asja algoritmide kohta: kui algoritm on lihtne, saab seda kasutada paljudel eri viisidel. Selleks, et igaüks saaks kindlasti ühesuguse asja, peab algoritm olema palju üksikasjalikum.'
+      courseF_unplugged_envelopeVariables:
+        title: Ümbriku muutujad
+        desc: Muutujad annavad arvutiteaduses palju vabadust. See tund aitab selgitada, mis on muutujad ja kuidas me saame neid erinevalt kasutada. Kasuta seda tegevust enne (või konjunktsioonis) abstraktsiooni tundi, et sellest ideest päriselt aru saada.
+      courseF_unplugged_forLoopFun:
+        title: For Loop Fun
+        desc: Teame, et tsüklitega saab teha asju uuesti ja uuesti, aga nüüd õpime, kuidas kasutada tsükleid, millesse on lisastruktuur juba sisse ehitatud.
+      courseF_unplugged_songwritingParameters:
+        title: Laulukirjutamine parameetritega
+        desc: 'Üks võrratumaid struktuure arvutiteaduses on funktsioon. Funktsioonid (ka nn protseduurid) on miniprogrammid, mida saab kasutada suurema programmi sees uuesti ja uuesti. Selles õppetunnis aidatakse õpilastel intuitiivselt mõista, miks koodiosade kombineerimine funktsioonideks on nii kasulik meetod.'
+      swipeRightPassThrough:
+        title: Recruitment Scenarios Session
+        desc: "# Recruitment Scenarios Session\\r\n\\r\n## Swipe Right for CS\\r\nFor this session we'll use a tool called \"Swipe Right for CS\", which has been developed by our partners at MIT. In Swipe Right for CS, you will read through some student profiles and consider specific statements that you might use to convince him or her to enroll in your CS Principles course. \\r\n\\r\n### How it Works\\r\nWhen playing the Swipe Right for CS game you will see a series of quotes that you might say to each student. You will swipe right on quotes that you think would be effective in convincing students to enroll in the course and swipe left on statements that you think will not be effective. During the session we will discuss as a group your thoughts on the types of statements that are most effective in getting a student to enroll in CS, and you will have a chance to see how other people in your workshop swiped on each of the arguments. \\r\n\\r\n\\r\nWhen you click continue below, we'll send you to the game, and pass along the Code.org email address you're logged in with."
+      swipeRightPassThrough-test123:
+        title: Recruitment Scenarios Session
+        desc: "# Recruitment Scenarios Session\\r\n\\r\n## Swipe Right for CS\\r\nFor this session we'll use a tool called \"Swipe Right for CS\", which has been developed by our partners at MIT. In Swipe Right for CS, you will read through some student profiles and consider specific statements that you might use to convince him or her to enroll in your CS Principles course. \\r\n\\r\n### How it Works\\r\nWhen playing the Swipe Right for CS game you will see a series of quotes that you might say to each student. You will swipe right on quotes that you think would be effective in convincing students to enroll in the course and swipe left on statements that you think will not be effective. During the session we will discuss as a group your thoughts on the types of statements that are most effective in getting a student to enroll in CS, and you will have a chance to see how other people in your workshop swiped on each of the arguments. \\r\n\\r\n\\r\nWhen you click continue below, we'll send you to the game, and pass along the Code.org email address you're logged in with."
+      brad-repro-bug-000:
+        title: Brad Repro Bug 000
+        desc: "# Brad Repro Bug 000\\r\n## Attempt to recreate a bug Brooke reported\\r\nprocess as follows:\\r\n1. started with an `unplugged` level. populated with info. hit save and publish.\\r\n2. “destroyed” the level\\r\n3. made a `markdown` level with the same content and same name. checked to box to encrypt it. hit save and plush"

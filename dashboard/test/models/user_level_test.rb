@@ -197,6 +197,28 @@ class UserLevelTest < ActiveSupport::TestCase
     assert_equal Activity::UNSUBMITTED_RESULT, ul.best_result
   end
 
+  test 'unsubmitting destroys unclaimed peer reviews' do
+    level = create(:free_response, peer_reviewable: true)
+    script = create :script
+
+    ul = UserLevel.create(
+      user: @user,
+      level: level,
+      attempts: 0,
+      submitted: true,
+      best_result: Activity::UNREVIEWED_SUBMISSION_RESULT
+    )
+
+    review_1 = create(:peer_review, submitter: @user, reviewer: (create :teacher), level: level, script: script)
+    review_2 = create(:peer_review, submitter: @user, reviewer: nil, level: level, script: script)
+
+    ul.update! submitted: false
+    assert_equal Activity::UNSUBMITTED_RESULT, ul.best_result
+
+    assert PeerReview.exists?(review_1.id)
+    refute PeerReview.exists?(review_2.id)
+  end
+
   test "driver and navigator user levels" do
     assert_equal [@navigator_user_level],
       @driver_user_level.navigator_user_levels
@@ -215,8 +237,8 @@ class UserLevelTest < ActiveSupport::TestCase
     ul_student = UserLevel.create(user: @user, level: @level, submitted: true)
     ul_teacher = UserLevel.create(user: teacher, level: @level, submitted: true)
 
-    assert_equal true, @user.user_level_locked?(script_level, @level)
-    assert_equal false, teacher.user_level_locked?(script_level, @level)
+    assert_equal true, script_level.locked?(@user)
+    assert_equal false, script_level.locked?(teacher)
 
     assert_equal true, ul_student.locked?(stage)
     assert_equal false, ul_teacher.locked?(stage)
@@ -236,5 +258,21 @@ class UserLevelTest < ActiveSupport::TestCase
   test 'most_recent_driver returns driver name' do
     assert_equal 'DriverName',
       UserLevel.most_recent_driver(nil, @level, @navigator).first
+  end
+
+  test 'count passed levels for users' do
+    students = (0...3).map do |n|
+      create :student, :with_puzzles, num_puzzles: 10 - n
+    end
+
+    passing_level_counts = UserLevel.count_passed_levels_for_users(students.map(&:id))
+    assert_equal(
+      {
+        students[0].id => 10,
+        students[1].id => 9,
+        students[2].id => 8,
+      },
+      passing_level_counts
+    )
   end
 end
