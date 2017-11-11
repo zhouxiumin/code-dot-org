@@ -10,6 +10,9 @@ const styles = {
   heading: {
     color: color.teal,
     width: '100%'
+  },
+  clear: {
+    clear: 'both'
   }
 };
 
@@ -61,6 +64,7 @@ export default class TeachersBeyondHoc extends Component {
             )
           )}
         </ResourceCardResponsiveContainer>
+        <div style={styles.clear}/>
       </div>
     );
   }
