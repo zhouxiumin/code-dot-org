@@ -68,7 +68,10 @@ export default class Congrats extends Component {
             completedTutorialType={completedTutorialType}
           />
           {userType === "teacher" && (
-            <TeachersBeyondHoc/>
+            <TeachersBeyondHoc
+              responsive={this.responsive}
+              isRtl={isRtl}
+            />
           )}
           <StudentsBeyondHoc
             completedTutorialType={completedTutorialType}
