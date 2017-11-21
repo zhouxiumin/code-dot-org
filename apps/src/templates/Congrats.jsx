@@ -7,7 +7,8 @@ import StudentsBeyondHoc from './StudentsBeyondHoc';
 import TeachersBeyondHoc from './TeachersBeyondHoc';
 import { Provider } from 'react-redux';
 import { combineReducers, createStore } from 'redux';
-import responsiveRedux from '../code-studio/responsiveRedux';
+import responsiveRedux from '@cdo/apps/code-studio/responsiveRedux';
+import isRtl from '@cdo/apps/code-studio/isRtlRedux';
 
 const styles = {
   container: {
@@ -74,7 +75,7 @@ export default class Congrats extends Component {
       ...styles.container,
       width: this.responsive.getResponsiveContainerWidth()
     };
-    const store = createStore(combineReducers({responsive: responsiveRedux}));
+    const store = createStore(combineReducers({responsive: responsiveRedux, isRtl}));
 
     return (
       <Provider store={store}>
@@ -88,7 +89,6 @@ export default class Congrats extends Component {
           {userType === "teacher" && isEnglish && (
             <TeachersBeyondHoc
               responsive={this.responsive}
-              isRtl={isRtl}
             />
           )}
           <StudentsBeyondHoc

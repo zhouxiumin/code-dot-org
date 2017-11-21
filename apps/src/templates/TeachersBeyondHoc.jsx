@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, {Component, PropTypes} from 'react';
+import {connect} from 'react-redux';
 import i18n from "@cdo/locale";
 import {pegasus} from '@cdo/apps/lib/util/urlHelpers';
 import Responsive from '../responsive';
@@ -21,7 +22,7 @@ const styles = {
   },
 };
 
-export default class TeachersBeyondHoc extends Component {
+class TeachersBeyondHoc extends Component {
   static propTypes = {
     isRtl: PropTypes.bool.isRequired,
     responsive: PropTypes.instanceOf(Responsive).isRequired,
@@ -85,3 +86,7 @@ export default class TeachersBeyondHoc extends Component {
     );
   }
 }
+
+export default connect(state => ({
+  isRtl: state.isRtl,
+}))(TeachersBeyondHoc);
