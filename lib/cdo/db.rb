@@ -6,9 +6,18 @@ def sequel_connect(writer, reader)
 
   reader_uri = URI(reader)
   if reader_uri.host != URI(writer).host
-    db = Sequel.connect writer, servers: {read_only: {host: reader_uri.host}}, encoding: 'utf8mb4', default_group: 'cdo'
+    db = Sequel.connect writer,
+      servers: {read_only: {host: reader_uri.host}},
+      encoding: 'utf8mb4',
+      default_group: 'cdo',
+      reconnect: true,
+      connect_timeout: 2
   else
-    db = Sequel.connect writer, encoding: 'utf8mb4', default_group: 'cdo'
+    db = Sequel.connect writer,
+      encoding: 'utf8mb4',
+      default_group: 'cdo',
+      reconnect: true,
+      connect_timeout: 2
   end
 
   db.extension :server_block
