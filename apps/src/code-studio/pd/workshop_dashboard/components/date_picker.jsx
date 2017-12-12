@@ -35,8 +35,8 @@ const styles = {
   }
 };
 
-const DateInputWithIcon = Radium(React.createClass({
-  propTypes: {
+class DateInputWithIconUnwrapped extends React.Component {
+  static propTypes = {
     disabled: PropTypes.bool,
     onClear: PropTypes.func,
 
@@ -46,20 +46,20 @@ const DateInputWithIcon = Radium(React.createClass({
     onClick: PropTypes.func,
     value: PropTypes.string,
     onBlur: PropTypes.func
-  },
+  };
 
   // Called by ReactDatePicker to focus on the custom input.
   // Redirect to the underlying input control.
-  focus() {
+  focus = () => {
     if (this.inputControl) {
       this.inputControl.focus();
     }
-  },
+  };
 
-  handleClear(e) {
+  handleClear = (e) => {
     e.stopPropagation();
     this.props.onClear();
-  },
+  };
 
   render() {
     return (
@@ -95,10 +95,11 @@ const DateInputWithIcon = Radium(React.createClass({
       </InputGroup>
     );
   }
-}));
+}
+const DateInputWithIcon = Radium(DateInputWithIconUnwrapped);
 
-const DatePicker = React.createClass({
-  propTypes: {
+export default class DatePicker extends React.Component {
+  static propTypes = {
     date: PropTypes.object,
     onChange: PropTypes.func.isRequired,
     minDate: PropTypes.object,
@@ -109,24 +110,18 @@ const DatePicker = React.createClass({
     endDate: PropTypes.object,
     readOnly: PropTypes.bool,
     clearable: PropTypes.bool
-  },
+  };
 
-  getDefaultProps() {
-    return {
-      selectsStart: false,
-      selectsEnd: false,
-      startDate: null,
-      endDate: null
-    };
-  },
+  static defaultProps = {
+    selectsStart: false,
+    selectsEnd: false,
+    startDate: null,
+    endDate: null
+  };
 
-  handleChange(date) {
-    this.props.onChange(date);
-  },
+  handleChange = (date) => this.props.onChange(date);
 
-  handleClear() {
-    this.props.onChange(null);
-  },
+  handleClear = () => this.props.onChange(null);
 
   render() {
     return (
@@ -150,5 +145,4 @@ const DatePicker = React.createClass({
       />
     );
   }
-});
-export default DatePicker;
+}

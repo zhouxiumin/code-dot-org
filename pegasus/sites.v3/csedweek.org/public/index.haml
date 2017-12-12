@@ -1,9 +1,19 @@
 ---
+<%
+  mode = DCDO.get('hoc_mode', false)
+
+  description = I18n.t(:csedweek_og_description)
+  description = I18n.t(:csedweek_og_description_soon) if mode == 'soon-hoc'
+  description = I18n.t(:csedweek_og_description_here) if mode == 'actual-hoc'
+
+  title = I18n.t(:csedweek_og_title)
+  title = I18n.t(:og_title_here) if mode == 'actual-hoc'
+%>
 theme: responsive
 banner: null
 social:
-  "og:title": "<%= I18n.t(:csedweek_og_title) %>"
-  "og:description": "<%= I18n.t(:csedweek_og_description)%>"
+  "og:title": "<%= title %>"
+  "og:description": "<%= description %>"
   "og:image": "https://<%=request.host%>/images/cs-is-everything-thumbnail.png"
   "og:image:width": "1200"
   "og:image:height": "627"
@@ -15,8 +25,8 @@ social:
   "twitter:card": "player"
   "twitter:site": "@codeorg"
   "twitter:url": "https://csedweek.org/"
-  "twitter:title": "<%= I18n.t(:csedweek_og_title) %>"
-  "twitter:description": "<%= I18n.t(:csedweek_og_description)%>"
+  "twitter:title": "<%= title %>"
+  "twitter:description": "<%= description %>"
   "twitter:image:src": "https://<%=request.host%>/images/cs-is-everything-thumbnail.png"
   "twitter:player": "https://youtube.com/embed/QvyTEx1wyOY"
   "twitter:player:width": "640"
@@ -29,6 +39,7 @@ video_player: true
 
 -facebook = {:u=>"https://#{request.site}/"}
 -twitter = {:related=>'codeorg', :text=>I18n.t(:twitter_cs_foundational)}
+-hoc_mode = DCDO.get("hoc_mode", false)
 
 %script{:src=>"/js/jquery.placeholder.js"}
 %script{type: "text/javascript", src: "https://maps.googleapis.com/maps/api/js?client=#{CDO.google_maps_client_id}&sensor=false&libraries=places,geometry&v=3.7"}
@@ -56,9 +67,7 @@ video_player: true
             =count_string
 
         %div{:style=>'margin-bottom: 8px'}
-          %a#try-button{:href=>'/learn'}
-            %button.optionbutton{:style=>'min-width: 100px;'}
-              =I18n.t :homepage_action_text_learn
+          = view :csedweek_action_buttons, hoc_mode: hoc_mode
 
     -download_filename = 'cs-is-everything.mp4'
     #below.mobile-center{:style=>'clear:both; overflow:hidden; padding-top: 0px'}

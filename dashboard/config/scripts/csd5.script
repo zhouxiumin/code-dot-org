@@ -4,6 +4,7 @@ hideable_stages true
 exclude_csf_column_in_legend true
 student_detail_progress_view true
 teacher_resources [["lessonPlans", "https://curriculum.code.org/csd/unit5/"], ["teacherForum", "https://forum.code.org/c/csd5"], ["vocabulary", "https://curriculum.code.org/csd/unit5/vocab"], ["standardMappings", "https://curriculum.code.org/csd/unit5/standards/"]]
+has_verified_resources true
 
 stage 'Representation Matters', flex_category: 'csd5_1'
 named_level 'CSD-U5-SFLP Representation Matters'
@@ -51,8 +52,8 @@ named_level 'CSD-U5-SFLP Problem Solving and Data'
 stage 'Problem Solving with Big Data', flex_category: 'csd5_2'
 named_level 'CSD-U5-SFLP Problem Solving with Big Data'
 level 'CSD U5 video2', progression: 'Problem Solving'
-level 'CSD U5 collection UPS2', progression: 'Problem Solving'
-level 'CSD U5 collection ads2', progression: 'Problem Solving'
+level 'CSD U5 Waze Data Video', progression: 'Problem Solving'
+level 'CSD U5 Amazon Data Video', progression: 'Problem Solving'
 
 stage 'Structuring Data', flex_category: 'csd5_2'
 named_level 'CSD-U5-SFLP Interpreting Data'

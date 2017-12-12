@@ -1,13 +1,17 @@
 // This gets replaced by karma webpack with the updated files on rebuild
 import 'babel-polyfill';
-import { throwOnConsoleErrorsEverywhere, throwOnConsoleWarningsEverywhere } from './util/testUtils';
+import 'whatwg-fetch';
+import {
+  throwOnConsoleErrorsEverywhere,
+  throwOnConsoleWarningsEverywhere,
+  clearTimeoutsBetweenTests,
+} from './util/testUtils';
 
 var __karmaWebpackManifest__ = [];
 
 function inManifest(path) {
   return __karmaWebpackManifest__.indexOf(path) >= 0;
 }
-
 
 var testsContext = require.context("./unit", true, /\.jsx?$/);
 
@@ -18,8 +22,9 @@ if (!runnable.length) {
   runnable = testsContext.keys();
 }
 
-describe('unit tests', () => {
+describe('unit tests', function () {
   throwOnConsoleErrorsEverywhere();
   throwOnConsoleWarningsEverywhere();
+  clearTimeoutsBetweenTests();
   runnable.forEach(testsContext);
 });

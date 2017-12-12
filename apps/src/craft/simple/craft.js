@@ -19,6 +19,7 @@ import {getStore} from '../../redux';
 import Sounds from '../../Sounds';
 
 import {TestResults} from '../../constants';
+import {captureThumbnailFromCanvas} from '../../util/thumbnail';
 
 var MEDIA_URL = '/blockly/media/craft/';
 
@@ -520,15 +521,6 @@ Craft.niceToHaveAssetsForLevel = function (levelNumber) {
   }
 };
 
-/** Folds array B on top of array A */
-Craft.foldInArray = function (arrayA, arrayB) {
-  for (var i = 0; i < arrayA.length; i++) {
-    if (arrayB[i] !== '') {
-      arrayA[i] = arrayB[i];
-    }
-  }
-};
-
 Craft.foldInCustomHouseBlocks = function (houseBlockMap, levelConfig) {
   var planesToCustomize = [levelConfig.groundPlane, levelConfig.actionPlane];
   planesToCustomize.forEach(function (plane) {
@@ -550,6 +542,7 @@ Craft.reset = function (first) {
   if (first) {
     return;
   }
+  captureThumbnailFromCanvas($('#minecraft-frame canvas')[0]);
   Craft.gameController.codeOrgAPI.resetAttempt();
 };
 
@@ -765,8 +758,6 @@ Craft.reportResult = function (success) {
     // for things like e.g. crowdsourced hints & hint blocks
     onComplete: function (response) {
       studioApp().displayFeedback({
-        app: 'craft',
-        skin: Craft.initialConfig.skin.id,
         feedbackType: testResultType,
         response: response,
         level: Craft.initialConfig.level,
@@ -780,7 +771,8 @@ Craft.reportResult = function (success) {
           generatedCodeDescription: craftMsg.generatedCodeDescription()
         },
         feedbackImage: image,
-        showingSharing: Craft.initialConfig.level.freePlay
+        showingSharing: Craft.initialConfig.level.freePlay,
+        saveToProjectGallery: true,
       });
     }
   });

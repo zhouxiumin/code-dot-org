@@ -5,6 +5,35 @@ module UsersHelper
   include ApplicationHelper
   include SharedConstants
 
+  def check_and_apply_clever_takeover(user)
+    if session['clever_link_flag'].present? && session['clever_takeover_id'].present? && session['clever_takeover_token'].present?
+      uid = session['clever_takeover_id']
+      # TODO: validate that we're not destroying an active account?
+      existing_clever_account = User.where(uid: uid, provider: 'clever').first
+
+      # Move over sections that students follow
+      if user.student? && existing_clever_account
+        Follower.where(student_user_id: existing_clever_account.id).each do |follower|
+          follower.update(student_user_id: user.id)
+        end
+      end
+
+      existing_clever_account.destroy! if existing_clever_account
+      user.provider = 'clever'
+      user.uid = uid
+      user.oauth_token = session['clever_takeover_token']
+      user.save
+      clear_clever_session_variables
+    end
+  end
+
+  def clear_clever_session_variables
+    return if session.empty?
+    session.delete('clever_link_flag')
+    session.delete('clever_takeover_id')
+    session.delete('clever_takeover_token')
+  end
+
   # Summarize a user and his or her progress progress within a certain script.
   # Example return value:
   # {
@@ -202,13 +231,14 @@ module UsersHelper
 
       # The page is considered complete if there was a valid result for each
       # embedded level.
-      if page_valid_result_count.zero?
-        page_completed_value = nil
-      elsif page_valid_result_count == page["levels"].length
-        page_completed_value = ActivityConstants::FREE_PLAY_RESULT
-      else
-        page_completed_value = ActivityConstants::UNSUBMITTED_RESULT
-      end
+      page_completed_value =
+        if page_valid_result_count.zero?
+          nil
+        elsif page_valid_result_count == page["levels"].length
+          ActivityConstants::FREE_PLAY_RESULT
+        else
+          ActivityConstants::UNSUBMITTED_RESULT
+        end
       pages_completed << page_completed_value
     end
 

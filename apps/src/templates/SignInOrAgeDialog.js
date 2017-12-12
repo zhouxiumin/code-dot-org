@@ -1,8 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+import cookies from 'js-cookie';
 import BaseDialog from '@cdo/apps/templates/BaseDialog';
 import color from '@cdo/apps/util/color';
 import Button from '@cdo/apps/templates/Button';
 import AgeDropdown from '@cdo/apps/templates/AgeDropdown';
+import { SignInState } from '@cdo/apps/code-studio/progressRedux';
+import i18n from '@cdo/locale';
+import { reload } from '@cdo/apps/utils';
+import { environmentSpecificCookieName } from '@cdo/apps/code-studio/utils';
+import { pegasus } from '@cdo/apps/lib/util/urlHelpers';
 
 const styles = {
   container: {
@@ -57,12 +64,23 @@ const styles = {
     marginRight: 10,
     marginTop: 2,
     width: 160
+  },
+  tooYoungButton: {
+    textAlign: 'right'
   }
 };
 
-export default class SignInOrAgeDialog extends Component {
+const sessionStorageKey = 'anon_over13';
+
+class SignInOrAgeDialog extends Component {
   state = {
-    open: true
+    open: true,
+    tooYoung: false,
+  };
+
+  static propTypes = {
+    signedIn: PropTypes.bool.isRequired,
+    age13Required: PropTypes.bool.isRequired,
   };
 
   onClickAgeOk = () => {
@@ -73,37 +91,75 @@ export default class SignInOrAgeDialog extends Component {
     }
 
     if (parseInt(value, 10) < 13) {
-      // redirect to /home, with an info warning if possible
-      window.location = '/too_young';
+      this.setState({tooYoung: true});
       return;
     }
 
-    // Over 13, let them do the tutorial
-    this.setState({
-      open: false
-    });
+    sessionStorage.setItem(sessionStorageKey, true);
+
+    // When opening a new tab, we'll have a new session (and thus show this dialog),
+    // but may still be using a storage_id for a previous user. Clear that cookie
+    // and reload
+    const cookieName = environmentSpecificCookieName('storage_id');
+    if (cookies.get(cookieName)) {
+      cookies.remove(cookieName, {path: '/', domain: '.code.org'});
+      reload();
+    } else {
+      this.setState({open: false});
+    }
   };
 
   render() {
-    // TODO: i18n
+    const { signedIn, age13Required } = this.props;
+    // Don't show dialog unless script requires 13+, we're not signed in, and
+    // we haven't already given this dialog our age
+    if (!age13Required || signedIn || sessionStorage.getItem(sessionStorageKey)) {
+      return null;
+    }
+
+    if (this.state.tooYoung) {
+      return (
+        <BaseDialog
+          useUpdatedStyles
+          isOpen={true}
+          uncloseable
+        >
+          <div style={styles.container}>
+            <div style={styles.heading}>
+              {i18n.tutorialUnavailable()}
+            </div>
+            <div style={styles.middle}>
+              {i18n.tutorialUnavailableExplanation()}
+            </div>
+            <div style={styles.tooYoungButton}>
+              <Button
+                href={pegasus('/hourofcode/overview')}
+                text="See all tutorials"
+                color={Button.ButtonColor.orange}
+              />
+            </div>
+          </div>
+        </BaseDialog>
+      );
+    }
+
     return (
       <BaseDialog
         useUpdatedStyles
         isOpen={this.state.open}
-        assetUrl={() => ''}
         uncloseable
       >
         <div style={styles.container}>
           <div style={styles.heading}>
-            Sign in or provide your age to continue
+            {i18n.signinOrAge()}
           </div>
           <div style={styles.middle}>
             <div style={styles.middleCell}>
-              If you want to be able to save your progress, sign in to Code.org.
+              {i18n.signinForProgress()}
               <div style={styles.button}>
                 <Button
-                  href="/users/sign_in"
-                  text="Sign in to Code.org"
+                  href={`/users/sign_in?user_return_to=${location.pathname}`}
+                  text={i18n.signinCodeOrg()}
                   color={Button.ButtonColor.gray}
                 />
               </div>
@@ -111,12 +167,12 @@ export default class SignInOrAgeDialog extends Component {
             <div style={styles.center}>
               <div style={styles.centerLine}/>
               <div style={styles.centerText}>
-                or
+                {i18n.or()}
               </div>
               <div style={styles.centerLine}/>
             </div>
             <div style={styles.middleCell}>
-              Provide your age below and click OK to continue.
+              {i18n.provideAge()}
               <div style={styles.age}>
                 <AgeDropdown
                   style={styles.dropdown}
@@ -124,17 +180,24 @@ export default class SignInOrAgeDialog extends Component {
                 />
                 <Button
                   onClick={this.onClickAgeOk}
-                  text="OK"
+                  text={i18n.ok()}
                   color={Button.ButtonColor.gray}
                 />
               </div>
             </div>
           </div>
           <div>
-            <a href="https://code.org/privacy">Our privacy policy</a>
+            <a href="https://code.org/privacy">{i18n.privacyPolicy()}</a>
           </div>
         </div>
       </BaseDialog>
     );
   }
 }
+
+export const UnconnectedSignInOrAgeDialog = SignInOrAgeDialog;
+
+export default connect(state => ({
+  age13Required: state.progress.isAge13Required,
+  signedIn: state.progress.signInState === SignInState.SignedIn
+}))(SignInOrAgeDialog);

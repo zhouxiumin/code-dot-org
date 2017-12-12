@@ -36,6 +36,16 @@ class ScriptLevel < ActiveRecord::Base
   has_many :callouts, inverse_of: :script_level
   has_one :plc_task, class_name: 'Plc::Task', inverse_of: :script_level, dependent: :destroy
 
+  validate :anonymous_must_be_assessment
+
+  # Make sure we never create a level that is not an assessment, but is anonymous,
+  # as in that case it wouldn't actually be treated as anonymous
+  def anonymous_must_be_assessment
+    if anonymous? && !assessment
+      errors.add(:script_level, "Only assessments can be anonymous in \"#{level.try(:name)}\"")
+    end
+  end
+
   serialized_attrs %w(
     variants
     progression
@@ -113,7 +123,7 @@ class ScriptLevel < ActiveRecord::Base
     !has_another_level_to_go_to?
   end
 
-  def next_level_or_redirect_path_for_user(user)
+  def next_level_or_redirect_path_for_user(user, extras_stage=nil)
     # if we're coming from an unplugged level, it's ok to continue to unplugged
     # level (example: if you start a sequence of assessments associated with an
     # unplugged level you should continue on that sequence instead of skipping to
@@ -141,7 +151,9 @@ class ScriptLevel < ActiveRecord::Base
         end
       end
     elsif bonus
-      script_stage_extras_path(script.name, stage.relative_position)
+      # If we got to this bonus level from another stage's stage extras, go back
+      # to that stage
+      script_stage_extras_path(script.name, (extras_stage || stage).relative_position)
     else
       level_to_follow ? build_script_level_path(level_to_follow) : script_completion_redirect(script)
     end
@@ -214,7 +226,7 @@ class ScriptLevel < ActiveRecord::Base
   end
 
   def anonymous?
-    return assessment && level.properties["anonymous"] == "true"
+    return level.properties["anonymous"] == "true"
   end
 
   def name
@@ -245,13 +257,14 @@ class ScriptLevel < ActiveRecord::Base
   end
 
   def summarize(include_prev_next=true)
-    if level.unplugged?
-      kind = LEVEL_KIND.unplugged
-    elsif assessment
-      kind = LEVEL_KIND.assessment
-    else
-      kind = LEVEL_KIND.puzzle
-    end
+    kind =
+      if level.unplugged?
+        LEVEL_KIND.unplugged
+      elsif assessment
+        LEVEL_KIND.assessment
+      else
+        LEVEL_KIND.puzzle
+      end
 
     ids = level_ids
 
@@ -332,16 +345,16 @@ class ScriptLevel < ActiveRecord::Base
     extra_levels
   end
 
-  def summarize_as_bonus(user)
+  def summarize_as_bonus
     {
       id: id,
+      level_id: level.id,
       name: level.display_name || level.name,
       type: level.type,
       map: JSON.parse(level.try(:maze) || '[]'),
       serialized_maze: level.try(:serialized_maze) && JSON.parse(level.try(:serialized_maze)),
       skin: level.try(:skin),
       solution_image_url: level.try(:solution_image_url),
-      perfected: !!UserLevel.find_by(user: user, script: script, level: level).try(:perfect?),
       level: level.summarize_as_bonus.camelize_keys,
     }.camelize_keys
   end

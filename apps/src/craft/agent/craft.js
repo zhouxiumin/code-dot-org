@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import Hammer from 'hammerjs';
 
 import trackEvent from '../../util/trackEvent';
-import { trySetLocalStorage } from '../../utils';
+import { tryGetLocalStorage, trySetLocalStorage } from '../../utils';
 import { singleton as studioApp } from '../../StudioApp';
 import craftMsg from './locale';
 import CustomMarshalingInterpreter from '../../lib/tools/jsinterpreter/CustomMarshalingInterpreter';
@@ -21,6 +21,7 @@ import { getStore } from '../../redux';
 import Sounds from '../../Sounds';
 
 import { TestResults } from '../../constants';
+import {captureThumbnailFromCanvas} from '../../util/thumbnail';
 
 const MEDIA_URL = '/blockly/media/craft/';
 
@@ -29,25 +30,6 @@ const ArrowIds = {
   UP: 'upButton',
   RIGHT: 'rightButton',
   DOWN: 'downButton',
-};
-
-const characters = {
-  Steve: {
-    name: 'Steve',
-    staticAvatar: MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Steve_Neutral.png',
-    smallStaticAvatar:
-      MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Steve_Neutral.png',
-    failureAvatar: MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Steve_Fail.png',
-    winAvatar: MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Steve_Win.png',
-  },
-  Alex: {
-    name: 'Alex',
-    staticAvatar: MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Alex_Neutral.png',
-    smallStaticAvatar:
-      MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Alex_Neutral.png',
-    failureAvatar: MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Alex_Fail.png',
-    winAvatar: MEDIA_URL + 'Sliced_Parts/Pop_Up_Character_Alex_Win.png',
-  },
 };
 
 const interfaceImages = {
@@ -68,23 +50,9 @@ const interfaceImages = {
   1: [
     MEDIA_URL + 'Sliced_Parts/Steve_Character_Select.png',
     MEDIA_URL + 'Sliced_Parts/Alex_Character_Select.png',
-    characters.Steve.staticAvatar,
-    characters.Steve.smallStaticAvatar,
-    characters.Alex.staticAvatar,
-    characters.Alex.smallStaticAvatar,
-  ],
-  2: [
-    // TODO(bjordan): find different pre-load point for feedback images,
-    // bucket by selected character
-    characters.Alex.winAvatar,
-    characters.Steve.winAvatar,
-    characters.Alex.failureAvatar,
-    characters.Steve.failureAvatar,
-  ],
-  6: [
-    MEDIA_URL + 'Sliced_Parts/House_Option_A_v3.png',
-    MEDIA_URL + 'Sliced_Parts/House_Option_B_v3.png',
-    MEDIA_URL + 'Sliced_Parts/House_Option_C_v3.png',
+    MEDIA_URL + 'Sliced_Parts/Agent_Fail.png',
+    MEDIA_URL + 'Sliced_Parts/Agent_Neutral.png',
+    MEDIA_URL + 'Sliced_Parts/Agent_Success.png',
   ],
 };
 
@@ -96,6 +64,7 @@ const MUSIC_METADATA = [
   { volume: 1, hasOgg: true, name: 'vignette5-shortpiano' },
   { volume: 1, hasOgg: true, name: 'vignette7-funky-chirps-short' },
   { volume: 1, hasOgg: true, name: 'vignette8-free-play' },
+  { volume: 1, hasOgg: true, name: 'nether2' },
 ];
 
 const CHARACTER_STEVE = 'Steve';
@@ -155,7 +124,6 @@ export default class Craft {
             trackEvent('Minecraft', 'ChoseCharacter', selectedPlayer);
             Craft.clearPlayerState();
             trySetLocalStorage('craftSelectedPlayer', selectedPlayer);
-            Craft.updateUIForCharacter(selectedPlayer);
             Craft.initializeAppLevel(config.level);
             showInstructions();
           });
@@ -170,6 +138,9 @@ export default class Craft {
     // replace studioApp() methods with our own
     studioApp().reset = Craft.reset.bind(Craft);
     studioApp().runButtonClick = Craft.runButtonClick.bind(Craft);
+
+    // set initial configurations
+    studioApp().setCheckForEmptyBlocks(true);
 
     Craft.level = config.level;
     Craft.skin = config.skin;
@@ -190,11 +161,10 @@ export default class Craft {
       levelTracks.length > 1 ? 7500 : null,
     );
 
-    const character = characters[Craft.getCurrentCharacter()];
-    config.skin.staticAvatar = character.staticAvatar;
-    config.skin.smallStaticAvatar = character.smallStaticAvatar;
-    config.skin.failureAvatar = character.failureAvatar;
-    config.skin.winAvatar = character.winAvatar;
+    config.skin.staticAvatar = MEDIA_URL + 'Sliced_Parts/Agent_Neutral.png';
+    config.skin.smallStaticAvatar = MEDIA_URL + 'Sliced_Parts/Agent_Neutral.png';
+    config.skin.failureAvatar = MEDIA_URL + 'Sliced_Parts/Agent_Fail.png';
+    config.skin.winAvatar = MEDIA_URL + 'Sliced_Parts/Agent_Success.png';
 
     const onMount = function () {
       studioApp().init(
@@ -240,6 +210,17 @@ export default class Craft {
                 config.level.puzzle_number,
               ),
               afterAssetsLoaded: function () {
+                // Listen for hint events that draw a path in the game.
+                window.addEventListener('displayHintPath', e => {
+                  Craft.gameController.levelView.drawHintPath(e.detail);
+                });
+
+                window.addEventListener('craftCollectibleCollected', e => {
+                  if (e.blockType === "diamondMiniblock") {
+                    Craft.setSessionDiamondCollected();
+                  }
+                });
+
                 // preload music after essential game asset downloads completely finished
                 Craft.musicController.preload();
               },
@@ -283,18 +264,31 @@ export default class Craft {
             $('#soft-buttons')
               .removeClass('soft-buttons-none')
               .addClass('soft-buttons-' + 4);
-            $('#soft-buttons').hide();
+            $('.arrow').prop("disabled", false);
+
+            const resetButton = document.getElementById('resetButton');
+            dom.addClickTouchEvent(resetButton, Craft.resetButtonClick);
 
             const phaserGame = document.getElementById('phaser-game');
+            const hammerToButton = {
+              [Hammer.DIRECTION_LEFT]: 'leftButton',
+              [Hammer.DIRECTION_RIGHT]: 'rightButton',
+              [Hammer.DIRECTION_UP]: 'upButton',
+              [Hammer.DIRECTION_DOWN]: 'downButton',
+            };
+
             const onDrag = function (e) {
-              const hammerToButton = {
-                [Hammer.DIRECTION_LEFT]: 'leftButton',
-                [Hammer.DIRECTION_RIGHT]: 'rightButton',
-                [Hammer.DIRECTION_UP]: 'upButton',
-                [Hammer.DIRECTION_DOWN]: 'downButton',
-              };
               if (hammerToButton[e.direction]) {
                 Craft.gameController.codeOrgAPI.arrowDown(
+                  directionToFacing[hammerToButton[e.direction]],
+                );
+              }
+              e.preventDefault();
+            };
+
+            const onDragEnd = function (e) {
+              if (hammerToButton[e.direction]) {
+                Craft.gameController.codeOrgAPI.arrowUp(
                   directionToFacing[hammerToButton[e.direction]],
                 );
               }
@@ -306,6 +300,7 @@ export default class Craft {
             mc.add(new Hammer.Press({ time: 150 }));
             mc.add(new Hammer.Tap());
             mc.on('pan', onDrag);
+            mc.on('panend pancancel', onDragEnd);
             mc.on('press', () =>
               Craft.gameController.codeOrgAPI.clickDown(() => {}),
             );
@@ -354,6 +349,7 @@ export default class Craft {
     // Push initial level properties into the Redux store
     studioApp().setPageConstants(config, {
       isMinecraft: true,
+      hideRunButton: config.level.specialLevelType === 'agentSpawn',
     });
 
     ReactDOM.render(
@@ -411,15 +407,31 @@ export default class Craft {
     );
   }
 
-  static updateUIForCharacter(character) {
-    Craft.initialConfig.skin.staticAvatar = characters[character].staticAvatar;
-    Craft.initialConfig.skin.smallStaticAvatar =
-      characters[character].smallStaticAvatar;
-    Craft.initialConfig.skin.failureAvatar =
-      characters[character].failureAvatar;
-    Craft.initialConfig.skin.winAvatar = characters[character].winAvatar;
-    studioApp().setIconsFromSkin(Craft.initialConfig.skin);
-    $('#prompt-icon').attr('src', characters[character].smallStaticAvatar);
+  /**
+   * Get the level IDs for which the player has collected a diamond this
+   * session.
+   *
+   * @return {Number[]} collectedLevels
+   */
+  static getSessionDiamondCollectedLevels() {
+    return JSON.parse(tryGetLocalStorage('craftSessionDiamondCollectedLevels', '[]')) || [];
+  }
+
+  /**
+   * Mark this level as being one for which the player has collected a diamond
+   * this session, if not already marked as such.
+   *
+   * @return {boolean} whether or not the level was newly marked
+   */
+  static setSessionDiamondCollected() {
+    const collectedLevels = Craft.getSessionDiamondCollectedLevels();
+    if (!collectedLevels.includes(Craft.initialConfig.serverLevelId)) {
+      collectedLevels.push(Craft.initialConfig.serverLevelId);
+      trySetLocalStorage('craftSessionDiamondCollectedLevels', JSON.stringify(collectedLevels));
+      return true;
+    }
+
+    return false;
   }
 
   static showPlayerSelectionPopup(onSelectedCallback) {
@@ -541,15 +553,6 @@ export default class Craft {
     }
   }
 
-  /** Folds array B on top of array A */
-  static foldInArray(arrayA, arrayB) {
-    for (let i = 0; i < arrayA.length; i++) {
-      if (arrayB[i] !== '') {
-        arrayA[i] = arrayB[i];
-      }
-    }
-  }
-
   /**
    * Reset the app to the start position and kill any pending animation tasks.
    * @param {boolean} first true if first reset
@@ -558,9 +561,7 @@ export default class Craft {
     if (first) {
       return;
     }
-    if (Craft.level.usePlayer) {
-      $('#soft-buttons').hide();
-    }
+    captureThumbnailFromCanvas($('#minecraft-frame canvas')[0]);
     Craft.gameController.codeOrgAPI.resetAttempt();
   }
 
@@ -578,23 +579,32 @@ export default class Craft {
   }
 
   /**
+   * Base's `studioApp().resetButtonClick` will be called first.
+   */
+  static resetButtonClick() {
+    $('.arrow').prop("disabled", false);
+  }
+
+  static isPreAnimationFailure(testResult) {
+    switch (testResult) {
+      case TestResults.QUESTION_MARKS_IN_NUMBER_FIELD:
+      case TestResults.EMPTY_FUNCTIONAL_BLOCK:
+      case TestResults.EXTRA_TOP_BLOCKS_FAIL:
+      case TestResults.EXAMPLE_FAILED:
+      case TestResults.EMPTY_BLOCK_FAIL:
+      case TestResults.EMPTY_FUNCTION_NAME:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /**
    * Click the run button.  Start the program.
    */
   static runButtonClick() {
     if (!Craft.phaserLoaded()) {
       return;
-    }
-
-    if (Craft.level.usePlayer) {
-      $('#soft-buttons').show();
-    }
-
-    const runButton = document.getElementById('runButton');
-    const resetButton = document.getElementById('resetButton');
-
-    // Ensure that Reset button is at least as wide as Run button.
-    if (!resetButton.style.minWidth) {
-      resetButton.style.minWidth = runButton.offsetWidth + 'px';
     }
 
     studioApp().toggleRunReset('reset');
@@ -626,9 +636,9 @@ export default class Craft {
       return;
     }
 
-    if (studioApp().hasUnwantedExtraTopBlocks()) {
-      // immediately check answer instead of executing, which will fail and
-      // report top level blocks (rather than executing them)
+    // Fail immediately for empty repeat blocks, etc.
+    const initialTestResults = studioApp().getTestResults(false);
+    if (Craft.isPreAnimationFailure(initialTestResults)) {
       Craft.reportResult(false);
       return;
     }
@@ -712,6 +722,12 @@ export default class Craft {
           blockType,
           'PlayerAgent');
       },
+      placeDirection: function (blockType, direction, blockID) {
+        appCodeOrgAPI.placeDirection(studioApp().highlight.bind(studioApp(), blockID),
+          blockType,
+          'PlayerAgent',
+          direction);
+      },
       moveDirection: function (direction, targetEntity, blockID) {
         const dirStringToDirection = {
           up: FacingDirection.North,
@@ -724,8 +740,7 @@ export default class Craft {
       },
     }, {legacy: true});
 
-    appCodeOrgAPI.startAttempt((success, levelModel) => {
-      $('#soft-buttons').hide();
+    Craft.gameController.codeOrgAPI.startAttempt(success => {
       if (Craft.level.freePlay) {
         return;
       }
@@ -755,6 +770,20 @@ export default class Craft {
     // Grab the encoded image, stripping out the metadata, e.g. `data:image/png;base64,`
     const encodedImage = image ? encodeURIComponent(image.split(',')[1]) : null;
 
+    let message;
+    if (testResultType === TestResults.APP_SPECIFIC_FAIL) {
+      message = craftMsg.agentGenericFailureMessage();
+    } else if (testResultType === TestResults.TOO_FEW_BLOCKS_FAIL) {
+      message = craftMsg.agentTooFewBlocksFailureMessage();
+    } else if (testResultType === TestResults.ALL_PASS) {
+      const collectedLevels = Craft.getSessionDiamondCollectedLevels();
+      if (collectedLevels.includes(Craft.initialConfig.serverLevelId)) {
+        message = craftMsg.agentDiamondPathCongrats({
+          count: collectedLevels.length
+        });
+      }
+    }
+
     studioApp().report({
       app: 'craft',
       level: Craft.initialConfig.level.id,
@@ -769,13 +798,17 @@ export default class Craft {
       // typically delay feedback until response back
       // for things like e.g. crowdsourced hints & hint blocks
       onComplete: function (response) {
+        const sharing = Craft.initialConfig.level.freePlay;
+        if (sharing && response.level_source) {
+          trySetLocalStorage('craftHeroShareLink', response.level_source);
+        }
+
         studioApp().displayFeedback({
-          app: 'craft',
-          skin: Craft.initialConfig.skin.id,
           feedbackType: testResultType,
-          response: response,
+          response,
           level: Craft.initialConfig.level,
           defaultToContinue: Craft.shouldDefaultToContinue(testResultType),
+          message,
           appStrings: {
             reinfFeedbackMsg: craftMsg.reinfFeedbackMsg(),
             nextLevelMsg: craftMsg.nextLevelMsg({
@@ -785,7 +818,8 @@ export default class Craft {
             generatedCodeDescription: craftMsg.generatedCodeDescription(),
           },
           feedbackImage: image,
-          showingSharing: Craft.initialConfig.level.freePlay,
+          showingSharing: sharing,
+          saveToProjectGallery: true,
         });
       },
     });

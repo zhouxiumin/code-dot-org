@@ -6,9 +6,9 @@ EMPTY_XML = '<xml></xml>'.freeze
 class LevelsController < ApplicationController
   include LevelsHelper
   include ActiveSupport::Inflector
-  before_action :authenticate_user!, except: [:show, :embed_blocks, :embed_level]
-  before_action :require_levelbuilder_mode, except: [:show, :index, :embed_blocks, :embed_level]
-  load_and_authorize_resource except: [:create, :update_blocks, :edit_blocks, :embed_blocks, :embed_level]
+  before_action :authenticate_user!, except: [:show, :embed_level]
+  before_action :require_levelbuilder_mode, except: [:show, :index, :embed_level]
+  load_and_authorize_resource except: [:create, :update_blocks, :edit_blocks, :embed_level]
   check_authorization
 
   before_action :set_level, only: [:show, :edit, :update, :destroy]
@@ -212,6 +212,10 @@ class LevelsController < ApplicationController
       @level = old_level.dup
       begin
         @level.update!(name: params[:name])
+        if old_level.try(:dsl_text)
+          new_dsl = old_level.dsl_text.sub("name '#{old_level.name}'", "name '#{params[:name]}'")
+          @level.update!(dsl_text: new_dsl)
+        end
       rescue ArgumentError => e
         render(status: :not_acceptable, text: e.message) && return
       rescue ActiveRecord::RecordInvalid => invalid
@@ -221,20 +225,6 @@ class LevelsController < ApplicationController
     else
       render status: :not_acceptable, text: 'New name required to clone level'
     end
-  end
-
-  def embed_blocks
-    authorize! :read, :level
-    level = Level.find(params[:level_id])
-    block_type = params[:block_type]
-    options = {
-      app: level.game.app,
-      readonly: true,
-      locale: js_locale,
-      baseUrl: Blockly.base_url,
-      blocks: level.blocks_to_embed(level.properties[block_type])
-    }
-    render :embed_blocks, layout: false, locals: options
   end
 
   def embed_level
@@ -282,11 +272,29 @@ class LevelsController < ApplicationController
       {level_concept_difficulty_attributes: [:id] + LevelConceptDifficulty::CONCEPTS},
       {soft_buttons: []},
       {contained_level_names: []},
-      {examples: []}
+      {examples: []},
+
+      # Minecraft-specific
+      {available_blocks: []},
+      {drop_dropdown_options: []},
+      {if_block_options: []},
+      {place_block_options: []},
+      {play_sound_options: []},
     ]
 
     # http://stackoverflow.com/questions/8929230/why-is-the-first-element-always-blank-in-my-rails-multi-select
-    params[:level][:soft_buttons].delete_if(&:empty?) if params[:level][:soft_buttons].is_a? Array
+    multiselect_params = [
+      :soft_buttons,
+      :available_blocks,
+      :drop_dropdown_options,
+      :if_block_options,
+      :place_block_options,
+      :play_sound_options,
+    ]
+    multiselect_params.each do |param|
+      params[:level][param].delete_if(&:empty?) if params[:level][param].is_a? Array
+    end
+
     permitted_params.concat(Level.permitted_params)
     params[:level].permit(permitted_params)
   end
@@ -296,7 +304,11 @@ class LevelsController < ApplicationController
       level,
       params[:program].strip_utf8mb4
     )
-    level_source_image = find_or_create_level_source_image(params[:image], level_source.try(:id))
+    level_source_image = find_or_create_level_source_image(
+      params[:image],
+      level_source.try(:id),
+      true
+    )
     @level.properties['solution_image_url'] = level_source_image.s3_url if level_source_image
   end
 end

@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { TestResults } from '@cdo/apps/constants';
 import { getStore } from '../redux';
-import { setUserSignedIn, SignInState, mergeProgress } from '../progressRedux';
+import { SignInState, mergeProgress } from '../progressRedux';
 import { setVerified } from '@cdo/apps/code-studio/verifiedTeacherRedux';
 import { files } from '@cdo/apps/clientApi';
 var renderAbusive = require('./renderAbusive');
@@ -187,12 +187,6 @@ export function setupApp(appOptions) {
         dialog.show();
       } else if (lastServerResponse.nextRedirect) {
         window.location.href = lastServerResponse.nextRedirect;
-      }
-    },
-    backToPreviousLevel: function () {
-      var lastServerResponse = reporting.getLastServerResponse();
-      if (lastServerResponse.previousLevelRedirect) {
-        window.location.href = lastServerResponse.previousLevelRedirect;
       }
     },
     showInstructionsWrapper: function (showInstructions) {
@@ -391,22 +385,14 @@ function loadAppAsync(appOptions) {
         if (data.pairingDriver) {
           appOptions.level.pairingDriver = data.pairingDriver;
           appOptions.level.pairingAttempt = data.pairingAttempt;
+          appOptions.level.pairingChannelId = data.pairingChannelId;
         }
       }
 
       const store = getStore();
       const signInState = store.getState().progress.signInState;
-      if (signInState === SignInState.Unknown) {
-        // if script was cached, we won't have signin state until we've made
-        // our user_progress call
-        // Depend on the fact that even if we have no levelProgress, our progress
-        // data will have other keys
-        const signedInUser = Object.keys(data).length > 0;
-        store.dispatch(setUserSignedIn(signedInUser));
-        clientState.cacheUserSignedIn(signedInUser);
-        if (signedInUser) {
-          progress.showDisabledBubblesAlert();
-        }
+      if (signInState === SignInState.SignedIn) {
+        progress.showDisabledBubblesAlert();
       }
       if (data.isVerifiedTeacher) {
         store.dispatch(setVerified());
@@ -527,7 +513,7 @@ export default function loadAppOptions() {
     }
     const appOptions = getAppOptions();
     if (appOptions.embedded) {
-      // when we just "embed" an app (i.e. via embed_blocks.html.erb),
+      // when we just "embed" an app (i.e. via LevelsHelper#string_or_image),
       // we don't need to load anything else onto appOptions, so just resolve
       // immediately
       resolve(appOptions);

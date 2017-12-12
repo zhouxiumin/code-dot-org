@@ -1,12 +1,14 @@
 import React, { PropTypes } from 'react';
 import FlexGroup from './FlexGroup';
 import StageDescriptions from './StageDescriptions';
+import ScriptAnnouncementsEditor from './ScriptAnnouncementsEditor';
 import LegendSelector from './LegendSelector';
 import $ from 'jquery';
 import ResourcesEditor from '@cdo/apps/templates/courseOverview/ResourcesEditor';
 import DropdownButton from '@cdo/apps/templates/DropdownButton';
 import Button from '@cdo/apps/templates/Button';
 import ResourceType, { resourceShape, stringForType } from '@cdo/apps/templates/courseOverview/resourceType';
+import { announcementShape } from '@cdo/apps/code-studio/scriptAnnouncementsRedux';
 
 const styles = {
   input: {
@@ -46,6 +48,7 @@ const ScriptEditor = React.createClass({
     stageExtrasAvailable: PropTypes.bool,
     stageLevelData: PropTypes.string,
     hasVerifiedResources: PropTypes.bool,
+    announcements: PropTypes.arrayOf(announcementShape),
   },
 
   handleClearProjectWidgetSelectClick() {
@@ -108,6 +111,10 @@ const ScriptEditor = React.createClass({
           scriptName={this.props.name}
           currentDescriptions={this.props.i18nData.stageDescriptions}
         />
+        <ScriptAnnouncementsEditor
+          defaultAnnouncements={this.props.announcements}
+          inputStyle={styles.input}
+        />
         <h2>Basic Settings</h2>
         <label>
           Visible in Teacher Dashboard
@@ -131,8 +138,7 @@ const ScriptEditor = React.createClass({
             style={styles.checkbox}
           />
           <p>
-            Require users to log in before viewing this script. This should be
-            enabled on scripts that contain App Lab or Game Lab levels.
+            Require users to log in before viewing this script.
           </p>
         </label>
         <label>
@@ -256,8 +262,9 @@ const ScriptEditor = React.createClass({
             <option value="calc">Calc</option>
             <option value="eval">Eval</option>
             <option value="frozen">Frozen</option>
-            <option value="mc">Minecraft Adventurer</option>
-            <option value="minecraft">Minecraft Designer</option>
+            <option value="minecraft_adventurer">Minecraft Adventurer</option>
+            <option value="minecraft_designer">Minecraft Designer</option>
+            <option value="minecraft_hero">Minecraft Hero</option>
             <option value="starwars">Star Wars</option>
             <option value="starwarsblocks">Star Wars Blocks</option>
             <option value="flappy">Flappy</option>

@@ -26,23 +26,26 @@ export const FinishButton = () => (
 );
 
 export const RunButton = Radium(props => (
-  <button
-    id="runButton"
-    className={classNames(['launch', 'blocklyLaunch', props.hidden && 'invisible'])}
-    style={props.style}
-  >
-    <div>
-      {msg.runProgram()}
-    </div>
-    <img
-      src={blankImg}
-      className="run26"
-    />
-  </button>
+  <span id="runButtonWrapper">
+    <button
+      id="runButton"
+      className={classNames(['launch', 'blocklyLaunch', props.hidden && 'invisible'])}
+      style={props.style}
+    >
+      <div>
+        {props.runButtonText || msg.runProgram()}
+      </div>
+      <img
+        src={blankImg}
+        className="run26"
+      />
+    </button>
+  </span>
 ));
 RunButton.propTypes = {
   hidden: PropTypes.bool,
   style: PropTypes.object,
+  runButtonText: PropTypes.string,
 };
 RunButton.displayName = 'RunButton';
 
@@ -73,7 +76,10 @@ export const UnconnectedGameButtons = props => (
   <div>
     <ProtectedStatefulDiv id="gameButtons" style={styles.main}>
       {!props.playspacePhoneFrame &&
-        <RunButton hidden={props.hideRunButton}/>
+        <RunButton
+          hidden={props.hideRunButton}
+          runButtonText={props.runButtonText}
+        />
       }
       {!props.playspacePhoneFrame &&
         <ResetButton />
@@ -91,6 +97,7 @@ export const UnconnectedGameButtons = props => (
 );
 UnconnectedGameButtons.propTypes = {
   hideRunButton: PropTypes.bool,
+  runButtonText: PropTypes.string,
   playspacePhoneFrame: PropTypes.bool,
   nextLevelUrl: PropTypes.string,
   showSkipButton: PropTypes.bool,
@@ -101,6 +108,7 @@ UnconnectedGameButtons.displayName = 'GameButtons';
 
 export default connect(state => ({
   hideRunButton: state.pageConstants.hideRunButton,
+  runButtonText: state.pageConstants.runButtonText,
   playspacePhoneFrame: state.pageConstants.playspacePhoneFrame,
   nextLevelUrl: state.pageConstants.nextLevelUrl,
   showSkipButton: state.pageConstants.isChallengeLevel,

@@ -22,6 +22,7 @@ import Sounds from '../../Sounds';
 
 import {TestResults} from '../../constants';
 import trackEvent from '../../util/trackEvent';
+import {captureThumbnailFromCanvas} from '../../util/thumbnail';
 
 const MEDIA_URL = '/blockly/media/craft/';
 
@@ -314,18 +315,30 @@ Craft.init = function (config) {
 
         dom.addMouseUpTouchEvent(document, Craft.onDocumentMouseUp, false);
         $('#soft-buttons').removeClass('soft-buttons-none').addClass('soft-buttons-' + 4);
-        $('#soft-buttons').hide();
+        Craft.hideSoftButtons();
 
         const phaserGame = document.getElementById('phaser-game');
+        const hammerToButton = {
+          [Hammer.DIRECTION_LEFT]: 'leftButton',
+          [Hammer.DIRECTION_RIGHT]: 'rightButton',
+          [Hammer.DIRECTION_UP]: 'upButton',
+          [Hammer.DIRECTION_DOWN]: 'downButton',
+        };
+
         const onDrag = function (e) {
-          const hammerToButton = {
-            [Hammer.DIRECTION_LEFT]: 'leftButton',
-            [Hammer.DIRECTION_RIGHT]: 'rightButton',
-            [Hammer.DIRECTION_UP]: 'upButton',
-            [Hammer.DIRECTION_DOWN]: 'downButton',
-          };
           if (hammerToButton[e.direction]) {
-            Craft.gameController.codeOrgAPI.arrowDown(directionToFacing[hammerToButton[e.direction]]);
+            Craft.gameController.codeOrgAPI.arrowDown(
+              directionToFacing[hammerToButton[e.direction]],
+            );
+          }
+          e.preventDefault();
+        };
+
+        const onDragEnd = function (e) {
+          if (hammerToButton[e.direction]) {
+            Craft.gameController.codeOrgAPI.arrowUp(
+              directionToFacing[hammerToButton[e.direction]],
+            );
           }
           e.preventDefault();
         };
@@ -335,6 +348,7 @@ Craft.init = function (config) {
         mc.add(new Hammer.Press({time: 150}) );
         mc.add(new Hammer.Tap() );
         mc.on("pan", onDrag);
+        mc.on('panend pancancel', onDragEnd);
         mc.on("press", () => Craft.gameController.codeOrgAPI.clickDown(() => {}));
         mc.on("tap", () => {
           Craft.gameController.codeOrgAPI.clickDown(() => {});
@@ -570,6 +584,16 @@ Craft.niceToHaveAssetsForLevel = function (levelNumber) {
   return ['allAssetsMinusPlayer'];
 };
 
+Craft.hideSoftButtons = function () {
+  $('#soft-buttons').hide();
+  studioApp().resizePinnedBelowVisualizationArea();
+};
+
+Craft.showSoftButtons = function () {
+  $('#soft-buttons').show();
+  studioApp().resizePinnedBelowVisualizationArea();
+};
+
 /**
  * Reset the app to the start position and kill any pending animation tasks.
  * @param {boolean} first true if first reset
@@ -579,8 +603,9 @@ Craft.reset = function (first) {
     return;
   }
   if (Craft.level.usePlayer) {
-    $('#soft-buttons').hide();
+    Craft.hideSoftButtons();
   }
+  captureThumbnailFromCanvas($('#minecraft-frame canvas')[0]);
   Craft.gameController.codeOrgAPI.resetAttempt();
 };
 
@@ -605,7 +630,7 @@ Craft.runButtonClick = function () {
   }
 
   if (Craft.level.usePlayer) {
-    $('#soft-buttons').show();
+    Craft.showSoftButtons();
   }
 
   var runButton = document.getElementById('runButton');
@@ -769,7 +794,7 @@ Craft.executeUserCode = function () {
 
   CustomMarshalingInterpreter.evalWith(code, evalApiMethods, {legacy: true});
   appCodeOrgAPI.startAttempt(function (success) {
-    $('#soft-buttons').hide();
+    Craft.hideSoftButtons();
     if (Craft.level.freePlay) {
       return;
     }
@@ -818,8 +843,6 @@ Craft.reportResult = function (success) {
     // for things like e.g. crowdsourced hints & hint blocks
     onComplete: function (response) {
       studioApp().displayFeedback({
-        app: 'craft',
-        skin: Craft.initialConfig.skin.id,
         feedbackType: testResultType,
         response: response,
         level: Craft.initialConfig.level,
@@ -833,7 +856,8 @@ Craft.reportResult = function (success) {
           generatedCodeDescription: craftMsg.generatedCodeDescription()
         },
         feedbackImage: image,
-        showingSharing: Craft.initialConfig.level.freePlay
+        showingSharing: Craft.initialConfig.level.freePlay,
+        saveToProjectGallery: true,
       });
     }
   });

@@ -13,13 +13,13 @@ import {assert} from '../util/configuredChai';
 import sinon from 'sinon';
 import {stubRedux, restoreRedux, registerReducers} from '@cdo/apps/redux';
 let $ = window.$ = window.jQuery = require('jquery');
-require('jquery-ui');
 var tickWrapper = require('./util/tickWrapper');
 import stageLock from '@cdo/apps/code-studio/stageLockRedux';
 import runState from '@cdo/apps/redux/runState';
 import {reducers as jsDebuggerReducers} from '@cdo/apps/lib/tools/jsdebugger/redux';
 import project from '@cdo/apps/code-studio/initApp/project';
 import isRtl from '@cdo/apps/code-studio/isRtlRedux';
+import progress from '@cdo/apps/code-studio/progressRedux';
 import FirebaseStorage from '@cdo/apps/storage/firebaseStorage';
 import LegacyDialog from '@cdo/apps/code-studio/LegacyDialog';
 
@@ -112,7 +112,7 @@ describe('Level tests', function () {
   beforeEach(function () {
     // Recreate our redux store so that we have a fresh copy
     stubRedux();
-    registerReducers({stageLock, runState, isRtl, ...jsDebuggerReducers});
+    registerReducers({stageLock, runState, isRtl, progress, ...jsDebuggerReducers});
 
     tickInterval = window.setInterval(function () {
       if (clock) {

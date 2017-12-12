@@ -54,6 +54,16 @@ body.modal-open .supreme-container{
   height: 100%;
 }
 
+#homepage #hero .widehero_do_not_hide {
+  z-index: -5;
+  position:absolute;
+  left: 0;
+  top: 0;
+  background-repeat: no-repeat; background-size: cover;
+  width: 100%;
+  height: 100%;
+}
+
 #hero #fullwidth0.widehero {
   animation: fadein 4s;
   display: block;
@@ -374,19 +384,6 @@ body.modal-open .supreme-container{
   border: 1px solid rgb(146,147,148);
 }
 
-.stats-number {
-  font-weight: 900;
-  text-align: center;
-  color: rgb(77, 87, 95);
-}
-
-.stats-phrase {
-  font-size: 14px;
-  text-align: center;
-  padding-top: 25px;
-  color: rgb(77, 87, 95);
-}
-
 .stats-box {
   padding: 50px 20px 20px 20px;
 }
@@ -398,4 +395,23 @@ body.modal-open .supreme-container{
   text-align: center;
   margin-top: 20px;
   text-transform: uppercase;
+}
+
+.statistics a .stats-number {
+  text-align: center;
+  color: rgb(77, 87, 95);
+  font-family: 'Gotham 4r', sans-serif;
+  font-weight: 900;
+}
+
+.statistics a .stats-phrase {
+  font-size: 14px;
+  text-align: center;
+  padding-top: 25px;
+  color: rgb(77, 87, 95);
+  font-family: 'Gotham 4r', sans-serif;
+}
+
+.statistics a .stats-number:hover {
+  color: rgb(0,173,188);
 }

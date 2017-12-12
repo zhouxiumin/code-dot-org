@@ -416,6 +416,8 @@
   homepage_hero_text_stat_loc: "#loc γραμμές κώδικα γραμμένες από μαθητές"
   homepage_hero_text_stat_students: "#student_count λογαριασμοί μαθητών στο Code Studio"
   homepage_hero_text_stat_served: "Η Ώρα του Κώδικα: #served εξυπηρετήθηκαν"
+  homepage_hero_hoc_is_coming: The Hour of Code is coming
+  homepage_hero_hoc_is_here: The Hour of Code is here
   homepage_slot_text_hoc: "Η Ώρα του Κώδικα"
   homepage_slot_text_frozen: "Ταινία Frozen με την Άννα και την Έλσα"
   homepage_slot_text_teacher: "πίνακας Δασκάλου"
@@ -436,6 +438,7 @@
   homepage_action_text_learn: "Έναρξη εκπαίδευσης"
   homepage_action_text_signpetition: |
     Υπογράψτε την συλλογή υπογραφών
+  homepage_action_text_wincelebritychat: Win a celebrity chat
   homepage_signpetition_dropdown: "Υπογράψτε την δική μας συλλογή υπογραφών &#x25BE;"
   homepage_diversity_pledge: "Ακολούθησε τη δέσμευση για πολυμορφία"
   homepage_banner_text_prizes: "Η Ώρα του Κώδικα πλησιάζει πάλι, 7-13 Δεκεμβρίου. "
@@ -560,11 +563,15 @@
   mc_platformtext: "Σύγχρονα προγράμματα περιήγησης, έξυπνα τηλέφωνα, tablet"
   mc_specs: "Πολλές γλώσσες | Σύγχρονα προγράμματα περιήγησης και tablets | Ηλικίες
     6+"
+  minecraft_agent: 'Minecraft: Hero’s Journey'
   minecraft_designer: "Σχεδιαστής Minecraft"
   minecraft_adventurer: "Ζήστε μια περιπέτεια στο Minecraft"
   minecraft_tutorials: "Μαθήματα Minecraft από την Ώρα του Κώδικα"
   minecraft_specs: "Πολλές γλώσσες | Σύγχρονα προγράμματα περιήγησης και tablets |
     Ηλικίες 2+"
+  minecraft_agent_description: Minecraft is back for the Hour of Code with a brand
+    new activity! Journey through Minecraft with code.
+  minecraft_agent_button: "Έναρξη"
   minecraft_designer_description: Program animals and enemies in your own version
     of Minecraft.
   minecraft_designer_button: "Έναρξη"
@@ -575,6 +582,41 @@
   minecraft_download_adventurer: "Κατεβάστε την offline έκδοση της Περιπέτειας στο
     Minecraft."
   minecraft_subtitle: "Η Ώρα του Κώδικα με το Minecraft"
+  minecraft_store_camps: Free Minecraft Hour of Code Camps at the Microsoft Store
+  minecraft_signup_store_camps: "<a href='%{signup_store_camp}'>Sign up</a> for the
+    free Minecraft Hour of Code workshops at Microsoft Stores in Australia, Canada,
+    Puerto Rico or the US. Learn how coding is for everyone and combines creativity,
+    problem solving and loads of fun."
+  minecraft_host_event: Host a Minecraft Hour of Code Event
+  minecraft_teach_resources: Teacher resources and lesson plan.
+  minecraft_leader_guide: Download resources to help you plan and lead an event.
+  minecraft_facilitating_event: "<a href='%{minecraft_facilitator_download}'>Download</a>
+    facilitator quick start guide and PowerPoint presentations for younger and older
+    students now."
+  minecraft_join_online_training: Ready to facilitate your own Hour of Code with Minecraft,
+    but not sure where to start? Check out our <a href='%{minecraft_webinar_url}'>on-demand
+    webinar</a>. You will learn best practices, access ready-to-go facilitator materials,
+    and get a walk-through of the new Hero’s Journey tutorial from the Minecraft team.
+    Get a head start on thinking through what you need to bring Hour of Code to young
+    people during Computer Science Education week (December 4-10) and beyond.
+  minecraft_continue_learning: 'Computer Science for Everyone: Beyond an Hour of Code
+    at the Microsoft Store'
+  minecraft_continue_learning_description: No computer science experience required!
+    Help ensure all youth can learn the valuable skills gained through computer science
+    education. Join us at the Microsoft Store to engage in a free series of three,
+    1-hour workshops where you will experience coding in a fun and stress-free environment,
+    become familiar with key computer science concepts, and get ready to lead an Hour
+    of Code in your classroom or community. You got this! <a href='%{minecraft_continue_learning_url}'>Sign
+    up today</a>.
+  minecraft_future: Help all youth become future ready
+  minecraft_future_description: Find out how other schools and nonprofits are bringing
+    digital skills, from digital literacy to computer science education, to their
+    communities. Consider different models, get tips and tricks, and <a href='%{minecraft_future_url}'>access
+    the resources</a> they found most valuable.
+  minecraft_og_designer: Minecraft is back with a new activity for the Hour of Code.
+    Program animals and other Minecraft creatures in your own version of Minecraft.
+  minecraft_og_agent: Minecraft is back for the Hour of Code, and you’re the hero!
+    Write code to journey through Minecraft biomes.
   sports_page_title: "Τα Αθλήματα της Ώρας του Κώδικα"
   sports_og_title: "Προσπαθήστε. Οποιοσδήποτε μπορεί να μάθει."
   sports_og_description: "Πρωταθλητές και Ολυμπιονίκες σας συνιστούμε να δοκιμάσετε
@@ -752,6 +794,10 @@
   volunteer_engineer_submission_type_task_mentor: "Ψάχνω για έναν σύμβουλο για να
     με βοηθήσει να προετοιμαστώ για την κωδικοποίηση με τους μαθητές μου"
   petition_age: "Ηλικία"
+  dashboard_announce_hoc_scaling_progress: Yikes! We are experiencing high Hour of
+    Code traffic. We are unable to save any progress this week, but progress from
+    before this week is still safe.
+  dashboard_announce_learn_more_button: "Μάθετε περισσότερα"
   dashboard_landing_title: "Αρχική Σελίδα Εκπαιδευτή"
   dashboard_landing_welcome: "Καλώς ήλθατε στο νέο και βελτιωμένο πίνακα εκπαιδευτικού."
   dashboard_landing_video: "Παρακολουθήστε αυτό το βίντεο"
@@ -939,7 +985,7 @@
     τμήμα ΚΑΙ στο νέο τμήμα"
   dashboard_sections_no_move: "Όχι, θέλω να μεταφέρω τους μαθητές μόνο στο νέο τμήμα."
   dashboard_sections_move_students: "Μετακίνησε τους μαθητές"
-  dashboard_sections_assign_hoc_script_desc: Participating in the Hour of Code?
+  dashboard_sections_assign_hoc_script_desc: "Συμμετοχή στην Ωρα του Κώδικα;"
   dashboard_sections_assign_hoc_script_msg: Please note that we will not save progress
     in this course during the week of December 3-7, due to the unprecedented level
     of traffic our site will receive for the Hour of Code.  You may still assign the
@@ -1269,14 +1315,16 @@
   csp1_name: 'Unit 1: The Internet'
   csp2_name: 'Unit 2: Digital Information'
   csp3_name: 'Unit 3: Algorithms and Programming'
+  csp3-a_name: 'Unit 3: Intro Programming (version A)'
+  csp3-research-mxghyt_name: 'Unit 3: Intro Programming (Subgoals)'
   csp4_name: 'Unit 4: Big Data and Privacy'
   csp5_name: 'Unit 5: Building Apps'
   csp6_name: 'Unit 6: AP Performance Tasks'
   csp-ap_name: AP Performance Tasks
   csppostap_name: 'Post AP: Databases in Apps'
-  cspassessment_name: Full Test - 50 questions
-  cspexam1-mWU7ilDYM9_name: Test Part 1 - 25 questions
-  cspexam2-AKwgAh1ac5_name: Test Part 2 - 25 questions
+  cspassessment_name: "Πλήρης εξέταση - 50 ερωτήσεις"
+  cspexam1-mWU7ilDYM9_name: "Εξέταση Μέρος 1 -25 ερωτήσεις"
+  cspexam2-AKwgAh1ac5_name: "Εξέταση Μέρος 2 -25 ερωτήσεις"
   cspunit3_gradelevel: "Τάξεις Γ΄ Γυμνασίου - Γ΄ Λυκείου"
   cspunit3_shortdescription_congrats: This unit introduces the foundational concepts
     of computer programming, which unlocks the ability to make rich, interactive apps.
@@ -1284,9 +1332,9 @@
     environment to build apps, but the concepts learned in these lessons span all
     programming languages and tools.
   20-hour_name: "Επιταχυνόμενη πορεία μάθησης"
-  algebra_name: CS in Algebra
-  AlgebraA_name: CS in Algebra Course A
-  AlgebraB_name: CS in Algebra Course B
+  algebra_name: "Επιστήμη Υπολογιστών στην Αλγεβρα"
+  AlgebraA_name: "Επιστήμη Υπολογιστών στην Αλγεβρα - Μάθημα Α"
+  AlgebraB_name: "Επιστήμη Υπολογιστών στην Αλγεβρα - Μάθημα Β"
   gumball_name: Gumball
   classicmaze_name: "Κλασικός λαβύρινθος"
   iceage_name: "Εποχή των Παγετώνων"
@@ -1299,7 +1347,7 @@
   math_category_name: "Μαθηματικά"
   hoc_category_name: "Ώρα του Κώδικα"
   csf_category_name: "Βασικές αρχές της Επιστήμης των Υπολογιστών"
-  csf_international_category_name: CS Fundamentals International
+  csf_international_category_name: "Διεθνείς Βασικές Αρχές Επιστήμης Υπολογιστών"
   csf2_draft_category_name: "Υπό ανάπτυξη: Μαθήματα A - F"
   csd_category_name: 'Under Development: CS Discoveries'
   csp_category_name: "Αρχές της Επιστήμης των Υπολογιστών ' 15-'16"
@@ -1368,12 +1416,12 @@
   course2_gradelevel: "Ηλικίες 6+ (απαιτείται ανάγνωση)"
   course3_gradelevel: "Ηλικίες 8+ (μετά το Μάθημα 2)"
   course4_gradelevel: "Ηλικίες 10+ (μετά το Μάθημα 3)"
-  coursea_gradelevel: Grade 5+
+  coursea_gradelevel: "Τάξεις Ε' Δημοτικού +"
   courseb_gradelevel: Grade 6+
-  coursec_gradelevel: Grade 7+
+  coursec_gradelevel: "Τάξεις Α' Γυμνασίου +"
   coursed_gradelevel: "Τάξεις Β' Γυμνασίου +"
-  coursee_gradelevel: Grade 9+
-  coursef_gradelevel: Grade 10+
+  coursee_gradelevel: "Τάξεις Γ' Γυμνασίου +"
+  coursef_gradelevel: "Τάξεις Α' Λυκείου +"
   accelerated_gradelevel: "Ηλικίες 10+ (μετά το Μάθημα 3)"
   codeorg_platformtext: "Σύγχρονα προγράμματα περιήγησης, έξυπνα τηλέφωνα, tablet"
   codeintl_platformtext: "Σύγχρονα προγράμματα περιήγησης, έξυπνα τηλέφωνα, tablet"
@@ -2108,7 +2156,7 @@
   header_my_dashboard: My Dashboard
   header_courses: "Τες"
   header_course_catalog: Course Catalog
-  header_project_gallery: Project Gallery
+  header_project_gallery: "Έργα"
   header_sections: Sections
   header_professional_learning: Professional Learning
   header_educate_overview: Educator Overview
@@ -2137,7 +2185,7 @@
   header_help_us: Help Us
   header_about: About
   header_teacher_community: Teacher community
-  header_help_support: 'Help and support '
+  header_help_support: "Βοήθεια και υποστήριξη "
   header_report_bug: Report bug
   header_tutorials: Tutorials
   header_documentation: Documentation
@@ -2201,3 +2249,15 @@
     Classroom” button on the “Manage students” tab:'
   google_sign_in_instruct: 'From there, they should choose the “Sign in with Google
     Account” option:'
+  og_title_soon: The Hour of Code is coming
+  og_title_here: The Hour of Code is here!
+  og_description_celeb: Try the new tutorials, win a celebrity video chat for yourself
+    or your class!
+  csedweek_og_description_soon: The Hour of Code is coming December 4-10, 2017. Computer
+    science is foundational for every student to learn.
+  csedweek_og_description_here: The Hour of Code is here. Computer science is foundational
+    for every student to learn.
+  csp-explore_name: 'AP: Explore PT Prep'
+  csp-create_name: 'AP: Create PT Prep'
+  hero_name: 'Minecraft: Hero''s Journey'
+  applab-intro_name: App Lab Intro

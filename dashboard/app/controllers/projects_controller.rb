@@ -1,4 +1,5 @@
 require 'active_support/core_ext/hash/indifferent_access'
+require 'cdo/firehose'
 
 class ProjectsController < ApplicationController
   before_action :authenticate_user!, except: [:load, :create_new, :show, :edit, :readonly, :redirect_legacy, :public, :index]
@@ -8,6 +9,15 @@ class ProjectsController < ApplicationController
 
   TEMPLATES = %w(projects).freeze
 
+  # @type [Hash[Hash]] A map from project type to a hash with the following options
+  # representing properties of this project type:
+  # @option {String} :name The name of the level to use for this project type.
+  # @option {Boolean|nil} :levelbuilder_required Whether you must have
+  #   UserPermission::LEVELBUILDER to access this project type. Default: false.
+  # @option {Boolean|nil} :login_required Whether you must be logged in to
+  #   access this project type. Default: false.
+  # @option {String|nil} :default_image_url If present, set this as the
+  # thumbnail image url when creating a project of this type.
   STANDALONE_PROJECTS = {
     artist: {
       name: 'New Artist Project'
@@ -27,8 +37,11 @@ class ProjectsController < ApplicationController
     starwars: {
       name: 'New Star Wars Project'
     },
-    starwarsblocks: {
+    starwarsblocks_hour: {
       name: 'New Star Wars Blocks Project'
+    },
+    starwarsblocks: {
+      name: 'New Star Wars Expanded Blocks Project'
     },
     iceage: {
       name: 'New Ice Age Project'
@@ -40,7 +53,11 @@ class ProjectsController < ApplicationController
       name: 'New Gumball Project'
     },
     flappy: {
-      name: 'New Flappy Project'
+      name: 'New Flappy Project',
+      # We do not currently generate thumbnails for flappy, so specify a
+      # placeholder image here. This allows flappy projects to show up in the
+      # public gallery, and to be published from the share dialog.
+      default_image_url: '/blockly/media/flappy/placeholder.jpg',
     },
     scratch: {
       name: 'New Scratch Project',
@@ -54,6 +71,9 @@ class ProjectsController < ApplicationController
     },
     minecraft_designer: {
       name: 'New Minecraft Designer Project'
+    },
+    minecraft_hero: {
+      name: 'New Minecraft Hero Project'
     },
     applab: {
       name: 'New App Lab Project',
@@ -135,7 +155,7 @@ class ProjectsController < ApplicationController
     end
     return if redirect_under_13_without_tos_teacher(@level)
     if current_user
-      channel = StorageApps.new(storage_id_for_user).most_recent(params[:key])
+      channel = StorageApps.new(storage_id_for_current_user).most_recent(params[:key])
       if channel
         redirect_to action: 'edit', channel_id: channel
         return
@@ -154,12 +174,19 @@ class ProjectsController < ApplicationController
     redirect_to action: 'edit', channel_id: ChannelToken.create_channel(
       request.ip,
       StorageApps.new(storage_id('user')),
-      data: {
-        name: 'Untitled Project',
-        level: polymorphic_url([params[:key], 'project_projects'])
-      },
+      data: initial_data,
       type: params[:key]
     )
+  end
+
+  private def initial_data
+    data = {
+      name: 'Untitled Project',
+      level: polymorphic_url([params[:key], 'project_projects'])
+    }
+    default_image_url = STANDALONE_PROJECTS[params[:key]][:default_image_url]
+    data[:thumbnailUrl] = default_image_url if default_image_url
+    data
   end
 
   def show
@@ -194,6 +221,7 @@ class ProjectsController < ApplicationController
       hide_source: sharing,
       share: sharing,
       iframe_embed: iframe_embed,
+      project_type: params[:key]
     )
     # for sharing pages, the app will display the footer inside the playspace instead
     no_footer = sharing
@@ -215,6 +243,28 @@ class ProjectsController < ApplicationController
     if params[:key] == 'artist'
       @project_image = CDO.studio_url "/v3/files/#{@view_options['channel']}/_share_image.png", 'https:'
     end
+
+    begin
+      _, storage_app_id = storage_decrypt_channel_id(params[:channel_id]) if params[:channel_id]
+    rescue ArgumentError, OpenSSL::Cipher::CipherError
+      # continue as normal, as we only use this value for stats.
+    end
+
+    FirehoseClient.instance.put_record(
+      'analysis-events',
+      study: 'project-views',
+      event: project_view_event_type(iframe_embed, sharing),
+      # allow cross-referencing with the storage_apps table.
+      project_id: storage_app_id,
+      # make it easier to group by project_type.
+      data_string: params[:key],
+      data_json: {
+        # not currently used, but may prove useful to have in the data later.
+        encrypted_channel_id: params[:channel_id],
+        # record type again to make it clear what data_string represents.
+        project_type: params[:key],
+      }.to_json
+    )
     render 'levels/show'
   end
 
@@ -234,11 +284,17 @@ class ProjectsController < ApplicationController
     end
     return if redirect_under_13_without_tos_teacher(@level)
     src_channel_id = params[:channel_id]
+    begin
+      _, remix_parent_id = storage_decrypt_channel_id(src_channel_id)
+    rescue ArgumentError, OpenSSL::Cipher::CipherError
+      return head :bad_request
+    end
     new_channel_id = ChannelToken.create_channel(
       request.ip,
       StorageApps.new(storage_id('user')),
       src: src_channel_id,
-      type: params[:key]
+      type: params[:key],
+      remix_parent_id: remix_parent_id,
     )
     AssetBucket.new.copy_files src_channel_id, new_channel_id
     AnimationBucket.new.copy_files src_channel_id, new_channel_id
@@ -253,6 +309,19 @@ class ProjectsController < ApplicationController
   end
 
   private
+
+  # @param iframe_embed [Boolean] Whether the project view event was via iframe.
+  # @param sharing [Boolean] Whether the project view event was via share page.
+  # @returns [String] A string representing the project view event type.
+  def project_view_event_type(iframe_embed, sharing)
+    if iframe_embed
+      'iframe_embed'
+    elsif sharing
+      'share'
+    else
+      'view'
+    end
+  end
 
   def get_from_cache(key)
     @@project_level_cache[key] ||= Level.find_by_key(key)

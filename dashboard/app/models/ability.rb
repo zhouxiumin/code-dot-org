@@ -40,7 +40,15 @@ class Ability
       :workshop_organizer_survey_report,
       Pd::WorkshopMaterialOrder,
       :pd_workshop_user_management,
-      :peer_review_submissions
+      :pd_workshop_admins,
+      :peer_review_submissions,
+      RegionalPartner,
+      :regional_partner_workshops,
+      Pd::RegionalPartnerMapping,
+      Pd::Application::ApplicationBase,
+      Pd::Application::Facilitator1819Application,
+      Pd::Application::Teacher1819Application,
+      :maker_discount
     ]
 
     if user.persisted?
@@ -66,7 +74,9 @@ class Ability
       if user.teacher?
         can :manage, Section, user_id: user.id
         can :manage, :teacher
-        can :manage, user.students
+        can :manage, User do |u|
+          user.students.include?(u)
+        end
         can :manage, Follower
         can :read, Workshop
         can :manage, UserLevel do |user_level|
@@ -76,7 +86,11 @@ class Ability
         can :view_level_solutions, Script do |script|
           !script.professional_learning_course?
         end
+        can [:read, :find], :regional_partner_workshops
         can [:new, :create, :read], Pd::WorkshopMaterialOrder, user_id: user.id
+        can [:new, :create, :read], Pd::Application::Facilitator1819Application, user_id: user.id
+        can [:new, :create, :read], Pd::Application::Teacher1819Application, user_id: user.id
+        can :manage, :maker_discount
       end
 
       if user.facilitator?
@@ -117,6 +131,9 @@ class Ability
         can :index, :workshop_organizer_survey_report
         can :read, :pd_workshop_summary_report
         can :read, :pd_teacher_attendance_report
+        if user.regional_partners.any?
+          can [:read, :quick_view, :update], Pd::Application::ApplicationBase, regional_partner_id: user.regional_partners.pluck(:id)
+        end
       end
 
       if user.permission?(UserPermission::WORKSHOP_ADMIN)
@@ -128,7 +145,13 @@ class Ability
         can :manage, :pd_teacher_attendance_report
         can :manage, Pd::TeacherApplication
         can :manage, :pd_workshop_user_management
+        can :manage, :pd_workshop_admins
+        can :manage, RegionalPartner
         can :report_csv, :peer_review_submissions
+        can :manage, Pd::RegionalPartnerMapping
+        can :manage, Pd::Application::ApplicationBase
+        can :manage, Pd::Application::Facilitator1819Application
+        can :manage, Pd::Application::Teacher1819Application
       end
 
       if user.permission?(UserPermission::PLC_REVIEWER)

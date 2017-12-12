@@ -3,13 +3,14 @@ experimental:
     branches:
       only:
         - staging
+        - staging-next
 
 version: 2
 jobs:
   build:
     # parallelism: 4
     docker:
-      - image: iynere/code-dot-org:trusty-v2
+      - image: wjordan/code-dot-org:trusty
         environment:
           RAILS_ENV: test
           RACK_ENV: test
@@ -43,6 +44,7 @@ jobs:
           name: taking these out of dockerfile to see if that fixes build issues
           command: |
             sudo mv /usr/bin/parallel /usr/bin/gnu_parallel
+            sudo apt-get update
             sudo apt-get install -y libicu-dev enscript moreutils pdftk libmysqlclient-dev libsqlite3-dev
             sudo mv /usr/bin/gnu_parallel /usr/bin/parallel
 
@@ -62,7 +64,7 @@ jobs:
             - code-dot-org-node-v8-
 
       # start mysql
-      - run: sudo service mysql start
+      - run: sudo service mysql start && mysql -V
 
       - run:
           name: install dependencies
@@ -95,7 +97,7 @@ jobs:
             dashboard_workers: 2
             skip_seed_all: true
             " >> locals.yml
-            yarn version -V
+            yarn -V
 
       - run:
           name: fix weird gem issue
@@ -120,12 +122,7 @@ jobs:
       - run:
           name: rake build
           command: |
-            for i in 1 2; do
-              mispipe "timeout 16m bundle exec rake build --trace" "ts '[%Y-%m-%d %H:%M:%S]'" && break;
-              ERR=$?
-              echo "rake build failed on attempt $i with error code $ERR";
-              (exit $ERR)
-            done
+            mispipe "bundle exec rake build --trace" "ts '[%Y-%m-%d %H:%M:%S]'"
 
       - save_cache:
           key: code-dot-org-node-v8-{{ checksum "apps/package.json" }}
@@ -161,7 +158,9 @@ jobs:
 
       - restore_cache:
           keys:
+            - code-dot-org-ui-test-data-v3-{{ .Branch }}-
             - code-dot-org-ui-test-data-v3-staging-
+            - code-dot-org-ui-test-data-v3-
 
       - run:
           name: seed ui tests

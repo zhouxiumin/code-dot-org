@@ -1,6 +1,9 @@
 /* global Applab */
 import $ from 'jquery';
-import 'jquery-ui'; // for $.fn.resizable();
+import 'jquery-ui/ui/effects/effect-drop';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
+import 'jquery-ui/ui/widgets/resizable';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import DesignWorkspace from './DesignWorkspace';
@@ -17,6 +20,7 @@ import logToCloud from '../logToCloud';
 import {actions} from './redux/applab';
 import * as screens from './redux/screens';
 import {getStore} from '../redux';
+import {applabObjectFitImages} from './applabObjectFitImages';
 
 var designMode = {};
 export default designMode;
@@ -159,8 +163,12 @@ function appendPx(input) {
   if (/px/.test(input)) {
     return input;
   }
-  return input ? input + 'px' : '';
+  //if any sort of object, including arrays, is inputted, return empty string.
+  //This gets around how parseInt and parseFloat treat arrays with first element numbers
+  const parsedInput = parseInt(input);
+  return (isNaN(parsedInput) || typeof input === 'object') ? '' : parsedInput + 'px';
 }
+designMode.appendPx = appendPx;
 
 /**
  * Handle a change from our properties table.
@@ -318,38 +326,8 @@ designMode.updateProperty = function (element, name, value) {
 
       if (ICON_PREFIX_REGEX.test(value)) {
         element.src = assetPrefix.renderIconToString(value, element);
-        break;
-      }
-
-      element.src = assetPrefix.fixPath(value);
-      // do not resize if only the asset path has changed (e.g. on remix).
-      if (value !== originalValue) {
-        var resizeElement = function (width, height) {
-          element.style.width = width + 'px';
-          element.style.height = height + 'px';
-          if (gridUtils.isDraggableContainer(element.parentNode)) {
-            element.parentNode.style.width = width + 'px';
-            element.parentNode.style.height = height + 'px';
-          }
-          // Re-render properties
-          if (currentlyEditedElement === element) {
-            designMode.editElementProperties(element);
-          }
-        };
-        if (value === '') {
-          element.src = '/blockly/media/1x1.gif';
-          resizeElement(100, 100);
-        } else {
-          element.onload = function () {
-            // naturalWidth/Height aren't populated until image has loaded.
-            var left = parseFloat(element.style.left);
-            var top = parseFloat(element.style.top);
-            var dimensions = boundedResize(left, top, element.naturalWidth, element.naturalHeight, true);
-            resizeElement(dimensions.width, dimensions.height);
-            // only perform onload once
-            element.onload = null;
-          };
-        }
+      } else {
+        element.src = value === '' ? '/blockly/media/1x1.gif' : assetPrefix.fixPath(value);
       }
       break;
     case 'hidden':
@@ -519,13 +497,12 @@ designMode.readProperty = function (element, name) {
 };
 
 designMode.onDuplicate = function (element, event) {
-  var isScreen = $(element).hasClass('screen');
+  let isScreen = $(element).hasClass('screen');
   if (isScreen) {
-    // Not duplicating screens for now
-    return;
+    return duplicateScreen(element);
   }
 
-  var duplicateElement = element.cloneNode(true);
+  var duplicateElement = $(element).clone(true)[0];
   var dupLeft = parseInt(element.style.left, 10) + 10;
   var dupTop = parseInt(element.style.top, 10) + 10;
   var dupWidth = parseInt(element.style.width, 10);
@@ -548,6 +525,30 @@ designMode.onDuplicate = function (element, event) {
 
   return duplicateElement;
 };
+
+function duplicateScreen(element) {
+  const sourceScreen = $(element);
+  const newScreen = designMode.createScreen();
+  designMode.changeScreen(newScreen);
+
+  // Unwrap the draggable wrappers around the elements in the source screen:
+  const madeUndraggable = makeUndraggable(sourceScreen.children());
+
+  // Clone each child of the source screen into the new screen (with new ids):
+  sourceScreen.children().each(function () {
+    const clonedChild = $(this).clone(true)[0];
+    const elementType = elementLibrary.getElementType(clonedChild);
+    elementUtils.setId(clonedChild, elementLibrary.getUnusedElementId(elementType.toLowerCase()));
+    designMode.attachElement(clonedChild);
+  });
+
+  // Restore the draggable wrappers on the elements in the source screen:
+  if (madeUndraggable) {
+    makeDraggable(sourceScreen.children());
+  }
+
+  return newScreen;
+}
 
 designMode.onDeletePropertiesButton = function (element, event) {
   deleteElement(element);
@@ -641,6 +642,28 @@ designMode.serializeToLevelHtml = function () {
   });
   designModeVizClone.children().children().each(function () {
     elementUtils.removeIdPrefix(this);
+    if (this.nodeName === 'IMG') {
+      // Remove object-fit style and all styles and attributes used by the
+      // the object-fit-images polyfill for IE and replace the src attribute
+
+      // (We will rely on our own data-object-fit property for serialization)
+      this.style.objectFit = '';
+      this.style.backgroundPosition = '';
+      this.style.backgroundImage = '';
+      this.style.backgroundRepeat = '';
+      this.style.backgroundOrigin = '';
+      this.style.backgroundSize = '';
+      this.style.fontFamily = '';
+      this.removeAttribute('data-ofi-undefined');
+      // This data attribute comes from the object-fit-images polyfill used to
+      // supply fit behavior in IE11
+      // @see https://github.com/bfred-it/object-fit-images
+      const ofiSrc = this.getAttribute('data-ofi-src');
+      if (ofiSrc) {
+        this.src = makeUrlProtocolRelative(ofiSrc);
+        this.removeAttribute('data-ofi-src');
+      }
+    }
   });
 
   // Remove the "data:img/png..." URI from icon images
@@ -658,6 +681,10 @@ designMode.serializeToLevelHtml = function () {
   return serialization;
 };
 
+function makeUrlProtocolRelative(url) {
+  return url.replace(/^https?:\/\//i, '//');
+}
+designMode.makeUrlProtocolRelative = makeUrlProtocolRelative;
 
 function getUnsafeHtmlReporter(sanitizationTarget) {
   return function (removed, unsafe, safe) {
@@ -913,6 +940,9 @@ function makeDraggable(jqueryElements) {
 
     elm.css('position', 'static');
   });
+  setTimeout(() => {
+    applabObjectFitImages();
+  }, 0);
 }
 
 /**
@@ -1236,16 +1266,15 @@ designMode.addKeyboardHandlers = function () {
         case KeyCodes.COPY:
           if (currentlyEditedElement) {
             // Remember the current element on the clipboard
-            clipboardElement = currentlyEditedElement.cloneNode(true);
+            clipboardElement = $(currentlyEditedElement).clone(true)[0];
           }
           break;
         case KeyCodes.PASTE:
           // Paste the clipboard element with updated position and ID
           if (clipboardElement) {
-            var duplicateElement = designMode.onDuplicate(clipboardElement);
-            // For now, screens can't be duplicated, so duplicate element could be null
+            let duplicateElement = designMode.onDuplicate(clipboardElement);
             if (duplicateElement) {
-              clipboardElement = duplicateElement.cloneNode(true);
+              clipboardElement = $(duplicateElement).clone(true)[0];
             }
           }
           break;

@@ -34,6 +34,7 @@ class XhrProxyController < ApplicationController
     api.pegelalarm.at
     api.randomuser.me
     api.spotify.com
+    api.themoviedb.org
     api.zippopotam.us
     atlas.media.mit.edu
     code.org
@@ -44,6 +45,7 @@ class XhrProxyController < ApplicationController
     enclout.com
     githubusercontent.com
     googleapis.com
+    hamlin.myschoolapp.com
     herokuapp.com
     isenseproject.org
     lakeside-cs.org
@@ -51,6 +53,9 @@ class XhrProxyController < ApplicationController
     query.yahooapis.com
     rejseplanen.dk
     noaa.gov
+    nuevaschool.ngrok.io
+    nuevaschool2.ngrok.io
+    nuevaschool3.ngrok.io
     rhcloud.com
     swapi.co
     transitchicago.com

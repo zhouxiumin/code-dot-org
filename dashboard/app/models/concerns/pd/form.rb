@@ -34,11 +34,27 @@ module Pd::Form
     end
   end
 
+  # Determine if this (unsaved) model is a duplicate of an existing saved form.
+  # Used for idempotence check by controller
+  # @return [nil|Form] existing form that this is a duplicate of, or nil.
+  def check_idempotency
+    # override in model to provide an idempotence check
+    nil
+  end
+
   # Dynamic options are only used for validation on the server.
   # They are not supplied to the client like #options.
   def dynamic_options
     # should be overridden by including in model
     {}
+  end
+
+  # Dynamic require fields are only used for validation on the server.
+  # They are not supplied to the client like #required_fields.
+  # Use for conditionally required fields, such as those that are dependent on other answers
+  def dynamic_required_fields(sanitized_form_data_hash)
+    # should be overridden by including in model
+    []
   end
 
   def add_key_error(key)
@@ -60,6 +76,10 @@ module Pd::Form
     end
 
     self.class.required_fields.each do |key|
+      add_key_error(key) unless hash.key?(key)
+    end
+
+    dynamic_required_fields(hash).each do |key|
       add_key_error(key) unless hash.key?(key)
     end
   end

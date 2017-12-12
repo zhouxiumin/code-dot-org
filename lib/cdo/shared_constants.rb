@@ -48,10 +48,45 @@ module SharedConstants
     }
   )
 
+  # Valid milestone post modes
+  POST_MILESTONE_MODE = OpenStruct.new(
+    {
+      all: 'all',
+      successful_runs_and_final_level_only: 'successful_runs_and_final_level_only',
+      final_level_only: 'final_level_only',
+    }
+  )
+
+  PUBLISHABLE_PROJECT_TYPES_UNDER_13 = %w(
+    artist
+    frozen
+    playlab
+    gumball
+    iceage
+    infinity
+    minecraft_adventurer
+    minecraft_designer
+    minecraft_hero
+    starwars
+    starwarsblocks
+    starwarsblocks_hour
+    flappy
+    bounce
+    sports
+    basketball
+    artist_k1
+    playlab_k1
+  ).freeze
+
+  PUBLISHABLE_PROJECT_TYPES_OVER_13 = PUBLISHABLE_PROJECT_TYPES_UNDER_13 + %w(
+    applab
+    gamelab
+  ).freeze
+
   # This is a set of Applab blocks. It is used by dashboard to initialize the
   # default palette when creating a level. It is used by apps to determine
   # what the full set of blocks available is.
-  APPLAB_BLOCKS = <<-JSON
+  APPLAB_BLOCKS = <<-JSON.freeze
     {
       // UI Controls
       "onEvent": null,
@@ -250,7 +285,7 @@ module SharedConstants
 
   # Goal blocks will not appear in App Lab unless they are explicitly included
   # in the level config.
-  APPLAB_GOAL_BLOCKS = <<-JSON
+  APPLAB_GOAL_BLOCKS = <<-JSON.freeze
     {
       // Goals
       "comment_Goals_1": null,
@@ -279,7 +314,7 @@ module SharedConstants
   # This is a set of Gamelab blocks. It is used by dashboard to initialize the
   # default palette when creating a level. It is used by apps to determine
   # what the full set of blocks available is.
-  GAMELAB_BLOCKS = <<-JSON
+  GAMELAB_BLOCKS = <<-JSON.freeze
     {
       // Game Lab
       "draw": null,

@@ -43,6 +43,10 @@ class GatekeeperBase
     default
   end
 
+  def disallows(*params)
+    !allows(*params)
+  end
+
   # Sets the value for a given feature/where combo
   # @param feature [String]
   # @param where [Hash]
@@ -130,7 +134,7 @@ class GatekeeperBase
       rules.each do |conditions, value|
         rule = {"rule" => nil}
 
-        conditions = JSON.load(conditions)
+        conditions = JSON.parse(conditions)
         unless conditions.empty?
           where_clause = {}
           rule['where'] = where_clause
@@ -165,7 +169,7 @@ class GatekeeperBase
     Set.new.tap do |result|
       @datastore_cache.all.each do |_feature, rules|
         rules.each do |conditions, _value|
-          JSON.load(conditions).each do |property, value|
+          JSON.parse(conditions).each do |property, value|
             result << value if property == condition_property
           end
         end

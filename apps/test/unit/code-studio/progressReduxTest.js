@@ -4,11 +4,13 @@ import { LevelStatus, LevelKind } from '@cdo/apps/util/sharedConstants';
 import { ViewType, setViewTypeNonThunk } from '@cdo/apps/code-studio/viewAsRedux';
 import reducer, {
   initProgress,
+  isPerfect,
   mergeProgress,
   mergePeerReviewProgress,
   disablePostMilestone,
   setUserSignedIn,
   setIsHocScript,
+  setIsAge13Required,
   setIsSummaryView,
   setStudentDefaultsSummaryView,
   SignInState,
@@ -281,6 +283,14 @@ describe('progressReduxTest', () => {
 
       const isNotHocScript = reducer(initialState, setIsHocScript(false));
       assert.equal(isNotHocScript.isHocScript, false);
+    });
+
+    it('can update isAge13Required', () => {
+      const state = reducer(initialState, setIsAge13Required(true));
+      assert.equal(state.isAge13Required, true);
+
+      const nextState = reducer(initialState, setIsHocScript(false));
+      assert.equal(nextState.isAge13Required, false);
     });
 
     it('can update isSummaryView', () => {
@@ -1079,6 +1089,40 @@ describe('progressReduxTest', () => {
       assert.equal(levels[0].url, '/peer_reviews/1');
       assert.equal(levels[0].name, state.peerReviewStage.levels[0].name);
       assert.equal(levels[0].icon, undefined);
+    });
+  });
+
+  describe('isPerfect', () => {
+    const levelId = 1;
+
+    it('returns false if progress was not initialized', () => {
+      const state = {};
+      assert.isFalse(isPerfect(state, levelId));
+    });
+
+    it('returns false if the level was not started', () => {
+      const state = {
+        levelProgress: {},
+      };
+      assert.isFalse(isPerfect(state, levelId));
+    });
+
+    it('returns false if the level was not perfected', () => {
+      const state = {
+        levelProgress: {
+          1: TestResults.MINIMUM_PASS_RESULT,
+        },
+      };
+      assert.isFalse(isPerfect(state, levelId));
+    });
+
+    it('returns true if the level was perfected', () => {
+      const state = {
+        levelProgress: {
+          1: TestResults.ALL_PASS,
+        },
+      };
+      assert.isTrue(isPerfect(state, levelId));
     });
   });
 });

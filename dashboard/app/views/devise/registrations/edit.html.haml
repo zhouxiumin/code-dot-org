@@ -12,10 +12,10 @@
   %div
   .field
     = f.label :name
-    - if !f.object.teacher_managed_account?
-      = f.text_field :name, autofocus: true, maxlength: 255
-    - else
+    - if f.object.secret_picture_account_only?
       = f.object.name
+    - else # most users are allowed to edit username
+      = f.text_field :name, autofocus: true, maxlength: 255
   - if !f.object.teacher_managed_account?
     - if current_user.parent_managed_account?
       .field
@@ -70,7 +70,7 @@
       = f.text_field :school, class: 'input-xlarge', maxlength: 255
     .field
       = f.label :full_address
-      = f.text_area :full_address, class: 'input-xxlarge', rows: 4, maxlength: 1024
+      = f.text_area :full_address, class: 'input-xxlarge', rows: 4, maxlength: 255
     = f.hidden_field :age, value: "21"
   -#
     Don't allow editing user type unless we can also edit email, because

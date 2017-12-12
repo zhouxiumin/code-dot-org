@@ -1,12 +1,18 @@
 import 'babel-polyfill';
-import { throwOnConsoleErrorsEverywhere, throwOnConsoleWarningsEverywhere } from './util/testUtils';
+import 'whatwg-fetch';
+import {
+  throwOnConsoleErrorsEverywhere,
+  throwOnConsoleWarningsEverywhere,
+  clearTimeoutsBetweenTests,
+} from './util/testUtils';
 
 
 var integrationContext = require.context("./integration", false, /Tests?\.js$/);
 
-describe('integration tests', () => {
+describe('integration tests', function () {
   throwOnConsoleErrorsEverywhere();
   throwOnConsoleWarningsEverywhere();
+  clearTimeoutsBetweenTests();
   integrationContext.keys()
     .filter(
           key => !process.env.mocha_entry ||

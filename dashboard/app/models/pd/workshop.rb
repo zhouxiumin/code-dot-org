@@ -96,6 +96,7 @@ class Pd::Workshop < ActiveRecord::Base
       SUBJECT_CSP_FIT = 'Code.org Facilitator Weekend'.freeze
     ],
     COURSE_CSD => [
+      SUBJECT_CSD_SUMMER_WORKSHOP = '5-day Summer'.freeze,
       SUBJECT_CSD_UNITS_2_3 = 'Units 2 and 3: Web Development and Animations'.freeze,
       SUBJECT_CSD_UNIT_3_4 = 'Units 3 and 4: Building Games and User Centered Design'.freeze,
       SUBJECT_CSD_UNITS_4_5 = 'Units 4 and 5: App Prototyping and Data & Society'.freeze,
@@ -328,6 +329,14 @@ class Pd::Workshop < ActiveRecord::Base
 
     # Limit the friendly name to 255 chars
     "#{course_subject} workshop on #{start_time} at #{location_name}"[0...255]
+  end
+
+  # E.g. "March 1-3, 2017" or "March 30 - April 2, 2017"
+  # Assume no workshops will span a new year
+  def friendly_date_range
+    sessions.first.start.month == sessions.last.start.month ?
+      "#{sessions.first.start.strftime('%B %-d')}-#{sessions.last.start.strftime('%-d, %Y')}" :
+      "#{sessions.first.start.strftime('%B %-d')} - #{sessions.last.start.strftime('%B %-d, %Y')}"
   end
 
   # Puts workshop in 'In Progress' state

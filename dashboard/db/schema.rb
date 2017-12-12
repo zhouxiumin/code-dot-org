@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170928180159) do
+ActiveRecord::Schema.define(version: 20171206192422) do
 
   create_table "activities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "user_id"
@@ -65,17 +65,90 @@ ActiveRecord::Schema.define(version: 20170928180159) do
     t.string   "callout_text"
   end
 
+  create_table "census_submission_form_maps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "census_submission_id", null: false
+    t.integer  "form_id",              null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["census_submission_id"], name: "index_census_submission_form_maps_on_census_submission_id", using: :btree
+    t.index ["form_id"], name: "index_census_submission_form_maps_on_form_id", using: :btree
+  end
+
+  create_table "census_submissions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string   "type",                                       null: false
+    t.string   "submitter_email_address"
+    t.string   "submitter_name"
+    t.string   "submitter_role"
+    t.integer  "school_year",                                null: false
+    t.string   "how_many_do_hoc"
+    t.string   "how_many_after_school"
+    t.string   "how_many_10_hours"
+    t.string   "how_many_20_hours"
+    t.boolean  "other_classes_under_20_hours"
+    t.boolean  "topic_blocks"
+    t.boolean  "topic_text"
+    t.boolean  "topic_robots"
+    t.boolean  "topic_internet"
+    t.boolean  "topic_security"
+    t.boolean  "topic_data"
+    t.boolean  "topic_web_design"
+    t.boolean  "topic_game_design"
+    t.boolean  "topic_other"
+    t.string   "topic_other_description"
+    t.boolean  "topic_do_not_know"
+    t.string   "class_frequency"
+    t.text     "tell_us_more",                 limit: 65535
+    t.boolean  "pledged"
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+    t.boolean  "share_with_regional_partners"
+    t.index ["school_year", "id"], name: "index_census_submissions_on_school_year_and_id", using: :btree
+  end
+
+  create_table "census_submissions_school_infos", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "census_submission_id", null: false
+    t.integer  "school_info_id",       null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["census_submission_id", "school_info_id"], name: "census_submission_school_info_id", unique: true, using: :btree
+    t.index ["school_info_id", "census_submission_id"], name: "school_info_id_census_submission", unique: true, using: :btree
+  end
+
   create_table "channel_tokens", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.string   "channel"
     t.integer  "storage_app_id", null: false
-    t.integer  "user_id"
     t.integer  "level_id",       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "storage_id",     null: false
     t.index ["storage_app_id"], name: "index_channel_tokens_on_storage_app_id", using: :btree
+    t.index ["storage_id", "level_id"], name: "index_channel_tokens_on_storage_id_and_level_id", unique: true, using: :btree
     t.index ["storage_id"], name: "index_channel_tokens_on_storage_id", using: :btree
-    t.index ["user_id", "level_id"], name: "index_channel_tokens_on_user_id_and_level_id", unique: true, using: :btree
+  end
+
+  create_table "circuit_playground_discount_applications", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "user_id",                                             null: false
+    t.integer  "unit_6_intention"
+    t.boolean  "full_discount"
+    t.boolean  "admin_set_status",                    default: false, null: false
+    t.string   "signature"
+    t.datetime "signed_at"
+    t.integer  "circuit_playground_discount_code_id"
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+    t.string   "school_id"
+    t.index ["circuit_playground_discount_code_id"], name: "index_circuit_playground_applications_on_code_id", using: :btree
+    t.index ["school_id"], name: "index_circuit_playground_discount_applications_on_school_id", using: :btree
+    t.index ["user_id"], name: "index_circuit_playground_discount_applications_on_user_id", unique: true, using: :btree
+  end
+
+  create_table "circuit_playground_discount_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string   "code",          null: false
+    t.boolean  "full_discount", null: false
+    t.datetime "expiration",    null: false
+    t.datetime "claimed_at"
+    t.datetime "voided_at"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
   end
 
   create_table "cohorts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -208,6 +281,13 @@ ActiveRecord::Schema.define(version: 20170928180159) do
   create_table "facilitators_workshops", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "workshop_id",    null: false
     t.integer "facilitator_id", null: false
+  end
+
+  create_table "featured_projects", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "storage_app_id"
+    t.integer  "who_featured_user_id"
+    t.datetime "created_at"
+    t.index ["storage_app_id"], name: "index_featured_projects_on_storage_app_id", using: :btree
   end
 
   create_table "followers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -356,6 +436,32 @@ ActiveRecord::Schema.define(version: 20170928180159) do
     t.integer  "teacher_application_id"
   end
 
+  create_table "pd_applications", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "user_id"
+    t.string   "type",                                              null: false
+    t.string   "application_year",                                  null: false
+    t.string   "application_type",                                  null: false
+    t.integer  "regional_partner_id"
+    t.string   "status"
+    t.datetime "locked_at"
+    t.text     "notes",                               limit: 65535
+    t.text     "form_data",                           limit: 65535, null: false
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
+    t.string   "course"
+    t.text     "response_scores",                     limit: 65535,              comment: "Scores given to certain responses"
+    t.string   "application_guid"
+    t.datetime "decision_notification_email_sent_at"
+    t.index ["application_guid"], name: "index_pd_applications_on_application_guid", using: :btree
+    t.index ["application_type"], name: "index_pd_applications_on_application_type", using: :btree
+    t.index ["application_year"], name: "index_pd_applications_on_application_year", using: :btree
+    t.index ["course"], name: "index_pd_applications_on_course", using: :btree
+    t.index ["regional_partner_id"], name: "index_pd_applications_on_regional_partner_id", using: :btree
+    t.index ["status"], name: "index_pd_applications_on_status", using: :btree
+    t.index ["type"], name: "index_pd_applications_on_type", using: :btree
+    t.index ["user_id"], name: "index_pd_applications_on_user_id", using: :btree
+  end
+
   create_table "pd_attendances", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "pd_session_id",     null: false
     t.integer  "teacher_id"
@@ -488,6 +594,16 @@ ActiveRecord::Schema.define(version: 20170928180159) do
     t.datetime "updated_at",                        null: false
     t.index ["regional_partner_id"], name: "index_pd_regional_partner_contacts_on_regional_partner_id", using: :btree
     t.index ["user_id"], name: "index_pd_regional_partner_contacts_on_user_id", using: :btree
+  end
+
+  create_table "pd_regional_partner_mappings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "regional_partner_id", null: false
+    t.string   "state"
+    t.string   "zip_code"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["regional_partner_id", "state", "zip_code"], name: "index_pd_regional_partner_mappings_on_id_and_state_and_zip_code", unique: true, using: :btree
+    t.index ["regional_partner_id"], name: "index_pd_regional_partner_mappings_on_regional_partner_id", using: :btree
   end
 
   create_table "pd_regional_partner_program_registrations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -717,10 +833,20 @@ ActiveRecord::Schema.define(version: 20170928180159) do
   end
 
   create_table "regional_partners", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.string  "name",       null: false
-    t.integer "group"
-    t.integer "contact_id"
-    t.boolean "urban"
+    t.string   "name",                             null: false
+    t.integer  "group"
+    t.integer  "contact_id"
+    t.boolean  "urban"
+    t.string   "attention"
+    t.string   "street"
+    t.string   "apartment_or_suite"
+    t.string   "city"
+    t.string   "state"
+    t.string   "zip_code"
+    t.string   "phone_number"
+    t.text     "notes",              limit: 65535
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
     t.index ["name", "contact_id"], name: "index_regional_partners_on_name_and_contact_id", unique: true, using: :btree
   end
 
@@ -740,6 +866,7 @@ ActiveRecord::Schema.define(version: 20170928180159) do
     t.string   "zip",        null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name", "city"], name: "index_school_districts_on_name_and_city", type: :fulltext
     t.index ["state"], name: "index_school_districts_on_state", using: :btree
   end
 
@@ -749,31 +876,75 @@ ActiveRecord::Schema.define(version: 20170928180159) do
     t.integer  "zip"
     t.string   "state"
     t.integer  "school_district_id"
-    t.boolean  "school_district_other", default: false
+    t.boolean  "school_district_other",            default: false
     t.string   "school_district_name"
-    t.bigint   "school_id"
-    t.boolean  "school_other",          default: false
-    t.string   "school_name",                                         comment: "This column appears to be redundant with pd_enrollments.school and users.school, therefore validation rules must be used to ensure that any user or enrollment with a school_info has its school name stored in the correct place."
-    t.string   "full_address",                                        comment: "This column appears to be redundant with users.full_address, therefore validation rules must be used to ensure that any user with a school_info has its school address stored in the correct place."
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
-    t.string   "validation_type",       default: "full", null: false
+    t.string   "school_id",             limit: 12
+    t.boolean  "school_other",                     default: false
+    t.string   "school_name",                                                    comment: "This column appears to be redundant with pd_enrollments.school and users.school, therefore validation rules must be used to ensure that any user or enrollment with a school_info has its school name stored in the correct place."
+    t.string   "full_address",                                                   comment: "This column appears to be redundant with users.full_address, therefore validation rules must be used to ensure that any user with a school_info has its school address stored in the correct place."
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
+    t.string   "validation_type",                  default: "full", null: false
     t.index ["school_district_id"], name: "fk_rails_951bceb7e3", using: :btree
     t.index ["school_id"], name: "index_school_infos_on_school_id", using: :btree
   end
 
+  create_table "school_stats_by_years", primary_key: ["school_id", "school_year"], force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string   "school_id",          limit: 12, null: false, comment: "NCES public school ID"
+    t.string   "school_year",        limit: 9,  null: false, comment: "School Year"
+    t.string   "grades_offered_lo",  limit: 2,               comment: "Grades Offered - Lowest"
+    t.string   "grades_offered_hi",  limit: 2,               comment: "Grades Offered - Highest"
+    t.boolean  "grade_pk_offered",                           comment: "PK Grade Offered"
+    t.boolean  "grade_kg_offered",                           comment: "KG Grade Offered"
+    t.boolean  "grade_01_offered",                           comment: "Grade 01 Offered"
+    t.boolean  "grade_02_offered",                           comment: "Grade 02 Offered"
+    t.boolean  "grade_03_offered",                           comment: "Grade 03 Offered"
+    t.boolean  "grade_04_offered",                           comment: "Grade 04 Offered"
+    t.boolean  "grade_05_offered",                           comment: "Grade 05 Offered"
+    t.boolean  "grade_06_offered",                           comment: "Grade 06 Offered"
+    t.boolean  "grade_07_offered",                           comment: "Grade 07 Offered"
+    t.boolean  "grade_08_offered",                           comment: "Grade 08 Offered"
+    t.boolean  "grade_09_offered",                           comment: "Grade 09 Offered"
+    t.boolean  "grade_10_offered",                           comment: "Grade 10 Offered"
+    t.boolean  "grade_11_offered",                           comment: "Grade 11 Offered"
+    t.boolean  "grade_12_offered",                           comment: "Grade 12 Offered"
+    t.boolean  "grade_13_offered",                           comment: "Grade 13 Offered"
+    t.string   "virtual_status",     limit: 14,              comment: "Virtual School Status"
+    t.integer  "students_total",                             comment: "Total students, all grades (includes AE)"
+    t.integer  "student_am_count",                           comment: "All Students - American Indian/Alaska Native"
+    t.integer  "student_as_count",                           comment: "All Students - Asian"
+    t.integer  "student_hi_count",                           comment: "All Students - Hispanic"
+    t.integer  "student_bl_count",                           comment: "All Students - Black"
+    t.integer  "student_wh_count",                           comment: "All Students - White"
+    t.integer  "student_hp_count",                           comment: "All Students - Hawaiian Native/Pacific Islander"
+    t.integer  "student_tr_count",                           comment: "All Students - Two or More Races"
+    t.string   "title_i_status",     limit: 1,               comment: "TITLE I status (code)"
+    t.integer  "frl_eligible_total",                         comment: "Total of free and reduced-price lunch eligible"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.string   "community_type",     limit: 16,              comment: "Urban-centric community type"
+    t.index ["school_id"], name: "index_school_stats_by_years_on_school_id", using: :btree
+  end
+
   create_table "schools", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.bigint   "id",                 null: false, comment: "NCES public school ID"
-    t.integer  "school_district_id", null: false
-    t.string   "name",               null: false
-    t.string   "city",               null: false
-    t.string   "state",              null: false
-    t.string   "zip",                null: false
-    t.string   "school_type",        null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.string   "id",                 limit: 12,                         null: false, comment: "NCES public school ID"
+    t.integer  "school_district_id"
+    t.string   "name",                                                  null: false
+    t.string   "city",                                                  null: false
+    t.string   "state",                                                 null: false
+    t.string   "zip",                                                   null: false
+    t.string   "school_type",                                           null: false
+    t.datetime "created_at",                                            null: false
+    t.datetime "updated_at",                                            null: false
+    t.string   "address_line1",      limit: 50,                                      comment: "Location address, street 1"
+    t.string   "address_line2",      limit: 30,                                      comment: "Location address, street 2"
+    t.string   "address_line3",      limit: 30,                                      comment: "Location address, street 3"
+    t.decimal  "latitude",                      precision: 8, scale: 6,              comment: "Location latitude"
+    t.decimal  "longitude",                     precision: 9, scale: 6,              comment: "Location longitude"
     t.index ["id"], name: "index_schools_on_id", unique: true, using: :btree
+    t.index ["name", "city"], name: "index_schools_on_name_and_city", type: :fulltext
     t.index ["school_district_id"], name: "index_schools_on_school_district_id", using: :btree
+    t.index ["zip"], name: "index_schools_on_zip", using: :btree
   end
 
   create_table "script_levels", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -876,14 +1047,15 @@ ActiveRecord::Schema.define(version: 20170928180159) do
   end
 
   create_table "stages", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.string   "name",                              null: false
+    t.string   "name",                                            null: false
     t.integer  "absolute_position"
-    t.integer  "script_id",                         null: false
+    t.integer  "script_id",                                       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "flex_category"
-    t.boolean  "lockable",          default: false, null: false
-    t.integer  "relative_position",                 null: false
+    t.boolean  "lockable",                        default: false, null: false
+    t.integer  "relative_position",                               null: false
+    t.text     "properties",        limit: 65535
     t.index ["script_id"], name: "index_stages_on_script_id", using: :btree
   end
 
@@ -1147,6 +1319,8 @@ ActiveRecord::Schema.define(version: 20170928180159) do
   add_foreign_key "authored_hint_view_requests", "levels"
   add_foreign_key "authored_hint_view_requests", "scripts"
   add_foreign_key "authored_hint_view_requests", "users"
+  add_foreign_key "census_submission_form_maps", "census_submissions"
+  add_foreign_key "circuit_playground_discount_applications", "schools"
   add_foreign_key "hint_view_requests", "users"
   add_foreign_key "level_concept_difficulties", "levels"
   add_foreign_key "pd_payment_terms", "regional_partners"
@@ -1163,6 +1337,7 @@ ActiveRecord::Schema.define(version: 20170928180159) do
   add_foreign_key "plc_tasks", "script_levels"
   add_foreign_key "school_infos", "school_districts"
   add_foreign_key "school_infos", "schools"
+  add_foreign_key "school_stats_by_years", "schools"
   add_foreign_key "schools", "school_districts"
   add_foreign_key "sections", "courses"
   add_foreign_key "survey_results", "users"

@@ -5,7 +5,6 @@ import StudentHomepage from '@cdo/apps/templates/studioHomepages/StudentHomepage
 import { courses, topCourse, joinedSections } from './homepagesTestData';
 
 describe('StudentHomepage', () => {
-
   it('shows a non-extended Header Banner that says My Dashboard', () => {
     const wrapper = shallow(
       <StudentHomepage
@@ -17,7 +16,7 @@ describe('StudentHomepage', () => {
         canLeave={false}
       />
     );
-    const headerBanner = wrapper.find('HeaderBanner');
+    const headerBanner = wrapper.find('Connect(HeaderBanner)');
     assert.deepEqual(headerBanner.props(), {
       headingText: "My Dashboard",
       short: true
@@ -89,5 +88,36 @@ describe('StudentHomepage', () => {
       isRtl: false,
       canLeave: false
     });
+  });
+
+  it('shows section codes correctly', () => {
+    const wrapper = shallow(
+        <StudentHomepage
+          courses={courses}
+          topCourse={topCourse}
+          sections={joinedSections}
+          codeOrgUrlPrefix="http://localhost:3000/"
+          isRtl={false}
+          canLeave={false}
+        />
+    ).find('StudentSections').dive().find('SectionsTable').dive();
+    expect(wrapper).to.containMatchingElement(
+        <td>ClassOneCode</td>
+    );
+    expect(wrapper).to.containMatchingElement(
+        <td>ClassTwoCode</td>
+    );
+    expect(wrapper).to.containMatchingElement(
+      <td>Google Classroom</td>
+    );
+    expect(wrapper).to.not.containMatchingElement(
+        <td>DoNotShowThis</td>
+    );
+    expect(wrapper).to.containMatchingElement(
+        <td>Clever</td>
+    );
+    expect(wrapper).to.not.containMatchingElement(
+        <td>OrThisEither</td>
+    );
   });
 });

@@ -1,3 +1,6 @@
+require 'sinatra'
+require_relative './storage_id'
+
 #
 # StorageApps
 #
@@ -11,7 +14,7 @@ class StorageApps
     @table = PEGASUS_DB[:storage_apps]
   end
 
-  def create(value, ip:, type: nil, published_at: nil)
+  def create(value, ip:, type: nil, published_at: nil, remix_parent_id: nil)
     timestamp = DateTime.now
     row = {
       storage_id: @storage_id,
@@ -22,6 +25,7 @@ class StorageApps
       abuse_score: 0,
       project_type: type,
       published_at: published_at,
+      remix_parent_id: remix_parent_id,
     }
     row[:id] = @table.insert(row)
 
@@ -44,6 +48,20 @@ class StorageApps
     owner, id = storage_decrypt_channel_id(channel_id)
     row = @table.where(id: id).exclude(state: 'deleted').first
     raise NotFound, "channel `#{channel_id}` not found" unless row
+
+    # For some apps, if it was created by a signed out user, we don't want anyone
+    # else to be able to access it (for privacy reasons)
+    anonymous_age_restricted_apps = ['applab', 'gamelab', 'weblab']
+    if owner != @storage_id && !user_id_for_storage_id(owner)
+      begin
+        # row[:projectType] isn't set for channels associated with levels (vs. standalone
+        # projects), so we crack open the JSON blob instead
+        project_type = JSON.parse(row[:value])['projectType']
+      rescue JSON::ParserError
+        nil
+      end
+      raise NotFound, "channel `#{channel_id}` not shareable" if anonymous_age_restricted_apps.include? project_type
+    end
 
     StorageApps.merged_row_value(row, channel_id: channel_id, is_owner: owner == @storage_id)
   end

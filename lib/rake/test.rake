@@ -20,7 +20,7 @@ namespace :test do
   task :regular_ui do
     Dir.chdir(dashboard_dir('test/ui')) do
       ChatClient.log 'Running <b>dashboard</b> UI tests...'
-      failed_browser_count = RakeUtils.system_with_chat_logging 'bundle', 'exec', './runner.rb', '-d', 'test-studio.code.org', '--parallel', '120', '--magic_retry', '--with-status-page', '--fail_fast'
+      failed_browser_count = RakeUtils.system_with_chat_logging 'bundle', 'exec', './runner.rb', '-d', CDO.site_host('studio.code.org'), '-p', CDO.site_host('code.org'), '--parallel', '120', '--magic_retry', '--with-status-page', '--fail_fast'
       if failed_browser_count == 0
         message = '┬──┬ ﻿ノ( ゜-゜ノ) UI tests for <b>dashboard</b> succeeded.'
         ChatClient.log message
@@ -37,7 +37,7 @@ namespace :test do
     Dir.chdir(dashboard_dir('test/ui')) do
       ChatClient.log 'Running <b>dashboard</b> UI visual tests...'
       eyes_features = `find features/ -name "*.feature" | xargs grep -lr '@eyes'`.split("\n")
-      failed_browser_count = RakeUtils.system_with_chat_logging 'bundle', 'exec', './runner.rb', '-c', 'ChromeLatestWin7,iPhone', '-d', 'test-studio.code.org', '--eyes', '--with-status-page', '-f', eyes_features.join(","), '--parallel', (eyes_features.count * 2).to_s
+      failed_browser_count = RakeUtils.system_with_chat_logging 'bundle', 'exec', './runner.rb', '-c', 'ChromeLatestWin7,iPhone', '-d', CDO.site_host('studio.code.org'), '-p', CDO.site_host('code.org'), '--eyes', '--retry_count', '1', '--with-status-page', '-f', eyes_features.join(","), '--parallel', (eyes_features.count * 2).to_s
       if failed_browser_count == 0
         message = '⊙‿⊙ Eyes tests for <b>dashboard</b> succeeded, no changes detected.'
         ChatClient.log message
@@ -55,13 +55,13 @@ namespace :test do
 
   task :ui_test_flakiness do
     Dir.chdir(deploy_dir) do
-      flakiness_output = `./bin/test_flakiness 5`
+      flakiness_output = `./bin/test_flakiness -n 5`
       ChatClient.log "Flakiest tests: <br/><pre>#{flakiness_output}</pre>"
     end
   end
 
   task :wait_for_test_server do
-    RakeUtils.wait_for_url 'https://test-studio.code.org'
+    RakeUtils.wait_for_url CDO.studio_url('', CDO.default_scheme)
   end
 
   task ui_live: [
@@ -144,7 +144,12 @@ namespace :test do
           require 'parallel_tests'
           procs = ParallelTests.determine_number_of_processes(nil)
           CDO.log.info "Test data modified, cloning across #{procs} databases..."
-          pipes = Array.new(procs) {|i| ">(mysql -u#{writer.user} dashboard_test#{i + 1})"}.join(' ')
+          databases = procs.times.map {|i| "dashboard_test#{i + 1}"}
+          databases.each do |db|
+            recreate_db = "DROP DATABASE IF EXISTS #{db}; CREATE DATABASE IF NOT EXISTS #{db};"
+            RakeUtils.system_stream_output "echo '#{recreate_db}' | mysql -u#{writer.user}"
+          end
+          pipes = databases.map {|db| ">(mysql -u#{writer.user} #{db})"}.join(' ')
           RakeUtils.system_stream_output "/bin/bash -c 'tee <#{seed_file.path} #{pipes} >/dev/null'"
         end
 
@@ -194,14 +199,34 @@ namespace :test do
 
     desc 'Runs dashboard tests if dashboard might have changed from staging.'
     task :dashboard do
-      run_tests_if_changed('dashboard', ['Gemfile', 'deployment.rb', 'dashboard/**/*', 'lib/**/*', 'shared/**/*'], ignore: ['dashboard/test/ui/**/*']) do
+      run_tests_if_changed(
+        'dashboard',
+        [
+          'Gemfile',
+          'deployment.rb',
+          'dashboard/**/*',
+          'lib/**/*',
+          'shared/**/*'
+        ],
+        ignore: ['dashboard/test/ui/**/*']
+      ) do
         TestRunUtils.run_dashboard_tests
       end
     end
 
     desc 'Runs pegasus tests if pegasus might have changed from staging.'
     task :pegasus do
-      run_tests_if_changed('pegasus', ['Gemfile', 'deployment.rb', 'pegasus/**/*', 'lib/**/*', 'shared/**/*']) do
+      run_tests_if_changed(
+        'pegasus',
+        [
+          'Gemfile',
+          'deployment.rb',
+          'pegasus/**/*',
+          'lib/**/*',
+          'shared/**/*',
+          'dashboard/db/schema.rb'
+        ]
+      ) do
         TestRunUtils.run_pegasus_tests
       end
     end

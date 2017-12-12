@@ -3,9 +3,9 @@
 
 import React, {PropTypes} from 'react';
 import shapes from './shapes';
-import { getTagString, getTutorialDetailString } from './util';
+import { getTagString, getTutorialDetailString, DoNotShow } from './util';
 import Image from './image';
-import i18n from './locale';
+import i18n from '@cdo/tutorialExplorer/locale';
 /* global ga */
 
 const styles = {
@@ -111,7 +111,8 @@ const TutorialDetail = React.createClass({
     closeClicked: PropTypes.func.isRequired,
     changeTutorial: PropTypes.func.isRequired,
     localeEnglish: PropTypes.bool.isRequired,
-    disabledTutorial: PropTypes.bool.isRequired
+    disabledTutorial: PropTypes.bool.isRequired,
+    grade: PropTypes.string.isRequired
   },
 
   componentDidMount() {
@@ -138,6 +139,7 @@ const TutorialDetail = React.createClass({
 
   startTutorialClicked(shortCode) {
     ga('send', 'event', 'learn', 'start', shortCode);
+    ga('send', 'event', 'learn', `start-${this.props.grade}`, shortCode);
   },
 
   render() {
@@ -153,14 +155,13 @@ const TutorialDetail = React.createClass({
     const tableEntries = [
       // Reserve key 0 for the optional teachers notes.
       // Reserve key 1 for the optional short link.
-      {key: 2, title: i18n.filterTeacherExperience(), body: getTagString("teacher_experience", this.props.item.tags_teacher_experience)},
-      {key: 3, title: i18n.filterStudentExperience(), body: getTagString("student_experience", this.props.item.tags_student_experience)},
-      {key: 4, title: i18n.filterPlatform(),          body: this.props.item.string_platforms},
-      {key: 5, title: i18n.filterTopics(),            body: getTagString("subject", this.props.item.tags_subject)},
-      {key: 6, title: i18n.filterActivityType(),      body: getTagString("activity_type", this.props.item.tags_activity_type)},
-      {key: 7, title: i18n.filterLength(),            body: getTagString("length", this.props.item.tags_length)},
-      {key: 8, title: i18n.tutorialDetailInternationalLanguages(), body: this.props.item.language},
-      // Reserve key 9 for the optional standards.
+      {key: 2, title: i18n.filterStudentExperience(), body: getTagString("student_experience", this.props.item.tags_student_experience)},
+      {key: 3, title: i18n.filterPlatform(),          body: this.props.item.string_platforms},
+      {key: 4, title: i18n.filterTopics(),            body: getTagString("subject", this.props.item.tags_subject)},
+      {key: 5, title: i18n.filterActivityType(),      body: getTagString("activity_type", this.props.item.tags_activity_type)},
+      {key: 6, title: i18n.filterLength(),            body: getTagString("length", this.props.item.tags_length)},
+      {key: 7, title: i18n.tutorialDetailInternationalLanguages(), body: this.props.item.language},
+      // Reserve key 8 for the optional standards.
     ];
 
     const imageSrc = this.props.item.image.replace("/images/", "/images/fill-480x360/").replace(".png", ".jpg");
@@ -232,7 +233,7 @@ const TutorialDetail = React.createClass({
                   <div style={styles.tutorialDetailName}>
                     {this.props.item.name}
                   </div>
-                  {this.props.item.orgname !== "do-not-show" &&
+                  {this.props.item.orgname !== DoNotShow &&
                     <div style={styles.tutorialDetailPublisher}>
                       {this.props.item.orgname}
                     </div>}
@@ -255,7 +256,7 @@ const TutorialDetail = React.createClass({
                       target="_blank"
                       onClick={this.startTutorialClicked.bind(this, this.props.item.short_code)}
                     >
-                      <button style={{marginTop: 20}}>Start</button>
+                      <button style={{marginTop: 20}}>{i18n.startButton()}</button>
                     </a>
                   )}
                 </div>
@@ -300,7 +301,7 @@ const TutorialDetail = React.createClass({
                       </tr>
                     )}
                     {this.props.localeEnglish && this.props.item.string_standards && (
-                      <tr key={9}>
+                      <tr key={8}>
                         <td style={styles.tutorialDetailsTableTitle}>
                           {i18n.tutorialDetailStandards()}
                         </td>

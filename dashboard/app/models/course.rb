@@ -54,7 +54,8 @@ class Course < ApplicationRecord
     hash = JSON.parse(serialization)
     course = Course.find_or_create_by!(name: hash['name'])
     course.update_scripts(hash['script_names'], hash['alternate_scripts'])
-    course.update!(teacher_resources: hash.try(:[], 'properties').try(:[], 'teacher_resources'))
+    course.properties = hash['properties']
+    course.save!
   rescue Exception => e
     # print filename for better debugging
     new_e = Exception.new("in course: #{path}: #{e.message}")
@@ -240,25 +241,61 @@ class Course < ApplicationRecord
   # @param user [User]
   # @return [Array<Script>]
   def scripts_for_user(user)
-    return default_scripts unless user && Course.has_any_course_experiments?(user)
     default_course_scripts.map do |cs|
       select_course_script(user, cs).script
     end
   end
 
-  # Return the first alternate course script with a default script matching
-  # default_course_script, and for which the user has the corresponding
-  # experiment enabled, if one exists. Otherwise return the default course
-  # script.
-  # @param user [User]
+  # Return an alternate course script associated with the specified default
+  # course script (or the default course script itself) by evaluating these
+  # rules in order:
+  #
+  # 1. If the user is a teacher, and they have a course experiment enabled,
+  # show the corresponding alternate course script.
+  #
+  # 2. If the user is in a section assigned to this course: show an alternate
+  # course script if any section's teacher is in a corresponding course
+  # experiment, otherwise show the default course script.
+  #
+  # 3. If the user is a student and has progress in an alternate course script,
+  # show the alternate course script.
+  #
+  # 4. Otherwise, show the default course script.
+  #
+  # @param user [User|nil]
   # @param default_course_script [CourseScript]
   # @return [CourseScript]
   def select_course_script(user, default_course_script)
+    return default_course_script unless user
+
     alternates = alternate_course_scripts.where(default_script: default_course_script.script).all
-    alternate_course_script = alternates.find do |cs|
-      SingleUserExperiment.enabled?(user: user, experiment_name: cs.experiment_name)
+
+    if user.teacher?
+      alternates.each do |cs|
+        return cs if SingleUserExperiment.enabled?(user: user, experiment_name: cs.experiment_name)
+      end
     end
-    alternate_course_script || default_course_script
+
+    course_sections = user.sections_as_student.where(course: self)
+    unless course_sections.empty?
+      alternates.each do |cs|
+        course_sections.each do |section|
+          return cs if SingleUserExperiment.enabled?(user: section.teacher, experiment_name: cs.experiment_name)
+        end
+      end
+      return default_course_script
+    end
+
+    if user.student?
+      alternates.each do |cs|
+        # include hidden scripts when iterating over user scripts.
+        user.user_scripts.each do |us|
+          return cs if cs.script == us.script
+        end
+      end
+    end
+
+    default_course_script
   end
 
   @@course_cache = nil

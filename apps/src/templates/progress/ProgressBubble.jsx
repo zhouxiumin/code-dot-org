@@ -39,6 +39,11 @@ const styles = {
     transition: 'background-color .2s ease-out, border-color .2s ease-out, color .2s ease-out',
     marginTop: 3,
     marginBottom: 3,
+    // ReactTooltip sets a zIndex of 999. However, because in some cases for us
+    // the ReactTooltip is inside of a rotated div, it ends up in a different
+    // stacking context, and the zIndex doesn't work. Instead we set it here on
+    // the top component
+    zIndex: 999,
   },
   largeDiamond: {
     width: DIAMOND_DOT_SIZE,
@@ -72,12 +77,12 @@ const styles = {
   },
 };
 
-const ProgressBubble = React.createClass({
-  propTypes: {
+class ProgressBubble extends React.Component {
+  static propTypes = {
     level: levelType.isRequired,
     disabled: PropTypes.bool.isRequired,
     smallBubble: PropTypes.bool,
-  },
+  };
 
   render() {
     const { level, smallBubble } = this.props;
@@ -176,6 +181,6 @@ const ProgressBubble = React.createClass({
 
     return bubble;
   }
-});
+}
 
 export default Radium(ProgressBubble);

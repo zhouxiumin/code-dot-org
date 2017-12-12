@@ -58,7 +58,8 @@ class Craft < Blockly
     :day_night_cycle_time,
     :level_verification_timeout,
     :use_player,
-    :free_play
+    :free_play,
+    :songs
   )
 
   JSON_LEVEL_MAPS = [
@@ -78,7 +79,7 @@ class Craft < Blockly
     bricks: true,
     cactus: true,
     clay: true,
-    clayHardened: true,
+    terracotta: true,
     cobblestone: true,
     deadBush: true,
     dirt: true,
@@ -119,6 +120,12 @@ class Craft < Blockly
     topSnow: true,
     water: true,
     wool: true,
+    wool_orange: true,
+    wool_blue: true,
+    wool_magenta: true,
+    wool_pink: true,
+    wool_red: true,
+    wool_yellow: true,
 
     # House parts
     houseTopA: true,
@@ -232,10 +239,6 @@ class Craft < Blockly
     zombieHurt: true,
     zombieHurt2: true,
   }.freeze
-
-  ALL_BLOCKS_ARRAY = "[\"#{ALL_BLOCKS.keys[1..-1].join('", "')}\"]".freeze
-  ALL_MINIBLOCKS_ARRAY = "[\"#{ALL_MINIBLOCKS.keys[1..-1].join('", "')}\"]".freeze
-  ALL_SOUNDS_ARRAY = "[\"#{ALL_SOUNDS.keys[1..-1].join('", "')}\"]".freeze
 
   KNOWN_TILE_TYPES = {
     ground_plane: ALL_BLOCKS,
@@ -405,6 +408,19 @@ class Craft < Blockly
     [['Up', 0], ['Right', 1], ['Down', 2], ['Left', 3]]
   end
 
+  def self.song_options
+    %w(
+      vignette1
+      vignette2-quiet
+      vignette3
+      vignette4-intro
+      vignette5-shortpiano
+      vignette7-funky-chirps-short
+      vignette8-free-play
+      nether2
+    )
+  end
+
   def self.show_popup_options
     [['Player Select Popup', 'playerSelection'],
      ['House Layout Select Popup', 'houseLayoutSelection']]
@@ -415,7 +431,8 @@ class Craft < Blockly
       ['House wall build level', 'houseWallBuild'],
       ['House building level', 'houseBuild'],
       ['Free play level', 'freeplay'],
-      ['Minecart level', 'minecart']
+      ['Minecart level', 'minecart'],
+      ['Spawn Agent on success level', 'agentSpawn']
     ]
   end
 
@@ -470,6 +487,7 @@ class Craft < Blockly
       place_block_options
       drop_dropdown_options
       play_sound_options
+      songs
     ).map {|x| x.camelize(:lower)}
   end
 
@@ -580,13 +598,14 @@ class Craft < Blockly
   end
 
   def common_blocks(type)
-    if is_event_level == "true"
-      level_specific_blocks = event_blocks
-    elsif is_agent_level == "true"
-      level_specific_blocks = agent_blocks
-    else
-      level_specific_blocks = adventurer_blocks
-    end
+    level_specific_blocks =
+      if is_event_level == "true"
+        event_blocks
+      elsif is_agent_level == "true"
+        agent_blocks
+      else
+        adventurer_blocks
+      end
 
     <<-XML.chomp
 #{level_specific_blocks}

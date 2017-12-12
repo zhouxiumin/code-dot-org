@@ -1,7 +1,8 @@
-import React, {PropTypes} from 'react';
+import React, {PropTypes, Component} from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import HeaderBanner from '../HeaderBanner';
+import {SpecialAnnouncementActionBlock} from './TwoColumnActionBlock';
 import Notification from '../Notification';
 import RecentCourses from './RecentCourses';
 import TeacherSections from './TeacherSections';
@@ -11,6 +12,7 @@ import ProjectWidgetWithData from '@cdo/apps/templates/projects/ProjectWidgetWit
 import shapes from './shapes';
 import ProtectedStatefulDiv from '../ProtectedStatefulDiv';
 import i18n from "@cdo/locale";
+import {pegasus} from '@cdo/apps/lib/util/urlHelpers';
 
 const styles = {
   clear: {
@@ -19,7 +21,7 @@ const styles = {
   }
 };
 
-export default class TeacherHomepage extends React.Component {
+export default class TeacherHomepage extends Component {
   static propTypes = {
     joinedSections: shapes.sections,
     courses: shapes.courses,
@@ -27,6 +29,9 @@ export default class TeacherHomepage extends React.Component {
     announcements: PropTypes.array.isRequired,
     isRtl: PropTypes.bool.isRequired,
     queryStringOpen: PropTypes.string,
+    canViewAdvancedTools: PropTypes.bool,
+    hocLaunch: PropTypes.object,
+    isEnglish: PropTypes.bool.isRequired
   };
 
   componentDidMount() {
@@ -37,6 +42,7 @@ export default class TeacherHomepage extends React.Component {
 
   render() {
     const { courses, topCourse, announcements, isRtl, queryStringOpen, joinedSections } = this.props;
+    const { canViewAdvancedTools, hocLaunch, isEnglish } = this.props;
 
     return (
       <div>
@@ -50,10 +56,80 @@ export default class TeacherHomepage extends React.Component {
         <ProtectedStatefulDiv
           ref="termsReminder"
         />
-        {announcements.length > 0 && (
+        {hocLaunch &&
+         hocLaunch.special_announcement &&
+         (hocLaunch.special_announcement === "mc2017" ||
+          (hocLaunch.special_announcement === "applab2017" && !isEnglish) ||
+          (hocLaunch.special_announcement === "celebs2017" && !isEnglish)) && (
+          <SpecialAnnouncementActionBlock
+            isRtl={isRtl}
+            imageUrl={pegasus('/images/mc/fill-540x289/special-announcement-hoc2017.jpg')}
+            heading={i18n.specialAnnouncementHeading()}
+            subHeading={""}
+            description={i18n.specialAnnouncementDescription()}
+            buttons={[
+              {url: 'https://hourofcode.com/#join', text: i18n.joinUs()},
+              {url: pegasus('/minecraft'), text: i18n.tryIt()}
+            ]}
+          />
+        )}
+
+        {hocLaunch &&
+         hocLaunch.special_announcement &&
+         hocLaunch.special_announcement === "applab2017" &&
+         isEnglish && (
+          <SpecialAnnouncementActionBlock
+            isRtl={isRtl}
+            imageUrl={pegasus('/images/fill-540x289/special-announcements/applab_hoc2017.jpg')}
+            heading={i18n.specialAnnouncementHeadingAppLab()}
+            subHeading={""}
+            description={i18n.specialAnnouncementDescriptionAppLab()}
+            buttons={[
+              {url: 'https://hourofcode.com/#join', text: i18n.joinUs()},
+              {url: pegasus('/learn'), text: i18n.tryIt()}
+            ]}
+          />
+        )}
+
+        {hocLaunch &&
+         hocLaunch.special_announcement &&
+         hocLaunch.special_announcement === "celebs2017" &&
+         isEnglish && (
+          <SpecialAnnouncementActionBlock
+            isRtl={isRtl}
+            imageUrl={pegasus('/images/fill-540x289/special-announcements/celebs_hoc2017.jpg')}
+            heading={i18n.specialAnnouncementHeading()}
+            subHeading={""}
+            description={i18n.specialAnnouncementDescriptionCelebs()}
+            buttons={[
+              {url: pegasus('/challenge'), text: i18n.celebrityChallenge()},
+              {url: pegasus('/learn'), text: i18n.tryHOC()}
+            ]}
+          />
+        )}
+
+        {hocLaunch &&
+         hocLaunch.special_announcement &&
+         hocLaunch.special_announcement === "celebs2017actualhoc" &&
+         isEnglish && (
+          <SpecialAnnouncementActionBlock
+            isRtl={isRtl}
+            imageUrl={pegasus('/images/fill-540x289/special-announcements/celebs_hoc2017.jpg')}
+            heading={i18n.specialAnnouncementHeadingCelebs()}
+            subHeading={""}
+            description={i18n.specialAnnouncementDescriptionCelebs()}
+            buttons={[
+              {url: pegasus('/challenge'), text: i18n.celebrityChallenge()},
+              {url: pegasus('/learn'), text: i18n.tryHOC()}
+            ]}
+          />
+        )}
+
+        {announcements.length > 0 &&
+         !(hocLaunch && hocLaunch.hide_teacher_announcement) && (
           <div>
             <Notification
-              type="bullhorn"
+              type={announcements[0].type || "bullhorn"}
               notice={announcements[0].heading}
               details={announcements[0].description}
               dismissible={false}
@@ -66,6 +142,7 @@ export default class TeacherHomepage extends React.Component {
             <div style={styles.clear}/>
           </div>
         )}
+
         <TeacherSections
           isRtl={isRtl}
           queryStringOpen={queryStringOpen}
@@ -78,7 +155,11 @@ export default class TeacherHomepage extends React.Component {
           isRtl={isRtl}
         />
         <TeacherResources isRtl={isRtl}/>
-        <ProjectWidgetWithData isRtl={isRtl}/>
+        <ProjectWidgetWithData
+          isRtl={isRtl}
+          canViewFullList={true}
+          canViewAdvancedTools={canViewAdvancedTools}
+        />
         <StudentSections
           initialSections={joinedSections}
           canLeave={true}

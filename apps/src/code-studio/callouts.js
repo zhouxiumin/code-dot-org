@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import 'qtip2';
 var clientState = require('./clientState');
 
 /**
@@ -68,7 +69,6 @@ export default function createCallouts(callouts) {
   });
 
 
-  $.fn.qtip.zindex = 500;
   addCallouts(callouts);
 
   // Insert a hashchange handler to detect triggercallout= hashes and fire
@@ -96,6 +96,8 @@ export default function createCallouts(callouts) {
 }
 
 export function addCallouts(callouts) {
+  $.fn.qtip.zindex = 500;
+
   var showCalloutsMode = document.URL.indexOf('show_callouts=1') !== -1;
   callouts.forEach(function (callout) {
     var selector = callout.element_id; // jquery selector.

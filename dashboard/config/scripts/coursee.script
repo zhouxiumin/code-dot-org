@@ -1,5 +1,7 @@
 hidden false
 stage_extras_available true
+project_widget_visible true
+project_widget_types ["playlab", "artist"]
 
 stage 'Programming: My Robotic Friends', flex_category: 'csf_e_1'
 level 'courseB_unplugged_MRF'
@@ -146,7 +148,7 @@ variants
   level 'courseE_farmer_predict1', active: false
 endvariants
 variants
-  level 'courseE_farmer_ramp12'
+  level 'courseE_farmer_ramp12_forswap'
   level 'courseE_video_ifElse', active: false
 endvariants
 variants
@@ -165,24 +167,17 @@ variants
   level 'courseE_farmer_ramp12e'
   level 'courseE_farmer_predict2', active: false
 endvariants
-variants
-  level 'courseE_video_BeeifElse'
-  level 'courseD_video_repeatUntil', active: false
-endvariants
+level 'courseE_video_BeeifElse'
 variants
   level 'courseE_farmer_ramp12f'
   level 'courseE_farmer_ramp15', active: false
 endvariants
-variants
-  level 'courseE_farmer_ramp12g'
-  level 'courseE_farmer_ramp15', active: false
-endvariants
+level 'courseE_farmer_ramp12g'
 
 stage 'Private and Personal Information', flex_category: 'csf_e_2'
 level 'courseE_unplugged_privateInformation'
 
 stage 'Build a Star Wars Game', flex_category: 'csf_e_2'
-level 'elementary_video_pairProgramming'
 skin 'hoc2015'
 level 'blockly:Studio:hoc2015_blockly_7_no_video'
 skin 'hoc2015'
@@ -249,7 +244,7 @@ level 'courseE_farmer_functions3c'
 level 'courseE_farmer_functions4b'
 level 'courseE_farmer_functions5c'
 level 'courseE_farmer_functions6c'
-level 'courseE_video_createFunctions'
+level 'courseE_video_createFunctions2'
 level 'courseE_farmer_functions7b'
 level 'courseE_farmer_functions8b', challenge: true
 level 'courseE_farmer_functions9b'
