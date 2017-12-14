@@ -107,11 +107,7 @@ module Pd::Application
     end
 
     def update_accepted_date
-      if status == 'accepted'
-        self.accepted_at = Time.now
-      else
-        self.accepted_at = nil
-      end
+      self.accepted_at = status == 'accepted' ? Time.now : nil
     end
 
     self.table_name = 'pd_applications'

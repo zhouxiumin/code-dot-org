@@ -273,7 +273,7 @@ module Api::V1::Pd
 
       assert_equal(
         {
-          date_accepted: 'Not implemented yet',
+          accepted_at: application.accepted_at,
           applicant_name: 'Minerva McGonagall',
           district_name: 'A School District',
           school_name: 'Hogwarts',

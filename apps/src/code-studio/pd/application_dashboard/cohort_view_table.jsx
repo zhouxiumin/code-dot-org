@@ -15,13 +15,13 @@ export default class CohortViewTable extends React.Component {
   constructColumns() {
     return [
       {
-        property: 'date_accepted',
+        property: 'accepted_at',
         header: {
           label: 'Date Accepted'
         },
         cell: {
-          format: (date_accepted) => {
-            return new Date(date_accepted).toLocaleDateString('en-us', {month: 'long', day: 'numeric'});
+          format: (accepted_at) => {
+            return new Date(accepted_at).toLocaleDateString('en-us', {month: 'long', day: 'numeric'});
           }
         }
       }, {
