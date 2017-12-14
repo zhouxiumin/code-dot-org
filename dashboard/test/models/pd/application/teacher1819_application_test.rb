@@ -349,5 +349,29 @@ module Pd::Application
         application.send_decision_notification_email
       end
     end
+
+    test 'accepted_at updates times' do
+      date_1 = Time.now
+      date_2 = Time.now + 1.day
+
+      Timecop.freeze(date_1) do
+        application = create :pd_teacher1819_application
+        assert_nil application.accepted_at
+
+        application.update(status: 'accepted')
+        application.reload
+        assert_equal date_1, application.accepted_at
+
+        application.update(status: 'rejected')
+        application.reload
+        assert_nil application.accepted_at
+      end
+
+      Timecop.freeze(date_2) do
+        application.update(status: 'accepted')
+        application.reload
+        assert_equal date_2, application.accepted_at
+      end
+    end
   end
 end
