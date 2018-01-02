@@ -50,7 +50,6 @@ group :development do
   gem 'annotate'
   gem 'rack-mini-profiler'
   gem 'ruby-progressbar', require: false
-  gem 'thin'
   gem 'web-console'
 end
 
@@ -61,6 +60,7 @@ gem 'rack-cache'
 group :development, :test do
   gem 'rerun', '~> 0.10.0'
   gem 'shotgun'
+  gem 'thin'
   # Use debugger
   #gem 'debugger' unless ENV['RM_INFO']
 
