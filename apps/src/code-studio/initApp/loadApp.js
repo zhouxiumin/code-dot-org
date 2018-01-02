@@ -279,7 +279,7 @@ function tryToUploadShareImageToS3({image, level}) {
 function loadProjectAndCheckAbuse(appOptions) {
   return new Promise((resolve, reject) => {
     project.load().then(() => {
-      if (project.hideBecauseAbusive() && !appOptions.canResetAbuse) {
+      if (project.hideBecauseAbusive()) {
         renderAbusive(window.dashboard.i18n.t('project.abuse.tos'));
         return;
       }
@@ -480,8 +480,12 @@ let APP_OPTIONS;
 export function setAppOptions(appOptions) {
   APP_OPTIONS = appOptions;
   // ugh, a lot of code expects this to be on the window object pretty early on.
-  /** @type {AppOptionsConfig} */
-  window.appOptions = appOptions;
+  // Don't override existing settings, for example on Multi levels with embedded
+  // blocks.
+  if (!appOptions.nonGlobal) {
+    /** @type {AppOptionsConfig} */
+    window.appOptions = appOptions;
+  }
 }
 
 /** @return {AppOptionsConfig} */

@@ -8,6 +8,7 @@ import applicationDashboardReducers, {
   setRegionalPartnerName,
   setRegionalPartners,
   setWorkshopAdminPermission,
+  setLockApplicationPermission,
 } from './reducers';
 import Header from '../components/header';
 import {
@@ -20,6 +21,7 @@ import {createHistory} from 'history';
 import Summary from './summary';
 import QuickView from './quick_view';
 import DetailView from './detail_view';
+import CohortView from './cohort_view';
 import _ from 'lodash';
 
 const ROOT_PATH = '/pd/application_dashboard';
@@ -47,7 +49,8 @@ export default class ApplicationDashboard extends React.Component {
   static propTypes = {
     regionalPartnerName: PropTypes.string,
     regionalPartners: PropTypes.array,
-    isWorkshopAdmin: PropTypes.bool
+    isWorkshopAdmin: PropTypes.bool,
+    canLockApplications: PropTypes.bool,
   };
 
   componentWillMount() {
@@ -61,6 +64,10 @@ export default class ApplicationDashboard extends React.Component {
 
     if (this.props.isWorkshopAdmin) {
       store.dispatch(setWorkshopAdminPermission(true));
+    }
+
+    if (this.props.canLockApplications) {
+      store.dispatch(setLockApplicationPermission(true));
     }
   }
 
@@ -77,6 +84,7 @@ export default class ApplicationDashboard extends React.Component {
             />
             {
               _.flatten(Object.keys(paths).map((path, i) => {
+                const cohort_path_name = paths[path].name.replace('Applications', 'Cohort');
                 return [
                   (
                     <Route
@@ -98,6 +106,15 @@ export default class ApplicationDashboard extends React.Component {
                       component={QuickView}
                       applicationType={paths[path].name}
                       viewType={paths[path].type}
+                    />
+                  ),
+                  (
+                    <Route
+                      key={`cohort_view_${i}`}
+                      path={`${path}_cohort`}
+                      breadcrumbs={cohort_path_name}
+                      component={CohortView}
+                      applicationType={cohort_path_name}
                     />
                   )
                 ];
