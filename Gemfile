@@ -201,7 +201,7 @@ gem 'petit', github: 'code-dot-org/petit'  # For URL shortening
 
 # JSON model serializer for REST APIs.
 gem 'active_model_serializers', github: 'rails-api/active_model_serializers', ref: '2962f3f64e7c672bfb5a13a8f739b5db073e5473'
-gem 'aws-sdk', '~> 2'
+gem 'aws-sdk', '~> 3'
 
 # Lint tools
 group :development, :staging do
