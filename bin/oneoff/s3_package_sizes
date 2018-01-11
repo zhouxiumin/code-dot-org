@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+# Read build-packages from S3 location,
+# recording the file-sizes over time for the specified files.
+
+filenames = %w(
+  js/common.js
+  js/essential.js
+  js/code-studio-common.js
+  js/code-studio.js
+)
+
+require_relative '../../deployment'
+require 'aws-sdk'
+s3 = Aws::S3::Client.new
+objects = []
+bucket = 'cdo-build-package'
+s3.list_objects_v2(bucket: bucket, prefix: 'apps/').each do |page|
+  page.contents.each do |object|
+    next if object.size.zero?
+    objects << {
+      last_modified: object.last_modified,
+      size: object.size,
+      key: object.key
+    }
+  end
+end
+puts "Total: #{objects.length}"
+
+require 'parallel'
+require 'rubygems/package'
+require 'zlib'
+
+results = Parallel.map(objects) do |object|
+  body = s3.get_object(bucket: bucket, key: object[:key]).body
+  gzip = Zlib::GzipReader.new(body)
+  tar = Gem::Package::TarReader.new(gzip)
+  file_sizes = filenames.map do |filename|
+    size = 0
+    tar.seek(filename) {|entry| size = entry.header.size}
+    [filename, size]
+  end.to_h
+  file_sizes[:date] = object[:last_modified]
+  print '.'
+  file_sizes
+end
+
+require 'csv'
+csv = CSV::Table.new([]).push(*results.map {|x| CSV::Row.new([], []) << x}).to_csv
+File.write('/tmp/s3_package_sizes.csv', csv)
+system('gnuplot', File.join(__dir__, 's3_package_sizes.gnuplot'))
