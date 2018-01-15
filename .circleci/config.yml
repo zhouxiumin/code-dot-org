@@ -10,7 +10,7 @@ jobs:
   build:
     # parallelism: 4
     docker:
-      - image: wjordan/code-dot-org:trusty
+      - image: wjordan/code-dot-org:v3
         environment:
           RAILS_ENV: test
           RACK_ENV: test
