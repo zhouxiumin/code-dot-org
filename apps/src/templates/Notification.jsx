@@ -26,6 +26,7 @@ const styles = {
     marginBottom: 20,
     display: 'flex',
     flexFlow: 'wrap',
+    maxWidth: 970,
   },
   notice: {
     fontFamily: '"Gotham 4r", sans-serif',
