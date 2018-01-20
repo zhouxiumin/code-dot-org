@@ -13,16 +13,16 @@ export default class CohortViewTable extends React.Component {
     data: PropTypes.array.isRequired,
     path: PropTypes.string.isRequired,
     viewType: PropTypes.oneOf(['facilitator', 'teacher']).isRequired
-  }
+  };
 
   static contextTypes = {
     router: PropTypes.object
-  }
+  };
 
   constructColumns() {
     let columns = [
       {
-        property: 'accepted_at',
+        property: 'date_accepted',
         header: {
           label: 'Date Accepted'
         }
@@ -45,11 +45,6 @@ export default class CohortViewTable extends React.Component {
         property: 'email',
         header: {
           label: 'Email'
-        }
-      }, {
-        property: 'notified',
-        header: {
-          label: 'Notified'
         }
       }
     ];

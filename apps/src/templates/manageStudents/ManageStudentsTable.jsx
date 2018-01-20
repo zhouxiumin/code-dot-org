@@ -7,28 +7,24 @@ import ShowSecret from './ShowSecret';
 import {SectionLoginType} from '@cdo/apps/util/sharedConstants';
 import i18n from "@cdo/locale";
 import {tableLayoutStyles, sortableOptions} from "../tables/tableConstants";
-import QuickActionsCell from "../tables/QuickActionsCell";
-import PopUpMenu, {MenuBreak} from "@cdo/apps/lib/ui/PopUpMenu";
-import color from "../../util/color";
-import FontAwesome from '../FontAwesome';
+import ManageStudentsNameCell from './ManageStudentsNameCell';
+import ManageStudentsAgeCell from './ManageStudentsAgeCell';
+import ManageStudentsGenderCell from './ManageStudentsGenderCell';
+import ManageStudentsActionsCell from './ManageStudentsActionsCell';
+import {convertStudentDataToArray} from './manageStudentsRedux';
+import { connect } from 'react-redux';
 
 export const studentSectionDataPropType = PropTypes.shape({
   id: PropTypes.number.isRequired,
   name: PropTypes.string,
   username: PropTypes.string,
-  userType: PropTypes.string,
   age: PropTypes.number,
   gender: PropTypes.string,
   secretWords: PropTypes.string,
-  secretPictureName: PropTypes.string,
   secretPicturePath: PropTypes.string,
   sectionId: PropTypes.number,
+  loginType: PropTypes.string,
 });
-
-const GENDERS = {
-  m: i18n.genderMale(),
-  f: i18n.genderFemale()
-};
 
 /** @enum {number} */
 export const COLUMNS = {
@@ -39,52 +35,66 @@ export const COLUMNS = {
   ACTIONS: 4,
 };
 
-const styles = {
-  xIcon: {
-    paddingRight: 5,
-  }
-};
-
 // Cell formatters.
 const nameFormatter = (name, {rowData}) => {
-  const url = `/teacher-dashboard#/sections/${rowData.sectionId}/student/${rowData.id}`;
-  return (<div>
-    <a style={tableLayoutStyles.link} href={url} target="_blank">{name}</a>
-    {rowData.loginType === SectionLoginType.email &&
-      <p>{i18n.usernameLabel() + rowData.username}</p>
-    }
-  </div>);
+  return (
+    <ManageStudentsNameCell
+      id={rowData.id}
+      sectionId={rowData.sectionId}
+      name={name}
+      loginType={rowData.loginType}
+      username={rowData.username}
+      isEditing={rowData.isEditing}
+    />
+  );
 };
 
 const ageFormatter = (age, {rowData}) => {
-  return (<div>
-    {age}
-  </div>);
+  return (
+    <ManageStudentsAgeCell
+      age={age}
+      id={rowData.id}
+      isEditing={rowData.isEditing}
+    />
+  );
 };
 
 const genderFormatter = (gender, {rowData}) => {
-  return (<div>
-    {GENDERS[gender]}
-  </div>);
+  return (
+    <ManageStudentsGenderCell
+      gender={gender}
+      id={rowData.id}
+      isEditing={rowData.isEditing}
+    />
+  );
 };
 
 const passwordFormatter = (loginType, {rowData}) => {
   return (
     <div>
-      {rowData.loginType === SectionLoginType.email &&
-        <PasswordReset
-          resetAction={()=>{}}
-          initialIsResetting={false}
-        />
+      {!rowData.isEditing &&
+        <div>
+          {rowData.loginType === SectionLoginType.email &&
+            <PasswordReset
+              resetAction={()=>{}}
+              initialIsResetting={false}
+            />
+          }
+          {(rowData.loginType === SectionLoginType.word || rowData.loginType === SectionLoginType.picture) &&
+            <ShowSecret
+              resetSecret={()=>{}}
+              initialIsShowing={false}
+              secretWord={rowData.secretWords}
+              secretPicture={rowData.secretPicturePath}
+              loginType={rowData.loginType}
+            />
+          }
+        </div>
       }
-      {(rowData.loginType === SectionLoginType.word || rowData.loginType === SectionLoginType.picture) &&
-        <ShowSecret
-          resetSecret={()=>{}}
-          initialIsShowing={false}
-          secretWord={rowData.secretWords}
-          secretPicture={rowData.secretPicturePath}
-          loginType={rowData.loginType}
-        />
+      {rowData.isEditing &&
+        <div>
+          Auto-generated
+        </div>
       }
     </div>
   );
@@ -92,26 +102,17 @@ const passwordFormatter = (loginType, {rowData}) => {
 
 const actionsFormatter = function (actions, {rowData}) {
   return (
-    <QuickActionsCell>
-      <PopUpMenu.Item
-        onClick={() => {}}
-      >
-        {"Edit"}
-      </PopUpMenu.Item>
-      <MenuBreak/>
-      <PopUpMenu.Item
-        onClick={()=>{}}
-        color={color.red}
-      >
-        <FontAwesome icon=" fa-times-circle" style={styles.xIcon}/>
-        {"Remove student"}
-      </PopUpMenu.Item>
-    </QuickActionsCell>
+    <ManageStudentsActionsCell
+      id={rowData.id}
+      sectionId={rowData.sectionId}
+      isEditing={rowData.isEditing}
+    />
   );
 };
 
 class ManageStudentsTable extends Component {
   static propTypes = {
+    // Provided by redux
     studentData: PropTypes.arrayOf(studentSectionDataPropType),
     loginType: PropTypes.string,
   };
@@ -154,6 +155,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.headerCell,
+            width: 300
           }},
           transforms: [sortable],
         },
@@ -162,6 +164,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.cell,
+            width: 300
           }}
         }
       },
@@ -172,6 +175,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.headerCell,
+            width: 100,
           }},
           transforms: [sortable],
         },
@@ -180,6 +184,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.cell,
+            width: 100,
           }}
         }
       },
@@ -190,6 +195,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.headerCell,
+            width: 150,
           }},
           transforms: [sortable],
         },
@@ -198,6 +204,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.cell,
+            width: 150,
           }}
         }
       },
@@ -211,6 +218,7 @@ class ManageStudentsTable extends Component {
             style: {
             ...tableLayoutStyles.headerCell,
             ...tableLayoutStyles.unsortableHeader,
+            width: 200,
           }},
         },
         cell: {
@@ -218,6 +226,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.cell,
+            width: 200,
           }}
         }
       },
@@ -229,6 +238,7 @@ class ManageStudentsTable extends Component {
             style: {
             ...tableLayoutStyles.headerCell,
             ...tableLayoutStyles.unsortableHeader,
+            width: 200,
           }},
         },
         cell: {
@@ -236,6 +246,7 @@ class ManageStudentsTable extends Component {
           props: {
             style: {
             ...tableLayoutStyles.cell,
+            width: 200,
           }}
         }
       },
@@ -272,4 +283,9 @@ class ManageStudentsTable extends Component {
   }
 }
 
-export default ManageStudentsTable;
+export const UnconnectedManageStudentsTable = ManageStudentsTable;
+
+export default connect(state => ({
+  loginType: state.manageStudents.loginType,
+  studentData: convertStudentDataToArray(state.manageStudents.studentData),
+}))(ManageStudentsTable);
