@@ -5,8 +5,13 @@ import React from 'react';
 import _ from 'lodash';
 import {expect} from 'chai';
 import {mount} from 'enzyme';
+import sinon from 'sinon';
 
 describe("DetailViewContents", () => {
+  // We aren't testing any of the responses of the workshop selector control, so just
+  // have a fake server to handle calls and suppress warnings
+  sinon.fakeServer.create();
+
   const mountDetailView = (applicationType, overrides = {}) => {
     const defaultApplicationData = {
       regionalPartner: 'partner',
@@ -16,6 +21,7 @@ describe("DetailViewContents", () => {
       district_name: 'District Name',
       email: 'email',
       application_type: applicationType,
+      course_name: 'CS Fundamentals',
       form_data: {
         firstName: 'First Name',
         lastName: 'Last Name',
@@ -27,7 +33,7 @@ describe("DetailViewContents", () => {
         program: 'program',
         abilityToMeetRequirements: '10',
         committed: 'Yes',
-        taughtInPast: 'No'
+        taughtInPast: 'No',
       },
       response_scores: {
         committed: 'Yes'
@@ -74,10 +80,12 @@ describe("DetailViewContents", () => {
   ];
 
   for (const applicationData of expectedTestData) {
+    const responseCount = applicationData.type === "Teacher" ? 3 : 4;
+
     it(`Renders full contents for ${applicationData.type} initially`, () => {
       const detailView = mountDetailView(applicationData.type);
 
-      expect(detailView.find('#TopSection DetailViewResponse')).to.have.length(3);
+      expect(detailView.find('#TopSection DetailViewResponse')).to.have.length(responseCount);
       expect(detailView.find('DetailViewApplicationSpecificQuestions')).to.have.length(1);
       expect(detailView.find('DetailViewApplicationSpecificQuestions h3')).to.have.length(
         applicationData.applicationSpecificQuestions
@@ -88,17 +96,25 @@ describe("DetailViewContents", () => {
     });
 
     describe("Regional Partner Panel", () => {
-      const regionalPartnerPanel = <DetailViewResponse question="Regional Partner" />;
+      let regionalPartnerPanel;
+      before(() => {
+        regionalPartnerPanel = (
+          <DetailViewResponse
+            question="Regional Partner"
+            layout="panel"
+          />
+        );
+      });
 
       it("Does not render for regional partners", () => {
         const regionalPartnerDetailView = mountDetailView(applicationData.type, {isWorkshopAdmin: false});
-        expect(regionalPartnerDetailView.find('#TopSection DetailViewResponse')).to.have.length(3);
+        expect(regionalPartnerDetailView.find('#TopSection DetailViewResponse')).to.have.length(responseCount);
         expect(regionalPartnerDetailView).to.not.containMatchingElement(regionalPartnerPanel);
       });
 
       it("Does render for admins", () => {
         const workshopAdminDetailView = mountDetailView(applicationData.type, {isWorkshopAdmin: true});
-        expect(workshopAdminDetailView.find('#TopSection DetailViewResponse')).to.have.length(4);
+        expect(workshopAdminDetailView.find('#TopSection DetailViewResponse')).to.have.length(responseCount + 1);
         expect(workshopAdminDetailView).to.containMatchingElement(regionalPartnerPanel);
       });
     });
