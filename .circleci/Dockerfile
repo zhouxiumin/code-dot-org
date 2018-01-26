@@ -104,7 +104,9 @@ RUN curl -sSL -o /tmp/mysql-apt-config_0.8.9-1_all.deb https://dev.mysql.com/get
   && DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/mysql-apt-config_0.8.9-1_all.deb || apt-get -fy install \
   && rm -rf /tmp/mysql-apt-config_0.8.9-1_all.deb \
   && apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    mysql-server \
+    libmysqlclient-dev
 
 # install a couple more things from config.yml
 RUN apt-get -y install parallel libmagickwand-dev imagemagick
