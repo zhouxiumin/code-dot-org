@@ -106,8 +106,10 @@ RUN curl -sSL -o /tmp/mysql-apt-config_0.8.9-1_all.deb https://dev.mysql.com/get
   && apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     mysql-server \
-    libmysqlclient-dev \
-  && echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';" | mysql
+    libmysqlclient-dev
+RUN service mysql start \
+  && echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';" | mysql \
+  && service mysql stop
 
 # install a couple more things from config.yml
 RUN apt-get -y install parallel libmagickwand-dev imagemagick
