@@ -45,15 +45,17 @@ export default () => {
     });
 
     $('#feature_project').click(function () {
-      // When the unfeature button is clicked:
+      // When the feature button is clicked:
       // check if there is a FeaturedProject that matches this project
         // if there is a Featured Project:
           // update is_featured to true
           // update featured_at to current date
+          // update who featured
         // if there is NOT a Featured Project:
           // make a new Featured Project
           // is_featured is true
           // featured_at is current time
+          // who featured is the current user
       $.ajax({
         url:'/featured_projects',
         type:'POST',
