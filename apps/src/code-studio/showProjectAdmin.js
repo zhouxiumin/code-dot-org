@@ -26,6 +26,10 @@ export default () => {
   if ($('#feature_project').length && dashboard.project.isProjectLevel()) {
     var deleteUrl = `/featured_projects/${dashboard.project.getCurrentId()}`;
     $('#unfeature_project').click(function () {
+      // When the unfeature button is clicked:
+      // find the FeaturedProject that matches this project
+      // update unfeatured_at to the current date
+      // update is_featured to false
       $.ajax({
         url: deleteUrl,
         type:'DELETE',
@@ -41,6 +45,15 @@ export default () => {
     });
 
     $('#feature_project').click(function () {
+      // When the unfeature button is clicked:
+      // check if there is a FeaturedProject that matches this project
+        // if there is a Featured Project:
+          // update is_featured to true
+          // update featured_at to current date
+        // if there is NOT a Featured Project:
+          // make a new Featured Project
+          // is_featured is true
+          // featured_at is current time
       $.ajax({
         url:'/featured_projects',
         type:'POST',

@@ -77,6 +77,7 @@
         %br/
         - if params[:channel_id]
           - _, channel_id = storage_decrypt_channel_id(params[:channel_id])
+          //TODO: featured should be if it's in the table AND is_featured is true
           - featured = FeaturedProject.exists?(:storage_app_id => channel_id)
           #unfeature_project{'style' => ('display: none;' unless featured)}
             %button{id: "feature", class: "btn btn-default btn-sm"}
