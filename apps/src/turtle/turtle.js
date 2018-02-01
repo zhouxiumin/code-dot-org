@@ -880,7 +880,7 @@ Artist.prototype.reset = function (ignore) {
   } else {
     this.ctxScratch.strokeStyle = '#000000';
     this.ctxScratch.fillStyle = '#000000';
-    this.ctxScratch.lineWidth = 5;
+    this.ctxScratch.lineWidth = 6;
   }
 
   this.ctxScratch.lineCap = 'round';
@@ -1150,7 +1150,7 @@ Artist.prototype.executeTuple_ = function () {
     }
 
     // We only smooth animate for Anna & Elsa, and only if there is not another tuple to be done.
-    var tupleDone = this.step(command, tuple.slice(1), {smoothAnimate: this.skin.smoothAnimate && !executeSecondTuple});
+    var tupleDone = this.step(command, tuple.slice(1), {smoothAnimate: !executeSecondTuple});
     this.display();
 
     if (tupleDone) {

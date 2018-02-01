@@ -87,7 +87,7 @@ exports.load = function (assetUrl, id) {
   var config = CONFIGS[skin.id];
 
   // base skin properties here (can be overriden by CONFIG)
-  skin.speedModifier = 1;
+  skin.speedModifier = 10;
 
   // Get properties from config
   for (var prop in config) {
