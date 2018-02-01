@@ -1,13 +1,14 @@
--- Distinct teacher-student combinations who started CSP in the first half of 2016-17 school year
-drop table if exists #csp_2017_first_half;
-create temp table #csp_2017_first_half as
+-- Distinct teacher-student combinations who started CSP in the first half of 2017-18 school year
+drop table if exists #csp_first_half;
+create temp table #csp_first_half as
 select distinct se.user_id user_id_teacher, ul.user_id user_id_student
 from user_levels ul
 join dashboard_production.users u on u.id = ul.user_id
 left join followers fo on fo.student_user_id = ul.user_id
 left join sections se on se.id = fo.section_id
-where ul.script_id in (122,123,124,125,126,127)
-and ul.created_at between '2016-07-01' and '2016-12-31'
+join scripts sc on sc.id = ul.script_id
+where sc.name in ('csp1','csp2','csp3','csp3-research-mxghyt','csp4','csp5','csp-explore','csp-create')
+and ul.created_at between '2017-08-01' and '2017-12-31' -- moved to august 1st for 2017-18 reporting for consistency with facebook reporting
 and u.user_type = 'student'
 group by 1,2;
 
