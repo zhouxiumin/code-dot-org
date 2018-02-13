@@ -5,6 +5,10 @@
 "@cdo/apps@file:src":
   version "0.0.1"
 
+"@code-dot-org/artist@github:code-dot-org/artist#a9c2cb0a5af2341ca446e9ee00da56228af49d41":
+  version "0.0.1"
+  resolved "https://codeload.github.com/code-dot-org/artist/tar.gz/a9c2cb0a5af2341ca446e9ee00da56228af49d41"
+
 "@code-dot-org/blockly@1.7.0":
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/@code-dot-org/blockly/-/blockly-1.7.0.tgz#e070dd9f23d64f0c35777c20a4d47d0ad4022923"
