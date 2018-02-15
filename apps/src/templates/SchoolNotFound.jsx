@@ -59,6 +59,8 @@ export default class SchoolNotFound extends Component {
     schoolState: PropTypes.string,
     schoolZip: PropTypes.string,
     schoolType: PropTypes.string,
+    schoolLocation: PropTypes.string,
+    controlSchoolLocation: PropTypes.bool,
     fieldNames: PropTypes.object,
     showErrorMsg: PropTypes.bool,
     singleLineLayout: PropTypes.bool,
@@ -71,6 +73,7 @@ export default class SchoolNotFound extends Component {
 
   static defaultProps = {
     showRequiredIndicators: true,
+    controlSchoolLocation: false,
     schoolNameLabel: i18n.schoolName(),
     fieldNames: {
       schoolName: "school_name_s",
@@ -86,7 +89,7 @@ export default class SchoolNotFound extends Component {
 
   handleChange = (field, event) => {
     this.props.onChange(field, event);
-  }
+  };
 
   isNotBlank(value) {
     return value && (value !== '');
@@ -106,7 +109,7 @@ export default class SchoolNotFound extends Component {
     }
 
     if (this.props.useGoogleLocationSearch) {
-      return this.isFieldValid($("#registration-school-location").val());
+      return this.isFieldValid(this.locationSearchRef.value());
     } else {
       return (
         this.isFieldValid(this.props.schoolCity) &&
@@ -174,6 +177,7 @@ export default class SchoolNotFound extends Component {
               <label style={labelStyle}>
                 {this.renderLabel(i18n.schoolType())}
                 <select
+                  id="school_type"
                   name={this.props.fieldNames.schoolType}
                   value={this.props.schoolType}
                   onChange={this.handleChange.bind(this, "schoolType")}
@@ -198,6 +202,7 @@ export default class SchoolNotFound extends Component {
               <label style={labelStyle}>
                 {this.renderLabel(i18n.schoolCity())}
                 <input
+                  id="school_city"
                   type="text"
                   name={this.props.fieldNames.schoolCity}
                   value={this.props.schoolCity}
@@ -212,6 +217,7 @@ export default class SchoolNotFound extends Component {
               <label style={labelStyle}>
                 {this.renderLabel(i18n.schoolState())}
                 <select
+                  id="school_state"
                   name={this.props.fieldNames.schoolState}
                   value={this.props.schoolState}
                   onChange={this.handleChange.bind(this, "schoolState")}
@@ -249,11 +255,12 @@ export default class SchoolNotFound extends Component {
           <div style={fieldStyle}>
             <label style={labelStyle}>
               {this.renderLabel(i18n.schoolCityTown())}
-              <input
-                id="registration-school-location"
-                type="text"
+              <GoogleSchoolLocationSearchField
+                ref={el => this.locationSearchRef = el}
                 name={this.props.fieldNames.googleLocation}
-                placeholder={i18n.schoolLocationSearchPlaceholder()}
+                isControlledInput={this.props.controlSchoolLocation}
+                value={this.props.schoolLocation}
+                onChange={this.handleChange.bind(this, 'schoolLocation')}
                 style={inputStyle}
               />
             </label>
@@ -265,9 +272,53 @@ export default class SchoolNotFound extends Component {
     );
   }
 
-  componentDidMount() {
-    if (this.props.useGoogleLocationSearch) {
-      new google.maps.places.SearchBox(document.getElementById('registration-school-location'));
+}
+
+class GoogleSchoolLocationSearchField extends React.Component {
+  static propTypes = {
+    name: PropTypes.string.isRequired,
+    // If true, this field uses the React controlled input pattern and must
+    // have the value/onChange handlers hooked up to work properly.
+    // If false, is uncontrolled and used only as a submittable <form> element.
+    // @see https://reactpatterns.com/#controlled-input
+    isControlledInput: PropTypes.bool,
+    value: PropTypes.string,
+    onChange: PropTypes.func,
+    style: PropTypes.object,
+  };
+
+  value() {
+    if (this.props.isControlledInput) {
+      return this.props.value;
     }
+    return this.searchBoxRef.value;
+  }
+
+  componentDidMount() {
+    // Docs: https://developers.google.com/maps/documentation/javascript/places-autocomplete#places_searchbox
+    const searchBox = new google.maps.places.SearchBox(this.searchBoxRef);
+    if (this.props.isControlledInput) {
+      searchBox.addListener('places_changed', () => {
+        this.props.onChange({target: this.searchBoxRef});
+      });
+    }
+  }
+
+  render() {
+    const conditionalProps = this.props.isControlledInput ? {
+      value: this.props.value,
+      onChange: this.props.onChange,
+    } : {};
+
+    return (
+      <input
+        ref={el => this.searchBoxRef = el}
+        type="text"
+        name={this.props.name}
+        placeholder={i18n.schoolLocationSearchPlaceholder()}
+        style={this.props.style}
+        {...conditionalProps}
+      />
+    );
   }
 }

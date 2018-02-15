@@ -21,7 +21,9 @@ import {createHistory} from 'history';
 import Summary from './summary';
 import QuickView from './quick_view';
 import DetailView from './detail_view';
+import DetailViewRedirect from './detail_view_redirect';
 import CohortView from './cohort_view';
+import AdminEditView from './admin_edit_view';
 import _ from 'lodash';
 
 const ROOT_PATH = '/pd/application_dashboard';
@@ -38,11 +40,11 @@ const ApplicationDashboardHeader = (props) => (
 );
 
 const paths = {
-  'csf_facilitators': {type: 'facilitator', name: 'CS Fundamentals Facilitator Applications'},
-  'csd_facilitators': {type: 'facilitator', name: 'CS Discoveries Facilitator Applications'},
-  'csp_facilitators': {type: 'facilitator', name: 'CS Principles Facilitator Applications'},
-  'csd_teachers': {type: 'teacher', name: 'CS Discoveries Teacher Applications'},
-  'csp_teachers': {type: 'teacher', name: 'CS Principles Teacher Applications'}
+  'csf_facilitators': {type: 'facilitator', name: 'CS Fundamentals Facilitator Applications', course: 'csf'},
+  'csd_facilitators': {type: 'facilitator', name: 'CS Discoveries Facilitator Applications', course: 'csd'},
+  'csp_facilitators': {type: 'facilitator', name: 'CS Principles Facilitator Applications', course: 'csp'},
+  'csd_teachers': {type: 'teacher', name: 'CS Discoveries Teacher Applications', course: 'csd'},
+  'csp_teachers': {type: 'teacher', name: 'CS Principles Teacher Applications', course: 'csp'}
 };
 
 export default class ApplicationDashboard extends React.Component {
@@ -99,6 +101,7 @@ export default class ApplicationDashboard extends React.Component {
                       ]}
                       component={DetailView}
                       viewType={paths[path].type}
+                      course={paths[path].course}
                     />
                   ),
                   (
@@ -123,6 +126,18 @@ export default class ApplicationDashboard extends React.Component {
                   )
                 ];
               }))
+            }
+            <Route
+              path=":applicationId"
+              breadcrumbs="Application"
+              component={DetailViewRedirect}
+            />
+            {this.props.isWorkshopAdmin &&
+            <Route
+              path=":applicationId/edit"
+              breadcrumbs="Application,Edit"
+              component={AdminEditView}
+            />
             }
           </Route>
         </Router>

@@ -89,7 +89,7 @@
             'Real-life Algorithms: Paper Planes':
               name: 'Real-life Algorithms: Paper Planes'
             Relay programming:
-              name: Relay programming
+              name: Relay na programming
             'Studio: Create a Story':
               name: 'Play Lab: Create a Story'
             The Big Event:
@@ -130,7 +130,7 @@
             Crowdsourcing:
               name: Crowdsourcing
             Dice Race:
-              name: Dice Race
+              name: Habulan ng Dice
             Digital Citizenship:
               name: Digital Citizenship
             'Farmer: While Loops':
@@ -164,7 +164,7 @@
             Artist:
               name: Artist
         hourofcode:
-          title: Hour of Code
+          title: Klasiko na Maze
           description: Try the basics of computer science with characters from Angry
             Birds, Plants vs. Zombies, and Scrat from Ice Age!
           description_short: Try the basics of computer science with many fun characters!
@@ -177,8 +177,8 @@
           description: Let's use code to join Anna and Elsa as they explore the magic
             and beauty of ice. You will create snowflakes and patterns as you ice-skate
             and make a winter wonderland that you can then share with your friends!
-          description_short: Let's use code to join Anna and Elsa as they explore
-            the magic and beauty of ice.
+          description_short: Gamitin natin ang code para samahan sina Anna at Elsa
+            sa kanilang pagtuklas sa mahika at kagandahan ng yelo.
           stages:
             Artist:
               name: Artist
@@ -374,13 +374,13 @@
             Reflection:
               name: Reflection
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Unplugged lessons:
               name: Unplugged lessons
             Writing computer programs:
               name: Writing computer programs
         netsim:
-          title: Internet Simulator
+          title: Simulator ng Internet
           description: Learn about how the Internet works.
           description_short: Learn about how the Internet works.
           description_audience: ''
@@ -503,8 +503,8 @@
               name: Studio
         flappy:
           title: Flappy Code
-          description: Wanna write your own game in less than 10 minutes? Try our
-            Flappy Code tutorial!
+          description: Gusto mong magsulat ng sarili mong laro sa loob ng hindi hihigit
+            sa 10 minuto? Subukan ang aming Flappy Code na tutorial!
           description_short: Write your own Flappy game!
           description_audience: ''
           stages:
@@ -609,7 +609,7 @@
             Preparing for in-person PD:
               name: Preparing for in-person PD
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Why Computer Science belongs in Algebra:
               name: Why Computer Science belongs in Algebra
         algPDmiami:
@@ -756,7 +756,7 @@
             Controlling Memory with Variables:
               name: Controlling Memory with Variables
             Creating Functions:
-              name: Creating Functions
+              name: Paglikha ng mga Functions
             Creating functions with Parameters:
               name: Creating Functions with Parameters
             Digital Assistant Project:
@@ -820,7 +820,7 @@
             Strings and Images:
               name: Strings and Images
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             The Big Game:
               name: The Big Game
             The Design Recipe:
@@ -877,7 +877,7 @@
             Preparing for in-person PD:
               name: Preparing for in-person PD
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Why Computer Science belongs in Algebra:
               name: Why Computer Science belongs in Algebra
         algebraPD-iZone:
@@ -896,7 +896,7 @@
             Preparing for in-person PD:
               name: Preparing for in-person PD
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Why Computer Science belongs in Algebra:
               name: Why Computer Science belongs in Algebra
         sciencePD-NexTech:
@@ -1188,7 +1188,7 @@
             Strings and Images:
               name: Strings and Images
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Writing Contracts:
               name: Writing Contracts
         cspfacilitator:
@@ -1198,11 +1198,11 @@
           description_audience: ''
           stages:
             App Lab:
-              name: App Lab
+              name: App na Lab
             Broadcast Lesson:
               name: Broadcast Lesson
             Internet Simulator:
-              name: Internet Simulator
+              name: Simulator ng Internet
             Pixelation Widget:
               name: Pixelation Widget
             Text Compression Lesson:
@@ -1289,7 +1289,7 @@
             Lesson Prep:
               name: Lesson Prep
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Teaching with Puzzles:
               name: Teaching with Puzzles
             Teaching with the Design Recipe:
@@ -1912,9 +1912,9 @@
             Hour of Code 2015:
               name: Hour of Code 2015
         mc:
-          title: Minecraft Hour of Code
-          description: Use blocks of code to take Steve or Alex on an adventure through
-            this Minecraft world.
+          title: Minecraft na Hour of Code
+          description: Gamitin ang mga bloke ng code para madala sina Steve o Alex
+            sa isang pakikipagsapalaran sa mundo ng Minecraft na ito.
           description_short: Tuklasin ang mundo ng Minecraft sa pamamagitan ng code
           stages:
             Hour of Code 2015:
@@ -2170,7 +2170,7 @@
             Preparing for in-person PD:
               name: Preparing for in-person PD
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Why Computer Science belongs in Algebra:
               name: Why Computer Science belongs in Algebra
         algebraPD3c:
@@ -2293,18 +2293,17 @@
               name: Practice PT - Encode an Experience
         csp3:
           title: CSP Unit 3 - Programming
-          description: This unit introduces the foundational concepts of computer
-            programming, which unlocks the ability to make rich, interactive apps.
-            This course uses JavaScript as the programming language, and App Lab as
-            the programming environment to build apps, but the concepts learned in
-            these lessons span all programming languages and tools.
+          description: |-
+            This unit introduces the foundational concepts of computer programming, which unlocks the ability to make rich, interactive apps. This course uses JavaScript as the programming language, and App Lab as the programming environment to build apps, but the concepts learned in these lessons span all programming languages and tools.\r
+            \r
+            This unit was last updated October 30th, 2017. Read more about curriculum updates at forum.code.org/c/csp/updates.
           description_short: Programming
           description_audience: ''
           stages:
             APIs and Function Parameters:
               name: APIs and Function Parameters
             Creating Functions:
-              name: Creating Functions
+              name: Paglikha ng mga Functions
             Creating functions with Parameters:
               name: Creating functions with Parameters
             Creativity in Algorithms:
@@ -2341,11 +2340,10 @@
               name: Please complete the CSP Mid-course survey!
         csp4:
           title: CS Principles Unit 4 - Big Data and Privacy
-          description: The data-rich world we live in introduces many complex questions
-            related to public policy, law, ethics and societal impact. The goals of
-            this unit are to develop a well-rounded and balanced view about data in
-            the world, including the positive and negative effects of it, and to understand
-            the basics of how and why modern encryption works.
+          description: |-
+            The data-rich world we live in introduces many complex questions related to public policy, law, ethics and societal impact. The goals of this unit are to develop a well-rounded and balanced view about data in the world, including the positive and negative effects of it, and to understand the basics of how and why modern encryption works.\r
+            \r
+            This unit was last updated November, 2017. Read more about curriculum updates at forum.code.org/c/csp/updates.
           description_short: Big Data and Privacy
           description_audience: ''
           stages:
@@ -2366,7 +2364,7 @@
             Rapid Research - Data Innovations:
               name: Rapid Research - Data Innovations
             Simple Encryption:
-              name: Simple Encryption
+              name: Simpleng Pag-encrypt
             The Cost of Free:
               name: The Cost of Free
             What is Big Data?:
@@ -2575,7 +2573,7 @@
             'Project: Build a Game':
               name: 'Project: Build a Game'
             Velocity:
-              name: Velocity
+              name: Belosidad
             The Game Design Process:
               name: The Game Design Process
             Using the Game Design Process:
@@ -2658,7 +2656,7 @@
             Introduction to PD:
               name: Introduction to PD
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Why Computer Science belongs in Algebra:
               name: Why Computer Science belongs in Algebra
         sciencePD1:
@@ -3000,7 +2998,7 @@
           description_audience: Ages 8-98
           stages:
             Artist Functions:
-              name: Artist Functions
+              name: Functions ng mga Artista
             Sample Stage:
               name: Sample Stage
             The same thing with named levels:
@@ -3162,7 +3160,7 @@
             Sequences & Algorithms:
               name: Sequences & Algorithms
             Unspotted Bugs:
-              name: Unspotted Bugs
+              name: Hindi Namalayang mga Bugs
             'Debugging: Unspotted Bugs':
               name: 'Debugging: Unspotted Bugs'
             'Events Unplugged: The Big Event':
@@ -3445,7 +3443,7 @@
             Variables and Animation:
               name: Variables and Animation
             Velocity:
-              name: Velocity
+              name: Belosidad
               description_student: After a brief review of how the counter pattern
                 is used to move sprites, the class is introduced to the properties
                 that set velocity and rotation speed directly.   As they use these
@@ -3851,7 +3849,7 @@
             Loops:
               name: Mga loop
             Nested Loops:
-              name: Nested Loops
+              name: Mga Loops na naka-nest
             Variables:
               name: Mga variable
             While Loops:
@@ -3865,7 +3863,7 @@
             Lesson Prep:
               name: Lesson Prep
             Teacher Dashboard:
-              name: Teacher Dashboard
+              name: Dashboard ng Guro
             Teaching with Puzzles:
               name: Teaching with Puzzles
             Teaching with the Design Recipe:
@@ -4200,7 +4198,7 @@
             and simple techniques for breaking (or cracking) secret messages.
           stages:
             Simple Encryption:
-              name: Simple Encryption
+              name: Simpleng Pag-encrypt
         fesbinary:
           title: Binary
           description_audience: ''
@@ -4846,10 +4844,10 @@
         minecraft:
           title: Minecraft Hour of Code Designer
           description_audience: ''
-          description_short: Program animals and other Minecraft creatures in your
-            own version of Minecraft.
-          description: Program animals and other Minecraft creatures in your own version
-            of Minecraft.
+          description_short: Mag-program ng mga hayop at iba pang nilalang sa mga
+            Minecraft sa iyong sariling bersyon ng Minecraft.
+          description: Mag-program ng mga hayop at iba pang nilalang sa mga Minecraft
+            sa iyong sariling bersyon ng Minecraft.
           stages:
             Minecraft Hour of Code Designer:
               name: Minecraft Hour of Code Designer
@@ -5041,7 +5039,7 @@
             Nested Loops in Bee:
               name: Nested Loops in Bee
             Nested Loops:
-              name: Nested Loops
+              name: Mga Loops na naka-nest
             Introduction:
               name: Panimula
             Nested Loops Project in Artist:
@@ -5141,7 +5139,7 @@
             The Power of Words:
               name: The Power of Words
             Songwriting with Parameters:
-              name: Songwriting with Parameters
+              name: Pagsulat ng Awit na may mga Paremeters
             Introduction:
               name: Panimula
             Ice Age Play Lab:
@@ -5530,6 +5528,14 @@
               name: Arrays
             Making Music:
               name: Making Music
+            Arrays and For Loops:
+              name: Arrays and For Loops
+            Circuits and Physical Prototypes:
+              name: Circuits and Physical Prototypes
+            Accelerometer:
+              name: Accelerometer
+            Functions with Parameters:
+              name: Mga function na meron mga parameter
         workshop-gamelab:
           title: Game Lab Workshop
           description_audience: Teachers attending an in-person Game Lab Workshop
@@ -5880,7 +5886,7 @@
             Other Forms of Input:
               name: Other Forms of Input
             Velocity:
-              name: Velocity
+              name: Belosidad
             Collision Detection:
               name: Collision Detection
             Complex Sprite Movement:
@@ -6230,6 +6236,8 @@
                 deciding what to do with data that does not easily fit into the visualization
                 scheme that they have chosen.  Last, students look at what parts of
                 this process can be automated, and what need a human to make decisions.
+            Keeping Data Secret:
+              name: Keeping Data Secret
         csd3-old:
           title: CSD Unit 3 (DEPRECATED)
           description_audience: ''
@@ -6260,7 +6268,7 @@
             'Project: Interactive Card':
               name: 'Project: Interactive Card'
             Velocity:
-              name: Velocity
+              name: Belosidad
             Collision Detection:
               name: Collision Detection
             Complex Sprite Movement:
@@ -6407,7 +6415,7 @@
             'Project: Interactive Card':
               name: 'Project: Interactive Card'
             Velocity:
-              name: Velocity
+              name: Belosidad
             Collision Detection:
               name: Collision Detection
             Complex Sprite Movement:
@@ -6568,6 +6576,8 @@
               name: Bounce
             NewBounce:
               name: NewBounce
+            F PlayLab Variables:
+              name: F PlayLab Variables
           title: ''
           description_audience: ''
           description_short: ''
@@ -6659,7 +6669,7 @@
                 opportunity to learn how to use events in Play Lab and to apply all
                 of the coding skills they've learned to create an animated game. It's
                 time to get creative and make a story in the Play Lab!
-          title: 'CS Fundamentals: Course A'
+          title: Kursong A
           description_audience: ''
           description_short: An introduction to computer science for early readers.
           description: Course A offers computer science curriculum for beginning readers
@@ -6699,7 +6709,7 @@
               name: More Programming in Maze
             Programming with Rey and BB-8:
               name: Programming with Rey and BB-8
-          title: 'CS Fundamentals: Course B'
+          title: Kursong B
           description_audience: ''
           description_short: An introduction to computer science for early readers.
           description: |-
@@ -6740,7 +6750,7 @@
               name: Loops in Artist
             Loops with Rey and BB-8:
               name: Loops with Rey and BB-8
-          title: 'CS Fundamentals: Course C'
+          title: Kursong C
           description_audience: ''
           description_short: Learn the basics of computer science and create your
             own art, stories, and games.
@@ -6784,7 +6794,7 @@
                 will have the opportunity to customize their game with different speeds
                 and sounds.
             Nested Loops:
-              name: Nested Loops
+              name: Mga Loops na naka-nest
               description_student: Loops inside loops inside loops. What does this
                 mean? This lesson will teach you what happens when you place a loop
                 inside another loop.
@@ -6917,7 +6927,7 @@
                 debugging in the "collector" environment. Students will get to practice
                 reading and editing code to fix puzzles with simple algorithms, loops
                 and nested loops.
-          title: 'CS Fundamentals: Course D'
+          title: Kursong D
           description_audience: ''
           description_short: Learn the basics of computer science and create your
             own art, stories, and games.
@@ -6958,7 +6968,7 @@
             For Loops in Artist:
               name: For Loops in Artist
             Songwriting with Parameters:
-              name: Songwriting with Parameters
+              name: Pagsulat ng Awit na may mga Paremeters
             Conditionals and Functions in Bee:
               name: Conditionals and Functions in Bee
             Functions with Parameters in Artist:
@@ -7147,8 +7157,8 @@
             Nested Loops with Frozen:
               name: Nested Loops with Frozen
             Nested Loops:
-              name: Nested Loops
-          title: 'CS Fundamentals: Course E'
+              name: Mga Loops na naka-nest
+          title: Kursong E
           description_audience: ''
           description_short: Learn the basics of computer science and create your
             own art, stories, and games.
@@ -7386,7 +7396,7 @@
               name: Nested Loops in Bee/Zombie
             Nested Loops with Frozen:
               name: Nested Loops with Frozen
-          title: 'CS Fundamentals: Course F'
+          title: Kursong F
           description_audience: ''
           description_short: Learn the basics of computer science and create your
             own art, stories, and games.
@@ -7734,7 +7744,7 @@
             For Loops in Artist:
               name: For Loops in Artist
             Songwriting with Parameters:
-              name: Songwriting with Parameters
+              name: Pagsulat ng Awit na may mga Paremeters
             Functions in Bee:
               name: Functions in Bee
             Functions with Parameters in Artist:
@@ -7776,7 +7786,7 @@
             Building a Foundation:
               name: Gumawa ng Foundation
             Nested Loops:
-              name: Nested Loops
+              name: Mga Loops na naka-nest
           title: ''
           description_audience: ''
           description_short: ''
@@ -7824,7 +7834,7 @@
             other:
               name: other
             Thanks:
-              name: Thanks
+              name: Salamat
             '':
               name: ''
             " ":
@@ -7862,7 +7872,7 @@
             Using Simple Commands:
               name: Using Simple Commands
             Creating Functions:
-              name: Creating Functions
+              name: Paglikha ng mga Functions
             Functions and Top-Down Design:
               name: Functions and Top-Down Design
             APIs and Function Parameters:
@@ -7977,7 +7987,7 @@
             Loops in Artist:
               name: Loops in Artist
             Nested Loops:
-              name: Nested Loops
+              name: Mga Loops na naka-nest
             Nested Loops with Frozen:
               name: Nested Loops with Frozen
             Intro to Conditionals with Farmer:
@@ -8035,7 +8045,7 @@
             Events in Bounce:
               name: Events in Bounce
             Nested Loops:
-              name: Nested Loops
+              name: Mga Loops na naka-nest
             Nested Loops in Artist:
               name: Nested Loops in Artist
             Nested Loops Project in Artist:
@@ -8159,7 +8169,7 @@
             Debugging with Scrat:
               name: Debugging with Scrat
             Nested Loops:
-              name: Nested Loops
+              name: Mga Loops na naka-nest
             Loops in Artist (UPDATED!):
               name: Loops in Artist (UPDATED!)
             Sarah test stage:
@@ -8281,7 +8291,7 @@
             For Loops in Artist:
               name: For Loops in Artist
             Songwriting with Parameters:
-              name: Songwriting with Parameters
+              name: Pagsulat ng Awit na may mga Paremeters
             Functions in Bee:
               name: Functions in Bee
             Functions with Parameters in Artist:
@@ -8446,7 +8456,7 @@
             Using Simple Commands:
               name: Using Simple Commands
             Creating Functions:
-              name: Creating Functions
+              name: Paglikha ng mga Functions
             Functions and Top-Down Design:
               name: Functions and Top-Down Design
             APIs and Function Parameters:
@@ -8483,7 +8493,23 @@
             Programming - Hour of Code:
               name: Programming - Hour of Code
             Simple Encryption:
-              name: Simple Encryption
+              name: Simpleng Pag-encrypt
+            Web Development - Creating Webpages:
+              name: Web Development - Creating Webpages
+            App Development Unplugged - User Interfaces:
+              name: App Development Unplugged - User Interfaces
+            App Development - Intro to App Lab:
+              name: App Development - Intro to App Lab
+            Creating Webpages:
+              name: Creating Webpages
+            User Interfaces:
+              name: User Interfaces
+            Intro to App Lab:
+              name: Intro to App Lab
+            Smart Clothing Design:
+              name: Smart Clothing Design
+            Intro to App Lab (13+):
+              name: Intro to App Lab (13+)
           title: PwC Access Your Potential
           description_audience: ''
           description_short: ''
@@ -8529,7 +8555,7 @@
             'Minecraft\: Hero''s Journey Hour of Code':
               name: 'Minecraft\: Hero''s Journey Hour of Code'
             Minecraft Hour of Code:
-              name: Minecraft Hour of Code
+              name: Minecraft na Hour of Code
           title: 'Minecraft: Hero''s Journey'
           description_audience: ''
           description_short: ''
@@ -8550,6 +8576,8 @@
               name: Intro to AppLab - Your First App 4
             Intro to AppLab - Getting Started:
               name: Intro to AppLab - Getting Started
+            Intro to App Lab:
+              name: Intro to App Lab
           title: Intro to App Lab Staging
           description_audience: ''
           description_short: ''
@@ -8572,7 +8600,10 @@
           description_audience: ''
           description_short: Lessons and resources to help students prepare for and
             complete the AP Explore Performance Tasks.
-          description: ''
+          description: |-
+            These lessons are here to help you understand, prepare for, and do the AP Explore Performance Task.  Each "lesson" contains links to helpful documents that your teacher can help walk you through. NOTE: the second item in the first lesson is not related to the Explore PT directly, but covers general tech setup and tools you need to do various elements of both the Explore and Create tasks.\r
+            \r
+            This unit was last updated November, 2017. Read more about curriculum updates at forum.code.org/c/csp/updates.
         csp-create:
           stages:
             Tech Setup - Your AP Digital Portfolio and Other Tools:
@@ -8587,7 +8618,10 @@
           description_audience: ''
           description_short: Lessons and resources to help students prepare for and
             complete the AP Create Performance Tasks.
-          description: ''
+          description: |-
+            These lessons are here to help you understand, prepare for, and do the AP Create Performance Task.  Each "lesson" contains links to helpful documents that your teacher can help walk you through. NOTE: the first item in the first lesson is not related to the Create PT directly, but covers general tech setup and tools you need to do various elements of both the Explore and Create tasks.\r
+            \r
+            This unit was last updated December, 2017. Read more about curriculum updates at forum.code.org/c/csp/updates.
         csp3-reovery:
           stages:
             Under the sea recovery:
@@ -8605,4 +8639,28 @@
           title: 'CSP3 under the sea student work recovery '
           description_audience: ''
           description_short: ''
+          description: ''
+        aws-demo:
+          stages:
+            new stage:
+              name: new stage
+          title: AWS Demo
+          description_audience: ''
+          description_short: ''
+          description: ''
+        halloween:
+          stages:
+            Halloween Artist:
+              name: Halloween Artist
+          title: ''
+          description_audience: ''
+          description_short: ''
+          description: ''
+        valentine:
+          stages:
+            special valentine:
+              name: special valentine
+          title: Valentine Special
+          description_audience: ''
+          description_short: Have fun creating valentines
           description: ''

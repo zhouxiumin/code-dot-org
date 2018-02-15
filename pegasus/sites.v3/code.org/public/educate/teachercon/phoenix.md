@@ -27,7 +27,7 @@ Over the course of the week, you will join with hundreds of teachers from across
 
 [/col-50]
 
-<br>
+<div style="clear: both;"></div>
 
 <hr/>
 
@@ -112,9 +112,9 @@ We encourage **business casual** attire during TeacherCon. All our conference se
   <br>
 **Don't forget to bring your own laptop/Chromebook and charger, as well as any adapters.** If you’re bringing a school or district owned laptop/Chromebook, please make sure you have administrator permissions.
 
-_Please note that our CS Discoveries and Principles courses are not optimized for tablets, so we do not recommend bringing a tablet as your primary device to this event._
+_At this time, our CS Discoveries and Principles courses are not optimized for tablets, so **we do not recommend bringing a tablet as your primary device** to this event._
 
-In addition, Code.org will not have extra devices on hand for participants to borow.
+Please note that Code.org will not have extra devices on hand for participants to borow.
 
 </p>
 </details>
@@ -125,7 +125,6 @@ In addition, Code.org will not have extra devices on hand for participants to bo
   <p>
 <p align="left"><img src="/images/teachercon-schedule.png" width="80%"></p>
 
-Schedule times are subject to change.
 </p>
 </details>
 
@@ -191,7 +190,7 @@ More information coming soon!
 </details>
 
 ## **Contact Us**
-Check out our [FAQ's!](https://docs.google.com/document/d/1kyf-LMuqZx3Jne-q-Ce8MOaWJQm67VekO_kYKr9EFPQ/edit#heading=h.2d1bb1jtgzkw)
+Check out our <a href="https://docs.google.com/document/d/1kyf-LMuqZx3Jne-q-Ce8MOaWJQm67VekO_kYKr9EFPQ/edit#, target="_blank">FAQ's!</a>
 
 Still can't find what you're looking for? Email us at: [teacher@code.org](mailto:teacher@code.org). 
 

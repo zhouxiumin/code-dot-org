@@ -2,10 +2,11 @@ import $ from 'jquery';
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import {UnconnectedCensusForm as CensusForm} from './CensusForm';
+import {UnconnectedCensusForm as CensusForm, censusFormPrefillDataShape} from './CensusForm';
 import YourSchoolResources from './YourSchoolResources';
 import Notification, { NotificationType } from '../Notification';
 import MobileNotification from '../MobileNotification';
+import {SpecialAnnouncementActionBlock} from '../studioHomepages/TwoColumnActionBlock';
 import i18n from "@cdo/locale";
 import ProtectedStatefulDiv from '../ProtectedStatefulDiv';
 import { ResponsiveSize } from '@cdo/apps/code-studio/responsiveRedux';
@@ -36,6 +37,7 @@ class YourSchool extends Component {
     alertHeading: PropTypes.string,
     alertText: PropTypes.string,
     alertUrl: PropTypes.string,
+    prefillData: censusFormPrefillDataShape,
     hideMap: PropTypes.bool
   };
 
@@ -51,6 +53,7 @@ class YourSchool extends Component {
 
     return (
       <div>
+        <SpecialAnnouncementActionBlock/>
         {this.props.alertHeading && this.props.alertText && this.props.alertUrl && desktop && (
           <Notification
             type={NotificationType.bullhorn}
@@ -79,16 +82,22 @@ class YourSchool extends Component {
           {i18n.yourSchoolDescription()}
         </h3>
         <YourSchoolResources/>
-        <h1 style={styles.heading}>
-          Put your school on the map
-        </h1>
-        <h3 style={styles.description}>
-          {i18n.yourSchoolMapDesc()}
-          If you are located in the US, please <a href="#form">fill out the form below</a>.
-          If you are outside the US, <a href="/learn/local">add your school here</a>.
-        </h3>
-        <ProtectedStatefulDiv ref="map"/>
-        <CensusForm/>
+        {!this.props.hideMap && (
+           <div>
+             <h1 style={styles.heading}>
+               Put your school on the map
+             </h1>
+             <h3 style={styles.description}>
+               {i18n.yourSchoolMapDesc()}
+               If you are located in the US, please <a href="#form">fill out the form below</a>.
+               If you are outside the US, <a href="/learn/local">add your school here</a>.
+             </h3>
+             <ProtectedStatefulDiv ref="map"/>
+           </div>
+        )}
+        <CensusForm
+          prefillData={this.props.prefillData}
+        />
       </div>
     );
   }

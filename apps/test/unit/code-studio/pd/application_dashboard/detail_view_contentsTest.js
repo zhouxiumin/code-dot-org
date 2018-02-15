@@ -1,12 +1,20 @@
 import {DetailViewContents} from '@cdo/apps/code-studio/pd/application_dashboard/detail_view_contents';
+import DetailViewResponse from '@cdo/apps/code-studio/pd/application_dashboard/detail_view_response';
 import {ApplicationStatuses, ApplicationFinalStatuses} from '@cdo/apps/code-studio/pd/application_dashboard/constants';
 import React from 'react';
 import _ from 'lodash';
 import {expect} from 'chai';
 import {mount} from 'enzyme';
+import sinon from 'sinon';
 
 describe("DetailViewContents", () => {
-  const mountDetailView = (applicationType, applicationDataOverrides = {}) => {
+  // We aren't testing any of the responses of the workshop selector control, so just
+  // have a fake server to handle calls and suppress warnings
+  sinon.fakeServer.create();
+
+  let context;
+
+  const mountDetailView = (applicationType, overrides = {}) => {
     const defaultApplicationData = {
       regionalPartner: 'partner',
       notes: 'notes',
@@ -15,6 +23,7 @@ describe("DetailViewContents", () => {
       district_name: 'District Name',
       email: 'email',
       application_type: applicationType,
+      course_name: 'CS Fundamentals',
       form_data: {
         firstName: 'First Name',
         lastName: 'Last Name',
@@ -26,39 +35,50 @@ describe("DetailViewContents", () => {
         program: 'program',
         abilityToMeetRequirements: '10',
         committed: 'Yes',
-        taughtInPast: 'No'
+        taughtInPast: 'No',
       },
       response_scores: {
         committed: 'Yes'
       }
     };
 
+    const defaultProps = {
+      canLock: true,
+      applicationId: '1',
+      applicationData: defaultApplicationData,
+      viewType: 'facilitator'
+    };
+
+    // No-op router context
+    context = {
+      router: {
+        push() {}
+      }
+    };
+
     return mount(
       <DetailViewContents
-        canLock
-        applicationId="1"
-        applicationData={_.merge(defaultApplicationData, applicationDataOverrides)}
-        viewType="facilitator"
-        reload={() => {}}
-      />
+        {..._.merge(defaultProps, overrides)}
+      />,
+      {context}
     );
   };
 
   describe("Notes", () => {
     it("Uses default value for facilitator applications with no notes", () => {
-      const facilitatorDetailView = mountDetailView('Facilitator', {notes: ''});
+      const facilitatorDetailView = mountDetailView('Facilitator', {applicationData: {notes: ''}});
       expect(facilitatorDetailView.state().notes).to.eql(
         "Google doc rubric completed: Y/N\nTotal points:\n(If interviewing) Interview notes completed: Y/N\nAdditional notes:"
       );
     });
 
     it("Uses entered value for facilitator applications with notes", () => {
-      const facilitatorDetailView = mountDetailView('Facilitator', {notes: "actual notes"});
+      const facilitatorDetailView = mountDetailView('Facilitator', {applicationData: {notes: "actual notes"}});
       expect(facilitatorDetailView.state().notes).to.eql("actual notes");
     });
 
     it("Does not supply value for teacher applications with no notes", () => {
-      const teacherDetailView = mountDetailView('Teacher', {notes: ''});
+      const teacherDetailView = mountDetailView('Teacher', {applicationData: {notes: ''}});
       expect(teacherDetailView.state().notes).to.eql('');
     });
   });
@@ -69,10 +89,12 @@ describe("DetailViewContents", () => {
   ];
 
   for (const applicationData of expectedTestData) {
+    const responseCount = applicationData.type === "Teacher" ? 3 : 4;
+
     it(`Renders full contents for ${applicationData.type} initially`, () => {
       const detailView = mountDetailView(applicationData.type);
 
-      expect(detailView.find('#TopSection DetailViewResponse')).to.have.length(4);
+      expect(detailView.find('#TopSection DetailViewResponse')).to.have.length(responseCount);
       expect(detailView.find('DetailViewApplicationSpecificQuestions')).to.have.length(1);
       expect(detailView.find('DetailViewApplicationSpecificQuestions h3')).to.have.length(
         applicationData.applicationSpecificQuestions
@@ -80,6 +102,54 @@ describe("DetailViewContents", () => {
       expect(detailView.find('DetailViewApplicationSpecificQuestions FormControl')).to.have.length(
         applicationData.scoredQuestions
       );
+    });
+
+    describe("Regional Partner Panel", () => {
+      let regionalPartnerPanel;
+      before(() => {
+        regionalPartnerPanel = (
+          <DetailViewResponse
+            question="Regional Partner"
+            layout="panel"
+          />
+        );
+      });
+
+      it("Does not render for regional partners", () => {
+        const regionalPartnerDetailView = mountDetailView(applicationData.type, {isWorkshopAdmin: false});
+        expect(regionalPartnerDetailView.find('#TopSection DetailViewResponse')).to.have.length(responseCount);
+        expect(regionalPartnerDetailView).to.not.containMatchingElement(regionalPartnerPanel);
+      });
+
+      it("Does render for admins", () => {
+        const workshopAdminDetailView = mountDetailView(applicationData.type, {isWorkshopAdmin: true});
+        expect(workshopAdminDetailView.find('#TopSection DetailViewResponse')).to.have.length(responseCount + 1);
+        expect(workshopAdminDetailView).to.containMatchingElement(regionalPartnerPanel);
+      });
+    });
+
+    describe("Admin edit dropdown", () => {
+      it("Is not visible to regional partners", () => {
+        const detailView = mountDetailView(applicationData.type, {isWorkshopAdmin: false});
+        expect(detailView.find("#admin-edit")).to.have.length(0);
+      });
+
+      it("Is visible to admins", () => {
+        const detailView = mountDetailView(applicationData.type, {isWorkshopAdmin: true});
+        expect(detailView.find("#admin-edit")).to.have.length(2);
+      });
+
+      it("Redirects to edit page", () => {
+        const detailView = mountDetailView(applicationData.type, {isWorkshopAdmin: true});
+        const mockRouter = sinon.mock(context.router);
+
+        detailView.find("#admin-edit").first().simulate("click");
+        const adminEditMenuitem = detailView.find(".dropdown.open a").findWhere(a => a.text() === "(Admin) Edit Form Data");
+
+        mockRouter.expects("push").withExactArgs("/1/edit");
+        adminEditMenuitem.simulate("click");
+        mockRouter.verify();
+      });
     });
 
     describe("Edit controls behavior", () => {

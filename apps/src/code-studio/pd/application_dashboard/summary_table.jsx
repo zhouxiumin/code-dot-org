@@ -39,12 +39,13 @@ export class SummaryTable extends React.Component {
       unreviewed: ApplicationDataPropType,
       waitlisted: ApplicationDataPropType,
     }),
-    path: PropTypes.string.isRequired
-  }
+    path: PropTypes.string.isRequired,
+    id: PropTypes.string
+  };
 
   static contextTypes = {
     router: PropTypes.object.isRequired
-  }
+  };
 
   tableBody() {
     return Object.keys(StatusColors).map((status, i) => {
@@ -73,12 +74,17 @@ export class SummaryTable extends React.Component {
   handleViewCohortClick = (event) => {
     event.preventDefault();
     this.context.router.push(`/${this.props.path}_cohort`);
-  }
+  };
 
   render() {
     return (
       <div className="col-xs-4" style={styles.tableWrapper}>
-        <Table striped condensed style={styles.table}>
+        <Table
+          id={this.props.id}
+          striped
+          condensed
+          style={styles.table}
+        >
           <caption>{this.props.caption}</caption>
           <thead>
             <tr>
@@ -105,7 +111,7 @@ export class SummaryTable extends React.Component {
               href={this.context.router.createHref(`/${this.props.path}_cohort`)}
               onClick={this.handleViewCohortClick}
             >
-              View Accepted Cohort
+              View accepted cohort
             </Button>
           )
         }

@@ -86,15 +86,6 @@ Lint/AmbiguousRegexpLiteral:
 Lint/DuplicateMethods:
   Enabled: false
 
-# Offense count: 2
-Lint/InterpolationCheck:
-  Enabled: false
-
-# Offense count: 4
-# Configuration parameters: MaximumRangeSize.
-Lint/MissingCopEnableDirective:
-  Enabled: false
-
 # Offense count: 28
 Lint/ParenthesesAsGroupedExpression:
   Enabled: false
@@ -108,19 +99,9 @@ Lint/RescueException:
 Lint/ScriptPermission:
   Enabled: false
 
-# Offense count: 6
-# Configuration parameters: IgnoreImplicitReferences.
-Lint/ShadowedArgument:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Lint/UnneededDisable:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UnneededRequireStatement:
   Enabled: false
 
 # Offense count: 70
@@ -131,11 +112,6 @@ Lint/UnusedMethodArgument:
 
 # Offense count: 39
 Lint/UriEscapeUnescape:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UriRegexp:
   Enabled: false
 
 # Offense count: 7
@@ -150,20 +126,10 @@ Naming/HeredocDelimiterCase:
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
-# Offense count: 2
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, camelCase
-Naming/VariableName:
-  Enabled: false
-
 # Offense count: 173
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: snake_case, normalcase, non_integer
 Naming/VariableNumber:
-  Enabled: false
-
-# Offense count: 1
-Performance/Caller:
   Enabled: false
 
 # Offense count: 13
@@ -237,11 +203,6 @@ Rails/Presence:
 Rails/Present:
   Enabled: false
 
-# Offense count: 11
-# Cop supports --auto-correct.
-Rails/RedundantReceiverInWithOptions:
-  Enabled: false
-
 # Offense count: 90
 # Configuration parameters: Blacklist.
 # Blacklist: decrement!, decrement_counter, increment!, increment_counter, toggle!, touch, update_all, update_attribute, update_column, update_columns, update_counters
@@ -281,10 +242,6 @@ Style/ClassVars:
 # Cop supports --auto-correct.
 # Configuration parameters: PreferredMethods.
 Style/CollectionMethods:
-  Enabled: false
-
-# Offense count: 4
-Style/CommentedKeyword:
   Enabled: false
 
 # Offense count: 149
@@ -336,23 +293,9 @@ Style/MixinUsage:
 Style/MultilineTernaryOperator:
   Enabled: false
 
-# Offense count: 4
-Style/MultipleComparison:
-  Enabled: false
-
 # Offense count: 205
 # Cop supports --auto-correct.
 Style/MutableConstant:
-  Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/OrAssignment:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RandomWithOffset:
   Enabled: false
 
 # Offense count: 47

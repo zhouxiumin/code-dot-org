@@ -1,0 +1,10 @@
+- content_for(:head) do
+  = stylesheet_link_tag 'css/pd', media: 'all'
+
+%h1
+  Thank you for submitting this form!
+%p
+  Thank you for submitting your FiT Weekend registraiton form. If you would like to change
+  your registration, please email
+  %a{ href: "mailto:facilitators@code.org" }
+    facilitators@code.org

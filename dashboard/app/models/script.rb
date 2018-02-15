@@ -441,7 +441,7 @@ class Script < ActiveRecord::Base
   end
 
   def self.beta?(name)
-    name == 'edit-code' || name == 'coursea-draft' || name == 'courseb-draft' || name == 'coursec-draft' || name == 'coursed-draft' || name == 'coursee-draft' || name == 'coursef-draft' || name == 'csd6'
+    name == 'edit-code' || name == 'coursea-draft' || name == 'courseb-draft' || name == 'coursec-draft' || name == 'coursed-draft' || name == 'coursee-draft' || name == 'coursef-draft'
   end
 
   def k1?
@@ -985,8 +985,11 @@ class Script < ActiveRecord::Base
 
   # @return {String|nil} path to the course overview page for this script if there
   #   is one.
-  def course_link
-    course_path(course) if course
+  def course_link(section_id = nil)
+    return nil unless course
+    path = course_path(course)
+    path += "?section_id=#{section_id}" if section_id
+    path
   end
 
   # If there is an alternate version of this script which the user should be on

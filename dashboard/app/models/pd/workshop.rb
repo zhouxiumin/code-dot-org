@@ -256,6 +256,9 @@ class Pd::Workshop < ActiveRecord::Base
     joins(:sessions).group_by_id.having('(DATE(MIN(start)) >= ?)', date)
   end
 
+  # Filters to workshops that are scheduled on or after today and have not yet ended
+  scope :future, -> {scheduled_start_on_or_after(Time.zone.today).where(ended_at: nil)}
+
   # Orders by the scheduled start date (date of the first session),
   # @param :desc [Boolean] optional - when true, sort descending
   def self.order_by_scheduled_start(desc: false)
@@ -340,6 +343,22 @@ class Pd::Workshop < ActiveRecord::Base
     sessions.first.start.month == sessions.last.start.month ?
       "#{sessions.first.start.strftime('%B %-d')}-#{sessions.last.start.strftime('%-d, %Y')}" :
       "#{sessions.first.start.strftime('%B %-d')} - #{sessions.last.start.strftime('%B %-d, %Y')}"
+  end
+
+  # Friendly location string is determined by:
+  # 1. known variant of TBA? use TBA
+  # 2. processed location? use city, state
+  # 3. unprocessable location: use user-entered string
+  # 4. no location address at all? use TBA
+  def friendly_location
+    return 'Location TBA' if location_address_tba?
+    return "#{location_city} #{location_state}" if processed_location
+    location_address.presence || 'Location TBA'
+  end
+
+  def date_and_location_name
+    date_string = sessions.any? ? friendly_date_range : 'Dates TBA'
+    "#{date_string}, #{friendly_location}#{teachercon? ? ' TeacherCon' : ''}"
   end
 
   # Puts workshop in 'In Progress' state
@@ -463,10 +482,14 @@ class Pd::Workshop < ActiveRecord::Base
     end
   end
 
+  def location_address_tba?
+    %w(tba tbd n/a).include?(location_address.try(:downcase))
+  end
+
   def process_location
     result = nil
 
-    unless location_address.blank?
+    unless location_address.blank? || location_address_tba?
       begin
         Geocoder.with_errors do
           # Geocoder can raise a number of errors including SocketError, with a common base of StandardError
@@ -501,29 +524,20 @@ class Pd::Workshop < ActiveRecord::Base
     }.to_json
   end
 
-  # helper methods for retrieving processed location data, with a possible side
-  # effect of reprocessing the data. Useful for fields newly-added to process
-  # location which may or may not be defined on older data
-  def location_city
+  # Retrieve a single location value (like city or state) from the processed
+  # location hash. Attribute can be passed as a string or symbol
+  def get_processed_location_value(key)
+    return unless processed_location
     location_hash = JSON.parse processed_location
-    unless location_hash.key? 'city'
-      process_location
-      update_column :processed_location, processed_location
-      location_hash = JSON.parse processed_location
-    end
+    location_hash[key.to_s]
+  end
 
-    location_hash['city']
+  def location_city
+    get_processed_location_value('city')
   end
 
   def location_state
-    location_hash = JSON.parse processed_location
-    unless location_hash.key? 'state'
-      process_location
-      update_column :processed_location, processed_location
-      location_hash = JSON.parse processed_location
-    end
-
-    location_hash['state']
+    get_processed_location_value('state')
   end
 
   # Min number of days a teacher must attend for it to count.

@@ -36,6 +36,7 @@ require src_dir 'database'
 require src_dir 'social_metadata'
 require src_dir 'forms'
 require src_dir 'curriculum_router'
+require src_dir 'homepage'
 
 def http_vary_add_type(vary, type)
   types = vary.to_s.split(',').map(&:strip)
@@ -103,6 +104,7 @@ class Documents < Sinatra::Base
     Sass::Plugin.options[:cache_location] = pegasus_dir('cache', '.sass-cache')
     Sass::Plugin.options[:css_location] = pegasus_dir('cache', 'css')
     Sass::Plugin.options[:template_location] = shared_dir('css')
+    set :mustermann_opts, check_anchors: false, ignore_unknown_options: true
   end
 
   before do

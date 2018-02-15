@@ -1,14 +1,11 @@
 # For documentation see, e.g., http://guides.rubyonrails.org/routing.html.
 
 module OPS
-  API = 'api' unless defined? API
-  DASHBOARDAPI = 'dashboardapi' unless defined? DASHBOARDAPI
+  API = 'api'.freeze unless defined? API
+  DASHBOARDAPI = 'dashboardapi'.freeze unless defined? DASHBOARDAPI
 end
 
 Dashboard::Application.routes.draw do
-  resources :featured_projects, only: [:create]
-  delete '/featured_projects/:project_id', controller: 'featured_projects', action: 'destroy_by_project_id'
-
   resources :survey_results, only: [:create], defaults: {format: 'json'}
 
   resource :pairing, only: [:show, :update]
@@ -47,6 +44,7 @@ Dashboard::Application.routes.draw do
     end
   end
 
+  get 'maker/home', to: 'maker#home'
   get 'maker/setup', to: 'maker#setup'
   get 'maker/discountcode', to: 'maker#discountcode'
   post 'maker/apply', to: 'maker#apply'
@@ -148,6 +146,10 @@ Dashboard::Application.routes.draw do
       get '/', to: redirect('/projects')
     end
   end
+
+  get 'projects/featured', to: 'projects#featured'
+  put '/featured_projects/:project_id/unfeature', to: 'featured_projects#unfeature'
+  put '/featured_projects/:project_id/feature', to: 'featured_projects#feature'
 
   get '/projects/public', to: 'projects#public'
   resources :projects, path: '/projects/', only: [:index] do
@@ -365,6 +367,7 @@ Dashboard::Application.routes.draw do
       resources :workshops do
         collection do
           get :filter
+          get :upcoming_teachercons
         end
         member do # See http://guides.rubyonrails.org/routing.html#adding-more-restful-actions
           post :start
@@ -394,6 +397,11 @@ Dashboard::Application.routes.draw do
       get :teacher_applications, to: 'teacher_applications#index'
       post :teacher_applications, to: 'teacher_applications#create'
 
+      # persistent namespace for Teachercon and FiT Weekend registrations, can be updated/replaced each year
+      post 'teachercon_registrations', to: 'teachercon1819_registrations#create'
+      post 'teachercon_partner_registrations', to: 'teachercon1819_registrations#create_partner'
+      post 'fit_weekend_registrations', to: 'fit_weekend1819_registrations#create'
+
       post :facilitator_program_registrations, to: 'facilitator_program_registrations#create'
       post :regional_partner_program_registrations, to: 'regional_partner_program_registrations#create'
 
@@ -414,6 +422,7 @@ Dashboard::Application.routes.draw do
         collection do
           get :quick_view
           get :cohort_view
+          get :search
         end
       end
     end
@@ -441,6 +450,11 @@ Dashboard::Application.routes.draw do
       get 'teacher', to: 'teacher_application#new'
       get 'principal_approval/:application_guid', to: 'principal_approval_application#new', as: 'principal_approval'
     end
+
+    # persistent namespace for Teachercon and FiT Weekend registrations, can be updated/replaced each year
+    get 'teachercon_registration/partner', to: 'teachercon1819_registration#partner'
+    get 'teachercon_registration/:application_guid', to: 'teachercon1819_registration#new'
+    get 'fit_weekend_registration/:application_guid', to: 'fit_weekend1819_registration#new'
 
     get 'facilitator_program_registration', to: 'facilitator_program_registration#new'
     get 'regional_partner_program_registration', to: 'regional_partner_program_registration#new'
@@ -509,13 +523,14 @@ Dashboard::Application.routes.draw do
 
   post '/api/lock_status', to: 'api#update_lockable_state'
   get '/api/lock_status', to: 'api#lockable_state'
+  get '/dashboardapi/script_structure/:script', to: 'api#script_structure'
   get '/api/script_structure/:script', to: 'api#script_structure'
   get '/api/section_progress/:section_id', to: 'api#section_progress', as: 'section_progress'
+  get '/dashboardapi/section_level_progress/:section_id', to: 'api#section_level_progress', as: 'section_level_progress'
   get '/api/student_progress/:section_id/:student_id', to: 'api#student_progress', as: 'student_progress'
   get '/api/user_progress/:script', to: 'api#user_progress', as: 'user_progress'
   get '/api/user_progress/:script/:stage_position/:level_position', to: 'api#user_progress_for_stage', as: 'user_progress_for_stage'
   get '/api/user_progress/:script/:stage_position/:level_position/:level', to: 'api#user_progress_for_stage', as: 'user_progress_for_stage_and_level'
-  get '/api/user_progress', to: 'api#user_progress_for_all_scripts', as: 'user_progress_for_all_scripts'
   namespace :api do
     api_methods.each do |action|
       get action, action: action

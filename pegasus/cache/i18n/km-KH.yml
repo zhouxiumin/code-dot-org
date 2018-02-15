@@ -2037,3 +2037,9 @@
   homepage_stats_policy: states changed policy to support computer science
   homepage_stats_title: We're making a difference
   video_title_steph_curry: Hour of Code with Steph Curry
+  dashboard_pre-express: 'Pre-reader Express Course: '
+  dashboard_express: 'Express Course: '
+  dashboard_tools: 'Tools: '
+  dashboard_curriculum_csd: 'Computer Science Discoveries: '
+  dashboard_curriculum_apcsa: 'AP Computer Science in Java: '
+  gamelab_name: Game Lab

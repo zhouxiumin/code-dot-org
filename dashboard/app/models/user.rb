@@ -245,6 +245,10 @@ class User < ActiveRecord::Base
     permission? UserPermission::WORKSHOP_ADMIN
   end
 
+  def project_validator?
+    permission? UserPermission::PROJECT_VALIDATOR
+  end
+
   # assign a course to a facilitator that is qualified to teach it
   def course_as_facilitator=(course)
     courses_as_facilitator << courses_as_facilitator.find_or_create_by(facilitator_id: id, course: course)
@@ -616,8 +620,13 @@ class User < ActiveRecord::Base
       user.provider = auth.provider
       user.uid = auth.uid
       user.name = name_from_omniauth auth.info.name
-      user.email = auth.info.email
       user.user_type = params['user_type'] || auth.info.user_type
+      # Store emails, except when using Clever
+      user.email = auth.info.email unless user.user_type == 'student' && auth.provider == 'clever'
+
+      if auth.provider == 'clever' && User.find_by_email_or_hashed_email(user.email)
+        user.email = user.email + '.cleveremailalreadytaken'
+      end
 
       if auth.provider == :the_school_project
         user.username = auth.extra.raw_info.nickname
@@ -811,7 +820,7 @@ class User < ActiveRecord::Base
     # some of our user_levels may be for levels within level_groups, or for levels
     # that are no longer in this script. we want to ignore those, and only look
     # user_levels that have matching script_levels
-    # TODO(brent): Worth noting in the case that we have the same level appear in
+    # Worth noting in the case that we have the same level appear in
     # the script in multiple places (i.e. via level swapping) there's some potential
     # for strange behavior.
     sl_level_ids = script.script_levels.map(&:level_ids).flatten

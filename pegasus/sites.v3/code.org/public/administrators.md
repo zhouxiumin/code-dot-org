@@ -85,7 +85,7 @@ Code.org has partnered with more than <a href="/educate/district/partners" style
 <h3 style="font-family: 'Gotham 5r', sans-serif">Identify a computer science course pathway for your existing teachers</h3>
 
 - The [Code.org curriculum](https://studio.code.org/courses?view=teacher) is the most popular in K-12 computer science, with courses for every grade band. It's free of charge, and is also the highest-rated by teachers. Your students will love it!
-- Teachers from other subject areas should attend a professional learning workshop before they begin teaching. For Code.org courses in grades K-5, [contact a workshop facilitator](/educate/district/partners), and for grades 6-12, [contact a regional partner](<%= CDO.studio_url('/pd/regional_partner_contact/new') %>).
+- Teachers from other subject areas should attend a professional learning workshop before they begin teaching. For Code.org courses in grades K-5, [contact a workshop facilitator](https://code.org/professional-development-workshops), and for grades 6-12, [contact a regional partner](<%= CDO.studio_url('/pd/regional_partner_contact/new') %>).
 - If you want to consider alternatives to the Code.org courses, see our recommendations of [3rd party computer science curriculum](/educate/curriculum/3rd-party), and particularly our recommendations for [AP Computer Science A](/educate/curriculum/apcsa).
 - You can also supplement the Code.org curriculum by offering computer science integrated [into math](/educate/algebra) and [into science](/curriculum/science).
 - Once you've decided on your course offerings, make sure to set up district-level course codes for your new computer science courses. Work with your principals to recruit teachers to attend workshops and to implement changes in master schedules.
@@ -122,7 +122,7 @@ Code.org has partnered with more than <a href="/educate/district/partners" style
 
 - Identify teachers who will lead CS classes in your district next year.
 - Code.org's curriculum and professional development is designed for teachers from other subjects to become computer science teachers.  As you identify potential future computer science teachers in your district, it’s important to understand what, if any, requirements your state has in place for computer science teachers.
-- 29 states have some guidance around certification for computer science teachers, [find your state here](https://docs.google.com/spreadsheets/d/1YtTVcpQXoZz0IchihwGOihaCNeqCz2HyLwaXYpyb2SQ/edit#gid=142834482).
+- 30 states have some guidance around certification for computer science teachers, [find your state here](https://docs.google.com/spreadsheets/d/1YtTVcpQXoZz0IchihwGOihaCNeqCz2HyLwaXYpyb2SQ/pubhtml#).
 
 [/col-80]
 

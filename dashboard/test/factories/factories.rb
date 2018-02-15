@@ -76,6 +76,12 @@ FactoryGirl.define do
           levelbuilder.save
         end
       end
+      factory :project_validator do
+        after(:create) do |project_validator|
+          project_validator.permission = UserPermission::PROJECT_VALIDATOR
+          project_validator.save
+        end
+      end
       factory :facilitator do
         sequence(:name) {|n| "Facilitator Person #{n}"}
         sequence(:email) {|n| "testfacilitator#{n}@example.com.xx"}
@@ -398,6 +404,10 @@ FactoryGirl.define do
 
   factory :script do
     sequence(:name) {|n| "bogus-script-#{n}"}
+  end
+
+  factory :featured_project do
+    storage_app_id {456}
   end
 
   factory :script_level do
@@ -728,18 +738,37 @@ FactoryGirl.define do
     zip "98101"
   end
 
+  factory :school_stats_by_year do
+    grade_10_offered true
+    school_year "2016-2017"
+    school {build :school}
+  end
+
   # Default school to public school. More specific factories below
   factory :school, parent: :public_school
 
   factory :public_school, class: School do
     # school ids are not auto-assigned, so we have to assign one here
     id {(School.maximum(:id).to_i + 1).to_s}
+    # state_school_id must be unique
+    sequence(:state_school_id) do |n|
+      padded_n = format("%07d", n)
+      "WA-#{padded_n[0..2]}-#{padded_n[3..6]}"
+    end
     name "A seattle public school"
     city "Seattle"
     state "WA"
     zip "98122"
     school_type SchoolInfo::SCHOOL_TYPE_PUBLIC
     association :school_district
+
+    trait :without_state_school_id do
+      state_school_id nil
+    end
+
+    trait :with_invalid_state_school_id do
+      state_school_id "123456789"
+    end
   end
 
   factory :private_school, class: School do
@@ -788,5 +817,11 @@ FactoryGirl.define do
   end
 
   factory :circuit_playground_discount_application do
+  end
+
+  factory :seeded_s3_object do
+    bucket "Bucket containing object"
+    key "Object Key"
+    etag "Object etag"
   end
 end
