@@ -5,6 +5,7 @@ const ATTRIBUTES_TO_CLEAN = [
   'deletable',
   'movable',
 ];
+const DEFAULT_COLOR = [184, 1.00, 0.74];
 
 /**
  * Create the xml for a level's toolbox
@@ -369,6 +370,9 @@ const determineInputs = function (text, args) {
     const input = tokens[i + 1];
     if (input) {
       const arg = args.find(arg => arg.name === input);
+      if (!arg) {
+        throw new Error(`Could not find arg "${input}"`);
+      }
       if (arg.options) {
         inputs.push({
           mode: DROPDOWN_INPUT,
@@ -376,7 +380,7 @@ const determineInputs = function (text, args) {
           options: arg.options,
           label,
         });
-      } else if (arg.type) {
+      } else {
         inputs.push({
           mode: VALUE_INPUT,
           name: arg.name,
@@ -414,7 +418,7 @@ const interpolateInputs = function (blockly, block, inputs) {
         break;
       case VALUE_INPUT:
         block.appendValueInput(input.name)
-          .setCheck(input.type)
+          .setCheck(input.type || Blockly.BlockValueType.NONE)
           .appendTitle(input.label);
         break;
       case DUMMY_INPUT:
@@ -440,14 +444,12 @@ exports.createJsWrapperBlockCreator = function (
   blockly,
   blocksModuleName
 ) {
-
   const {
     ORDER_COMMA,
     ORDER_FUNCTION_CALL,
     ORDER_MEMBER,
     ORDER_NONE,
   } = Blockly.JavaScript;
-
   const generator = blockly.Generator.get('JavaScript');
 
   /**
@@ -496,6 +498,8 @@ exports.createJsWrapperBlockCreator = function (
       throw new Error('Expression blocks require a name');
     }
     args = args || [];
+    color = color || DEFAULT_COLOR;
+
     const blockName = `${blocksModuleName}_${name || func}`;
 
     blockly.Blocks[blockName] = {
@@ -506,11 +510,11 @@ exports.createJsWrapperBlockCreator = function (
         if (methodCall) {
           inputs.push({
             name: 'THIS',
-            type: Blockly.BlockValueType.NONE,
           });
         }
 
-        interpolateInputs(blockly, this, determineInputs(blockText, inputs));
+        exports.interpolateInputs(
+          blockly, this, exports.determineInputs(blockText, inputs));
 
         this.setInputsInline(true);
         if (returnType) {
@@ -560,7 +564,7 @@ exports.createJsWrapperBlockCreator = function (
         if (returnType !== undefined) {
           return [`${prefix}${expression}`, orderPrecedence || ORDER_NONE];
         } else {
-          return `${prefix}${expression}`;
+          return `${prefix}${expression};\n`;
         }
       }
 
