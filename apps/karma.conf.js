@@ -118,6 +118,9 @@ module.exports = function (config) {
     // how many browser should be started simultaneous
     concurrency: Infinity,
 
+    // Report tests that are slower than the given time limit (in milliseconds)
+    reportSlowerThan: 30000,
+
     // increase timeout to wait for webpack to do its thing.
     captureTimeout: 90000,
     browserNoActivityTimeout: 90000 // 60 seconds
