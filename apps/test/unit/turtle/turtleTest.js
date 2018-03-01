@@ -67,18 +67,17 @@ describe('Artist', () => {
       let imgSourceY = 0;
       let imgSourceWidth = distance;
       let imgSourceHeight = height;
-      let canvasX = -height / 4
+      let canvasX = -height / 4;
       let canvasY = -height / 2;
       let imgWidth = distance + imgSourceHeight;
       let imgHeight = height;
 
       artist.visualization = new Artist.Visualization();
       artist.visualization.currentPathPattern = img;
-      const output = sinon.spy(artist.visualization.ctxScratch, 'drawImage');
-      debugger
+      sinon.spy(artist.visualization.ctxScratch, 'drawImage');
       artist.visualization.drawForwardLineWithPattern_(-100);
 
-      expect(artist.visualization.ctxScratch.drawImage.calledWith(img,imgSourceX, imgSourceY, imgSourceWidth, imgSourceHeight, canvasX, canvasY, imgWidth, imgHeight)).to.be.true;
+      expect(artist.visualization.ctxScratch.drawImage).to.have.been.calledWith(img,imgSourceX, imgSourceY, imgSourceWidth, imgSourceHeight, canvasX, canvasY, imgWidth, imgHeight);
     });
   });
 
