@@ -16,6 +16,7 @@ import {
   CIRCUIT_PLAYGROUND_EXPRESS_EXPERIMENT,
 } from '@cdo/apps/lib/kits/maker/portScanning';
 import experiments from '@cdo/apps/util/experiments';
+import i18n from '@cdo/applab/locale';
 
 describe("maker/portScanning.js", function () {
   // Unit tests assume no support for CPX, unless they explicitly enable it.
@@ -44,7 +45,7 @@ describe("maker/portScanning.js", function () {
           .catch(err => {
             expect(err).to.be.an.instanceOf(ConnectionFailedError);
             expect(err.message).to.equal('Failed to establish a board connection.');
-            expect(err.reason).to.include('Did not find a usable device on a serial port.');
+            expect(err.reason).to.include(i18n.maker_error_deviceNotFound());
             expect(err.reason).to.include(JSON.stringify(OTHER_BAD_SERIALPORTS));
             done();
           })
