@@ -102,7 +102,7 @@ class GatekeeperBase
   # @returns [GatekeeperBase]
   def self.create
     env = rack_env.to_s
-    env = Rails.env.to_s if defined? Rails
+    env = Rails.env.to_s if defined?(Rails) && defined?(Rails.env)
 
     cache_expiration = 5
 
