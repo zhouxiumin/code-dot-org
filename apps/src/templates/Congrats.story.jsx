@@ -3,11 +3,11 @@ import Congrats from './Congrats';
 
 export default storybook => {
   return storybook
-    .storiesOf('Congrats', module)
+    .storiesOf('Congrats/FullPage', module)
     .withReduxStore()
     .addStoryTable([
       {
-        name: 'Congrats - Applab, signed out',
+        name: 'Applab, signed out',
         description: `Congrats component if Applab tutorial completed`,
         story: () => (
             <Congrats
@@ -18,7 +18,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - Applab, student',
+        name: 'Applab, student',
         description: `Congrats component if Applab tutorial completed, student`,
         story: () => (
             <Congrats
@@ -29,7 +29,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - pre-2017 Minecraft, signed out',
+        name: 'pre-2017 Minecraft, signed out',
         description: `Congrats component if either pre-2017 Minecraft tutorial completed`,
         story: () => (
             <Congrats
@@ -40,7 +40,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - pre-2017 Minecraft, student',
+        name: 'pre-2017 Minecraft, student',
         description: `Congrats component if either pre-2017 Minecraft tutorial completed`,
         story: () => (
             <Congrats
@@ -51,7 +51,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - 2017 Minecraft, signed out',
+        name: '2017 Minecraft, signed out',
         description: `Congrats component if 2017 Minecraft tutorial completed`,
         story: () => (
             <Congrats
@@ -62,7 +62,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - 2017 Minecraft, student',
+        name: '2017 Minecraft, student',
         description: `Congrats component if 2017 Minecraft tutorial completed`,
         story: () => (
             <Congrats
@@ -73,7 +73,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - other, signed out',
+        name: 'other, signed out',
         description: `Congrats component if any other Code.org tutorial completed`,
         story: () => (
             <Congrats
@@ -84,7 +84,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - other, student',
+        name: 'other, student',
         description: `Congrats component if any other Code.org tutorial completed`,
         story: () => (
             <Congrats
@@ -95,7 +95,7 @@ export default storybook => {
         )
       },
       {
-        name: 'Congrats - other, teacher',
+        name: 'other, teacher',
         description: `Congrats component if any other Code.org tutorial completed`,
         story: () => (
             <Congrats
