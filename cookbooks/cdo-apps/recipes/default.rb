@@ -53,6 +53,9 @@ unless node['cdo-secrets'] && node['cdo-secrets']['db_writer']
   include_recipe 'cdo-mysql::server'
 end
 
+# Production analytics utilities.
+include_recipe 'cdo-analytics' if %w[production-daemon production-console].include?(node.name)
+
 include_recipe 'cdo-ruby'
 
 # Ensure the correct locale is generated and set as default (e.g. for Docker containers).
@@ -114,6 +117,3 @@ include_recipe 'cdo-solr' if node['cdo-apps']['solr']
 
 # only the i18n server needs the i18n recipe
 include_recipe 'cdo-i18n' if node.name == 'i18n'
-
-# Production analytics utilities.
-include_recipe 'cdo-analytics' if %w[production-daemon production-console].include?(node.name)
