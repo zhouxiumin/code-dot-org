@@ -18,6 +18,7 @@ jobs:
           CIRCLE_ARTIFACTS: /home/circleci/project/artifacts
           DISABLE_SPRING: 1
           LD_LIBRARY_PATH: /usr/local/lib
+          LC_ALL: C
       - image: iynere/redis:2.8.4
 
     resource_class: xlarge
