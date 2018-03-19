@@ -496,7 +496,6 @@ describe('entry tests', () => {
 
     pd: './src/code-studio/pd/workshop_dashboard/workshop_dashboard.jsx',
 
-    'pd/teacher_application/new': './src/sites/studio/pages/pd/teacher_application/new.js',
     'pd/facilitator_program_registration/new': './src/sites/studio/pages/pd/facilitator_program_registration/new.js',
     'pd/regional_partner_program_registration/new': './src/sites/studio/pages/pd/regional_partner_program_registration/new.js',
     'pd/workshop_survey/new': './src/sites/studio/pages/pd/workshop_survey/new.js',
