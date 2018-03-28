@@ -281,60 +281,6 @@ blockly.Blocks.point_to = {
     return `Turtle.pointTo('${this.getTitleValue('VALUE')}',${value}, 'block_id_${this.id}');\n`;
   };
 
-blockly.Blocks.point_to_direction_non_param = {
-    // Block for pointing to a specified direction
-    helpUrl: '',
-    init: function () {
-      let angleOptions = [['30','30'],['45','45'],['90', '90'],['120','120'],['150','150'],['180','180']];
-      this.setHSV(184, 1.00, 0.74);
-      this.appendDummyInput()
-          .appendTitle(msg.pointTo());
-      this.appendDummyInput()
-          .appendTitle(new blockly.FieldAngleTextInput('VALUE'), 'DIRECTION')
-          .appendTitle(new blockly.FieldDropdown(angleOptions))
-          .appendTitle(msg.degrees());
-      this.setPreviousStatement(true);
-      this.setInputsInline(true);
-      this.setNextStatement(true);
-      this.setTooltip(msg.pointTo());
-    }
-  };
-
-  generator.point_to_direction_non_param = function () {
-    let value = window.parseFloat(this.getTitleValue('DIRECTION')) || 0;
-    return `Turtle.pointTo('${this.getTitleValue('VALUE')}',${value}, 'block_id_${this.id}');\n`;
-  };
-
-  blockly.Blocks.point_to_direction_param = {
-    // Block for pointing to a specified direction
-    helpUrl: '',
-    init: function () {
-      this.setHSV(184, 1.00, 0.74);
-
-      this.appendDummyInput()
-          .appendTitle(msg.pointTo());
-
-      this.appendValueInput('VALUE')
-          .setCheck(blockly.BlockValueType.NUMBER)
-          .addFieldHelper(blockly.BlockFieldHelper.ANGLE_HELPER, {
-            block: this
-          });
-
-      this.appendDummyInput()
-          .appendTitle(msg.degrees());
-
-      this.setPreviousStatement(true);
-      this.setInputsInline(true);
-      this.setNextStatement(true);
-      this.setTooltip(msg.pointTo());
-    }
-  };
-
-  generator.point_to_direction_non_param = function () {
-    let value = window.parseFloat(this.getTitleValue('DIRECTION')) || 0;
-    return `Turtle.pointTo('${this.getTitleValue('VALUE')}',${value}, 'block_id_${this.id}');\n`;
-  };
-
   generator.draw_turn_inline = function () {
     // Generate JavaScript for turning left or right.
     var value = window.parseFloat(this.getTitleValue('VALUE'));
