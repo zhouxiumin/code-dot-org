@@ -292,7 +292,9 @@ exports.install = function (blockly, blockInstallOptions) {
     } else if (blockName === 'point_to_direction_param') {
       block.appendValueInput('VALUE')
           .setCheck(blockly.BlockValueType.NUMBER)
-          .addFieldHelper(blockly.BlockFieldHelper.ANGLE_HELPER, {block});
+          .addFieldHelper(blockly.BlockFieldHelper.ANGLE_HELPER, {
+            block: block
+          });
       block.appendDummyInput()
           .appendTitle(msg.degrees());
     } else {
@@ -322,7 +324,7 @@ exports.install = function (blockly, blockInstallOptions) {
 
   generator.point_to_direction_by_constant_restricted = function () {
     let value = window.parseFloat(this.getTitleValue('VALUE'));
-    return `Turtle.pointTo(${this.getTitleValue('DIRECTION')}', ${value},
+    return `Turtle.pointTo('${this.getTitleValue('DIRECTION')}', ${value},
         'block_id_${this.id}');\n`;
   };
 
