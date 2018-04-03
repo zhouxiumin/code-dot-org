@@ -324,8 +324,8 @@ exports.install = function (blockly, blockInstallOptions) {
 
   generator.point_to_direction_by_constant_restricted = function () {
     let value = window.parseFloat(this.getTitleValue('VALUE'));
-    return 'Turtle.' + this.getTitleValue('DIRECTION') +
-        '(' + value + ', \'block_id_' + this.id + '\');\n';
+    return `Turtle.pointTo(${this.getTitleValue('DIRECTION')}', ${value},
+        'block_id_${this.id}');\n`;
   };
 
   blockly.Blocks.point_to_direction_param =
