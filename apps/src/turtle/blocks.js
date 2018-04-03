@@ -292,9 +292,7 @@ exports.install = function (blockly, blockInstallOptions) {
     } else if (blockName === 'point_to_direction_param') {
       block.appendValueInput('VALUE')
           .setCheck(blockly.BlockValueType.NUMBER)
-          .addFieldHelper(blockly.BlockFieldHelper.ANGLE_HELPER, {
-            block: block
-          });
+          .addFieldHelper(blockly.BlockFieldHelper.ANGLE_HELPER, {block});
       block.appendDummyInput()
           .appendTitle(msg.degrees());
     } else {
