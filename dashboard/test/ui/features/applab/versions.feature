@@ -65,7 +65,6 @@ Scenario: Project Load and Reload
   Then element "#showVersionsModal tr:contains(a minute ago):contains(Restore this Version):eq(0)" is visible
   And element "#showVersionsModal tr:contains(a minute ago):contains(Restore this Version):eq(1)" is not visible
 
-@no_ie
 Scenario: Project Version Checkpoints
   Given I am on "http://studio.code.org/projects/applab/new"
   And I rotate to landscape
@@ -85,12 +84,13 @@ Scenario: Project Version Checkpoints
   Then element "#showVersionsModal tr:contains(a minute ago):contains(Restore this Version)" is not visible
 
   When I close the dialog
+  And I press "resetButton"
   And I set the project version interval to 1 second
   And I wait for 1.5 seconds
   And I ensure droplet is in text mode
   And I add code "// comment B" to ace editor
-  And I press "resetButton"
   And I click selector "#runButton" once I see it
+  And element ".project_updated_at" eventually contains text "Saved"
   And I click selector "#versions-header"
   And I wait until element "button:contains(Current Version)" is visible
   # The version containing "comment A" is saved as a checkpoint, because the
