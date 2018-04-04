@@ -5,21 +5,18 @@ require_relative('../config/environment')
 
 puts "Starting to batch update all students under 13."
 num_students_updated = 0
-num_student_failed = 0
 
+batch_size = 10000
 min_birthday = Date.today - 13.years
-User.where('birthday IS NULL OR birthday > ?', min_birthday).find_each do |user|
-  user.sharing_disabled = true
-  result = user.save(validate: false)
-  if result
-    num_students_updated += 1
-  else
-    puts "Failed to save user #{user.id}" unless result
-    num_student_failed += 1
+User.where('birthday IS NULL OR birthday > ?', min_birthday).in_batches(of: batch_size) do |where|
+  values = where.pluck(:id, :properties)
+  values.each do |_id, properties|
+    properties['sharing_disabled'] = true
   end
-  puts "Updated #{num_students_updated} students so far." if num_students_updated % 100000 == 0
+  User.import([:id, :properties], values, validate: false, on_duplicate_key_update: [:properties])
+  num_students_updated += values.length
+  puts "Updated #{num_students_updated} students so far."
 end
 
 # Output how many total students were updated.
 puts "Finished updating #{num_students_updated} students."
-puts "Failed updating #{num_student_failed} students."
