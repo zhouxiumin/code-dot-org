@@ -123,6 +123,7 @@ class SchoolInfo < ActiveRecord::Base
             school_id: school.id
           }
         )
+        nil
       end
     end
   end
